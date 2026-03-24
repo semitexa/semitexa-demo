@@ -1,0 +1,13 @@
+{# Reusable source code display partial.
+   Used when a single source file needs to be shown without tabs. #}
+<div class="source-code">
+  {% if label is defined and label %}
+    <div class="source-code__header">
+      <span class="source-code__label">{{ label }}</span>
+      {% if className is defined and className %}
+        <span class="source-code__class">{{ className }}</span>
+      {% endif %}
+    </div>
+  {% endif %}
+  <pre class="source-code__pre"><code class="source-code__code">{{ source|default('')|e }}</code></pre>
+</div>

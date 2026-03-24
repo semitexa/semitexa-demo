@@ -1,0 +1,40 @@
+<div class="code-block" data-code-block>
+  {# Tab navigation #}
+  {% if tabs|default({})|length > 1 %}
+    <div class="code-block__tabs" role="tablist">
+      {% for label, source in tabs %}
+        <button
+          class="code-block__tab{{ loop.first ? ' code-block__tab--active' : '' }}"
+          role="tab"
+          aria-selected="{{ loop.first ? 'true' : 'false' }}"
+          aria-controls="code-panel-{{ featureSlug|default('default') }}-{{ loop.index }}"
+          data-code-tab="{{ loop.index }}"
+        >{{ label }}</button>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {# Code panels #}
+  {% for label, source in tabs|default({}) %}
+    <div
+      id="code-panel-{{ featureSlug|default('default') }}-{{ loop.index }}"
+      class="code-block__panel{{ loop.first ? ' code-block__panel--active' : '' }}"
+      role="tabpanel"
+      {% if not loop.first %}hidden{% endif %}
+    >
+      <div class="code-block__header">
+        <span class="code-block__label">{{ label }}</span>
+        <button
+          class="code-block__copy"
+          type="button"
+          title="Copy to clipboard"
+          data-copy-source="code-source-{{ featureSlug|default('default') }}-{{ loop.index }}"
+        >Copy</button>
+      </div>
+      <pre class="code-block__pre"><code
+        id="code-source-{{ featureSlug|default('default') }}-{{ loop.index }}"
+        class="code-block__code"
+      >{{ source|e }}</code></pre>
+    </div>
+  {% endfor %}
+</div>

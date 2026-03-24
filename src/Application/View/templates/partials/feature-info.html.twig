@@ -1,0 +1,34 @@
+<div class="demo-feature-info">
+  {% if what is defined and what %}
+    <section class="demo-feature-info__section">
+      <h4 class="demo-feature-info__heading">What this does</h4>
+      <p class="demo-feature-info__text">{{ what }}</p>
+    </section>
+  {% endif %}
+
+  {% if how is defined and how %}
+    <section class="demo-feature-info__section">
+      <h4 class="demo-feature-info__heading">How it works</h4>
+      <p class="demo-feature-info__text">{{ how }}</p>
+    </section>
+  {% endif %}
+
+  {% if why is defined and why %}
+    <section class="demo-feature-info__section">
+      <h4 class="demo-feature-info__heading">Why it matters</h4>
+      <p class="demo-feature-info__text">{{ why }}</p>
+    </section>
+  {% endif %}
+
+  {% if keywords is defined and keywords|length > 0 %}
+    <section class="demo-feature-info__section">
+      <h4 class="demo-feature-info__heading">Key concepts</h4>
+      <dl class="demo-feature-info__keywords">
+        {% for kw in keywords %}
+          <dt class="demo-feature-info__term">{{ kw.term }}</dt>
+          <dd class="demo-feature-info__definition">{{ kw.definition }}</dd>
+        {% endfor %}
+      </dl>
+    </section>
+  {% endif %}
+</div>

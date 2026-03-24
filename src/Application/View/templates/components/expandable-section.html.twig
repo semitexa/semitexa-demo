@@ -1,0 +1,11 @@
+<div
+  id="{{ targetId }}"
+  class="expandable-section"
+  role="region"
+  aria-expanded="{{ initiallyOpen ? 'true' : 'false' }}"
+  data-expandable
+>
+  <div class="expandable-section__inner">
+    {% block content %}{% endblock %}
+  </div>
+</div>
