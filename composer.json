@@ -1,0 +1,44 @@
+{
+    "name": "semitexa/demo",
+    "description": "Official Semitexa Framework showcase",
+    "type": "semitexa-module",
+    "version": "0.1.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Semitexa",
+            "email": "support@semitexa.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.4",
+        "semitexa/core": "*",
+        "semitexa/ssr": "*",
+        "semitexa/orm": "*",
+        "semitexa/auth": "*",
+        "semitexa/authorization": "*",
+        "semitexa/rbac": "*",
+        "semitexa/api": "*",
+        "semitexa/tenancy": "*",
+        "semitexa/locale": "*",
+        "semitexa/cache": "*",
+        "semitexa/mail": "*",
+        "semitexa/scheduler": "*",
+        "semitexa/workflow": "*",
+        "semitexa/storage": "*",
+        "semitexa/search": "*",
+        "semitexa/testing": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Semitexa\\Demo\\": "src/"
+        }
+    },
+    "extra": {
+        "semitexa-module": {
+            "extends": null,
+            "name": "Semitexa Demo",
+            "description": "Official showcase of the Semitexa Framework"
+        }
+    }
+}
