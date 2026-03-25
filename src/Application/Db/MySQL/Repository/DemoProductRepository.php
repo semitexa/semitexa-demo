@@ -18,7 +18,7 @@ final class DemoProductRepository extends AbstractRepository
     {
         return $this->select()
             ->where('tenant_id', '=', $tenantId)
-            ->limit($limit)
+            ->limit(max(1, $limit))
             ->fetchAll();
     }
 

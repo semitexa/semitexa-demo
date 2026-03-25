@@ -3,6 +3,7 @@
   class="expandable-section"
   role="region"
   aria-expanded="{{ initiallyOpen ? 'true' : 'false' }}"
+  aria-label="{{ label|default('Expandable section') }}"
   data-expandable
 >
   <div class="expandable-section__inner">

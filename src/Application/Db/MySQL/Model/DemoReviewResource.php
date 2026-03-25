@@ -33,8 +33,8 @@ class DemoReviewResource
     public string $user_id = '';
 
     #[Filterable]
-    #[Column(type: MySqlType::Int)]
-    public int $rating = 0;
+    #[Column(type: MySqlType::Int, nullable: true)]
+    public ?int $rating = null;
 
     #[Column(type: MySqlType::Text, nullable: true)]
     public ?string $body = null;

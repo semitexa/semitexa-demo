@@ -25,6 +25,12 @@
     }
   }
 
+  function syncTriggerState(targetId, expanded) {
+    document.querySelectorAll('[data-disclosure-trigger="' + targetId + '"]').forEach(function (trigger) {
+      trigger.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    });
+  }
+
   function toggleSection(targetId, forceOpen) {
     const target = document.getElementById(targetId);
     if (!target) return;
@@ -33,6 +39,7 @@
     const shouldOpen = forceOpen !== undefined ? forceOpen : !isExpanded;
 
     target.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+    syncTriggerState(targetId, shouldOpen);
 
     // Persist state
     const state = getState();
@@ -55,6 +62,13 @@
     if (!target) return;
 
     target.setAttribute('aria-expanded', 'false');
+    syncTriggerState(targetId, false);
+
+    // Restore focus to the trigger that opened this drawer
+    const trigger = document.querySelector('[data-disclosure-trigger="' + targetId + '"]');
+    if (trigger) {
+      trigger.focus();
+    }
 
     const state = getState();
     state[targetId] = false;

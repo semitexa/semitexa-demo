@@ -45,7 +45,7 @@ final class DemoJobRunRepository extends AbstractRepository
         }
 
         /** @var DemoJobRunResource $run */
-        $run->progress_percent = $percent;
+        $run->progress_percent = max(0, min(100, $percent));
         if ($message !== null) {
             $run->progress_message = $message;
         }

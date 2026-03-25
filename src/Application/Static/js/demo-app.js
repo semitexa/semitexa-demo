@@ -88,8 +88,9 @@
       var sectionKey = sectionToggle ? sectionToggle.textContent.trim().toLowerCase().replace(/\s+/g, '-') : '';
 
       // Check if this feature has been visited
+      var expectedKey = sectionKey + '/' + slug;
       for (var i = 0; i < visited.length; i++) {
-        if (visited[i].indexOf('/' + slug) !== -1) {
+        if (visited[i] === expectedKey) {
           link.classList.add('feature-tree__link--visited');
           break;
         }

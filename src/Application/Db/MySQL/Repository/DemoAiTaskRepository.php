@@ -39,29 +39,33 @@ final class DemoAiTaskRepository extends AbstractRepository
             ->fetchAll();
     }
 
-    public function updateStatus(string $id, string $status): void
+    public function updateStatus(string $id, string $status): bool
     {
         $task = $this->findById($id);
         if ($task === null) {
-            return;
+            return false;
         }
 
         /** @var DemoAiTaskResource $task */
         $task->status = $status;
 
         $this->save($task);
+
+        return true;
     }
 
-    public function updateStageResults(string $id, string $stageResultsJson): void
+    public function updateStageResults(string $id, string $stageResultsJson): bool
     {
         $task = $this->findById($id);
         if ($task === null) {
-            return;
+            return false;
         }
 
         /** @var DemoAiTaskResource $task */
         $task->stage_results = $stageResultsJson;
 
         $this->save($task);
+
+        return true;
     }
 }

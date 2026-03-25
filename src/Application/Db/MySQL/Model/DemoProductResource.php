@@ -41,7 +41,7 @@ class DemoProductResource implements FilterableResourceInterface
 
     #[Filterable]
     #[Column(type: MySqlType::Decimal, precision: 10, scale: 2)]
-    public float $price = 0.0;
+    public string $price = '0.00';
 
     #[Filterable]
     #[Column(type: MySqlType::Varchar, length: 32)]

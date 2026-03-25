@@ -24,7 +24,9 @@ final class DemoSourceCodeReader
             return '';
         }
 
-        return file_get_contents($fileName);
+        $contents = file_get_contents($fileName);
+
+        return $contents !== false ? $contents : '';
     }
 
     /**

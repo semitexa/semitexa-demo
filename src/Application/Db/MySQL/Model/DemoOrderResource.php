@@ -40,5 +40,5 @@ class DemoOrderResource implements FilterableResourceInterface
 
     #[Filterable]
     #[Column(type: MySqlType::Decimal, precision: 10, scale: 2)]
-    public float $total_amount = 0.0;
+    public string $total_amount = '0.00';
 }

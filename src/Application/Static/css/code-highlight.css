@@ -40,6 +40,11 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
+.code-block__tab:focus-visible {
+  outline: 2px solid #818cf8;
+  outline-offset: -2px;
+}
+
 .code-block__tab--active {
   color: #818cf8;
   border-bottom-color: #818cf8;
@@ -86,6 +91,11 @@
 .code-block__copy:hover {
   background: rgba(255, 255, 255, 0.08);
   color: #e2e8f0;
+}
+
+.code-block__copy:focus-visible {
+  outline: 2px solid #818cf8;
+  outline-offset: 2px;
 }
 
 /* --- Code --- */

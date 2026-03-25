@@ -167,8 +167,8 @@ final class DemoDataSeeder
      */
     public function isSeeded(): bool
     {
-        $categories = $this->categoryRepository->findAll(1);
-        return $categories !== [];
+        $categories = $this->categoryRepository->findBySlug('electronics');
+        return $categories !== null;
     }
 
     /**
@@ -205,7 +205,7 @@ final class DemoDataSeeder
             $product = new DemoProductResource();
             $product->name = $data['name'];
             $product->description = $data['description'];
-            $product->price = $data['price'];
+            $product->price = number_format($data['price'], 2, '.', '');
             $product->status = 'active';
             $product->category_id = $categoryIds[$data['category']] ?? null;
             $product->tenant_id = $tenants[$i % $tenantCount];
@@ -256,7 +256,7 @@ final class DemoDataSeeder
             $order = new DemoOrderResource();
             $order->user_id = sprintf('demo-user-%03d', ($i % 10) + 1);
             $order->status = $statuses[$i % $statusCount];
-            $order->total_amount = round(19.99 + ($i * 15.50), 2);
+            $order->total_amount = number_format(19.99 + ($i * 15.50), 2, '.', '');
             $order->tenant_id = $tenants[$i % $tenantCount];
 
             $this->orderRepository->save($order);
