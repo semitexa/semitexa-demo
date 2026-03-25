@@ -1,0 +1,14 @@
+<div class="live-result" id="{{ resultId }}">
+    <div class="live-result__controls">
+        <button
+            class="btn btn--primary"
+            data-live-endpoint="{{ endpoint }}"
+            data-live-method="{{ method }}"
+            data-live-target="{{ resultId }}-output"
+        >{{ label }}</button>
+        <span class="live-result__status" id="{{ resultId }}-status"></span>
+    </div>
+    <div class="live-result__output" id="{{ resultId }}-output">
+        <p class="live-result__placeholder">Response will appear here…</p>
+    </div>
+</div>
