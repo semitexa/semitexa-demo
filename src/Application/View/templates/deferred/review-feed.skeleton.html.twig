@@ -1,0 +1,12 @@
+<div class="deferred-block deferred-block--feed deferred-block--skeleton" data-block="review-feed">
+    <ul class="review-feed">
+        {% for i in 1..4 %}
+        <li class="review-feed__item review-feed__item--skeleton">
+            <div class="skeleton skeleton--stars"></div>
+            <div class="skeleton skeleton--text skeleton--wide"></div>
+            <div class="skeleton skeleton--text skeleton--medium"></div>
+        </li>
+        {% endfor %}
+    </ul>
+    <div class="deferred-block__label">Loading reviews…</div>
+</div>

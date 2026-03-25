@@ -34,7 +34,7 @@ final class PaginationHandler implements TypedHandlerInterface
         // Fetch all and slice for offset pagination demo
         $all = $this->productRepository->findAll(1000);
         $total = count($all);
-        $totalPages = (int) ceil($total / $limit);
+        $totalPages = $total > 0 ? (int) ceil($total / $limit) : 0;
         $items = array_slice($all, $offset, $limit);
 
         $rows = '';

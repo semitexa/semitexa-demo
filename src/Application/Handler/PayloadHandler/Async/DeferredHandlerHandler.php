@@ -51,7 +51,7 @@ final class DeferredHandlerHandler implements TypedHandlerInterface
             ->withTitle('Deferred Handler')
             ->withSummary('Heavy work runs after the response is sent — the user gets instant feedback.')
             ->withEntryLine('Heavy work runs after the response is sent — the user gets instant feedback.')
-            ->withHighlights(['EventExecution::Async', 'Swoole::Event::defer()', 'post-response', 'non-blocking'])
+            ->withHighlights(['EventExecution::Async', 'Swoole\\Event::defer()', 'post-response', 'non-blocking'])
             ->withLearnMoreLabel('See the deferred listener →')
             ->withDeepDiveLabel('How Swoole defer works →')
             ->withResultPreview($resultPreview)

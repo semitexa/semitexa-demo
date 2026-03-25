@@ -44,7 +44,7 @@ class OrmCrudPayload
     public function setName(?string $name): void { $this->name = $name; }
 
     public function getPrice(): ?float { return $this->price; }
-    public function setPrice(?float $price): void { $this->price = $price; }
+    public function setPrice(?float $price): void { $this->price = $price !== null ? max(0.0, $price) : null; }
 
     public function getStatus(): ?string { return $this->status; }
     public function setStatus(?string $status): void { $this->status = $status; }

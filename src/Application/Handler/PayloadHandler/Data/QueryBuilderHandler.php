@@ -29,6 +29,18 @@ final class QueryBuilderHandler implements TypedHandlerInterface
     {
         $products = $this->productRepository->findAll($payload->getLimit());
 
+        // Apply filters that the query snippet displays
+        if ($payload->getStatus() !== null) {
+            $products = array_filter($products, static fn($p) => $p->status === $payload->getStatus());
+        }
+        if ($payload->getMinPrice() !== null) {
+            $products = array_filter($products, static fn($p) => (float) $p->price >= $payload->getMinPrice());
+        }
+        if ($payload->getMaxPrice() !== null) {
+            $products = array_filter($products, static fn($p) => (float) $p->price <= $payload->getMaxPrice());
+        }
+        $products = array_values($products);
+
         $count = count($products);
         $rows = '';
         foreach (array_slice($products, 0, 5) as $product) {

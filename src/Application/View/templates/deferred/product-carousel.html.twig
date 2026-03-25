@@ -1,0 +1,21 @@
+<div class="deferred-block deferred-block--carousel" data-block="product-carousel">
+    <div class="carousel" data-carousel>
+        {% for product in products %}
+        <div class="carousel__item">
+            <div class="product-card">
+                <div class="product-card__name">{{ product.name }}</div>
+                <div class="product-card__price">${{ product.price }}</div>
+                <span class="badge badge--{{ product.status }}">{{ product.status }}</span>
+            </div>
+        </div>
+        {% else %}
+        <p class="deferred-block__empty">No products to display.</p>
+        {% endfor %}
+    </div>
+    {% if products|length > 1 %}
+    <div class="carousel__controls">
+        <button class="btn btn--secondary" data-carousel-prev>← Prev</button>
+        <button class="btn btn--secondary" data-carousel-next>Next →</button>
+    </div>
+    {% endif %}
+</div>

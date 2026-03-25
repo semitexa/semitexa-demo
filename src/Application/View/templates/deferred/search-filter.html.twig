@@ -1,0 +1,21 @@
+<div class="deferred-block deferred-block--filter" data-block="search-filter">
+    <form class="search-filter" data-search-filter>
+        <div class="search-filter__group">
+            <label class="search-filter__label">Category</label>
+            <select class="search-filter__select" name="category" data-filter-category>
+                <option value="">All</option>
+                {% for category in categories %}
+                <option value="{{ category.slug }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="search-filter__group">
+            <label class="search-filter__label">Price range</label>
+            <div class="search-filter__range">
+                <input type="range" name="price_min" min="{{ priceMin|default(0) }}" max="{{ priceMax|default(1000) }}" value="{{ priceMin|default(0) }}" data-filter-price-min>
+                <span class="search-filter__range-value" data-price-display>$0 – ${{ priceMax|default(1000) }}</span>
+            </div>
+        </div>
+        <button type="submit" class="btn btn--primary">Apply filters</button>
+    </form>
+</div>

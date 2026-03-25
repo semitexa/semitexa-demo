@@ -69,10 +69,11 @@ JSON;
 
         $explanation = $this->explanationProvider->getExplanation('rendering', 'assets') ?? [];
 
+        $assetsPath = dirname(__DIR__, 5) . '/Static/assets.json';
+        $assetsContent = is_readable($assetsPath) ? file_get_contents($assetsPath) : false;
+
         $sourceCode = [
-            'assets.json' => file_get_contents(
-                dirname(__DIR__, 5) . '/Static/assets.json'
-            ) ?: '// assets.json not found',
+            'assets.json' => $assetsContent !== false ? $assetsContent : '// assets.json not found',
         ];
 
         return $resource

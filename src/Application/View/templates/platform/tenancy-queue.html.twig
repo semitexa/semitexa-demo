@@ -1,0 +1,69 @@
+{% extends '@project-layouts-semitexa-demo/layouts/demo-feature.html.twig' %}
+
+{% block feature_title %}Queue Tenant Propagation{% endblock %}
+{% block feature_summary %}Tenant context travels with queued jobs — _tenant key injected automatically.{% endblock %}
+
+{% block feature_l1 %}
+<div class="feature-l1">
+    <p class="feature-entry">Tenant context travels with queued jobs — no manual propagation.</p>
+
+    <div class="queue-viz">
+        <div class="queue-viz__producer">
+            <h4>Producer (request context)</h4>
+            <div class="code-block"><pre>// Dispatch while tenant = '{{ tenantContext.org }}'
+$serializer->wrap([
+    'action' => 'generate_report',
+    'product_id' => 42,
+]);
+// ↓ _tenant injected automatically</pre></div>
+        </div>
+
+        <div class="queue-viz__arrow">→ queue →</div>
+
+        <div class="queue-viz__payload">
+            <h4>Serialized payload</h4>
+            <div class="code-block"><pre>{{ serializedPayload|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre></div>
+        </div>
+
+        <div class="queue-viz__arrow">→ worker →</div>
+
+        <div class="queue-viz__worker">
+            <h4>Worker side</h4>
+            {% for step in workerSteps %}
+                <div class="worker-step">
+                    <span class="worker-step__num">{{ step.step }}</span>
+                    <div>
+                        <code>{{ step.label }}</code>
+                        <div class="muted">{{ step.detail }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block feature_l2 %}
+<div class="feature-l2">
+    <h3>Wrap and unwrap API</h3>
+    <div class="code-block"><pre>$serializer = new TenantAwareJobSerializer();
+
+// Producer:
+$payload = $serializer->wrap(['action' => 'generate_report', 'product_id' => 42]);
+// → ['action' => ..., '_tenant' => ['org' => 'acme', 'locale' => 'en', ...]]
+
+// Worker:
+[$cleanPayload, $tenantContext] = $serializer->unwrap($queueMessage);
+TenantContext::set($tenantContext);
+// ORM, templates, everything scoped to 'acme' now</pre></div>
+    <p>Design decision: the <em>default</em> tenant (no active context) is NOT propagated — only explicit tenant contexts travel.</p>
+</div>
+{% endblock %}
+
+{% block feature_l3 %}
+<div class="feature-l3">
+    <h3>Why this matters for SaaS</h3>
+    <p>Without tenant propagation, a queued job runs in the wrong scope — a report job for Acme reads Globex's data. Every job needs manual <code>tenant_id</code> plumbing.</p>
+    <p>With <code>TenantAwareJobSerializer</code>, tenant context is an invisible envelope on every job. Workers restore it transparently. Zero plumbing in application code.</p>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends '@project-layouts-semitexa-demo/layouts/demo-feature.html.twig' %}
+
+{% block feature_title %}Multi-Layer Tenancy{% endblock %}
+{% block feature_summary %}Four independent layers compose into one TenantContext — configure each independently.{% endblock %}
+
+{% block feature_l1 %}
+<div class="feature-l1">
+    <p class="feature-entry">Organization → Locale → Theme → Environment. Each layer has its own strategy. One <code>TenantContext</code>.</p>
+
+    <div class="layer-diagram">
+        {% for layer in layers %}
+            <div class="layer-node layer-node--{{ loop.index }}">
+                <div class="layer-node__order">{{ layer.order }}</div>
+                <div class="layer-node__name">{{ layer.name }}</div>
+                <div class="layer-node__desc">{{ layer.description }}</div>
+                <div class="layer-node__resolves"><code>{{ layer.resolves }}</code></div>
+                <div class="layer-node__strategy">via <code>{{ layer.strategy }}</code></div>
+            </div>
+            {% if not loop.last %}<div class="layer-arrow">↓</div>{% endif %}
+        {% endfor %}
+        <div class="layer-result">
+            <span class="badge badge--success">TenantContext { org, locale, theme, env }</span>
+        </div>
+    </div>
+
+    <h3 style="margin-top: 2rem">Organization × Theme Matrix</h3>
+    <table class="data-table">
+        <thead><tr><th>Tenant</th><th>Organization</th><th>Theme</th><th>Locale</th><th>Color</th></tr></thead>
+        <tbody>
+            {% for row in matrix %}
+                <tr>
+                    <td><strong>{{ row.displayName }}</strong></td>
+                    <td><code>{{ row.organization }}</code></td>
+                    <td><code>{{ row.theme }}</code></td>
+                    <td><code>{{ row.locale }}</code></td>
+                    <td><span class="color-swatch" style="background: {{ row.color }}; width: 1rem; height: 1rem; display: inline-block; border-radius: 50%; vertical-align: middle"></span> <code>{{ row.color }}</code></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block feature_l2 %}
+<div class="feature-l2">
+    <h3>Configuring a multilayer resolver</h3>
+    <div class="code-block"><pre>$multilayer = new MultilayerTenantResolver([
+    new LayerDefinition(new OrganizationLayer(), new OrganizationStrategy()),
+    new LayerDefinition(new LocaleLayer(),       new LocaleStrategy()),
+    new LayerDefinition(new ThemeLayer(),        new ThemeStrategy()),
+    new LayerDefinition(new EnvironmentLayer(),  new EnvironmentStrategy()),
+]);</pre></div>
+    <p>Each layer is configured once. You can swap any strategy without touching the others.</p>
+</div>
+{% endblock %}
+
+{% block feature_l3 %}
+<div class="feature-l3">
+    <h3>MultilayerTenantResolver internals</h3>
+    <p>Each <code>LayerDefinition</code> pairs a <em>layer type</em> with a <em>resolver strategy</em>. The resolver runs all strategies, builds each layer independently, then merges them into a single immutable <code>TenantContext</code>.</p>
+    <p>Layers are resolved in order but are logically independent — <code>ThemeLayer</code> resolution never depends on <code>LocaleLayer</code> output.</p>
+</div>
+{% endblock %}

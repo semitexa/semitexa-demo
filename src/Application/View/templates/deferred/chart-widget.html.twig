@@ -1,0 +1,10 @@
+<div class="deferred-block deferred-block--chart" data-block="chart-widget">
+    <canvas
+        class="chart-canvas"
+        data-chart-type="{{ chartType|default('bar') }}"
+        data-chart-data="{{ chartData|json_encode }}"
+        width="400"
+        height="200"
+        aria-label="Demo chart"
+    ></canvas>
+</div>

@@ -9,7 +9,7 @@ use Semitexa\Core\Attributes\AsEvent;
 #[AsEvent]
 final class DemoNotificationEvent
 {
-    private string $message;
+    private string $message = '';
     private string $level = 'info';
     private ?string $targetUserId = null;
 

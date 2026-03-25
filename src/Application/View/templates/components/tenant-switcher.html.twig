@@ -1,0 +1,15 @@
+<div class="tenant-switcher" data-tenant-switcher>
+    {% for tenant in tenants %}
+        <button
+            class="tenant-dot{% if tenant.id == activeTenant %} tenant-dot--active{% endif %}"
+            style="--tenant-color: {{ tenant.color }}"
+            data-tenant-id="{{ tenant.id }}"
+            title="{{ tenant.label }}"
+            aria-label="Switch to {{ tenant.label }}"
+        >
+            <span class="tenant-dot__color"></span>
+            <span class="tenant-dot__label">{{ tenant.label }}</span>
+        </button>
+    {% endfor %}
+    <span class="tenant-switcher__hint">Active: <strong data-active-tenant-label>{{ activeTenant }}</strong></span>
+</div>

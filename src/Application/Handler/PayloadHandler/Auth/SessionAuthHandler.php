@@ -50,6 +50,7 @@ final class SessionAuthHandler implements TypedHandlerInterface
         } elseif ($payload->getAction() === 'logout') {
             $segment->logout();
             $this->session?->setPayload($segment);
+            $this->session?->regenerate();
         }
 
         $currentRole = $segment->getDemoRole();

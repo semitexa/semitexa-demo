@@ -31,20 +31,25 @@ final class OrmCrudHandler implements TypedHandlerInterface
         $action = $payload->getAction();
 
         if ($action === 'create' && $payload->getName() !== null) {
+            $price = $payload->getPrice() ?? 9.99;
+            if ($price < 0 || $price > 99999.99) {
+                $price = 9.99;
+            }
+
             $product = new DemoProductResource();
             $product->name = $payload->getName();
-            $product->price = $payload->getPrice() ?? 9.99;
+            $product->price = number_format($price, 2, '.', '');
             $product->status = 'active';
             $product->tenant_id = 'demo';
             $this->productRepository->save($product);
         } elseif ($action === 'delete' && $payload->getProductId() !== null) {
             $product = $this->productRepository->findById($payload->getProductId());
-            if ($product !== null) {
+            if ($product !== null && $product->tenant_id === 'demo') {
                 $this->productRepository->delete($product);
             }
         }
 
-        $products = $this->productRepository->findAll(8);
+        $products = $this->productRepository->findByTenant('demo', 8);
 
         $rows = '';
         foreach ($products as $product) {

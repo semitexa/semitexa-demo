@@ -1,0 +1,16 @@
+<div class="deferred-block deferred-block--feed" data-block="review-feed">
+    <ul class="review-feed">
+        {% for review in reviews %}
+        <li class="review-feed__item">
+            <div class="review-feed__rating">
+                {% for i in 1..5 %}
+                    <span class="star {% if i <= review.rating %}star--filled{% endif %}">★</span>
+                {% endfor %}
+            </div>
+            <p class="review-feed__body">{{ review.body }}</p>
+        </li>
+        {% else %}
+        <li class="deferred-block__empty">No reviews yet.</li>
+        {% endfor %}
+    </ul>
+</div>

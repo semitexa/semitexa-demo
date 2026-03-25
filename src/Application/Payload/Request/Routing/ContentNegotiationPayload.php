@@ -11,10 +11,10 @@ use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
-    path: '/demo/routing/products',
-    methods: ['GET'],
     responseWith: DemoFeatureResource::class,
     produces: ['application/json', 'text/html'],
+    path: '/demo/routing/products',
+    methods: ['GET'],
 )]
 #[DemoFeature(
     section: 'routing',

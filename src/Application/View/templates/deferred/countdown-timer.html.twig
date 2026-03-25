@@ -1,0 +1,9 @@
+<div class="deferred-block deferred-block--countdown" data-block="countdown-timer" data-instance="{{ instanceId|default('timer-1') }}">
+    <div class="countdown" data-countdown data-duration="{{ duration|default(60) }}">
+        <span class="countdown__label">{{ label|default('Countdown') }}</span>
+        <span class="countdown__display" data-countdown-display>{{ duration|default(60) }}s</span>
+        <div class="countdown__bar">
+            <div class="countdown__progress" data-countdown-progress style="width:100%"></div>
+        </div>
+    </div>
+</div>

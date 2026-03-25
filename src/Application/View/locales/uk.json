@@ -1,0 +1,19 @@
+{
+    "product_count": {"one": "{count} товар", "few": "{count} товари", "many": "{count} товарів", "other": "{count} товару"},
+    "welcome": "Ласкаво просимо до {tenant_name}",
+    "checkout_button": "Оформити замовлення",
+    "add_to_cart": "Додати до кошика",
+    "view_details": "Детальніше",
+    "price_label": "Ціна",
+    "rating_label": "Рейтинг",
+    "reviews_label": "Відгуки",
+    "no_products": "Товарів не знайдено.",
+    "search_placeholder": "Пошук товарів…",
+    "category_label": "Категорія",
+    "sort_by": "Сортувати за",
+    "filter_label": "Фільтри",
+    "page_title": "Каталог товарів",
+    "currency_symbol": "₴",
+    "date_format": "DD.MM.YYYY",
+    "locale_name": "Українська"
+}
