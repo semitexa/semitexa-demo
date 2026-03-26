@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Service;
 
+use Semitexa\Core\Attributes\AsService;
 use Semitexa\Demo\Domain\Contract\DemoTenantConfigProviderInterface;
 use Semitexa\Demo\Domain\Model\DemoTenantConfig;
 
@@ -11,6 +12,7 @@ use Semitexa\Demo\Domain\Model\DemoTenantConfig;
  * Hard-coded demo tenant configurations — no DB dependency.
  * Acme Corp (blue, serif, USD), Globex Inc (green, modern, EUR), Initech Ltd (orange, minimal, UAH).
  */
+#[AsService]
 final class DemoTenantConfigProvider implements DemoTenantConfigProviderInterface
 {
     /** @var array<string, DemoTenantConfig> */

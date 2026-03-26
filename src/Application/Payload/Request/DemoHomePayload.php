@@ -10,9 +10,9 @@ use Semitexa\Demo\Application\Resource\Response\DemoHomeResource;
 
 #[PublicEndpoint]
 #[AsPayload(
+    responseWith: DemoHomeResource::class,
     path: '/demo',
     methods: ['GET'],
-    responseWith: DemoHomeResource::class,
 )]
 class DemoHomePayload
 {

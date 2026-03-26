@@ -10,9 +10,9 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 
 #[PublicEndpoint]
 #[AsPayload(
-    path: '/demo/rendering/reactive-ai/submit',
-    methods: ['POST'],
     responseWith: DemoFeatureResource::class,
+    path: '/demo/rendering/reactive-ai/submit',
+    methods: ['GET', 'POST'],
 )]
 class AiTaskSubmitPayload
 {

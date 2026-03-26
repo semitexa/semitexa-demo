@@ -9,7 +9,7 @@ use Semitexa\Demo\Application\Db\MySQL\Repository\DemoAiTaskRepository;
 use Semitexa\Demo\Application\Service\DemoAiTextProcessor;
 use Semitexa\Scheduler\Attribute\AsScheduledJob;
 use Semitexa\Scheduler\Contract\ScheduledJobInterface;
-use Semitexa\Scheduler\Context\ScheduledJobContext;
+use Semitexa\Scheduler\Domain\Value\ScheduledJobContext;
 
 #[AsScheduledJob(
     key: 'demo.ai_task_processor',

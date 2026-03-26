@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Service;
 
+use Semitexa\Core\Attributes\AsService;
 use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoJobRunRepository;
 
+#[AsService]
 final class DemoProductImporter
 {
     private const TOTAL_ROWS = 200;

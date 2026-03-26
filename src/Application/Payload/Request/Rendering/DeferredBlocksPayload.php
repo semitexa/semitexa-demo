@@ -6,14 +6,14 @@ namespace Semitexa\Demo\Application\Payload\Request\Rendering;
 
 use Semitexa\Authorization\Attributes\PublicEndpoint;
 use Semitexa\Core\Attributes\AsPayload;
-use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Resource\Response\DeferredBlocksDemoResource;
 use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
     path: '/demo/rendering/deferred',
     methods: ['GET'],
-    responseWith: DemoFeatureResource::class,
+    responseWith: DeferredBlocksDemoResource::class,
 )]
 #[DemoFeature(
     section: 'rendering',

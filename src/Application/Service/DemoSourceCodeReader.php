@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Service;
 
+use Semitexa\Core\Attributes\AsService;
+
 /**
  * Reads PHP source files and extracts attribute metadata for display in the demo UI.
  *
  * Uses ReflectionClass to locate files — source shown is always the running code.
  */
+#[AsService]
 final class DemoSourceCodeReader
 {
     public function readClassSource(string $className): string

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Service;
 
+use Semitexa\Core\Attributes\AsService;
+
 /**
  * Provides structured explanation data for each demo feature.
  *
@@ -11,6 +13,7 @@ namespace Semitexa\Demo\Application\Service;
  * This keeps content manageable and enables future export
  * (docs generation, onboarding wizard, etc.).
  */
+#[AsService]
 final class DemoExplanationProvider
 {
     /**

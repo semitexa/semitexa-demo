@@ -8,7 +8,7 @@ use Semitexa\Ssr\Attributes\AsSlotResource;
 use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
 
 #[AsSlotResource(
-    handle: 'demo_deferred_encapsulation',
+    handle: 'demo_deferred_blocks',
     slot: 'deferred_countdown',
     template: '@project-layouts-semitexa-demo/deferred/countdown-timer.html.twig',
     deferred: true,

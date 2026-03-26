@@ -10,7 +10,7 @@ use Semitexa\Demo\Application\Db\MySQL\Repository\DemoJobRunRepository;
 use Semitexa\Demo\Application\Service\DemoProductImporter;
 use Semitexa\Scheduler\Attribute\AsScheduledJob;
 use Semitexa\Scheduler\Contract\ScheduledJobInterface;
-use Semitexa\Scheduler\Context\ScheduledJobContext;
+use Semitexa\Scheduler\Domain\Value\ScheduledJobContext;
 
 #[AsScheduledJob(
     key: 'demo.product_import',

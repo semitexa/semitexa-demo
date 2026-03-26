@@ -8,7 +8,7 @@ use Semitexa\Ssr\Attributes\AsSlotResource;
 use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
 
 #[AsSlotResource(
-    handle: 'demo_deferred_live',
+    handle: 'demo_deferred_blocks',
     slot: 'deferred_notification',
     template: '@project-layouts-semitexa-demo/deferred/notification-bell.html.twig',
     deferred: true,

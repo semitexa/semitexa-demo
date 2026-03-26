@@ -6,9 +6,11 @@ namespace Semitexa\Demo\Application\Service;
 
 use JsonException;
 use Random\RandomException;
+use Semitexa\Core\Attributes\AsService;
 use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoAiTaskRepository;
 
+#[AsService]
 final class DemoAiTextProcessor
 {
     private const array STAGES = ['parse', 'analyze', 'generate', 'format'];

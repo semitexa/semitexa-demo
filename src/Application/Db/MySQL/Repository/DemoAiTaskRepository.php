@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Db\MySQL\Repository;
 
+use Semitexa\Core\Attributes\AsService;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoAiTaskResource;
 use Semitexa\Orm\Repository\AbstractRepository;
 
+#[AsService]
 final class DemoAiTaskRepository extends AbstractRepository
 {
     protected function getResourceClass(): string

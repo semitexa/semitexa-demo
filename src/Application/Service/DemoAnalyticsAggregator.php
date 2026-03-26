@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Service;
 
+use Semitexa\Core\Attributes\AsService;
 use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoAnalyticsSnapshotResource;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoAnalyticsSnapshotRepository;
 
+#[AsService]
 final class DemoAnalyticsAggregator
 {
     private const METRIC_TYPES = ['pageviews', 'conversions', 'top_products'];

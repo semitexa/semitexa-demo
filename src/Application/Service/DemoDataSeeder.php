@@ -18,7 +18,9 @@ use Semitexa\Demo\Application\Db\MySQL\Repository\DemoJobRunRepository;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoOrderRepository;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoReviewRepository;
+use Semitexa\Core\Attributes\AsService;
 
+#[AsService]
 final class DemoDataSeeder
 {
     private const TENANTS = ['acme', 'globex', 'initech'];

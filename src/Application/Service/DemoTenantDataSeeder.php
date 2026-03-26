@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Service;
 
+use Semitexa\Core\Attributes\AsService;
 use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
 
@@ -11,6 +12,7 @@ use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
  * Reports per-tenant data counts for the tenancy isolation demo.
  * Does not seed additional data — relies on DemoDataSeeder having run.
  */
+#[AsService]
 final class DemoTenantDataSeeder
 {
     #[InjectAsReadonly]

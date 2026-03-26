@@ -8,7 +8,7 @@ use Semitexa\Ssr\Attributes\AsSlotResource;
 use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
 
 #[AsSlotResource(
-    handle: 'demo_deferred_scripts',
+    handle: 'demo_deferred_blocks',
     slot: 'deferred_search_filter',
     template: '@project-layouts-semitexa-demo/deferred/search-filter.html.twig',
     deferred: true,

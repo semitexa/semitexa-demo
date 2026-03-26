@@ -1,26 +1,18 @@
 {% extends '@project-layouts-semitexa-demo/layouts/demo-layout.html.twig' %}
 
-{% block title %}{{ featureTitle|default('Feature') }} — Semitexa Demo{% endblock %}
+{% block title %}{{ featureTitle|default('Deferred Blocks') }} — Semitexa Demo{% endblock %}
 
 {% block main %}
   <article class="feature-detail" data-section="{{ section }}" data-slug="{{ slug }}">
 
     {# ================================================================
-       L1 — ENTRY ZONE (always visible on page load)
-       One-sentence entry + result preview. No code. No architecture.
+       L1 — ENTRY ZONE
        ================================================================ #}
     <section class="feature-detail__l1">
       <header class="feature-detail__header">
         <h1 class="feature-detail__title">{{ featureTitle }}</h1>
         <p class="feature-detail__entry-line">{{ entryLine }}</p>
       </header>
-
-      {# Animated result preview area #}
-      {% if resultPreview is defined and resultPreview %}
-        <div class="feature-detail__preview" aria-label="Result preview">
-          {{ resultPreview|raw }}
-        </div>
-      {% endif %}
 
       {# Highlight badges #}
       {% if highlights is defined and highlights|length > 0 %}
@@ -33,47 +25,41 @@
     </section>
 
     {# ================================================================
+       DEFERRED BLOCKS DEMO — always visible, loaded via SSE
+       ================================================================ #}
+    <section class="feature-detail__deferred-demo">
+      <div class="deferred-blocks-grid">
+        {{ layout_slot_deferred('deferred_product_carousel') }}
+        {{ layout_slot_deferred('deferred_review_feed') }}
+        {{ layout_slot_deferred('deferred_chart_widget') }}
+        {{ layout_slot_deferred('deferred_search_filter') }}
+        {{ layout_slot_deferred('deferred_notification') }}
+        {{ layout_slot_deferred('deferred_countdown') }}
+      </div>
+    </section>
+
+    {# ================================================================
        L1 → L2 DISCLOSURE PROMPT
        ================================================================ #}
     {% include '@project-layouts-semitexa-demo/components/disclosure-prompt.html.twig' with {
-      label: learnMoreLabel|default('Try it yourself →'),
+      label: learnMoreLabel|default('How it works →'),
       variant: 'learnMore',
       target: 'l2-' ~ section ~ '-' ~ slug,
     } only %}
 
     {# ================================================================
-       L2 — INTERMEDIATE ZONE (collapsed, one click from L1)
-       Code walkthrough + interactive controls + deepDive prompt.
+       L2 — CODE WALKTHROUGH
        ================================================================ #}
     <div id="l2-{{ section }}-{{ slug }}" class="expandable-section" aria-expanded="false" data-expandable>
       <div class="expandable-section__inner">
         <div class="feature-detail__l2">
 
-          {# Code tabs — Payload / Handler / Resource / Template #}
+          {# Code tabs #}
           {% if sourceCode is defined and sourceCode|length > 0 %}
             {% include '@project-layouts-semitexa-demo/components/code-block.html.twig' with {
               tabs: sourceCode,
               featureSlug: slug,
             } only %}
-          {% endif %}
-
-          {# Custom L2 content from handler #}
-          {% if l2Content is defined and l2Content %}
-            <div class="feature-detail__l2-extra">
-              {{ l2Content|raw }}
-            </div>
-          {% endif %}
-
-          {# Related features (allowed at L2) #}
-          {% if relatedPayloads is defined and relatedPayloads|length > 0 %}
-            <div class="feature-detail__related">
-              <h3 class="feature-detail__related-heading">Related features</h3>
-              <ul class="feature-detail__related-list">
-                {% for related in relatedPayloads %}
-                  <li><a href="/demo/{{ related }}">{{ related }}</a></li>
-                {% endfor %}
-              </ul>
-            </div>
           {% endif %}
 
           {# L2 → L3 disclosure prompt #}
@@ -87,8 +73,7 @@
     </div>
 
     {# ================================================================
-       L3 — ADVANCED ZONE (hidden, two clicks from L1)
-       Architecture internals, integration callouts, edge cases.
+       L3 — DEEP DIVE DRAWER
        ================================================================ #}
     <div id="l3-{{ section }}-{{ slug }}" class="deep-dive-drawer" aria-expanded="false" data-drawer>
       <div class="deep-dive-drawer__overlay" data-drawer-close></div>
@@ -96,8 +81,6 @@
         <button class="deep-dive-drawer__close" type="button" aria-label="Close details panel" data-drawer-close>&times;</button>
         <div class="deep-dive-drawer__content">
           <div class="feature-detail__l3">
-
-            {# Explanation deep context #}
             {% if explanation is defined %}
               {% if explanation.how is defined and explanation.how %}
                 <section class="feature-detail__l3-section">
@@ -123,14 +106,6 @@
                 </section>
               {% endif %}
             {% endif %}
-
-            {# Custom L3 content from handler #}
-            {% if l3Content is defined and l3Content %}
-              <div class="feature-detail__l3-extra">
-                {{ l3Content|raw }}
-              </div>
-            {% endif %}
-
           </div>
         </div>
       </div>
