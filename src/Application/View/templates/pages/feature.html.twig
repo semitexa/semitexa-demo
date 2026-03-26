@@ -17,7 +17,11 @@
       </header>
 
       {# Animated result preview area #}
-      {% if resultPreview is defined and resultPreview %}
+      {% if resultPreviewTemplate is defined and resultPreviewTemplate %}
+        <div class="feature-detail__preview" aria-label="Result preview">
+          {% include resultPreviewTemplate with resultPreviewData|default({}) only %}
+        </div>
+      {% elseif resultPreview is defined and resultPreview %}
         <div class="feature-detail__preview" aria-label="Result preview">
           {{ resultPreview|raw }}
         </div>

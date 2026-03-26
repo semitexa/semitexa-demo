@@ -13,7 +13,10 @@
     {# --- Top navigation bar --- #}
     <header class="demo-header">
       {% block header %}
-        {{ layout_slot('demo_nav') }}
+        {% include '@project-layouts-semitexa-demo/partials/nav.html.twig' with {
+          sections: navSections|default(featureTree|default(sections|default([]))),
+          currentSection: currentSection|default(null),
+        } only %}
       {% endblock %}
     </header>
 
@@ -23,7 +26,11 @@
       {# Sidebar: feature tree navigation (240px) #}
       <aside class="demo-layout__sidebar" aria-label="Feature navigation">
         {% block sidebar %}
-          {{ layout_slot('demo_sidebar') }}
+          {% include '@project-layouts-semitexa-demo/partials/sidebar.html.twig' with {
+            featureTree: featureTree|default(navSections|default(sections|default([]))),
+            currentSection: currentSection|default(null),
+            currentSlug: currentSlug|default(null),
+          } only %}
         {% endblock %}
       </aside>
 
@@ -39,7 +46,12 @@
       {# Info panel: What / How / Why (280px) #}
       <aside class="demo-layout__info" aria-label="Feature information">
         {% block info_panel %}
-          {{ layout_slot('demo_feature_info') }}
+          {% include '@project-layouts-semitexa-demo/partials/feature-info.html.twig' with {
+            what: infoWhat|default(summary|default(sectionSummary|default(null))),
+            how: infoHow|default(null),
+            why: infoWhy|default(null),
+            keywords: infoKeywords|default([]),
+          } only %}
         {% endblock %}
       </aside>
 

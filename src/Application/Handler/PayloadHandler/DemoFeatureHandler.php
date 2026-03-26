@@ -10,6 +10,7 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Exception\NotFoundException;
 use Semitexa\Demo\Application\Payload\Request\DemoFeaturePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoFeatureRegistry;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
@@ -25,6 +26,9 @@ final class DemoFeatureHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
 
     public function handle(DemoFeaturePayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
@@ -60,6 +64,16 @@ final class DemoFeatureHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle($feature->title . ' — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => $section,
+                'currentSlug' => $slug,
+                'infoWhat' => $explanation['what'] ?? $feature->summary,
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection($section)
             ->withSlug($slug)
             ->withTitle($feature->title)

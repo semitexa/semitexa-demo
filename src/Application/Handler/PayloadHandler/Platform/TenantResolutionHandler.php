@@ -9,6 +9,7 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Platform\TenantResolutionPayload;
 use Semitexa\Demo\Application\Resource\Platform\DemoTenantResolutionResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: TenantResolutionPayload::class, resource: DemoTenantResolutionResource::class)]
@@ -48,6 +49,9 @@ final class TenantResolutionHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(TenantResolutionPayload $payload, DemoTenantResolutionResource $resource): DemoTenantResolutionResource
     {
         $activeTab = $payload->getTab() ?? 'header';
@@ -57,6 +61,15 @@ final class TenantResolutionHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Tenant Resolution Strategies — Semitexa Demo')
+            ->withNavSections($this->catalog->getSections())
+            ->withFeatureTree($this->catalog->getFeatureTree())
+            ->withCurrentSection('platform')
+            ->withCurrentSlug('tenancy-resolution')
+            ->withInfoPanel(
+                'See which strategy resolved the active tenant and why that resolution order matters.',
+                'The resolver chain tries subdomain, header, path, and query strategies in priority order until one returns a tenant.',
+                'Tenant identity is the root of platform isolation. If this layer is vague, everything above it becomes unsafe.',
+            )
             ->withStrategies($strategies)
             ->withActiveTab($activeTab)
             ->withResolvedTenant('acme')

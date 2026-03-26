@@ -1,0 +1,81 @@
+<div class="preview-card">
+  {% if eyebrow is defined and eyebrow %}
+    <p class="preview-card__eyebrow">{{ eyebrow }}</p>
+  {% endif %}
+  {% if title is defined and title %}
+    <h3 class="preview-card__title">{{ title }}</h3>
+  {% endif %}
+  {% if summary is defined and summary %}
+    <p class="preview-card__summary">{{ summary }}</p>
+  {% endif %}
+
+  {% if activeFilters is defined and activeFilters|length > 0 %}
+    <div class="preview-card__chips">
+      {% for filter in activeFilters %}
+        <span class="preview-chip">{{ filter }}</span>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if stats is defined and stats|length > 0 %}
+    <div class="preview-stats">
+      {% for stat in stats %}
+        <div class="preview-stats__item">
+          <span class="preview-stats__value">{{ stat.value }}</span>
+          <span class="preview-stats__label">{{ stat.label }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if codeSnippet is defined and codeSnippet %}
+    <pre class="preview-code"><code>{{ codeSnippet }}</code></pre>
+  {% endif %}
+
+  <div class="preview-table-wrap">
+    <table class="preview-table">
+      <thead>
+        <tr>
+          {% for column in columns|default([]) %}
+            <th>{{ column }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% if rows|default([])|length > 0 %}
+          {% for row in rows %}
+            <tr>
+              {% for cell in row %}
+                <td>
+                  {% if cell.variant is defined and cell.variant %}
+                    <span class="preview-pill preview-pill--{{ cell.variant }}">{{ cell.text }}</span>
+                  {% elseif cell.code is defined and cell.code %}
+                    <code>{{ cell.text }}</code>
+                  {% else %}
+                    {{ cell.text }}
+                  {% endif %}
+                </td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="{{ columns|default([])|length }}">{{ emptyMessage|default('No rows available.') }}</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if actions is defined and actions|length > 0 %}
+    <div class="preview-actions">
+      {% for action in actions %}
+        {% if action.href is defined %}
+          <a href="{{ action.href }}" class="preview-button preview-button--{{ action.variant|default('secondary') }}">{{ action.label }}</a>
+        {% else %}
+          <span class="preview-button preview-button--disabled">{{ action.label }}</span>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>

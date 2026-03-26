@@ -23,19 +23,6 @@ final class SseStreamHandler implements TypedHandlerInterface
 
     public function handle(SseStreamPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $resultPreview = '<div class="result-preview" id="sse-demo">'
-            . '<p>SSE establishes a persistent HTTP connection using <code>text/event-stream</code>. '
-            . 'The server pushes named events; the browser handles them with <code>EventSource</code>.</p>'
-            . '<div class="sse-live-panel">'
-            . '<div class="sse-status" id="sse-status"><span class="badge badge--warning">Disconnected</span></div>'
-            . '<ul class="sse-event-log" id="sse-event-log"><li class="sse-placeholder">Events will appear here…</li></ul>'
-            . '<div class="sse-controls">'
-            . '<button class="btn btn--primary" id="sse-connect">Connect to SSE stream →</button>'
-            . '<button class="btn btn--secondary" id="sse-disconnect" style="display:none">Disconnect</button>'
-            . '</div>'
-            . '</div>'
-            . '</div>';
-
         $explanation = $this->explanationProvider->getExplanation('events', 'sse') ?? [];
 
         $sourceCode = [
@@ -53,7 +40,7 @@ final class SseStreamHandler implements TypedHandlerInterface
             ->withHighlights(['SseEndpointHandler', 'AsyncResourceSseServer', 'EventSource', 'text/event-stream'])
             ->withLearnMoreLabel('See the SSE handler →')
             ->withDeepDiveLabel('SSE connection lifecycle →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/sse-stream.html.twig')
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

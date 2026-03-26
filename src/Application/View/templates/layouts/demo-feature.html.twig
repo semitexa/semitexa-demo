@@ -1,0 +1,48 @@
+{% extends '@project-layouts-semitexa-demo/layouts/demo-layout.html.twig' %}
+
+{% block title %}{{ block('feature_title') }} — Semitexa Demo{% endblock %}
+
+{% block main %}
+  {% set domKey = (currentSection|default('feature') ~ '-' ~ currentSlug|default('detail'))|lower|replace({' ': '-', '/': '-', '\\': '-', '_': '-'}) %}
+  <article class="feature-detail" data-section="{{ currentSection|default('') }}" data-slug="{{ currentSlug|default('') }}">
+    <section class="feature-detail__l1">
+      <header class="feature-detail__header">
+        <h1 class="feature-detail__title">{% block feature_title %}Demo Feature{% endblock %}</h1>
+        <p class="feature-detail__entry-line">{% block feature_summary %}{% endblock %}</p>
+      </header>
+      {% block feature_l1 %}{% endblock %}
+    </section>
+
+    {% include '@project-layouts-semitexa-demo/components/disclosure-prompt.html.twig' with {
+      label: 'Try it yourself →',
+      variant: 'learnMore',
+      target: 'l2-' ~ domKey,
+    } only %}
+
+    <div id="l2-{{ domKey }}" class="expandable-section" data-expanded="false" data-expandable>
+      <div class="expandable-section__inner">
+        <div class="feature-detail__l2">
+          {% block feature_l2 %}{% endblock %}
+
+          {% include '@project-layouts-semitexa-demo/components/disclosure-prompt.html.twig' with {
+            label: 'Under the hood →',
+            variant: 'deepDive',
+            target: 'l3-' ~ domKey,
+          } only %}
+        </div>
+      </div>
+    </div>
+
+    <div id="l3-{{ domKey }}" class="deep-dive-drawer" data-expanded="false" data-drawer>
+      <div class="deep-dive-drawer__overlay" data-drawer-close></div>
+      <div class="deep-dive-drawer__panel">
+        <button class="deep-dive-drawer__close" type="button" aria-label="Close details panel" data-drawer-close>&times;</button>
+        <div class="deep-dive-drawer__content">
+          <div class="feature-detail__l3">
+            {% block feature_l3 %}{% endblock %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+{% endblock %}

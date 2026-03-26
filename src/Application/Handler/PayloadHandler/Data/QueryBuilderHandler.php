@@ -10,6 +10,7 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
 use Semitexa\Demo\Application\Payload\Request\Data\QueryBuilderPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -25,6 +26,9 @@ final class QueryBuilderHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(QueryBuilderPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
         $products = $this->productRepository->findFiltered(
@@ -36,14 +40,13 @@ final class QueryBuilderHandler implements TypedHandlerInterface
         );
 
         $count = count($products);
-        $rows = '';
+        $rows = [];
         foreach (array_slice($products, 0, 5) as $product) {
-            $rows .= sprintf(
-                '<tr><td>%s</td><td>$%.2f</td><td>%s</td></tr>',
-                htmlspecialchars($product->name),
-                $product->price,
-                htmlspecialchars($product->status),
-            );
+            $rows[] = [
+                ['text' => $product->name],
+                ['text' => '$' . number_format((float) $product->price, 2)],
+                ['text' => (string) $product->status],
+            ];
         }
 
         $querySnippet = '$products = $this->select()' . "\n"
@@ -54,13 +57,6 @@ final class QueryBuilderHandler implements TypedHandlerInterface
             . sprintf("    ->limit(%d)\n", $payload->getLimit())
             . '    ->fetchAll();';
 
-        $resultPreview = '<div class="result-preview">'
-            . '<p>Query returned <strong>' . $count . ' products</strong>.</p>'
-            . '<pre class="code-inline">' . htmlspecialchars($querySnippet) . '</pre>'
-            . '<table class="data-table"><thead><tr><th>Name</th><th>Price</th><th>Status</th></tr></thead>'
-            . '<tbody>' . ($rows ?: '<tr><td colspan="3">No results — seed the data first.</td></tr>') . '</tbody>'
-            . '</table></div>';
-
         $explanation = $this->explanationProvider->getExplanation('data', 'query') ?? [];
 
         $sourceCode = [
@@ -70,6 +66,16 @@ final class QueryBuilderHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Query Builder — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'data',
+                'currentSlug' => 'query',
+                'infoWhat' => $explanation['what'] ?? 'Compose type-safe queries with a fluent API — no raw SQL, no magic strings.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('data')
             ->withSlug('query')
             ->withTitle('Query Builder')
@@ -78,7 +84,19 @@ final class QueryBuilderHandler implements TypedHandlerInterface
             ->withHighlights(['SelectQuery', 'where()', 'orderBy()', 'limit()', 'fetchAll()', 'fetchOne()'])
             ->withLearnMoreLabel('See the query builder →')
             ->withDeepDiveLabel('How SelectQuery compiles SQL →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/data-table.html.twig', [
+                'eyebrow' => 'Query Builder',
+                'title' => 'Compiled query example',
+                'summary' => 'The repository composes fluent constraints, then materializes a filtered collection.',
+                'stats' => [
+                    ['value' => (string) $count, 'label' => 'Returned rows'],
+                    ['value' => (string) $payload->getLimit(), 'label' => 'Limit'],
+                ],
+                'codeSnippet' => $querySnippet,
+                'columns' => ['Name', 'Price', 'Status'],
+                'rows' => $rows,
+                'emptyMessage' => 'No results — seed the data first.',
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

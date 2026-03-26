@@ -26,7 +26,7 @@ class DemoReviewResource
     #[Column(type: MySqlType::Varchar, length: 64, nullable: true)]
     public ?string $tenant_id = null;
 
-    #[Column(type: MySqlType::Char, length: 36)]
+    #[Column(type: MySqlType::Binary, length: 16)]
     public string $product_id = '';
 
     #[Column(type: MySqlType::Char, length: 36)]

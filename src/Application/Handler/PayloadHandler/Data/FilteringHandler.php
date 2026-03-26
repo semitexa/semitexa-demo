@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
 use Semitexa\Demo\Application\Payload\Request\Data\FilteringPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -25,6 +26,9 @@ final class FilteringHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
 
     public function handle(FilteringPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
@@ -43,30 +47,20 @@ final class FilteringHandler implements TypedHandlerInterface
             : $this->productRepository->findAll(10);
 
         $count = count($products);
-        $rows = '';
+        $rows = [];
         foreach (array_slice($products, 0, 6) as $product) {
             /** @var DemoProductResource $product */
-            $rows .= sprintf(
-                '<tr><td>%s</td><td>$%.2f</td><td>%s</td></tr>',
-                htmlspecialchars($product->name),
-                $product->price,
-                htmlspecialchars($product->status),
-            );
+            $rows[] = [
+                ['text' => $product->name],
+                ['text' => '$' . number_format((float) $product->price, 2)],
+                ['text' => (string) $product->status],
+            ];
         }
 
         $activeFilters = array_filter([
-            $payload->getName() !== null ? 'name=' . htmlspecialchars($payload->getName()) : null,
-            $payload->getStatus() !== null ? 'status=' . htmlspecialchars($payload->getStatus()) : null,
+            $payload->getName() !== null ? 'name=' . $payload->getName() : null,
+            $payload->getStatus() !== null ? 'status=' . $payload->getStatus() : null,
         ]);
-
-        $resultPreview = '<div class="result-preview">'
-            . ($activeFilters !== []
-                ? '<p>Active filters: <code>' . implode(', ', $activeFilters) . '</code></p>'
-                : '<p>No filters applied — showing all products.</p>')
-            . sprintf('<p>Found <strong>%d products</strong>.</p>', $count)
-            . '<table class="data-table"><thead><tr><th>Name</th><th>Price</th><th>Status</th></tr></thead>'
-            . '<tbody>' . ($rows ?: '<tr><td colspan="3">No results — seed data first.</td></tr>') . '</tbody>'
-            . '</table></div>';
 
         $explanation = $this->explanationProvider->getExplanation('data', 'filtering') ?? [];
 
@@ -77,6 +71,16 @@ final class FilteringHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Filtering — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'data',
+                'currentSlug' => 'filtering',
+                'infoWhat' => $explanation['what'] ?? 'Mark a property #[Filterable] and the ORM handles the rest — no manual WHERE clauses.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('data')
             ->withSlug('filtering')
             ->withTitle('Filtering')
@@ -85,7 +89,21 @@ final class FilteringHandler implements TypedHandlerInterface
             ->withHighlights(['#[Filterable]', 'FilterableTrait', 'FilterableResourceInterface', 'getFilterCriteria()'])
             ->withLearnMoreLabel('See the filter attributes →')
             ->withDeepDiveLabel('How filter criteria compile →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/data-table.html.twig', [
+                'eyebrow' => 'Filter Criteria',
+                'title' => 'Live filtered result set',
+                'summary' => $activeFilters !== []
+                    ? 'Applied filters narrow the dataset before repository fetch.'
+                    : 'No filters applied — showing the broad demo dataset.',
+                'activeFilters' => array_values($activeFilters),
+                'stats' => [
+                    ['value' => (string) $count, 'label' => 'Matched products'],
+                    ['value' => (string) count($activeFilters), 'label' => 'Active filters'],
+                ],
+                'columns' => ['Name', 'Price', 'Status'],
+                'rows' => $rows,
+                'emptyMessage' => 'No results — seed data first.',
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

@@ -1,0 +1,23 @@
+<div class="preview-card">
+  <p class="preview-card__eyebrow">Machine Identity</p>
+  <h3 class="preview-card__title">Bearer credentials for service-to-service traffic</h3>
+  <p class="preview-card__summary">Machine authentication is stateless, scope-aware, and easy to revoke without touching browser sessions.</p>
+
+  <pre class="preview-code"><code>{{ curlExample }}</code></pre>
+
+  <div class="preview-table-wrap">
+    <table class="preview-table">
+      <thead>
+        <tr><th>Property</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            <td>{{ row.label }}</td>
+            <td><code>{{ row.value }}</code></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

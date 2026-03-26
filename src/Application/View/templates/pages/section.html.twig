@@ -17,19 +17,11 @@
     {% if features|default([])|length > 0 %}
       <section class="demo-section-page__features">
         <div class="demo-sections__grid">
-          {% for entry in features %}
-            {% set feature = entry.attribute %}
-            <a href="/demo/{{ section }}/{{ feature.slug }}" class="feature-card">
+          {% for feature in features %}
+            <a href="{{ feature.href|default('/demo/' ~ section ~ '/' ~ feature.slug) }}" class="feature-card">
               <div class="feature-card__body">
                 <h3 class="feature-card__title">{{ feature.title }}</h3>
                 <p class="feature-card__summary">{{ feature.summary }}</p>
-                {% if feature.highlights|default([])|length > 0 %}
-                  <div class="feature-card__meta">
-                    {% for highlight in feature.highlights %}
-                      <span class="feature-detail__highlight">{{ highlight }}</span>
-                    {% endfor %}
-                  </div>
-                {% endif %}
               </div>
             </a>
           {% endfor %}

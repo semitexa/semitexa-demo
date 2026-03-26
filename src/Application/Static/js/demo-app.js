@@ -84,8 +84,8 @@
       var section = link.closest('.feature-tree__section');
       if (!section) return;
 
-      var sectionToggle = section.querySelector('.feature-tree__toggle');
-      var sectionKey = sectionToggle ? sectionToggle.textContent.trim().toLowerCase().replace(/\s+/g, '-') : '';
+      var sectionKey = section.getAttribute('data-section-key') || '';
+      if (!sectionKey) return;
 
       // Check if this feature has been visited
       var expectedKey = sectionKey + '/' + slug;

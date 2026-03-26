@@ -2,12 +2,25 @@
 
 {% block title %}Semitexa Demo — Framework Showcase{% endblock %}
 
+{% set readyFeatures = featuredFeatures|default([]) %}
+{% if readyFeatures is empty %}
+  {% set readyFeatures = [] %}
+  {% for section in sections|default([]) %}
+    {% for feature in section.features|default([]) %}
+      {% if readyFeatures|length < 3 %}
+        {% set readyFeatures = readyFeatures|merge([feature]) %}
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+{% endif %}
+
 {% block main %}
   {# --- Hero Section --- #}
   <section class="demo-hero">
     <div class="demo-hero__content">
       <p class="demo-hero__brand">SEMITEXA FRAMEWORK</p>
-      <h1 class="demo-hero__tagline">Build faster. Ship safer. Scale effortlessly.</h1>
+      <h1 class="demo-hero__tagline">See the framework behaving like a product, not like a brochure.</h1>
+      <p class="demo-hero__lede">Routes, DI, ORM, SSR, tenancy, and async flows presented as one connected system with working entry points.</p>
       <div class="demo-hero__ctas">
         <a href="#sections" class="demo-hero__cta demo-hero__cta--primary">Explore Features</a>
         <a href="https://github.com/semitexa" class="demo-hero__cta demo-hero__cta--secondary" target="_blank" rel="noopener">View Source</a>
@@ -27,10 +40,12 @@
     <div class="demo-starters__grid">
       {% for section in starterSections|default([]) %}
         {% include '@project-layouts-semitexa-demo/components/feature-card.html.twig' with {
+          href: section.href,
           key: section.key,
           label: section.label,
           summary: section.summary,
           icon: section.icon,
+          eyebrow: section.eyebrow,
           featureCount: section.featureCount,
           prerequisites: section.prerequisites,
           starter: true,
@@ -45,10 +60,12 @@
     <div class="demo-sections__grid">
       {% for section in sections|default([]) %}
         {% include '@project-layouts-semitexa-demo/components/feature-card.html.twig' with {
+          href: section.href,
           key: section.key,
           label: section.label,
           summary: section.summary,
           icon: section.icon,
+          eyebrow: section.eyebrow,
           featureCount: section.featureCount,
           prerequisites: section.prerequisites,
           starter: false,
@@ -60,11 +77,11 @@
   {# --- "Ready for more?" prompt (hidden until 3+ features visited) --- #}
   <section class="demo-ready-prompt" data-ready-prompt style="display: none;">
     <h2 class="demo-ready-prompt__heading">Ready for more?</h2>
-    <p class="demo-ready-prompt__text">You've explored the basics. Try these flagship features:</p>
+    <p class="demo-ready-prompt__text">These working walkthroughs are the best current entry points into the richer parts of the demo:</p>
     <div class="demo-ready-prompt__suggestions">
-      <a href="/demo/rendering/deferred-blocks" class="demo-ready-prompt__link">Deferred Blocks</a>
-      <a href="/demo/platform/tenant-locale-showcase" class="demo-ready-prompt__link">Multi-Tenancy</a>
-      <a href="/demo/api/api-showcase" class="demo-ready-prompt__link">Intelligent API</a>
+      {% for feature in readyFeatures %}
+        <a href="{{ feature.href }}" class="demo-ready-prompt__link">{{ feature.title }}</a>
+      {% endfor %}
     </div>
   </section>
 {% endblock %}

@@ -1,0 +1,38 @@
+<div class="preview-card">
+  <p class="preview-card__eyebrow">{{ eyebrow|default('Route') }}</p>
+  <h3 class="preview-card__title">{{ title }}</h3>
+  <p class="preview-card__summary">{{ summary }}</p>
+
+  <div class="preview-stats">
+    <div class="preview-stats__item">
+      <span class="preview-stats__value"><code>{{ method }} {{ path }}</code></span>
+      <span class="preview-stats__label">Resolved route</span>
+    </div>
+    {% if status is defined and status %}
+      <div class="preview-stats__item">
+        <span class="preview-stats__value">{{ status }}</span>
+        <span class="preview-stats__label">Status</span>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if facts is defined and facts|length > 0 %}
+    <div class="preview-card__chips">
+      {% for fact in facts %}
+        <span class="preview-chip">{{ fact }}</span>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if links is defined and links|length > 0 %}
+    <div class="preview-actions">
+      {% for link in links %}
+        <a href="{{ link.href }}" class="preview-button preview-button--secondary">{{ link.label }}</a>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if codeSnippet is defined and codeSnippet %}
+    <pre class="preview-code"><code>{{ codeSnippet }}</code></pre>
+  {% endif %}
+</div>

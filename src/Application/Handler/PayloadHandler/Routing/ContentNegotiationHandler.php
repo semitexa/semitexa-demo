@@ -9,6 +9,7 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Routing\ContentNegotiationPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -20,6 +21,9 @@ final class ContentNegotiationHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
 
     private const PRODUCTS = [
         ['id' => '1', 'name' => 'Wireless Headphones', 'price' => 79.99],
@@ -36,22 +40,20 @@ final class ContentNegotiationHandler implements TypedHandlerInterface
             'Handler' => $this->sourceCodeReader->readClassSource(self::class),
         ];
 
-        $jsonPreview = json_encode(['products' => self::PRODUCTS], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-
-        $resultPreview = '<div class="result-preview">'
-            . '<p><strong>GET /demo/routing/products</strong></p>'
-            . '<div class="result-preview__tabs">'
-            . '<p><code>Accept: application/json</code> → JSON response</p>'
-            . '<pre><code>' . htmlspecialchars($jsonPreview, ENT_QUOTES) . '</code></pre>'
-            . '<p><code>Accept: text/html</code> → This rendered page</p>'
-            . '</div>'
-            . '<p class="result-preview__hint">Try: '
-            . '<a href="/demo/routing/products?_format=json">?_format=json</a>'
-            . '</p>'
-            . '</div>';
+        $jsonPreview = json_encode(['products' => self::PRODUCTS], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) ?: '{}';
 
         return $resource
             ->pageTitle('Content Negotiation — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'routing',
+                'currentSlug' => 'content-negotiation',
+                'infoWhat' => $explanation['what'] ?? 'One endpoint, multiple response formats — automatically.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('routing')
             ->withSlug('content-negotiation')
             ->withTitle('Content Negotiation')
@@ -62,6 +64,8 @@ final class ContentNegotiationHandler implements TypedHandlerInterface
             ->withDeepDiveLabel('How negotiation works →')
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation)
-            ->withResultPreview($resultPreview);
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/content-negotiation.html.twig', [
+                'jsonPreview' => $jsonPreview,
+            ]);
     }
 }

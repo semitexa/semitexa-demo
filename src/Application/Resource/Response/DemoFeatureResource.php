@@ -20,6 +20,8 @@ use Semitexa\Ssr\Http\Response\HtmlResponse;
 )]
 class DemoFeatureResource extends HtmlResponse implements ResourceInterface
 {
+    use HasDemoShell;
+
     public function withSection(string $section): self
     {
         return $this->with('section', $section);
@@ -78,6 +80,13 @@ class DemoFeatureResource extends HtmlResponse implements ResourceInterface
     public function withResultPreview(string $preview): self
     {
         return $this->with('resultPreview', $preview);
+    }
+
+    public function withResultPreviewTemplate(string $template, array $data = []): self
+    {
+        return $this
+            ->with('resultPreviewTemplate', $template)
+            ->with('resultPreviewData', $data);
     }
 
     public function withL2Content(string $content): self

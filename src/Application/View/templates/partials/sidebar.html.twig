@@ -1,19 +1,5 @@
-<nav class="demo-sidebar" aria-label="Feature tree">
-  {% for section in featureTree|default([]) %}
-    <div class="demo-sidebar__section{{ currentSection == section.key ? ' demo-sidebar__section--active' : '' }}">
-      <h3 class="demo-sidebar__heading">
-        <a href="/demo/{{ section.key }}">{{ section.label }}</a>
-        <span class="demo-sidebar__count">{{ section.features|length }}</span>
-      </h3>
-      <ul class="demo-sidebar__features">
-        {% for feature in section.features %}
-          <li class="demo-sidebar__feature{{ (currentSection == section.key and currentSlug == feature.slug) ? ' demo-sidebar__feature--active' : '' }}">
-            <a href="/demo/{{ section.key }}/{{ feature.slug }}">
-              <span class="demo-sidebar__feature-title">{{ feature.title }}</span>
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
-  {% endfor %}
-</nav>
+{% include '@project-layouts-semitexa-demo/components/feature-tree.html.twig' with {
+  sections: featureTree|default([]),
+  currentSection: currentSection|default(null),
+  currentSlug: currentSlug|default(null),
+} only %}

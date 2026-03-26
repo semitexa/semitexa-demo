@@ -1,0 +1,22 @@
+<div class="preview-card">
+  <p class="preview-card__eyebrow">Negotiation</p>
+  <h3 class="preview-card__title">One endpoint, multiple representations</h3>
+  <p class="preview-card__summary">The same handler output can render as HTML for browsers or JSON for API consumers.</p>
+
+  <div class="preview-stats">
+    <div class="preview-stats__item">
+      <span class="preview-stats__value"><code>Accept: application/json</code></span>
+      <span class="preview-stats__label">Negotiated format</span>
+    </div>
+    <div class="preview-stats__item">
+      <span class="preview-stats__value"><code>Accept: text/html</code></span>
+      <span class="preview-stats__label">Current page</span>
+    </div>
+  </div>
+
+  <pre class="preview-code"><code>{{ jsonPreview }}</code></pre>
+
+  <div class="preview-actions">
+    <a href="/demo/routing/products?_format=json" class="preview-button preview-button--secondary">Try ?_format=json</a>
+  </div>
+</div>

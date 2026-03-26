@@ -1,4 +1,7 @@
-<a href="/demo/{{ key }}" class="feature-card{{ starter ? ' feature-card--starter' : '' }}">
+<a href="{{ href|default('/demo/' ~ key) }}" class="feature-card{{ starter ? ' feature-card--starter' : '' }}">
+  {% if eyebrow is defined and eyebrow %}
+    <span class="feature-card__eyebrow">{{ eyebrow }}</span>
+  {% endif %}
   <div class="feature-card__icon" aria-hidden="true">{{ icon }}</div>
   <div class="feature-card__body">
     <h3 class="feature-card__title">{{ label }}</h3>

@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Rendering\DeferredBlocksPayload;
 use Semitexa\Demo\Application\Resource\Response\DeferredBlocksDemoResource;
 use Semitexa\Demo\Application\Resource\Slot\Deferred\DeferredProductCarouselSlot;
 use Semitexa\Demo\Application\Resource\Slot\Deferred\DeferredReviewFeedSlot;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -22,6 +23,9 @@ final class DeferredBlocksHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
 
     public function handle(DeferredBlocksPayload $payload, DeferredBlocksDemoResource $resource): DeferredBlocksDemoResource
     {
@@ -35,6 +39,16 @@ final class DeferredBlocksHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Deferred Blocks — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'rendering',
+                'currentSlug' => 'deferred',
+                'infoWhat' => $explanation['what'] ?? 'Render the page shell first, then stream expensive blocks in after the response.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('rendering')
             ->withSlug('deferred')
             ->withTitle('Deferred Blocks')

@@ -6,6 +6,7 @@ namespace Semitexa\Demo\Application\Resource\Platform;
 
 use Semitexa\Core\Attributes\AsResource;
 use Semitexa\Core\Contract\ResourceInterface;
+use Semitexa\Demo\Application\Resource\Response\HasDemoShell;
 use Semitexa\Ssr\Http\Response\HtmlResponse;
 
 #[AsResource(
@@ -14,6 +15,8 @@ use Semitexa\Ssr\Http\Response\HtmlResponse;
 )]
 class DemoTenantConfigResource extends HtmlResponse implements ResourceInterface
 {
+    use HasDemoShell;
+
     public function withTenantConfigs(array $configs): static { return $this->with('tenantConfigs', $configs); }
     public function withActiveTenant(string $tenant): static { return $this->with('activeTenant', $tenant); }
 }

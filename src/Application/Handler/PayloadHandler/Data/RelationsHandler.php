@@ -9,13 +9,15 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoCategoryResource;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoReviewResource;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoCategoryRepository;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
+use Semitexa\Demo\Application\Db\MySQL\Repository\DemoReviewRepository;
 use Semitexa\Demo\Application\Payload\Request\Data\RelationsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
+use Semitexa\Orm\Adapter\DatabaseAdapterInterface;
 
 #[AsPayloadHandler(payload: RelationsPayload::class, resource: DemoFeatureResource::class)]
 final class RelationsHandler implements TypedHandlerInterface
@@ -27,50 +29,48 @@ final class RelationsHandler implements TypedHandlerInterface
     protected DemoProductRepository $productRepository;
 
     #[InjectAsReadonly]
+    protected DemoReviewRepository $reviewRepository;
+
+    #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
+    #[InjectAsReadonly]
+    protected DatabaseAdapterInterface $db;
+
     public function handle(RelationsPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $categories = $this->categoryRepository->findAll(3);
-        $products = $this->productRepository->findAll(3);
-
-        $categoryRows = '';
+        $categories = array_slice($this->categoryRepository->findAllOrdered(), 0, 3);
+        $products = $this->productRepository->findPage(3);
+        $categoryRows = [];
+        $categorySnapshots = [];
         foreach ($categories as $category) {
-            /** @var DemoCategoryResource $category */
-            $productCount = count($category->products);
-            $categoryRows .= sprintf(
-                '<tr><td>%s</td><td>%d products</td></tr>',
-                htmlspecialchars($category->name),
-                $productCount,
-            );
+            $snapshot = $this->fetchCategorySnapshot($category);
+            $categorySnapshots[$category->slug] = $snapshot;
+
+            $categoryRows[] = [
+                ['text' => (string) ($category->name ?? 'Unnamed category')],
+                ['text' => sprintf('%d products', $snapshot['product_count'])],
+                ['text' => $snapshot['sample_products'] !== [] ? implode(', ', $snapshot['sample_products']) : 'No linked products yet'],
+            ];
         }
 
-        $productRows = '';
+        $productRows = [];
         foreach ($products as $product) {
-            /** @var DemoProductResource $product */
-            $reviewCount = count($product->reviews);
-            $categoryName = $product->category?->name ?? '—';
-            $productRows .= sprintf(
-                '<tr><td>%s</td><td>%s</td><td>%d reviews</td></tr>',
-                htmlspecialchars($product->name),
-                htmlspecialchars($categoryName),
-                $reviewCount,
-            );
-        }
+            $reviewCount = $this->fetchReviewCount($product->name);
+            $categoryName = $this->resolveCategoryName($product, $categories);
 
-        $resultPreview = '<div class="result-preview">'
-            . '<h4>Categories → Products (HasMany)</h4>'
-            . '<table class="data-table"><thead><tr><th>Category</th><th>Relation</th></tr></thead>'
-            . '<tbody>' . ($categoryRows ?: '<tr><td colspan="2">Seed data first.</td></tr>') . '</tbody>'
-            . '</table>'
-            . '<h4>Products → Category + Reviews (BelongsTo + HasMany)</h4>'
-            . '<table class="data-table"><thead><tr><th>Product</th><th>Category</th><th>Reviews</th></tr></thead>'
-            . '<tbody>' . ($productRows ?: '<tr><td colspan="3">Seed data first.</td></tr>') . '</tbody>'
-            . '</table>'
-            . '</div>';
+            $productRows[] = [
+                ['text' => (string) ($product->name ?? 'Unnamed product')],
+                ['text' => $categoryName],
+                ['text' => sprintf('%d reviews', $reviewCount)],
+            ];
+        }
 
         $explanation = $this->explanationProvider->getExplanation('data', 'relations') ?? [];
 
@@ -81,6 +81,16 @@ final class RelationsHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Relations — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'data',
+                'currentSlug' => 'relations',
+                'infoWhat' => $explanation['what'] ?? 'Declare associations with attributes — eager loading, N+1 prevention, and nested reads.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('data')
             ->withSlug('relations')
             ->withTitle('Relations')
@@ -89,8 +99,135 @@ final class RelationsHandler implements TypedHandlerInterface
             ->withHighlights(['#[HasMany]', '#[BelongsTo]', 'CascadeSaver', 'CascadeDeleter', 'eager loading'])
             ->withLearnMoreLabel('See the relation attributes →')
             ->withDeepDiveLabel('How eager loading works →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/data-table.html.twig', [
+                'eyebrow' => 'Relation Graph',
+                'title' => 'Categories → products',
+                'summary' => 'The ORM eager-loads child collections in one pass, so the preview shows real linked records instead of manual joins.',
+                'stats' => [
+                    ['value' => (string) count($categories), 'label' => 'Loaded categories'],
+                    ['value' => (string) array_sum(array_map(
+                        fn (DemoCategoryResource $category): int => $categorySnapshots[$category->slug]['product_count'] ?? 0,
+                        $categories,
+                    )), 'label' => 'Resolved products'],
+                ],
+                'columns' => ['Category', 'Linked records', 'Sample products'],
+                'rows' => $categoryRows,
+                'emptyMessage' => 'No relation data yet — seed the demo first.',
+                'actions' => [
+                    ['label' => 'Products → category + reviews'],
+                ],
+            ])
+            ->withL3Content($this->renderSecondaryRelationTable($productRows))
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
+    }
+
+    /**
+     * @param list<array<int, array{text: string}>> $rows
+     */
+    private function renderSecondaryRelationTable(array $rows): string
+    {
+        $cells = '';
+
+        foreach ($rows as $row) {
+            $cells .= sprintf(
+                '<tr><td>%s</td><td>%s</td><td>%s</td></tr>',
+                htmlspecialchars($row[0]['text'], ENT_QUOTES, 'UTF-8'),
+                htmlspecialchars($row[1]['text'], ENT_QUOTES, 'UTF-8'),
+                htmlspecialchars($row[2]['text'], ENT_QUOTES, 'UTF-8'),
+            );
+        }
+
+        if ($cells === '') {
+            $cells = '<tr><td colspan="3">No related products available.</td></tr>';
+        }
+
+        return '<div class="preview-card">'
+            . '<p class="preview-card__eyebrow">BelongsTo + HasMany</p>'
+            . '<h3 class="preview-card__title">Products → category + reviews</h3>'
+            . '<p class="preview-card__summary">Each product resolves its parent category and child reviews through relation metadata.</p>'
+            . '<div class="preview-table-wrap"><table class="preview-table"><thead><tr><th>Product</th><th>Category</th><th>Reviews</th></tr></thead><tbody>'
+            . $cells
+            . '</tbody></table></div></div>';
+    }
+
+    /**
+     * @return array{product_count: int, sample_products: list<string>}
+     */
+    private function fetchCategorySnapshot(DemoCategoryResource $category): array
+    {
+        $categorySlug = $category->slug;
+
+        $count = (int) ($this->db->execute(
+            'SELECT COUNT(*) AS aggregate_count
+             FROM demo_products products
+             INNER JOIN demo_categories categories ON categories.id = products.category_id
+             WHERE categories.slug = ?',
+            [$categorySlug],
+        )->fetchOne()['aggregate_count'] ?? 0);
+
+        $rows = $this->db->execute(
+            'SELECT products.name
+             FROM demo_products products
+             INNER JOIN demo_categories categories ON categories.id = products.category_id
+             WHERE categories.slug = ?
+             ORDER BY products.name ASC
+             LIMIT 2',
+            [$categorySlug],
+        )->fetchAll();
+
+        return [
+            'product_count' => $count,
+            'sample_products' => array_values(array_map(
+                static fn (array $row): string => (string) ($row['name'] ?? 'Unknown product'),
+                $rows,
+            )),
+        ];
+    }
+
+    private function fetchReviewCount(string $productName): int
+    {
+        return (int) ($this->db->execute(
+            'SELECT COUNT(*) AS aggregate_count
+             FROM demo_reviews reviews
+             INNER JOIN demo_products products ON products.id = reviews.product_id
+             WHERE products.name = ?',
+            [$productName],
+        )->fetchOne()['aggregate_count'] ?? 0);
+    }
+
+    /**
+     * @param list<DemoCategoryResource> $categories
+     */
+    private function resolveCategoryName(DemoProductResource $product, array $categories): string
+    {
+        foreach ($categories as $category) {
+            if ($category->name !== '' && $this->isProductInCategory($product->name, $category->slug)) {
+                return $category->name;
+            }
+        }
+
+        $row = $this->db->execute(
+            'SELECT categories.name
+             FROM demo_products products
+             INNER JOIN demo_categories categories ON categories.id = products.category_id
+             WHERE products.name = ?
+             LIMIT 1',
+            [$product->name],
+        )->fetchOne();
+
+        return (string) ($row['name'] ?? 'Unassigned');
+    }
+
+    private function isProductInCategory(string $productName, string $categorySlug): bool
+    {
+        return (bool) ($this->db->execute(
+            'SELECT 1
+             FROM demo_products products
+             INNER JOIN demo_categories categories ON categories.id = products.category_id
+             WHERE products.name = ? AND categories.slug = ?
+             LIMIT 1',
+            [$productName, $categorySlug],
+        )->fetchOne() !== null);
     }
 }

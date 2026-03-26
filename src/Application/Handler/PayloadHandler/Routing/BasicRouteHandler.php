@@ -9,6 +9,7 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Routing\BasicRoutePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -21,6 +22,9 @@ final class BasicRouteHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(BasicRoutePayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
         $explanation = $this->explanationProvider->getExplanation('routing', 'basic') ?? [];
@@ -30,14 +34,18 @@ final class BasicRouteHandler implements TypedHandlerInterface
             'Handler' => $this->sourceCodeReader->readClassSource(self::class),
         ];
 
-        $resultPreview = '<div class="result-preview">'
-            . '<p><strong>GET /demo/routing/basic</strong></p>'
-            . '<p>Status: <code>200 OK</code></p>'
-            . '<p>This page is served by a single <code>#[AsPayload]</code> attribute and a typed handler.</p>'
-            . '</div>';
-
         return $resource
             ->pageTitle('Basic Route — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'routing',
+                'currentSlug' => 'basic',
+                'infoWhat' => $explanation['what'] ?? 'Define a route with one attribute — no XML, no YAML, no config files.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('routing')
             ->withSlug('basic')
             ->withTitle('Basic Route')
@@ -48,6 +56,14 @@ final class BasicRouteHandler implements TypedHandlerInterface
             ->withDeepDiveLabel('How route compilation works →')
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation)
-            ->withResultPreview($resultPreview);
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/route-snapshot.html.twig', [
+                'eyebrow' => 'Route Discovery',
+                'title' => 'Single attribute, live endpoint',
+                'summary' => 'This page is reachable because the payload declared its route metadata directly in PHP.',
+                'method' => 'GET',
+                'path' => '/demo/routing/basic',
+                'status' => '200 OK',
+                'facts' => ['#[AsPayload]', 'Typed handler', 'No central routes file'],
+            ]);
     }
 }

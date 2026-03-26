@@ -1,6 +1,6 @@
 <nav class="feature-tree" aria-label="Feature navigation tree" data-feature-tree>
   {% for section in sections|default([]) %}
-    <div class="feature-tree__section{{ currentSection == section.key ? ' feature-tree__section--active' : '' }}">
+    <div class="feature-tree__section{{ currentSection == section.key ? ' feature-tree__section--active' : '' }}" data-section-key="{{ section.key }}">
       <button
         class="feature-tree__toggle"
         type="button"

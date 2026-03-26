@@ -1,0 +1,26 @@
+<div class="preview-card">
+  <p class="preview-card__eyebrow">Path Parameters</p>
+  <h3 class="preview-card__title">{{ product.name }}</h3>
+  <p class="preview-card__summary">The slug from the URL is already validated and injected into the payload before the handler runs.</p>
+
+  <div class="preview-stats">
+    <div class="preview-stats__item">
+      <span class="preview-stats__value"><code>/demo/routing/product/{{ slug }}</code></span>
+      <span class="preview-stats__label">Active route</span>
+    </div>
+    <div class="preview-stats__item">
+      <span class="preview-stats__value">{{ product.price }}</span>
+      <span class="preview-stats__label">Price</span>
+    </div>
+    <div class="preview-stats__item">
+      <span class="preview-stats__value">{{ product.category }}</span>
+      <span class="preview-stats__label">Category</span>
+    </div>
+  </div>
+
+  <div class="preview-actions">
+    {% for example in examples %}
+      <a href="{{ example.href }}" class="preview-button preview-button--secondary">{{ example.label }}</a>
+    {% endfor %}
+  </div>
+</div>

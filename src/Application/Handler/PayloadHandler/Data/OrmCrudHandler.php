@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
 use Semitexa\Demo\Application\Payload\Request\Data\OrmCrudPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -25,6 +26,9 @@ final class OrmCrudHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
 
     public function handle(OrmCrudPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
@@ -52,22 +56,15 @@ final class OrmCrudHandler implements TypedHandlerInterface
 
         $products = $this->productRepository->findByTenant('demo', 8);
 
-        $rows = '';
+        $rows = [];
         foreach ($products as $product) {
             /** @var DemoProductResource $product */
-            $rows .= sprintf(
-                '<tr><td>%s</td><td>$%.2f</td><td><span class="badge badge--%s">%s</span></td></tr>',
-                htmlspecialchars($product->name),
-                $product->price,
-                htmlspecialchars($product->status),
-                htmlspecialchars($product->status),
-            );
+            $rows[] = [
+                ['text' => $product->name],
+                ['text' => '$' . number_format((float) $product->price, 2)],
+                ['text' => (string) $product->status, 'variant' => (string) $product->status],
+            ];
         }
-
-        $resultPreview = '<div class="result-preview">'
-            . '<table class="data-table"><thead><tr><th>Name</th><th>Price</th><th>Status</th></tr></thead>'
-            . '<tbody>' . ($rows ?: '<tr><td colspan="3">No products yet — seed the data first.</td></tr>') . '</tbody>'
-            . '</table></div>';
 
         $explanation = $this->explanationProvider->getExplanation('data', 'products') ?? [];
 
@@ -79,6 +76,16 @@ final class OrmCrudHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('ORM CRUD — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'data',
+                'currentSlug' => 'products',
+                'infoWhat' => $explanation['what'] ?? 'Define your schema once with attributes — reads, writes, and soft-deletes are handled by the ORM.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('data')
             ->withSlug('products')
             ->withTitle('ORM CRUD')
@@ -87,7 +94,18 @@ final class OrmCrudHandler implements TypedHandlerInterface
             ->withHighlights(['#[FromTable]', '#[Column]', 'HasUuidV7', 'HasTimestamps', 'SoftDeletes', 'AbstractRepository'])
             ->withLearnMoreLabel('See the model & repository →')
             ->withDeepDiveLabel('How the ORM maps resources →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/data-table.html.twig', [
+                'eyebrow' => 'Repository Snapshot',
+                'title' => 'Current product set',
+                'summary' => 'A small working dataset backed by the ORM. Create and delete actions update this view.',
+                'stats' => [
+                    ['value' => (string) count($products), 'label' => 'Visible rows'],
+                    ['value' => 'demo', 'label' => 'Tenant scope'],
+                ],
+                'columns' => ['Name', 'Price', 'Status'],
+                'rows' => $rows,
+                'emptyMessage' => 'No products yet — seed the data first.',
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

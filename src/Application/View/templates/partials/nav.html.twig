@@ -1,13 +1,13 @@
 <nav class="demo-nav" aria-label="Demo navigation">
   <a class="demo-nav__brand" href="/demo">
-    <span class="demo-nav__logo">⬡</span>
+    <span class="demo-nav__logo">Sx</span>
     <span class="demo-nav__title">Semitexa <strong>Demo</strong></span>
   </a>
 
   <ul class="demo-nav__sections">
     {% for section in sections|default([]) %}
       <li class="demo-nav__item{{ currentSection == section.key ? ' demo-nav__item--active' : '' }}">
-        <a href="/demo/{{ section.key }}">{{ section.label }}</a>
+        <a href="{{ section.href|default('/demo/' ~ section.key) }}">{{ section.label }}</a>
       </li>
     {% endfor %}
   </ul>

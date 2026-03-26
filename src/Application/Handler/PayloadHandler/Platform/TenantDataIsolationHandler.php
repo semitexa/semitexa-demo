@@ -9,6 +9,7 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Platform\TenantDataIsolationPayload;
 use Semitexa\Demo\Application\Resource\Platform\DemoTenantIsolationResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoTenantConfigProvider;
 use Semitexa\Demo\Application\Service\DemoTenantDataSeeder;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
@@ -24,6 +25,9 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
+
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
 
     public function handle(TenantDataIsolationPayload $payload, DemoTenantIsolationResource $resource): DemoTenantIsolationResource
     {
@@ -43,6 +47,15 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Data Isolation — Semitexa Demo')
+            ->withNavSections($this->catalog->getSections())
+            ->withFeatureTree($this->catalog->getFeatureTree())
+            ->withCurrentSection('platform')
+            ->withCurrentSlug('tenancy-isolation')
+            ->withInfoPanel(
+                'Switch tenant, and the same repository calls return a different dataset without hand-written WHERE clauses.',
+                'Tenant-scoped resources inject tenant filters automatically, so repository code stays focused on business queries.',
+                'This is the kind of platform guarantee that should be obvious in a demo, not hidden in docs.',
+            )
             ->withActiveTenant($activeTenant)
             ->withProducts(array_map(fn ($p) => [
                 'name'   => $p->name ?? '—',

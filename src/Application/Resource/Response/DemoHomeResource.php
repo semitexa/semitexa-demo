@@ -14,6 +14,18 @@ use Semitexa\Ssr\Http\Response\HtmlResponse;
 )]
 class DemoHomeResource extends HtmlResponse implements ResourceInterface
 {
+    use HasDemoShell;
+
+    public function withHomeCatalog(array $context): self
+    {
+        return $this->setRenderContext(array_merge($this->getRenderContext(), [
+            'sections' => $context['sections'],
+            'starterSections' => $context['starterSections'],
+            'featuredFeatures' => $context['featuredFeatures'],
+            'totalFeatureCount' => $context['totalFeatureCount'],
+        ]));
+    }
+
     public function withSections(array $sections): self
     {
         return $this->with('sections', $sections);
@@ -27,5 +39,10 @@ class DemoHomeResource extends HtmlResponse implements ResourceInterface
     public function withTotalFeatureCount(int $count): self
     {
         return $this->with('totalFeatureCount', $count);
+    }
+
+    public function withFeaturedFeatures(array $features): self
+    {
+        return $this->with('featuredFeatures', $features);
     }
 }

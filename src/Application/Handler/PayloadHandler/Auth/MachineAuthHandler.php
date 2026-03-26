@@ -9,6 +9,7 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Auth\MachineAuthPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -23,24 +24,11 @@ final class MachineAuthHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(MachineAuthPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $resultPreview = '<div class="result-preview">'
-            . '<p>Machine auth uses a <strong>Bearer token</strong> with the format <code>{id}:{secret}</code>.</p>'
-            . '<pre class="code-inline">'
-            . htmlspecialchars("# Try this in your terminal:\ncurl -H \"Authorization: Bearer " . self::DEMO_TOKEN . "\" \\\n  https://your-app.com/api/products")
-            . '</pre>'
-            . '<table class="data-table">'
-            . '<thead><tr><th>Property</th><th>Value</th></tr></thead>'
-            . '<tbody>'
-            . '<tr><td>Format</td><td><code>Bearer {client_id}:{secret}</code></td></tr>'
-            . '<tr><td>Handler priority</td><td>50 (runs before session auth)</td></tr>'
-            . '<tr><td>Scopes</td><td>Stored on <code>MachineCredential</code>, checked per route</td></tr>'
-            . '<tr><td>Revocation</td><td>Set <code>revoked_at</code> — takes effect immediately</td></tr>'
-            . '<tr><td>Audit</td><td>Every request logged with credential ID + timestamp</td></tr>'
-            . '</tbody></table>'
-            . '</div>';
-
         $explanation = $this->explanationProvider->getExplanation('auth', 'machine') ?? [];
 
         $sourceCode = [
@@ -49,6 +37,16 @@ final class MachineAuthHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Machine Auth — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'auth',
+                'currentSlug' => 'machine',
+                'infoWhat' => $explanation['what'] ?? 'Service-to-service authentication via Bearer tokens — scoped, revocable, and audited.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('auth')
             ->withSlug('machine')
             ->withTitle('Machine Auth')
@@ -57,7 +55,16 @@ final class MachineAuthHandler implements TypedHandlerInterface
             ->withHighlights(['MachineAuthHandler', 'Bearer {id}:{secret}', 'MachineCredential', 'scopes', 'revocation'])
             ->withLearnMoreLabel('See the Bearer token format →')
             ->withDeepDiveLabel('Machine auth verification pipeline →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/machine-auth.html.twig', [
+                'curlExample' => "# Try this in your terminal:\ncurl -H \"Authorization: Bearer " . self::DEMO_TOKEN . "\" \\\n  https://your-app.com/api/products",
+                'rows' => [
+                    ['label' => 'Format', 'value' => 'Bearer {client_id}:{secret}'],
+                    ['label' => 'Handler priority', 'value' => '50 (runs before session auth)'],
+                    ['label' => 'Scopes', 'value' => 'Stored on MachineCredential, checked per route'],
+                    ['label' => 'Revocation', 'value' => 'Set revoked_at for immediate effect'],
+                    ['label' => 'Audit', 'value' => 'Credential ID + timestamp logged per request'],
+                ],
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

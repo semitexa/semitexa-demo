@@ -9,6 +9,7 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Platform\TenantLayersPayload;
 use Semitexa\Demo\Application\Resource\Platform\DemoTenantLayersResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoTenantConfigProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -52,6 +53,9 @@ final class TenantLayersHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(TenantLayersPayload $payload, DemoTenantLayersResource $resource): DemoTenantLayersResource
     {
         $configs = $this->tenantConfigProvider->getAllConfigs();
@@ -71,6 +75,15 @@ final class TenantLayersHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Multi-Layer Tenancy — Semitexa Demo')
+            ->withNavSections($this->catalog->getSections())
+            ->withFeatureTree($this->catalog->getFeatureTree())
+            ->withCurrentSection('platform')
+            ->withCurrentSlug('tenancy-layers')
+            ->withInfoPanel(
+                'Tenant context is not one switch. It is a composed stack of organization, locale, theme, and environment decisions.',
+                'Each layer resolves independently, then merges into the final context consumed by the rest of the app.',
+                'Showing the layers separately makes the platform model understandable instead of mystical.',
+            )
             ->withLayers(self::LAYERS)
             ->withMatrix($matrix);
     }

@@ -47,7 +47,7 @@ class DemoProductResource implements FilterableResourceInterface
     #[Column(type: MySqlType::Varchar, length: 32)]
     public string $status = 'active';
 
-    #[Column(type: MySqlType::Char, length: 36, nullable: true)]
+    #[Column(type: MySqlType::Binary, length: 16, nullable: true)]
     public ?string $category_id = null;
 
     #[BelongsTo(target: DemoCategoryResource::class, foreignKey: 'category_id')]

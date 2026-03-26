@@ -53,24 +53,6 @@ final class AiTaskSubmitHandler implements TypedHandlerInterface
             }
         }
 
-        if ($submitted && $taskId !== null) {
-            $resultPreview = '<div class="result-preview result-preview--success">'
-                . '<p><strong>Task submitted!</strong> The cron job picks it up every 10 seconds.</p>'
-                . '<p>Task ID: <code>' . htmlspecialchars(substr($taskId, 0, 16)) . '…</code></p>'
-                . '<p><a href="/demo/rendering/reactive-ai" class="btn btn--secondary">Watch pipeline →</a></p>'
-                . '</div>';
-        } elseif ($errorMessage !== null) {
-            $resultPreview = '<div class="result-preview result-preview--error">'
-                . '<p class="error-message">' . htmlspecialchars($errorMessage) . '</p>'
-                . $this->buildForm($inputText)
-                . '</div>';
-        } else {
-            $resultPreview = '<div class="result-preview">'
-                . '<p>Enter text below and submit. The AI pipeline will process it stage by stage.</p>'
-                . $this->buildForm('')
-                . '</div>';
-        }
-
         $explanation = $this->explanationProvider->getExplanation('rendering', 'reactive-ai') ?? [];
 
         $sourceCode = [
@@ -88,21 +70,15 @@ final class AiTaskSubmitHandler implements TypedHandlerInterface
             ->withHighlights(['DemoAiTask', 'pending → cron pickup', 'stage_results JSON', 'refreshInterval: 2'])
             ->withLearnMoreLabel('Watch the pipeline →')
             ->withDeepDiveLabel('Processor architecture →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/ai-task-submit.html.twig', [
+                'state' => $submitted && $taskId !== null ? 'success' : ($errorMessage !== null ? 'error' : 'idle'),
+                'message' => $submitted && $taskId !== null
+                    ? 'The cron worker will pick this task up and process it stage by stage.'
+                    : ($errorMessage ?? 'Enter text below and submit it into the four-stage AI pipeline.'),
+                'taskId' => $taskId !== null ? substr($taskId, 0, 16) . '…' : null,
+                'inputText' => $submitted ? '' : $inputText,
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
-    }
-
-    private function buildForm(string $defaultText): string
-    {
-        return '<form method="POST" action="/demo/rendering/reactive-ai/submit" style="margin-top:1rem">'
-            . '<div class="form-group">'
-            . '<label for="inputText" class="form-label">Text to process</label>'
-            . '<textarea id="inputText" name="inputText" class="form-control" rows="4" maxlength="2000" placeholder="Enter any text to run through the AI pipeline…">'
-            . htmlspecialchars($defaultText)
-            . '</textarea>'
-            . '</div>'
-            . '<button type="submit" class="btn btn--primary" style="margin-top:0.75rem">Submit task →</button>'
-            . '</form>';
     }
 }

@@ -1,0 +1,38 @@
+<div class="preview-card">
+  <p class="preview-card__eyebrow">{{ eyebrow|default('Access Model') }}</p>
+  <h3 class="preview-card__title">{{ title }}</h3>
+  <p class="preview-card__summary">{{ summary }}</p>
+
+  {% if codeSnippet is defined and codeSnippet %}
+    <pre class="preview-code"><code>{{ codeSnippet }}</code></pre>
+  {% endif %}
+
+  <div class="preview-table-wrap">
+    <table class="preview-table">
+      <thead>
+        <tr>
+          {% for column in columns %}
+            <th>{{ column }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            {% for cell in row %}
+              <td>
+                {% if cell.variant is defined %}
+                  <span class="preview-pill preview-pill--{{ cell.variant }}">{{ cell.text }}</span>
+                {% elseif cell.code is defined %}
+                  <code>{{ cell.text }}</code>
+                {% else %}
+                  {{ cell.text }}
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

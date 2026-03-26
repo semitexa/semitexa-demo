@@ -1,0 +1,33 @@
+<div class="preview-card" id="sse-demo">
+  <p class="preview-card__eyebrow">Server Push</p>
+  <h3 class="preview-card__title">Event stream over plain HTTP</h3>
+  <p class="preview-card__summary">Connect once, then let the server push named events into the page without WebSockets.</p>
+
+  <div class="preview-stats">
+    <div class="preview-stats__item">
+      <span class="preview-stats__value">HTTP</span>
+      <span class="preview-stats__label">Transport</span>
+    </div>
+    <div class="preview-stats__item">
+      <span class="preview-stats__value"><code>text/event-stream</code></span>
+      <span class="preview-stats__label">Content type</span>
+    </div>
+    <div class="preview-stats__item">
+      <span class="preview-stats__value">EventSource</span>
+      <span class="preview-stats__label">Browser API</span>
+    </div>
+  </div>
+
+  <div class="preview-sse-panel">
+    <div class="preview-sse-panel__status" id="sse-status">
+      <span class="preview-pill preview-pill--warning">Disconnected</span>
+    </div>
+    <ul class="preview-sse-panel__log" id="sse-event-log">
+      <li class="preview-sse-panel__placeholder">Events will appear here…</li>
+    </ul>
+    <div class="preview-actions">
+      <button class="preview-button preview-button--primary" id="sse-connect" type="button">Connect to SSE stream</button>
+      <button class="preview-button preview-button--secondary" id="sse-disconnect" type="button" style="display:none">Disconnect</button>
+    </div>
+  </div>
+</div>

@@ -9,6 +9,7 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Routing\TypedHandlerPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -20,6 +21,9 @@ final class TypedHandlerHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
 
     public function handle(TypedHandlerPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
@@ -33,23 +37,18 @@ final class TypedHandlerHandler implements TypedHandlerInterface
         $typedExample = 'public function handle(TypedHandlerPayload $payload, DemoFeatureResource $resource): DemoFeatureResource';
         $untypedExample = 'public function handle(object $payload, ResourceInterface $resource): ResourceInterface';
 
-        $resultPreview = '<div class="result-preview">'
-            . '<p><strong>Typed vs Untyped Handler Signature</strong></p>'
-            . '<div class="result-preview__comparison">'
-            . '<div class="result-preview__good">'
-            . '<p class="result-preview__label">✓ TypedHandlerInterface</p>'
-            . '<code>' . htmlspecialchars($typedExample, ENT_QUOTES) . '</code>'
-            . '</div>'
-            . '<div class="result-preview__bad">'
-            . '<p class="result-preview__label">✗ Legacy HandlerInterface</p>'
-            . '<code>' . htmlspecialchars($untypedExample, ENT_QUOTES) . '</code>'
-            . '</div>'
-            . '</div>'
-            . '<p>Concrete types = full IDE support, static analysis, boot-time validation.</p>'
-            . '</div>';
-
         return $resource
             ->pageTitle('Typed Handler — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'routing',
+                'currentSlug' => 'typed-handler',
+                'infoWhat' => $explanation['what'] ?? 'Concrete types in handle() — no instanceof, no casting, no guessing.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('routing')
             ->withSlug('typed-handler')
             ->withTitle('Typed Handler')
@@ -60,6 +59,9 @@ final class TypedHandlerHandler implements TypedHandlerInterface
             ->withDeepDiveLabel('How reflection validation works →')
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation)
-            ->withResultPreview($resultPreview);
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/signature-comparison.html.twig', [
+                'typedSignature' => $typedExample,
+                'untypedSignature' => $untypedExample,
+            ]);
     }
 }
