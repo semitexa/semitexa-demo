@@ -6,6 +6,7 @@ namespace Semitexa\Demo\Application\Payload\Request\Data;
 
 use Semitexa\Authorization\Attributes\PublicEndpoint;
 use Semitexa\Core\Attributes\AsPayload;
+use Semitexa\Core\Request;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Attributes\DemoFeature;
 
@@ -28,6 +29,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
 )]
 class OrmCrudPayload
 {
+    protected ?Request $httpRequest = null;
     protected ?string $action = null;
     protected ?string $productId = null;
     protected ?string $name = null;
@@ -36,6 +38,9 @@ class OrmCrudPayload
 
     public function getAction(): ?string { return $this->action; }
     public function setAction(?string $action): void { $this->action = $action; }
+
+    public function getHttpRequest(): ?Request { return $this->httpRequest; }
+    public function setHttpRequest(Request $httpRequest): void { $this->httpRequest = $httpRequest; }
 
     public function getProductId(): ?string { return $this->productId; }
     public function setProductId(?string $productId): void { $this->productId = $productId; }

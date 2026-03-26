@@ -29,8 +29,9 @@ final class OrmCrudHandler implements TypedHandlerInterface
     public function handle(OrmCrudPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
         $action = $payload->getAction();
+        $isMutationRequest = $payload->getHttpRequest()?->isPost() === true;
 
-        if ($action === 'create' && $payload->getName() !== null) {
+        if ($isMutationRequest && $action === 'create' && $payload->getName() !== null) {
             $price = $payload->getPrice() ?? 9.99;
             if ($price < 0 || $price > 99999.99) {
                 $price = 9.99;
@@ -42,7 +43,7 @@ final class OrmCrudHandler implements TypedHandlerInterface
             $product->status = 'active';
             $product->tenant_id = 'demo';
             $this->productRepository->save($product);
-        } elseif ($action === 'delete' && $payload->getProductId() !== null) {
+        } elseif ($isMutationRequest && $action === 'delete' && $payload->getProductId() !== null) {
             $product = $this->productRepository->findById($payload->getProductId());
             if ($product !== null && $product->tenant_id === 'demo') {
                 $this->productRepository->delete($product);
