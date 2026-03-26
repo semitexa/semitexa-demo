@@ -70,7 +70,7 @@
               <h3 class="feature-detail__related-heading">Related features</h3>
               <ul class="feature-detail__related-list">
                 {% for related in relatedPayloads %}
-                  <li><a href="/demo/{{ related }}">{{ related }}</a></li>
+                  <li><a href="/demo/{{ related|url_encode }}">{{ related }}</a></li>
                 {% endfor %}
               </ul>
             </div>

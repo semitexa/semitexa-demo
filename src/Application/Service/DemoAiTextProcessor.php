@@ -38,28 +38,38 @@ final class DemoAiTextProcessor
             }
         }
 
-        $completedCount = count($stageResults);
+        $completedCount = count(array_intersect(self::STAGES, array_keys($stageResults)));
         if ($completedCount >= count(self::STAGES)) {
-            $this->aiTaskRepository?->updateStatus($taskId, 'completed');
-            return true;
+            return $this->aiTaskRepository?->updateStatus($taskId, 'completed') === true;
         }
 
-        $nextStage = self::STAGES[$completedCount];
+        $nextStage = null;
+        foreach (self::STAGES as $stageName) {
+            if (!array_key_exists($stageName, $stageResults)) {
+                $nextStage = $stageName;
+                break;
+            }
+        }
+        if ($nextStage === null) {
+            return $this->aiTaskRepository?->updateStatus($taskId, 'completed') === true;
+        }
+
         $stageResults[$nextStage] = [
             'status' => 'done',
             'tokens' => random_int(20, 200),
             'ms'     => random_int(80, 400),
         ];
 
-        $this->aiTaskRepository?->updateStageResults($taskId, json_encode($stageResults, JSON_THROW_ON_ERROR));
-
-        if (count($stageResults) >= count(self::STAGES)) {
-            $this->aiTaskRepository?->updateStatus($taskId, 'completed');
-        } else {
-            $this->aiTaskRepository?->updateStatus($taskId, 'running');
+        $saved = $this->aiTaskRepository?->updateStageResults($taskId, json_encode($stageResults, JSON_THROW_ON_ERROR));
+        if ($saved !== true) {
+            return false;
         }
 
-        return true;
+        $newStatus = count(array_intersect(self::STAGES, array_keys($stageResults))) >= count(self::STAGES)
+            ? 'completed'
+            : 'running';
+
+        return $this->aiTaskRepository?->updateStatus($taskId, $newStatus) === true;
     }
 
     public function getStages(): array

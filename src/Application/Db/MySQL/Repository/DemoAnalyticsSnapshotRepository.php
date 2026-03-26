@@ -21,7 +21,7 @@ final class DemoAnalyticsSnapshotRepository extends AbstractRepository
         return $this->select()
             ->where('metric_type', '=', $metricType)
             ->where('tenant_id', '=', $tenantId)
-            ->orderBy('recorded_at', 'DESC')
+            ->orderBy('period_end', 'DESC')
             ->limit($limit)
             ->fetchAll();
     }
@@ -30,7 +30,7 @@ final class DemoAnalyticsSnapshotRepository extends AbstractRepository
     {
         return $this->select()
             ->where('tenant_id', '=', $tenantId)
-            ->orderBy('recorded_at', 'DESC')
+            ->orderBy('period_end', 'DESC')
             ->limit($limit)
             ->fetchAll();
     }

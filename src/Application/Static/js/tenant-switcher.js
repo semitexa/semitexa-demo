@@ -1,7 +1,7 @@
 /**
  * tenant-switcher.js
- * Sets X-Tenant-ID cookie and header on all subsequent fetch requests.
- * Colored dot UI — clicking a dot activates that tenant and triggers a page reload.
+ * Persists the active tenant in sessionStorage/cookie.
+ * Colored dot UI — clicking a dot activates that tenant and reloads the page with ?tenant=...
  */
 (function () {
     'use strict';
@@ -10,9 +10,17 @@
     var STORAGE_KEY = 'semitexa_demo_tenant';
 
     function getActiveTenant() {
-        return sessionStorage.getItem(STORAGE_KEY)
-            || document.cookie.replace(new RegExp('(?:^|.*;)\\s*' + COOKIE_NAME + '\\s*=\\s*([^;]*).*$|^.*$'), '$1')
-            || 'acme';
+        var stored = sessionStorage.getItem(STORAGE_KEY);
+        if (stored) return stored;
+
+        var cookieValue = document.cookie.replace(new RegExp('(?:^|.*;)\\s*' + COOKIE_NAME + '\\s*=\\s*([^;]*).*$|^.*$'), '$1');
+        if (!cookieValue) return 'acme';
+
+        try {
+            return decodeURIComponent(cookieValue);
+        } catch (e) {
+            return cookieValue;
+        }
     }
 
     function setActiveTenant(tenantId) {

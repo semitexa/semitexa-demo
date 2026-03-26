@@ -1,17 +1,21 @@
 <div class="reactive-block reactive-block--ai" data-block="reactive-ai" data-status="{{ status }}">
     <p class="reactive-block__input"><em>{{ inputText }}</em></p>
-    <div class="ai-pipeline">
+    <div class="ai-pipeline" data-stage-results-json="{{ stageResults|default({})|json_encode|e('html_attr') }}">
         {% for stage in stages %}
         {% set result = stageResults[stage] ?? null %}
-        <div class="ai-stage ai-stage--{{ result ? 'done' : (status == 'running' and loop.first and not stageResults|length ? 'active' : 'pending') }}">
+        <div class="ai-stage ai-stage--{{ result ? 'done' : (status == 'running' and loop.first and not stageResults|length ? 'active' : 'pending') }}" data-pipeline-stage="{{ stage }}">
             <span class="ai-stage__name">{{ stage }}</span>
             {% if result %}
-            <span class="ai-stage__tokens">{{ result.tokens }} tokens</span>
+            <span class="ai-stage__tokens" data-stage-detail>{{ result.tokens }} tokens</span>
+            {% else %}
+            <span class="ai-stage__tokens" data-stage-detail hidden></span>
             {% endif %}
         </div>
         {% endfor %}
     </div>
     {% if status == 'completed' %}
-    <p class="reactive-block__done">Analysis complete.</p>
+    <p class="reactive-block__done" data-pipeline-status>Completed</p>
+    {% else %}
+    <p class="reactive-block__done" data-pipeline-status>{{ status|title }}</p>
     {% endif %}
 </div>

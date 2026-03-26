@@ -47,7 +47,10 @@
 
         // Status badge
         var statusBadge = root.querySelector('[data-pipeline-status]');
-        var completedCount = Object.keys(stageResults).length;
+        var completedCount = STAGE_ORDER.filter(function (stageName) {
+            var result = stageResults[stageName];
+            return result && result.status === 'done';
+        }).length;
         if (statusBadge && completedCount >= STAGE_ORDER.length) {
             statusBadge.textContent = 'Completed';
             statusBadge.className = 'badge badge--success';

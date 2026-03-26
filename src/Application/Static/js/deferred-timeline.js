@@ -15,9 +15,16 @@
 
         var fill  = timeline.querySelector('.deferred-timeline__fill');
         var label = timeline.querySelector('.deferred-timeline__label');
+        var total = parseInt(timeline.getAttribute('data-total-blocks') || '', 10);
+        if (Number.isFinite(total) && total > 0) {
+            TOTAL_BLOCKS = total;
+        }
         startTime = Date.now();
 
         document.addEventListener('semitexa:block:rendered', function (e) {
+            var block = e.detail && e.detail.block;
+            if (!block || !timeline.contains(block)) return;
+
             arrivedCount++;
             var elapsed = Date.now() - startTime;
             var pct = Math.round((arrivedCount / TOTAL_BLOCKS) * 100);

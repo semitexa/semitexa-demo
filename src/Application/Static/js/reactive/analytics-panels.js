@@ -9,13 +9,14 @@
 
     function formatValue(type, value) {
         if (value === null || value === undefined) return '—';
+        var num = parseFloat(value);
         switch (type) {
             case 'pageviews':
-                return Math.round(parseFloat(value)).toLocaleString();
+                return Number.isFinite(num) ? Math.round(num).toLocaleString() : '—';
             case 'conversions':
-                return (parseFloat(value) * 100).toFixed(2) + '%';
+                return Number.isFinite(num) ? (num * 100).toFixed(2) + '%' : '—';
             case 'top_products':
-                return Math.round(parseFloat(value)).toString();
+                return Number.isFinite(num) ? Math.round(num).toString() : '—';
             default:
                 return String(value);
         }
@@ -28,13 +29,13 @@
         var valueEl = panel.querySelector('[data-panel-value]');
         if (!valueEl) return;
 
-        var type = panel.getAttribute('data-metric-type') || '';
+        var type = panel.getAttribute('data-metric-type') || valueEl.getAttribute('data-metric-type') || '';
         var raw = valueEl.getAttribute('data-raw-value');
         valueEl.textContent = formatValue(type, raw);
     }
 
     function initPanels(root) {
-        var panels = root.querySelectorAll('[data-analytics-panel]');
+        var panels = root.querySelectorAll('[data-analytics-panel], .analytics-panel');
         panels.forEach(function (panel, i) {
             setTimeout(function () { animatePanel(panel); }, i * 120);
         });

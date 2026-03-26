@@ -50,7 +50,7 @@ final class ReactiveAnalyticsHandler implements TypedHandlerInterface
                 . '<div class="analytics-panel__value" data-panel-value data-raw-value="' . htmlspecialchars((string)$value) . '">'
                 . htmlspecialchars($display)
                 . '</div>'
-                . '<div class="analytics-panel__updated">' . ($snapshot !== null ? 'Last snapshot: ' . htmlspecialchars($snapshot->recorded_at ?? 'unknown') : 'No data yet') . '</div>'
+                . '<div class="analytics-panel__updated">' . ($snapshot !== null ? 'Last snapshot: ' . htmlspecialchars($snapshot->period_end?->format('Y-m-d H:i:s') ?? 'unknown') : 'No data yet') . '</div>'
                 . '</div>';
         }
 

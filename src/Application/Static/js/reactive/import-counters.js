@@ -8,7 +8,8 @@
 
     function animateCounter(el) {
         var target = parseInt(el.getAttribute('data-target') || '0', 10);
-        var current = parseInt(el.textContent || '0', 10);
+        var currentText = (el.textContent || '0').replace(/[^\d-]/g, '');
+        var current = parseInt(currentText || '0', 10);
         if (isNaN(target) || current === target) return;
 
         var steps = 20;
@@ -29,10 +30,10 @@
         var counters = root.querySelectorAll('[data-counter]');
         counters.forEach(animateCounter);
 
-        var progressBar = root.querySelector('[data-import-progress]');
+        var progressBar = root.querySelector('[data-import-progress-bar], [data-import-progress]');
         if (progressBar) {
-            var pct = progressBar.getAttribute('data-percent') || '0';
-            progressBar.style.width = pct + '%';
+            var pct = progressBar.getAttribute('data-percent') || progressBar.textContent || '0';
+            progressBar.style.width = String(parseInt(pct, 10) || 0) + '%';
         }
     }
 

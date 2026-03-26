@@ -51,12 +51,13 @@ final class TenantResolutionHandler implements TypedHandlerInterface
     public function handle(TenantResolutionPayload $payload, DemoTenantResolutionResource $resource): DemoTenantResolutionResource
     {
         $activeTab = $payload->getTab() ?? 'header';
+        $strategies = self::STRATEGIES;
 
-        usort(self::STRATEGIES, fn ($a, $b) => $a['priority'] <=> $b['priority']);
+        usort($strategies, fn ($a, $b) => $a['priority'] <=> $b['priority']);
 
         return $resource
             ->pageTitle('Tenant Resolution Strategies — Semitexa Demo')
-            ->withStrategies(self::STRATEGIES)
+            ->withStrategies($strategies)
             ->withActiveTab($activeTab)
             ->withResolvedTenant('acme')
             ->withResolvedBy('HeaderStrategy');

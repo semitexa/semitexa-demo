@@ -38,11 +38,11 @@
     }
 
     function initChart(root) {
-        var canvas = root.querySelector('[data-report-chart]');
+        var canvas = root.querySelector('[data-report-chart], [data-chart-data]');
         if (!canvas) return;
 
         try {
-            var raw = canvas.getAttribute('data-chart-json');
+            var raw = canvas.getAttribute('data-chart-json') || canvas.getAttribute('data-chart-data');
             if (!raw) return;
             var chartData = JSON.parse(raw);
             drawChart(canvas, chartData);

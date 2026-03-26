@@ -22,11 +22,14 @@ final class DemoAnalyticsAggregator
      */
     public function recordSnapshot(string $metricType, string $tenantId = 'acme'): void
     {
+        $periodEnd = new \DateTimeImmutable();
+
         $snapshot = new DemoAnalyticsSnapshotResource();
         $snapshot->metric_type = $metricType;
         $snapshot->tenant_id = $tenantId;
         $snapshot->value = $this->generateValue($metricType);
-        $snapshot->recorded_at = date('Y-m-d H:i:s');
+        $snapshot->period_end = $periodEnd;
+        $snapshot->period_start = $periodEnd->modify('-5 minutes');
 
         $this->snapshotRepository?->save($snapshot);
     }

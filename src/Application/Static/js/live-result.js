@@ -37,8 +37,8 @@
                         output.innerHTML = '<pre class="code-inline">' + escHtml(JSON.stringify(data, null, 2)) + '</pre>';
                     });
                 }
-                return res.text().then(function (html) {
-                    output.innerHTML = '<div class="live-result__html">' + html + '</div>';
+                return res.text().then(function (text) {
+                    output.innerHTML = '<pre class="code-inline">' + escHtml(text) + '</pre>';
                 });
             })
             .catch(function (err) {

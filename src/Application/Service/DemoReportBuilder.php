@@ -29,7 +29,8 @@ final class DemoReportBuilder
 
         $current = $run->progress_percent ?? 0;
         $next = min(100, $current + 25);
-        $stage = self::STAGES[(int) floor($next / 25)] ?? 'complete';
+        $stageIndex = $next >= 100 ? count(self::STAGES) - 1 : max(0, (int) floor(($next - 1) / 25));
+        $stage = self::STAGES[$stageIndex] ?? 'complete';
 
         $this->jobRunRepository?->updateProgress($jobRunId, $next, ucfirst($stage) . '…');
 

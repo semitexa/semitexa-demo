@@ -23,7 +23,7 @@ final class DemoTenantDataSeeder
      */
     public function getProductCount(string $tenantId): int
     {
-        return count($this->productRepository->findByTenant($tenantId, 1000));
+        return $this->productRepository->countByTenant($tenantId);
     }
 
     /**
@@ -41,9 +41,6 @@ final class DemoTenantDataSeeder
      */
     public function getIllustrationSql(string $tenantId): string
     {
-        return sprintf(
-            "SELECT * FROM demo_products\nWHERE tenant_id = '%s'\nLIMIT 5",
-            addslashes($tenantId),
-        );
+        return "SELECT * FROM demo_products\nWHERE tenant_id = ?\nLIMIT 5";
     }
 }

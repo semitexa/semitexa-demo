@@ -24,6 +24,13 @@ final class DemoProductRepository extends AbstractRepository
             ->fetchAll();
     }
 
+    public function countByTenant(string $tenantId): int
+    {
+        return $this->select()
+            ->where('tenant_id', '=', $tenantId)
+            ->count();
+    }
+
     public function findByCategory(string $categoryId): array
     {
         return $this->select()

@@ -14,7 +14,8 @@
         var instanceId = el.dataset.instance || block.dataset.instance || Math.random().toString(36).slice(2);
         if (timers[instanceId]) return; // Already running
 
-        var duration = parseInt(el.dataset.duration, 10) || 60;
+        var durationRaw = parseInt(el.dataset.duration, 10);
+        var duration = Number.isFinite(durationRaw) && durationRaw > 0 ? durationRaw : 60;
         var display  = el.querySelector('[data-countdown-display]');
         var progress = el.querySelector('[data-countdown-progress]');
         var remaining = duration;
