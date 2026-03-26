@@ -11,7 +11,8 @@
 
   function getState() {
     try {
-      return JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '{}');
+      const parsed = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '{}');
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
     } catch {
       return {};
     }
@@ -35,10 +36,10 @@
     const target = document.getElementById(targetId);
     if (!target) return;
 
-    const isExpanded = target.getAttribute('aria-expanded') === 'true';
+    const isExpanded = target.getAttribute('data-expanded') === 'true';
     const shouldOpen = forceOpen !== undefined ? forceOpen : !isExpanded;
 
-    target.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+    target.setAttribute('data-expanded', shouldOpen ? 'true' : 'false');
     syncTriggerState(targetId, shouldOpen);
 
     // Persist state
@@ -61,14 +62,16 @@
     const target = document.getElementById(targetId);
     if (!target) return;
 
-    target.setAttribute('aria-expanded', 'false');
-    syncTriggerState(targetId, false);
-
     // Restore focus to the trigger that opened this drawer
     const trigger = document.querySelector('[data-disclosure-trigger="' + targetId + '"]');
     if (trigger) {
       trigger.focus();
+    } else if (document.activeElement instanceof HTMLElement && target.contains(document.activeElement)) {
+      document.body.focus();
     }
+
+    target.setAttribute('data-expanded', 'false');
+    syncTriggerState(targetId, false);
 
     const state = getState();
     state[targetId] = false;
@@ -82,10 +85,20 @@
       if (isOpen) {
         const target = document.getElementById(targetId);
         if (target) {
-          target.setAttribute('aria-expanded', 'true');
+          target.setAttribute('data-expanded', 'true');
+          syncTriggerState(targetId, true);
         }
       }
     }
+  }
+
+  function syncTooltipState(trigger, expanded) {
+    const tooltip = trigger.nextElementSibling;
+    if (!(tooltip instanceof HTMLElement) || !tooltip.classList.contains('explanation-tooltip__content')) {
+      return;
+    }
+
+    tooltip.setAttribute('aria-hidden', expanded ? 'false' : 'true');
   }
 
   // Mark first-view prompts
@@ -125,10 +138,43 @@
     }
   });
 
+  document.addEventListener('mouseover', function (e) {
+    const trigger = e.target.closest('.explanation-tooltip__trigger');
+    if (trigger instanceof HTMLElement) {
+      syncTooltipState(trigger, true);
+    }
+  });
+
+  document.addEventListener('mouseout', function (e) {
+    const trigger = e.target.closest('.explanation-tooltip__trigger');
+    if (trigger instanceof HTMLElement) {
+      syncTooltipState(trigger, false);
+    }
+  });
+
+  document.addEventListener('focusin', function (e) {
+    const trigger = e.target.closest('.explanation-tooltip__trigger');
+    if (trigger instanceof HTMLElement) {
+      syncTooltipState(trigger, true);
+    }
+  });
+
+  document.addEventListener('focusout', function (e) {
+    const trigger = e.target.closest('.explanation-tooltip__trigger');
+    if (trigger instanceof HTMLElement) {
+      syncTooltipState(trigger, false);
+    }
+  });
+
   // Close drawer on Escape key
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
-      var openDrawer = document.querySelector('[data-drawer][aria-expanded="true"]');
+      var openDrawer = document.activeElement instanceof Element
+        ? document.activeElement.closest('[data-drawer][data-expanded="true"]')
+        : null;
+      if (!openDrawer) {
+        openDrawer = document.querySelector('[data-drawer][data-expanded="true"]');
+      }
       if (openDrawer) {
         closeDrawer(openDrawer.id);
       }

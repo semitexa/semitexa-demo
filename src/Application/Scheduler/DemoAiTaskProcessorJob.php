@@ -13,7 +13,7 @@ use Semitexa\Scheduler\Domain\Value\ScheduledJobContext;
 
 #[AsScheduledJob(
     key: 'demo.ai_task_processor',
-    cronExpression: '*/10 * * * * *',
+    cronExpression: '*/10 * * * *',
     overlapPolicy: 'skip',
 )]
 final class DemoAiTaskProcessorJob implements ScheduledJobInterface

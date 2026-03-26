@@ -32,7 +32,7 @@ final class ReactiveReportHandler implements TypedHandlerInterface
 
     public function handle(ReactiveReportPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $runs = $this->jobRunRepository->findByJobType('demo_report');
+        $runs = $this->jobRunRepository->findByJobType('report_generation');
         $latestRun = $runs[0] ?? null;
 
         $status = $latestRun?->status ?? 'idle';

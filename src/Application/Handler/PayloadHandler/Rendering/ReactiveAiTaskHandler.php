@@ -38,6 +38,9 @@ final class ReactiveAiTaskHandler implements TypedHandlerInterface
             $recentTasks = $this->aiTaskRepository->findByStatus('pending');
         }
         if (empty($recentTasks)) {
+            $recentTasks = $this->aiTaskRepository->findByStatus('failed');
+        }
+        if (empty($recentTasks)) {
             $recentTasks = $this->aiTaskRepository->findByStatus('completed');
         }
 
@@ -53,9 +56,10 @@ final class ReactiveAiTaskHandler implements TypedHandlerInterface
 
         $stageNodes = '';
         foreach ($stages as $i => $stageName) {
-            $isDone = isset($stageResults[$stageName]) && ($stageResults[$stageName]['status'] ?? '') === 'done';
-            $tokens = $isDone ? ($stageResults[$stageName]['tokens'] ?? 0) : 0;
-            $ms = $isDone ? ($stageResults[$stageName]['ms'] ?? 0) : 0;
+            $stageResult = is_array($stageResults[$stageName] ?? null) ? $stageResults[$stageName] : [];
+            $isDone = ($stageResult['status'] ?? '') === 'done';
+            $tokens = $isDone ? (int) ($stageResult['tokens'] ?? 0) : 0;
+            $ms = $isDone ? (int) ($stageResult['ms'] ?? 0) : 0;
             $stageNodes .= '<div class="pipeline-stage pipeline-stage--' . ($isDone ? 'done' : 'pending') . '" '
                 . 'data-pipeline-stage="' . htmlspecialchars($stageName) . '">'
                 . '<div class="pipeline-stage__name">' . htmlspecialchars(ucfirst($stageName)) . '</div>'

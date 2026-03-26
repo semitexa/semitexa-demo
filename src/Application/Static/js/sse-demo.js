@@ -4,7 +4,7 @@
 (function () {
     'use strict';
 
-    const SSE_ENDPOINT = '/sse';
+    const SSE_ENDPOINT = '/demo/events/sse';
 
     function init() {
         const connectBtn = document.getElementById('sse-connect');
@@ -12,7 +12,7 @@
         const statusEl = document.getElementById('sse-status');
         const logEl = document.getElementById('sse-event-log');
 
-        if (!connectBtn || !statusEl || !logEl) return;
+        if (!connectBtn || !disconnectBtn || !statusEl || !logEl) return;
 
         let source = null;
 
@@ -79,17 +79,15 @@
             });
         });
 
-        if (disconnectBtn) {
-            disconnectBtn.addEventListener('click', function () {
-                if (source) {
-                    source.close();
-                    source = null;
-                }
-                setStatus('Disconnected', 'warning');
-                connectBtn.style.display = '';
-                disconnectBtn.style.display = 'none';
-            });
-        }
+        disconnectBtn.addEventListener('click', function () {
+            if (source) {
+                source.close();
+                source = null;
+            }
+            setStatus('Disconnected', 'warning');
+            connectBtn.style.display = '';
+            disconnectBtn.style.display = 'none';
+        });
     }
 
     if (document.readyState === 'loading') {

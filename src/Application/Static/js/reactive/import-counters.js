@@ -32,8 +32,10 @@
 
         var progressBar = root.querySelector('[data-import-progress-bar], [data-import-progress]');
         if (progressBar) {
-            var pct = progressBar.getAttribute('data-percent') || progressBar.textContent || '0';
-            progressBar.style.width = String(parseInt(pct, 10) || 0) + '%';
+            var pct = parseFloat(progressBar.getAttribute('data-percent') || progressBar.textContent || '0');
+            if (!isFinite(pct)) pct = 0;
+            pct = Math.max(0, Math.min(100, pct));
+            progressBar.style.width = String(pct) + '%';
         }
     }
 

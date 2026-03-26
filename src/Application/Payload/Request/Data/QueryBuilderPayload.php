@@ -38,10 +38,10 @@ class QueryBuilderPayload
     public function setStatus(?string $status): void { $this->status = $status; }
 
     public function getMinPrice(): ?float { return $this->minPrice; }
-    public function setMinPrice(?float $minPrice): void { $this->minPrice = $minPrice; }
+    public function setMinPrice(?float $minPrice): void { $this->minPrice = $minPrice !== null ? max(0.0, $minPrice) : null; }
 
     public function getMaxPrice(): ?float { return $this->maxPrice; }
-    public function setMaxPrice(?float $maxPrice): void { $this->maxPrice = $maxPrice; }
+    public function setMaxPrice(?float $maxPrice): void { $this->maxPrice = $maxPrice !== null ? max(0.0, $maxPrice) : null; }
 
     public function getOrderBy(): ?string { return $this->orderBy; }
     public function setOrderBy(?string $orderBy): void { $this->orderBy = $orderBy; }

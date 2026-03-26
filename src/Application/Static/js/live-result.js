@@ -29,8 +29,7 @@
             .then(function (res) {
                 const contentType = res.headers.get('content-type') || '';
                 if (statusEl) {
-                    statusEl.innerHTML = '<span class="badge badge--' + (res.ok ? 'active' : 'error') + '">'
-                        + res.status + ' ' + res.statusText + '</span>';
+                    renderStatus(statusEl, res.ok ? 'active' : 'error', res.status + ' ' + res.statusText);
                 }
                 if (contentType.includes('application/json')) {
                     return res.json().then(function (data) {
@@ -43,12 +42,19 @@
             })
             .catch(function (err) {
                 output.innerHTML = '<p class="live-result__error">Request failed: ' + escHtml(err.message) + '</p>';
-                if (statusEl) statusEl.innerHTML = '<span class="badge badge--error">Error</span>';
+                if (statusEl) renderStatus(statusEl, 'error', 'Error');
             })
             .finally(function () {
                 btn.disabled = false;
             });
         });
+    }
+
+    function renderStatus(container, variant, text) {
+        const badge = document.createElement('span');
+        badge.className = 'badge badge--' + variant;
+        badge.textContent = text;
+        container.replaceChildren(badge);
     }
 
     function escHtml(str) {

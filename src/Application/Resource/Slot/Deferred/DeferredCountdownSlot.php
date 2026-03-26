@@ -19,6 +19,10 @@ final class DeferredCountdownSlot extends HtmlSlotResponse
 {
     public function withDuration(int $seconds): static
     {
+        if ($seconds < 1) {
+            throw new \InvalidArgumentException('Duration must be at least 1 second.');
+        }
+
         return $this->with('duration', $seconds);
     }
 

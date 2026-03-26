@@ -19,6 +19,7 @@ use Semitexa\Demo\Application\Db\MySQL\Repository\DemoOrderRepository;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoReviewRepository;
 use Semitexa\Core\Attributes\AsService;
+use Semitexa\Orm\Transaction\TransactionManager;
 
 #[AsService]
 final class DemoDataSeeder
@@ -134,6 +135,9 @@ final class DemoDataSeeder
     #[InjectAsReadonly]
     private ?DemoAiTaskRepository $aiTaskRepository = null;
 
+    #[InjectAsReadonly]
+    private ?TransactionManager $transactionManager = null;
+
     /**
      * Seed all demo data. Returns summary counts.
      *
@@ -141,25 +145,36 @@ final class DemoDataSeeder
      */
     public function seed(): array
     {
-        $counts = [
-            'categories' => 0,
-            'products' => 0,
-            'reviews' => 0,
-            'orders' => 0,
-            'job_runs' => 0,
-            'ai_tasks' => 0,
-        ];
+        $seed = function (): array {
+            $counts = [
+                'categories' => 0,
+                'products' => 0,
+                'reviews' => 0,
+                'orders' => 0,
+                'job_runs' => 0,
+                'ai_tasks' => 0,
+            ];
 
-        $categoryIds = $this->seedCategories();
-        $counts['categories'] = count($categoryIds);
+            $categoryIds = $this->seedCategories();
+            $counts['categories'] = count($categoryIds);
 
-        $productIds = $this->seedProducts($categoryIds);
-        $counts['products'] = count($productIds);
+            $productIds = $this->seedProducts($categoryIds);
+            $counts['products'] = count($productIds);
 
-        $counts['reviews'] = $this->seedReviews($productIds);
-        $counts['orders'] = $this->seedOrders();
-        $counts['job_runs'] = $this->seedJobRuns();
-        $counts['ai_tasks'] = $this->seedAiTasks();
+            $counts['reviews'] = $this->seedReviews($productIds);
+            $counts['orders'] = $this->seedOrders();
+            $counts['job_runs'] = $this->seedJobRuns();
+            $counts['ai_tasks'] = $this->seedAiTasks();
+
+            return $counts;
+        };
+
+        if ($this->transactionManager === null) {
+            return $seed();
+        }
+
+        /** @var array<string, int> $counts */
+        $counts = $this->transactionManager->run(static fn () => $seed());
 
         return $counts;
     }
@@ -169,8 +184,12 @@ final class DemoDataSeeder
      */
     public function isSeeded(): bool
     {
-        $categories = $this->categoryRepository->findBySlug('electronics');
-        return $categories !== null;
+        return $this->categoryRepository->findBySlug('electronics') !== null
+            && $this->productRepository->findByTenant('acme', 1) !== []
+            && $this->reviewRepository->findAll(1) !== []
+            && $this->orderRepository->findAll(1) !== []
+            && $this->jobRunRepository->findByJobType('report_generation') !== []
+            && $this->aiTaskRepository->findByStatus('completed') !== [];
     }
 
     /**
