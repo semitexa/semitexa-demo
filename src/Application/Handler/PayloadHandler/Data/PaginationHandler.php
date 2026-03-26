@@ -27,15 +27,16 @@ final class PaginationHandler implements TypedHandlerInterface
 
     public function handle(PaginationPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $mode = $payload->getMode();
         $limit = $payload->getLimit();
         $page = $payload->getPage();
+        $total = $this->productRepository->countAll();
+        $totalPages = max(1, (int) ceil($total / $limit));
+        $page = min($page, $totalPages);
         $offset = ($page - 1) * $limit;
-
-        // Fetch all and slice for offset pagination demo
-        $all = $this->productRepository->findAll(1000);
-        $total = count($all);
-        $totalPages = $total > 0 ? (int) ceil($total / $limit) : 0;
-        $items = array_slice($all, $offset, $limit);
+        $items = $this->productRepository->findPage($limit, $offset);
+        $isCursorMode = $mode === 'cursor';
+        $baseQuery = ['limit' => $limit, 'mode' => $mode];
 
         $rows = '';
         foreach ($items as $product) {
@@ -47,14 +48,33 @@ final class PaginationHandler implements TypedHandlerInterface
         }
 
         $resultPreview = '<div class="result-preview">'
-            . sprintf('<p>Page <strong>%d</strong> of <strong>%d</strong> — %d total products, %d per page</p>', $page, $totalPages, $total, $limit)
+            . sprintf(
+                '<p><strong>%s mode</strong> — page <strong>%d</strong> of <strong>%d</strong>, %d total products, %d per page</p>',
+                ucfirst($mode),
+                $page,
+                $totalPages,
+                $total,
+                $limit,
+            )
             . '<table class="data-table"><thead><tr><th>Name</th><th>Price</th></tr></thead>'
             . '<tbody>' . ($rows ?: '<tr><td colspan="2">No results — seed data first.</td></tr>') . '</tbody>'
             . '</table>'
             . '<div class="pagination-nav">'
-            . ($page > 1 ? sprintf('<a href="?page=%d&limit=%d" class="btn btn--secondary">← Prev</a>', $page - 1, $limit) : '<span class="btn btn--disabled">← Prev</span>')
+            . ($page > 1
+                ? sprintf(
+                    '<a href="?%s" class="btn btn--secondary">%s</a>',
+                    http_build_query($baseQuery + ['page' => $page - 1]),
+                    $isCursorMode ? '← Newer' : '← Prev',
+                )
+                : '<span class="btn btn--disabled">' . ($isCursorMode ? '← Newer' : '← Prev') . '</span>')
             . sprintf(' <span class="page-info">%d / %d</span> ', $page, $totalPages)
-            . ($page < $totalPages ? sprintf('<a href="?page=%d&limit=%d" class="btn btn--secondary">Next →</a>', $page + 1, $limit) : '<span class="btn btn--disabled">Next →</span>')
+            . ($page < $totalPages
+                ? sprintf(
+                    '<a href="?%s" class="btn btn--secondary">%s</a>',
+                    http_build_query($baseQuery + ['page' => $page + 1]),
+                    $isCursorMode ? 'Older →' : 'Next →',
+                )
+                : '<span class="btn btn--disabled">' . ($isCursorMode ? 'Older →' : 'Next →') . '</span>')
             . '</div>'
             . '</div>';
 

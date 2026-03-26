@@ -27,19 +27,13 @@ final class QueryBuilderHandler implements TypedHandlerInterface
 
     public function handle(QueryBuilderPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $products = $this->productRepository->findAll($payload->getLimit());
-
-        // Apply filters that the query snippet displays
-        if ($payload->getStatus() !== null) {
-            $products = array_filter($products, static fn($p) => $p->status === $payload->getStatus());
-        }
-        if ($payload->getMinPrice() !== null) {
-            $products = array_filter($products, static fn($p) => (float) $p->price >= $payload->getMinPrice());
-        }
-        if ($payload->getMaxPrice() !== null) {
-            $products = array_filter($products, static fn($p) => (float) $p->price <= $payload->getMaxPrice());
-        }
-        $products = array_values($products);
+        $products = $this->productRepository->findFiltered(
+            status: $payload->getStatus(),
+            minPrice: $payload->getMinPrice(),
+            maxPrice: $payload->getMaxPrice(),
+            orderBy: $payload->getOrderBy(),
+            limit: $payload->getLimit(),
+        );
 
         $count = count($products);
         $rows = '';
@@ -56,6 +50,7 @@ final class QueryBuilderHandler implements TypedHandlerInterface
             . ($payload->getStatus() !== null ? sprintf("    ->where('status', '=', '%s')\n", htmlspecialchars($payload->getStatus())) : '')
             . ($payload->getMinPrice() !== null ? sprintf("    ->where('price', '>=', %.2f)\n", $payload->getMinPrice()) : '')
             . ($payload->getMaxPrice() !== null ? sprintf("    ->where('price', '<=', %.2f)\n", $payload->getMaxPrice()) : '')
+            . ($payload->getOrderBy() !== null ? sprintf("    ->orderBy('%s', 'ASC')\n", htmlspecialchars($payload->getOrderBy())) : '')
             . sprintf("    ->limit(%d)\n", $payload->getLimit())
             . '    ->fetchAll();';
 
