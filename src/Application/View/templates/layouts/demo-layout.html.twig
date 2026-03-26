@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="{{ locale|default('en') }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}{{ title|default('Semitexa Demo') }}{% endblock %}</title>
+    {{ semantic_head() }}
+    {{ asset_head() }}
+    {% block head_extra %}{{ layout_slot('head_extra') }}{% endblock %}
+  </head>
+  <body class="demo-layout" {{ __ssr_handle_attr|default('')|raw }}>
+
+    {# --- Top navigation bar --- #}
+    <header class="demo-header">
+      {% block header %}
+        {{ layout_slot('demo_nav') }}
+      {% endblock %}
+    </header>
+
+    {# --- Three-zone layout: sidebar + main + info panel --- #}
+    <div class="demo-layout__grid">
+
+      {# Sidebar: feature tree navigation (240px) #}
+      <aside class="demo-layout__sidebar" aria-label="Feature navigation">
+        {% block sidebar %}
+          {{ layout_slot('demo_sidebar') }}
+        {% endblock %}
+      </aside>
+
+      {# Main content area (fluid) #}
+      <main class="demo-layout__main">
+        {% block main %}
+          {{ layout_slot('main_before') }}
+          {{ main|default(content|default(''))|raw }}
+          {{ layout_slot('main_after') }}
+        {% endblock %}
+      </main>
+
+      {# Info panel: What / How / Why (280px) #}
+      <aside class="demo-layout__info" aria-label="Feature information">
+        {% block info_panel %}
+          {{ layout_slot('demo_feature_info') }}
+        {% endblock %}
+      </aside>
+
+    </div>
+
+    <footer class="demo-footer">
+      {% block footer %}
+        <p>Semitexa Framework Demo &middot; Built with <a href="https://semitexa.com">Semitexa</a></p>
+      {% endblock %}
+    </footer>
+
+    {{ asset_body() }}
+  </body>
+</html>

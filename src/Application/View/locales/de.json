@@ -1,0 +1,19 @@
+{
+    "product_count": {"one": "{count} Produkt", "other": "{count} Produkte"},
+    "welcome": "Willkommen bei {tenant_name}",
+    "checkout_button": "Zur Kasse",
+    "add_to_cart": "In den Warenkorb",
+    "view_details": "Details anzeigen",
+    "price_label": "Preis",
+    "rating_label": "Bewertung",
+    "reviews_label": "Rezensionen",
+    "no_products": "Keine Produkte gefunden.",
+    "search_placeholder": "Produkte suchen…",
+    "category_label": "Kategorie",
+    "sort_by": "Sortieren nach",
+    "filter_label": "Filter",
+    "page_title": "Produktkatalog",
+    "currency_symbol": "€",
+    "date_format": "DD.MM.YYYY",
+    "locale_name": "Deutsch"
+}

@@ -1,0 +1,19 @@
+<nav class="demo-nav" aria-label="Demo navigation">
+  <a class="demo-nav__brand" href="/demo">
+    <span class="demo-nav__logo">⬡</span>
+    <span class="demo-nav__title">Semitexa <strong>Demo</strong></span>
+  </a>
+
+  <ul class="demo-nav__sections">
+    {% for section in sections|default([]) %}
+      <li class="demo-nav__item{{ currentSection == section.key ? ' demo-nav__item--active' : '' }}">
+        <a href="/demo/{{ section.key }}">{{ section.label }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <div class="demo-nav__actions">
+    <a class="demo-nav__link" href="/demo" title="Home">Home</a>
+    <a class="demo-nav__link" href="https://semitexa.com/docs" target="_blank" rel="noopener" title="Documentation">Docs</a>
+  </div>
+</nav>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Service;
 
+use Semitexa\Core\Attributes\AsService;
 use Semitexa\Core\Discovery\ClassDiscovery;
 use Semitexa\Demo\Attributes\DemoFeature;
 
@@ -14,6 +15,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
  * with the #[DemoFeature] attribute. Results are cached after first
  * initialization and sorted by order within each section.
  */
+#[AsService]
 final class DemoFeatureRegistry
 {
     /** @var array<string, list<array{class: string, attribute: DemoFeature}>> keyed by section */

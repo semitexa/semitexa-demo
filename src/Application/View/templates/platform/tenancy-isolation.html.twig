@@ -1,0 +1,66 @@
+{% extends '@project-layouts-semitexa-demo/layouts/demo-feature.html.twig' %}
+
+{% block feature_title %}Data Isolation{% endblock %}
+{% block feature_summary %}Product listing scoped by tenant — switch tenant, list changes instantly.{% endblock %}
+
+{% block feature_l1 %}
+<div class="feature-l1">
+    <p class="feature-entry">Switch tenant — the product list changes instantly. Zero manual WHERE clauses.</p>
+
+    <div class="tenant-switcher-row">
+        {% for tenantId, count in allTenantCounts %}
+            <a href="?tenant={{ tenantId }}"
+               class="tenant-tab{% if tenantId == activeTenant %} tenant-tab--active{% endif %}">
+                {{ tenantId }} ({{ count }})
+            </a>
+        {% endfor %}
+    </div>
+
+    <div class="isolation-result" style="margin-top: 1rem">
+        <p><strong>{{ productCount }} products</strong> for tenant <code>{{ activeTenant }}</code></p>
+
+        {% if products is not empty %}
+            <table class="data-table">
+                <thead><tr><th>Product</th><th>Price</th><th>Status</th></tr></thead>
+                <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.price }}</td>
+                            <td><span class="badge badge--neutral">{{ product.status }}</span></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="muted">No products yet for this tenant. Run <code>semitexa:demo:seed</code>.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block feature_l2 %}
+<div class="feature-l2">
+    <h3>ORM automatic WHERE injection</h3>
+    <p>Add <code>#[TenantScoped(strategy: 'same_storage')]</code> to any model — every SELECT, INSERT, and UPDATE is automatically scoped.</p>
+    <div class="code-block"><pre>{{ illustrationSql }}</pre></div>
+    <div class="code-block"><pre>#[FromTable(name: 'demo_products')]
+#[TenantScoped(strategy: 'same_storage')]
+final class DemoProductResource
+{
+    // No manual filtering. No forgotten WHERE clauses.
+}</pre></div>
+</div>
+{% endblock %}
+
+{% block feature_l3 %}
+<div class="feature-l3">
+    <h3>Three isolation strategies</h3>
+    <ul>
+        <li><strong>same_storage</strong> — shared table, automatic <code>WHERE tenant_id = ?</code></li>
+        <li><strong>connection_switch</strong> — separate database per tenant, connection swapped on context change</li>
+        <li><strong>separate_schema</strong> — separate schema per tenant, search-path switching</li>
+    </ul>
+    <p>The strategy is per-model — mix strategies in the same app.</p>
+</div>
+{% endblock %}

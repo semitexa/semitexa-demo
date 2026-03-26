@@ -1,0 +1,164 @@
+/* ==========================================================================
+   Code Highlight Styles
+   Attribute keywords in brand color, dark background.
+   ========================================================================== */
+
+/* --- Code block container --- */
+
+.code-block {
+  border: 1px solid var(--demo-border, #e2e8f0);
+  border-radius: var(--demo-radius, 8px);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  background: #1e293b;
+}
+
+/* --- Tabs --- */
+
+.code-block__tabs {
+  display: flex;
+  background: #0f172a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  overflow-x: auto;
+}
+
+.code-block__tab {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.8125rem;
+  font-family: var(--demo-font-mono, monospace);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 120ms ease, background 120ms ease;
+  border-bottom: 2px solid transparent;
+}
+
+.code-block__tab:hover {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.code-block__tab:focus-visible {
+  outline: 2px solid #818cf8;
+  outline-offset: -2px;
+}
+
+.code-block__tab--active {
+  color: #818cf8;
+  border-bottom-color: #818cf8;
+}
+
+/* --- Panel --- */
+
+.code-block__panel {
+  display: none;
+}
+
+.code-block__panel--active {
+  display: block;
+}
+
+.code-block__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.code-block__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.code-block__copy {
+  padding: 0.25rem 0.625rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.code-block__copy:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+}
+
+.code-block__copy:focus-visible {
+  outline: 2px solid #818cf8;
+  outline-offset: 2px;
+}
+
+/* --- Code --- */
+
+.code-block__pre {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.code-block__code {
+  font-family: var(--demo-font-mono, 'SF Mono', 'Fira Code', monospace);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: #e2e8f0;
+  white-space: pre;
+  tab-size: 4;
+}
+
+/* --- Source code partial --- */
+
+.source-code {
+  border: 1px solid var(--demo-border, #e2e8f0);
+  border-radius: var(--demo-radius, 8px);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  background: #1e293b;
+}
+
+.source-code__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.source-code__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.source-code__class {
+  font-size: 0.75rem;
+  color: #818cf8;
+  font-family: var(--demo-font-mono, monospace);
+}
+
+.source-code__pre {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+}
+
+.source-code__code {
+  font-family: var(--demo-font-mono, monospace);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: #e2e8f0;
+  white-space: pre;
+}

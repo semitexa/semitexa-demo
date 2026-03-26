@@ -1,0 +1,21 @@
+<div class="brand-card" style="--brand-color: {{ primaryColor }}; font-family: {{ fontFamily }}" data-tenant-brand="{{ tenantId }}">
+    <div class="brand-card__header">
+        <div class="brand-card__swatch" style="background: {{ primaryColor }}"></div>
+        <div class="brand-card__name">{{ displayName }}</div>
+        <div class="brand-card__id"><code>{{ tenantId }}</code></div>
+    </div>
+    <dl class="brand-card__meta">
+        <dt>Color</dt><dd><code>{{ primaryColor }}</code></dd>
+        <dt>Font</dt><dd><code>{{ fontFamily }}</code></dd>
+        <dt>Currency</dt><dd><code>{{ currencyCode }}</code></dd>
+        <dt>Ratings</dt><dd><code>{{ ratingStyle }}</code></dd>
+        <dt>Locales</dt><dd>{{ supportedLocales|join(', ') }}</dd>
+    </dl>
+    <div class="brand-card__flags">
+        {% for flag, enabled in featureFlags %}
+            <span class="feature-flag feature-flag--{{ enabled ? 'on' : 'off' }}">
+                {{ flag }}: {{ enabled ? 'on' : 'off' }}
+            </span>
+        {% endfor %}
+    </div>
+</div>

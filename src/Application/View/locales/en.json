@@ -1,0 +1,19 @@
+{
+    "product_count": {"one": "{count} product", "other": "{count} products"},
+    "welcome": "Welcome to {tenant_name}",
+    "checkout_button": "Proceed to Checkout",
+    "add_to_cart": "Add to Cart",
+    "view_details": "View Details",
+    "price_label": "Price",
+    "rating_label": "Rating",
+    "reviews_label": "Reviews",
+    "no_products": "No products found.",
+    "search_placeholder": "Search products…",
+    "category_label": "Category",
+    "sort_by": "Sort by",
+    "filter_label": "Filters",
+    "page_title": "Product Catalog",
+    "currency_symbol": "$",
+    "date_format": "MM/DD/YYYY",
+    "locale_name": "English"
+}

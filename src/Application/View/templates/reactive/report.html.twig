@@ -1,0 +1,12 @@
+<div class="reactive-block reactive-block--report" data-block="reactive-report" data-status="{{ status }}">
+    {% if status == 'completed' and chartData %}
+    <canvas class="chart-canvas" data-chart-type="bar" data-chart-data="{{ chartData|json_encode }}" width="400" height="180" aria-label="Monthly revenue"></canvas>
+    {% elseif status in ['running', 'pending'] %}
+    <div class="progress-bar">
+        <div class="progress-bar__fill" style="width:{{ progress }}%"></div>
+    </div>
+    <p class="reactive-block__message">{{ message }}</p>
+    {% else %}
+    <p class="reactive-block__idle">Waiting for next run…</p>
+    {% endif %}
+</div>

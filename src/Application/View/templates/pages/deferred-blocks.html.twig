@@ -1,0 +1,115 @@
+{% extends '@project-layouts-semitexa-demo/layouts/demo-layout.html.twig' %}
+
+{% block title %}{{ featureTitle|default('Deferred Blocks') }} — Semitexa Demo{% endblock %}
+
+{% block main %}
+  <article class="feature-detail" data-section="{{ section }}" data-slug="{{ slug }}">
+
+    {# ================================================================
+       L1 — ENTRY ZONE
+       ================================================================ #}
+    <section class="feature-detail__l1">
+      <header class="feature-detail__header">
+        <h1 class="feature-detail__title">{{ featureTitle }}</h1>
+        <p class="feature-detail__entry-line">{{ entryLine }}</p>
+      </header>
+
+      {# Highlight badges #}
+      {% if highlights is defined and highlights|length > 0 %}
+        <div class="feature-detail__highlights">
+          {% for highlight in highlights %}
+            <span class="feature-detail__highlight" data-explain="{{ highlight }}">{{ highlight }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </section>
+
+    {# ================================================================
+       DEFERRED BLOCKS DEMO — always visible, loaded via SSE
+       ================================================================ #}
+    <section class="feature-detail__deferred-demo">
+      <div class="deferred-blocks-grid">
+        {{ layout_slot_deferred('deferred_product_carousel') }}
+        {{ layout_slot_deferred('deferred_review_feed') }}
+        {{ layout_slot_deferred('deferred_chart_widget') }}
+        {{ layout_slot_deferred('deferred_search_filter') }}
+        {{ layout_slot_deferred('deferred_notification') }}
+        {{ layout_slot_deferred('deferred_countdown') }}
+      </div>
+    </section>
+
+    {# ================================================================
+       L1 → L2 DISCLOSURE PROMPT
+       ================================================================ #}
+    {% include '@project-layouts-semitexa-demo/components/disclosure-prompt.html.twig' with {
+      label: learnMoreLabel|default('How it works →'),
+      variant: 'learnMore',
+      target: 'l2-' ~ section ~ '-' ~ slug,
+    } only %}
+
+    {# ================================================================
+       L2 — CODE WALKTHROUGH
+       ================================================================ #}
+    <div id="l2-{{ section }}-{{ slug }}" class="expandable-section" aria-expanded="false" data-expandable>
+      <div class="expandable-section__inner">
+        <div class="feature-detail__l2">
+
+          {# Code tabs #}
+          {% if sourceCode is defined and sourceCode|length > 0 %}
+            {% include '@project-layouts-semitexa-demo/components/code-block.html.twig' with {
+              tabs: sourceCode,
+              featureSlug: slug,
+            } only %}
+          {% endif %}
+
+          {# L2 → L3 disclosure prompt #}
+          {% include '@project-layouts-semitexa-demo/components/disclosure-prompt.html.twig' with {
+            label: deepDiveLabel|default('Under the hood →'),
+            variant: 'deepDive',
+            target: 'l3-' ~ section ~ '-' ~ slug,
+          } only %}
+        </div>
+      </div>
+    </div>
+
+    {# ================================================================
+       L3 — DEEP DIVE DRAWER
+       ================================================================ #}
+    <div id="l3-{{ section }}-{{ slug }}" class="deep-dive-drawer" aria-expanded="false" data-drawer>
+      <div class="deep-dive-drawer__overlay" data-drawer-close></div>
+      <div class="deep-dive-drawer__panel">
+        <button class="deep-dive-drawer__close" type="button" aria-label="Close details panel" data-drawer-close>&times;</button>
+        <div class="deep-dive-drawer__content">
+          <div class="feature-detail__l3">
+            {% if explanation is defined %}
+              {% if explanation.how is defined and explanation.how %}
+                <section class="feature-detail__l3-section">
+                  <h3>How it works</h3>
+                  <p>{{ explanation.how }}</p>
+                </section>
+              {% endif %}
+              {% if explanation.why is defined and explanation.why %}
+                <section class="feature-detail__l3-section">
+                  <h3>Why it matters</h3>
+                  <p>{{ explanation.why }}</p>
+                </section>
+              {% endif %}
+              {% if explanation.keywords is defined and explanation.keywords|length > 0 %}
+                <section class="feature-detail__l3-section">
+                  <h3>Key concepts</h3>
+                  <dl class="feature-detail__keywords">
+                    {% for kw in explanation.keywords %}
+                      <dt>{{ kw.term }}</dt>
+                      <dd>{{ kw.definition }}</dd>
+                    {% endfor %}
+                  </dl>
+                </section>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </article>
+{% endblock %}

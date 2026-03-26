@@ -1,0 +1,22 @@
+<div
+  id="{{ targetId }}"
+  class="deep-dive-drawer"
+  role="dialog"
+  aria-modal="true"
+  data-expanded="false"
+  aria-label="Advanced details"
+  data-drawer
+>
+  <div class="deep-dive-drawer__overlay" data-drawer-close></div>
+  <div class="deep-dive-drawer__panel">
+    <button
+      class="deep-dive-drawer__close"
+      type="button"
+      aria-label="Close details panel"
+      data-drawer-close
+    >&times;</button>
+    <div class="deep-dive-drawer__content">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>

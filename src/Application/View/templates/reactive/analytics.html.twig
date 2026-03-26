@@ -1,0 +1,15 @@
+<div class="reactive-block reactive-block--analytics" data-block="reactive-analytics">
+    <div class="analytics-panels">
+        {% for type in metricTypes %}
+        {% set snap = snapshots[type] ?? null %}
+        <div class="analytics-panel analytics-panel--{{ type }}">
+            <div class="analytics-panel__label">{{ type|replace({'_': ' '})|title }}</div>
+            {% if snap %}
+            <div class="analytics-panel__value" data-panel="{{ type }}">{{ snap.value|number_format(2) }}</div>
+            {% else %}
+            <div class="analytics-panel__empty">No data yet</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>

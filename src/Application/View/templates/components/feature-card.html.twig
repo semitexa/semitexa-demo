@@ -1,0 +1,15 @@
+<a href="/demo/{{ key }}" class="feature-card{{ starter ? ' feature-card--starter' : '' }}">
+  <div class="feature-card__icon" aria-hidden="true">{{ icon }}</div>
+  <div class="feature-card__body">
+    <h3 class="feature-card__title">{{ label }}</h3>
+    <p class="feature-card__summary">{{ summary }}</p>
+    <div class="feature-card__meta">
+      <span class="feature-card__count">{{ featureCount }} feature{{ featureCount != 1 ? 's' : '' }}</span>
+      {% if prerequisites|default([])|length > 0 %}
+        <span class="feature-card__prerequisite" data-prerequisites="{{ prerequisites|join(',') }}">
+          Requires: {{ prerequisites|join(', ') }}
+        </span>
+      {% endif %}
+    </div>
+  </div>
+</a>

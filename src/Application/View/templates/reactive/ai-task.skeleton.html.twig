@@ -1,0 +1,11 @@
+<div class="reactive-block reactive-block--ai reactive-block--skeleton" data-block="reactive-ai">
+    <div class="skeleton skeleton--text skeleton--wide"></div>
+    <div class="ai-pipeline">
+        {% for i in 1..4 %}
+        <div class="ai-stage ai-stage--skeleton">
+            <div class="skeleton skeleton--text skeleton--narrow"></div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="reactive-block__label">Waiting for AI task…</div>
+</div>

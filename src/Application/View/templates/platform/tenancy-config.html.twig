@@ -1,0 +1,44 @@
+{% extends '@project-layouts-semitexa-demo/layouts/demo-feature.html.twig' %}
+
+{% block feature_title %}Per-Tenant Configuration{% endblock %}
+{% block feature_summary %}Three demo tenants with distinct branding — switch tenant, everything changes without if/else.{% endblock %}
+
+{% block feature_l1 %}
+<div class="feature-l1">
+    <p class="feature-entry">Acme (blue, serif) · Globex (green, modern) · Initech (orange, minimal). No if/else in templates.</p>
+
+    <div class="brand-cards">
+        {% for config in tenantConfigs %}
+            {{ component('demo-tenant-brand-preview', {
+                tenantId: config.tenantId,
+                displayName: config.displayName,
+                primaryColor: config.primaryColor,
+                fontFamily: config.fontFamily,
+                currencyCode: config.currencyCode,
+                ratingStyle: config.ratingStyle,
+                featureFlags: config.featureFlags,
+                supportedLocales: config.supportedLocales,
+            }) }}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block feature_l2 %}
+<div class="feature-l2">
+    <h3>Live switching</h3>
+    <p>Click any brand card above to activate that tenant. The config flows through DI — no controller changes needed.</p>
+    <div class="code-block"><pre>// In a handler or template:
+$theme = TenantContext::getLayer(ThemeLayer::class);
+$color = $theme->primaryColor;   // '#1e40af' for acme
+$font  = $theme->fontFamily;     // 'Georgia, serif' for acme</pre></div>
+</div>
+{% endblock %}
+
+{% block feature_l3 %}
+<div class="feature-l3">
+    <h3>TenantContext layer resolution</h3>
+    <p>The <code>TenantContext</code> is a layered value object. Each layer (<code>ThemeLayer</code>, <code>LocaleLayer</code>, <code>EnvironmentLayer</code>) is resolved independently via its own strategy and composed into the final context.</p>
+    <p>Templates and handlers call <code>TenantContext::getLayer(ClassName::class)</code> — no if/else, no switch, no tenant ID comparisons.</p>
+</div>
+{% endblock %}

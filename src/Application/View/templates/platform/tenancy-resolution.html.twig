@@ -1,0 +1,64 @@
+{% extends '@project-layouts-semitexa-demo/layouts/demo-feature.html.twig' %}
+
+{% block feature_title %}Tenant Resolution Strategies{% endblock %}
+{% block feature_summary %}Interactive panel with 4 tabs — header, subdomain, path, and query param strategies.{% endblock %}
+
+{% block feature_l1 %}
+<div class="feature-l1">
+    <p class="feature-entry">Same URL, different world — see which strategy resolved the tenant context.</p>
+
+    <div class="tab-bar" data-tab-bar>
+        {% for strategy in strategies %}
+            <button class="tab-bar__tab{% if strategy.id == activeTab %} tab-bar__tab--active{% endif %}"
+                    data-tab="{{ strategy.id }}">
+                {{ strategy.name }}
+            </button>
+        {% endfor %}
+    </div>
+
+    {% for strategy in strategies %}
+        <div class="tab-panel{% if strategy.id != activeTab %} hidden{% endif %}" data-tab-panel="{{ strategy.id }}">
+            <div class="strategy-card">
+                <div class="strategy-card__meta">
+                    <span class="badge badge--neutral">Priority {{ strategy.priority }}</span>
+                    <strong>{{ strategy.name }}</strong>
+                </div>
+                <p>{{ strategy.description }}</p>
+                <div class="code-block"><code>{{ strategy.example }}</code></div>
+                <div class="strategy-card__result">
+                    <span class="badge badge--success">Resolved: <strong>{{ resolvedTenant|default('unknown') }}</strong></span>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    <div class="resolver-chain-container" style="margin-top: 1.5rem">
+        {{ component('demo-resolver-chain-viz', {
+            strategies: strategies|map(s => {name: s.name, input: s.example, priority: s.priority}),
+            resolvedTenant: resolvedTenant,
+            resolvedBy: resolvedBy,
+        }) }}
+    </div>
+</div>
+{% endblock %}
+
+{% block feature_l2 %}
+<div class="feature-l2">
+    <h3>Resolver chain priority</h3>
+    <p>The <code>TenantResolverChain</code> tries strategies in priority order. The first match wins — fallback to default tenant if none resolve.</p>
+    <div class="code-block"><pre>$chain = new TenantResolverChain([
+    new SubdomainStrategy(baseDomain: 'demo.semitexa.dev'),
+    new HeaderStrategy(header: 'X-Tenant-ID'),
+    new PathStrategy(PathStrategy::allowlist(['acme', 'globex', 'initech'])),
+    new QueryParamStrategy(param: 'tenant'),
+]);</pre></div>
+</div>
+{% endblock %}
+
+{% block feature_l3 %}
+<div class="feature-l3">
+    <h3>TenantResolverChain internals</h3>
+    <p>Each strategy implements <code>TenantResolverInterface::resolve(Request $request): ?TenantContext</code>. Returning <code>null</code> means "not matched — try next". The chain stops at the first non-null result.</p>
+    <p>The resulting <code>TenantContext</code> is coroutine-scoped via Swoole — concurrent workers in different tenants never bleed.</p>
+</div>
+{% endblock %}

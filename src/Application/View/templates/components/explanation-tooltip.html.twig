@@ -1,0 +1,9 @@
+<span class="explanation-tooltip" data-explain="{{ term }}">
+  <span class="explanation-tooltip__trigger" tabindex="0" aria-describedby="tooltip-{{ term|replace({' ': '-', '#': '', '[': '', ']': ''}) }}">{{ term }}</span>
+  <span
+    class="explanation-tooltip__content"
+    id="tooltip-{{ term|replace({' ': '-', '#': '', '[': '', ']': ''}) }}"
+    role="tooltip"
+    aria-hidden="true"
+  >{{ definition }}</span>
+</span>

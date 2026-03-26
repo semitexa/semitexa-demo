@@ -1,0 +1,20 @@
+<div class="resolver-chain" data-resolver-chain>
+    {% for strategy in strategies %}
+        <div class="resolver-node{% if strategy.name == resolvedBy %} resolver-node--winner{% endif %}"
+             data-strategy="{{ strategy.name }}">
+            <div class="resolver-node__priority">{{ strategy.priority }}</div>
+            <div class="resolver-node__name">{{ strategy.name }}</div>
+            <div class="resolver-node__input"><code>{{ strategy.input }}</code></div>
+            {% if strategy.name == resolvedBy %}
+                <div class="resolver-node__badge">resolved</div>
+            {% endif %}
+        </div>
+        {% if not loop.last %}
+            <div class="resolver-chain__arrow">↓</div>
+        {% endif %}
+    {% endfor %}
+    <div class="resolver-chain__result">
+        <span class="badge badge--success">TenantContext: <strong>{{ resolvedTenant }}</strong></span>
+        <span class="muted">resolved by {{ resolvedBy }}</span>
+    </div>
+</div>

@@ -1,0 +1,10 @@
+<div class="reactive-block reactive-block--import" data-block="reactive-import" data-status="{{ status }}">
+    <div class="import-counter">
+        <span class="import-counter__value" data-counter data-target="{{ progress }}">{{ progress }}</span>
+        <span class="import-counter__total">/ 100%</span>
+    </div>
+    <div class="progress-bar">
+        <div class="progress-bar__fill" data-import-progress-bar data-percent="{{ progress }}" style="width:{{ progress }}%"></div>
+    </div>
+    <p class="reactive-block__message">{{ message }}</p>
+</div>

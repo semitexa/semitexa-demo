@@ -4,5 +4,22 @@
     "include": {
         "css": ["css/**/*.css"],
         "js": ["js/**/*.js"]
+    },
+    "overrides": {
+        "js/demo-app.js": {
+            "scope": "module",
+            "priority": 10,
+            "attributes": { "defer": true }
+        },
+        "js/disclosure.js": {
+            "scope": "module",
+            "priority": 20,
+            "attributes": { "defer": true }
+        },
+        "js/code-tabs.js": {
+            "scope": "module",
+            "priority": 30,
+            "attributes": { "defer": true }
+        }
     }
 }
