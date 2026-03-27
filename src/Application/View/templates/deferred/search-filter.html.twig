@@ -1,4 +1,12 @@
 <div class="deferred-block deferred-block--filter" data-block="search-filter">
+    <div class="deferred-block__header">
+        <div>
+            <p class="deferred-block__eyebrow">URL state handoff</p>
+            <h3 class="deferred-block__title">Filter controls</h3>
+        </div>
+        <span class="deferred-block__badge">Updates the query string</span>
+    </div>
+    <p class="deferred-block__summary">This slot shows a narrower client enhancement: the server owns the form markup, and the client only syncs UI state into the URL.</p>
     <form class="search-filter" data-search-filter>
         <div class="search-filter__group">
             <label class="search-filter__label">Category</label>
@@ -18,4 +26,5 @@
         </div>
         <button type="submit" class="btn btn--primary">Apply filters</button>
     </form>
+    <p class="search-filter__summary" data-filter-summary>Currently showing the default deferred query state.</p>
 </div>

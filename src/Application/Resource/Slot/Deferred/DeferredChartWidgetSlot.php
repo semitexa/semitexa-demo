@@ -13,7 +13,7 @@ use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
     template: '@project-layouts-semitexa-demo/deferred/chart-widget.html.twig',
     deferred: true,
     skeletonTemplate: '@project-layouts-semitexa-demo/deferred/chart-widget.skeleton.html.twig',
-    clientModules: ['deferred/chart-widget.js'],
+    clientModules: ['@project-static-semitexa-demo/deferred/chart-widget.js'],
 )]
 final class DeferredChartWidgetSlot extends HtmlSlotResponse
 {

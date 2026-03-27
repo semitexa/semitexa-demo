@@ -20,7 +20,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     title: 'Relations',
     slug: 'relations',
     summary: 'Declare associations with attributes — eager loading, N+1 prevention, and nested reads.',
-    order: 3,
+    order: 8,
     highlights: ['#[HasMany]', '#[BelongsTo]', 'CascadeSaver', 'CascadeDeleter', 'eager loading'],
     entryLine: 'Declare associations with attributes — eager loading, N+1 prevention, and nested reads.',
     learnMoreLabel: 'See the relation attributes →',

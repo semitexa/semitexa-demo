@@ -15,7 +15,9 @@
 {% endif %}
 
 {% block main %}
-  {# --- Hero Section --- #}
+  {% set starterCount = starterSections|default([])|length %}
+  {% set sectionCount = sections|default([])|length %}
+
   <section class="demo-hero">
     <div class="demo-hero__content">
       <p class="demo-hero__brand">SEMITEXA FRAMEWORK</p>
@@ -32,11 +34,46 @@
         <span class="demo-hero__badge">Zero Config</span>
       </div>
     </div>
+
+    <div class="demo-hero__sidecar">
+      <div class="demo-hero__signal">
+        <p class="demo-hero__signal-label">Live Demo Surface</p>
+        <div class="demo-hero__signal-value">{{ totalFeatureCount|default(0) }}</div>
+        <p class="demo-hero__signal-text">feature routes currently wired under <code>/demo</code></p>
+      </div>
+
+      <div class="demo-hero__ledger">
+        <div class="demo-hero__ledger-item">
+          <span class="demo-hero__ledger-value">{{ sectionCount }}</span>
+          <span class="demo-hero__ledger-label">sections</span>
+        </div>
+        <div class="demo-hero__ledger-item">
+          <span class="demo-hero__ledger-value">{{ starterCount }}</span>
+          <span class="demo-hero__ledger-label">starter paths</span>
+        </div>
+        <div class="demo-hero__ledger-item">
+          <span class="demo-hero__ledger-value">{{ readyFeatures|length }}</span>
+          <span class="demo-hero__ledger-label">recommended next steps</span>
+        </div>
+      </div>
+
+      <div class="demo-hero__terminal">
+        <p class="demo-hero__terminal-title">System framing</p>
+        <ul class="demo-hero__terminal-lines">
+          <li><span>$</span> browse working feature flows</li>
+          <li><span>$</span> inspect source beside runtime output</li>
+          <li><span>$</span> move from docs to behavior in one shell</li>
+        </ul>
+      </div>
+    </div>
   </section>
 
-  {# --- Starter Cards (above fold) --- #}
   <section class="demo-starters">
-    <h2 class="demo-starters__heading">Start here</h2>
+    <div class="demo-block-heading">
+      <p class="demo-block-heading__eyebrow">Recommended Paths</p>
+      <h2 class="demo-starters__heading">Start with the slices that already tell a coherent story</h2>
+      <p class="demo-block-heading__text">These are the most reliable current entry points when you want to feel how Semitexa behaves as a system.</p>
+    </div>
     <div class="demo-starters__grid">
       {% for section in starterSections|default([]) %}
         {% include '@project-layouts-semitexa-demo/components/feature-card.html.twig' with {
@@ -54,9 +91,12 @@
     </div>
   </section>
 
-  {# --- Full Section Grid (below fold) --- #}
   <section id="sections" class="demo-sections">
-    <h2 class="demo-sections__heading">All sections <span class="demo-sections__count">{{ totalFeatureCount|default(0) }} features</span></h2>
+    <div class="demo-block-heading">
+      <p class="demo-block-heading__eyebrow">Full Map</p>
+      <h2 class="demo-sections__heading">All sections <span class="demo-sections__count">{{ totalFeatureCount|default(0) }} features</span></h2>
+      <p class="demo-block-heading__text">The catalog below is intentionally route-first: every card points at a live `/demo/...` entry, not a placeholder promise.</p>
+    </div>
     <div class="demo-sections__grid">
       {% for section in sections|default([]) %}
         {% include '@project-layouts-semitexa-demo/components/feature-card.html.twig' with {
@@ -74,7 +114,6 @@
     </div>
   </section>
 
-  {# --- "Ready for more?" prompt (hidden until 3+ features visited) --- #}
   <section class="demo-ready-prompt" data-ready-prompt style="display: none;">
     <h2 class="demo-ready-prompt__heading">Ready for more?</h2>
     <p class="demo-ready-prompt__text">These working walkthroughs are the best current entry points into the richer parts of the demo:</p>

@@ -22,7 +22,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     title: 'Parameterized Route',
     slug: 'parameterized',
     summary: 'Path parameters with regex constraints and typed injection.',
-    order: 2,
+    order: 4,
     highlights: ['requirements', 'defaults', 'RequestDtoHydrator', 'setter injection'],
     entryLine: 'Path parameters like {slug} are extracted and injected via setters — with regex validation at the router level.',
     learnMoreLabel: 'Try different slugs →',

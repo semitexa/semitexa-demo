@@ -4,16 +4,27 @@
     <span class="demo-nav__title">Semitexa <strong>Demo</strong></span>
   </a>
 
-  <ul class="demo-nav__sections">
-    {% for section in sections|default([]) %}
-      <li class="demo-nav__item{{ currentSection == section.key ? ' demo-nav__item--active' : '' }}">
-        <a href="{{ section.href|default('/demo/' ~ section.key) }}">{{ section.label }}</a>
-      </li>
-    {% endfor %}
-  </ul>
+  <div class="demo-nav__spacer" aria-hidden="true"></div>
 
   <div class="demo-nav__actions">
     <a class="demo-nav__link" href="/demo" title="Home">Home</a>
     <a class="demo-nav__link" href="https://semitexa.com/docs" target="_blank" rel="noopener" title="Documentation">Docs</a>
+    <div class="demo-nav__socials" aria-label="Semitexa social links">
+      <a class="demo-nav__social" href="https://github.com/semitexa" target="_blank" rel="noopener" aria-label="Semitexa on GitHub" title="GitHub">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2C6.477 2 2 6.59 2 12.252c0 4.53 2.865 8.373 6.839 9.73.5.096.682-.223.682-.496 0-.245-.009-.894-.014-1.755-2.782.617-3.37-1.376-3.37-1.376-.455-1.18-1.11-1.495-1.11-1.495-.908-.637.069-.624.069-.624 1.004.072 1.532 1.055 1.532 1.055.892 1.565 2.341 1.113 2.91.851.091-.664.349-1.113.635-1.369-2.221-.26-4.555-1.14-4.555-5.074 0-1.121.389-2.038 1.029-2.757-.103-.261-.446-1.312.098-2.735 0 0 .84-.276 2.75 1.053A9.32 9.32 0 0 1 12 6.836c.85.004 1.706.117 2.504.343 1.909-1.329 2.748-1.053 2.748-1.053.546 1.423.203 2.474.1 2.735.641.719 1.027 1.636 1.027 2.757 0 3.944-2.338 4.811-4.566 5.066.359.318.679.946.679 1.907 0 1.377-.012 2.487-.012 2.825 0 .276.18.598.688.496C19.138 20.62 22 16.78 22 12.252 22 6.59 17.523 2 12 2Z" fill="currentColor"/>
+        </svg>
+      </a>
+      <a class="demo-nav__social" href="https://www.linkedin.com/company/semitexa/" target="_blank" rel="noopener" aria-label="Semitexa on LinkedIn" title="LinkedIn">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6.94 8.5a1.56 1.56 0 1 1 0-3.12 1.56 1.56 0 0 1 0 3.12ZM5.6 18.4h2.68V9.64H5.6V18.4Zm4.36 0h2.57v-4.88c0-1.29.24-2.54 1.79-2.54 1.53 0 1.55 1.47 1.55 2.62v4.8h2.68v-5.35c0-2.63-.56-4.65-3.58-4.65-1.45 0-2.42.82-2.82 1.59h-.04V9.64H9.96c.03.83 0 8.76 0 8.76Z" fill="currentColor"/>
+        </svg>
+      </a>
+      <a class="demo-nav__social" href="https://www.facebook.com/semitexa" target="_blank" rel="noopener" aria-label="Semitexa on Facebook" title="Facebook">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M13.64 21v-8.03h2.66l.4-3.13h-3.06V7.85c0-.91.25-1.53 1.51-1.53h1.61V3.52c-.28-.04-1.24-.12-2.36-.12-2.34 0-3.94 1.48-3.94 4.2v2.24H7.8v3.13h2.66V21h3.18Z" fill="currentColor"/>
+        </svg>
+      </a>
+    </div>
   </div>
 </nav>

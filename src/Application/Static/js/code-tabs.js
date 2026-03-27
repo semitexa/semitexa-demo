@@ -46,11 +46,12 @@
     var copyBtn = e.target.closest('[data-copy-source]');
     if (!copyBtn) return;
 
-    var sourceId = copyBtn.getAttribute('data-copy-source');
+    var rawSourceId = copyBtn.getAttribute('data-copy-raw-source');
+    var sourceId = rawSourceId || copyBtn.getAttribute('data-copy-source');
     var sourceEl = document.getElementById(sourceId);
     if (!sourceEl) return;
 
-    var text = sourceEl.textContent || '';
+    var text = ('value' in sourceEl ? sourceEl.value : sourceEl.textContent) || '';
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function () {

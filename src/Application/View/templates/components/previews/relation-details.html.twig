@@ -1,0 +1,38 @@
+<div class="preview-card">
+  {% if eyebrow is defined and eyebrow %}
+    <p class="preview-card__eyebrow">{{ eyebrow }}</p>
+  {% endif %}
+  {% if title is defined and title %}
+    <h3 class="preview-card__title">{{ title }}</h3>
+  {% endif %}
+  {% if summary is defined and summary %}
+    <p class="preview-card__summary">{{ summary }}</p>
+  {% endif %}
+
+  <div class="preview-table-wrap">
+    <table class="preview-table">
+      <thead>
+        <tr>
+          {% for column in columns|default([]) %}
+            <th>{{ column }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% if rows|default([])|length > 0 %}
+          {% for row in rows %}
+            <tr>
+              {% for cell in row %}
+                <td>{{ cell.text }}</td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="{{ columns|default([])|length }}">{{ emptyMessage|default('No relation details available.') }}</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>

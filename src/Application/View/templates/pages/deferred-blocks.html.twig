@@ -1,115 +1,179 @@
-{% extends '@project-layouts-semitexa-demo/layouts/demo-layout.html.twig' %}
-
-{% block title %}{{ featureTitle|default('Deferred Blocks') }} — Semitexa Demo{% endblock %}
-
-{% block main %}
-  <article class="feature-detail" data-section="{{ section }}" data-slug="{{ slug }}">
-
-    {# ================================================================
-       L1 — ENTRY ZONE
-       ================================================================ #}
-    <section class="feature-detail__l1">
-      <header class="feature-detail__header">
-        <h1 class="feature-detail__title">{{ featureTitle }}</h1>
-        <p class="feature-detail__entry-line">{{ entryLine }}</p>
-      </header>
-
-      {# Highlight badges #}
-      {% if highlights is defined and highlights|length > 0 %}
-        <div class="feature-detail__highlights">
-          {% for highlight in highlights %}
-            <span class="feature-detail__highlight" data-explain="{{ highlight }}">{{ highlight }}</span>
-          {% endfor %}
+<!doctype html>
+<html lang="{{ locale|default('en') }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ featureTitle|default('Deferred Blocks') }} — Semitexa Demo</title>
+    {{ meta('description') }}
+    {{ meta('keywords') }}
+    {{ meta('og:title') }}
+    {{ meta('og:description') }}
+    {{ meta('og:type') }}
+    {{ semantic_head() }}
+    {{ asset_head() }}
+    {{ __ssr_preload_hints|default('')|raw }}
+  </head>
+  <body class="demo-layout deferred-demo-page" {{ __ssr_handle_attr|default('')|raw }}>
+    <header class="demo-header">
+      <nav class="demo-nav" aria-label="Demo navigation">
+        <a class="demo-nav__brand" href="/demo">
+          <span class="demo-nav__logo">Sx</span>
+          <span class="demo-nav__title">Semitexa <strong>Demo</strong></span>
+        </a>
+        <ul class="demo-nav__sections">
+          <li class="demo-nav__item demo-nav__item--active"><a href="/demo/rendering">Rendering &amp; SSR</a></li>
+        </ul>
+        <div class="demo-nav__actions">
+          <a class="demo-nav__link" href="/demo/rendering">Back to Rendering</a>
+          <a class="demo-nav__link" href="/demo">Home</a>
         </div>
-      {% endif %}
-    </section>
+      </nav>
+    </header>
 
-    {# ================================================================
-       DEFERRED BLOCKS DEMO — always visible, loaded via SSE
-       ================================================================ #}
-    <section class="feature-detail__deferred-demo">
-      <div class="deferred-blocks-grid">
-        {{ layout_slot_deferred('deferred_product_carousel') }}
-        {{ layout_slot_deferred('deferred_review_feed') }}
-        {{ layout_slot_deferred('deferred_chart_widget') }}
-        {{ layout_slot_deferred('deferred_search_filter') }}
-        {{ layout_slot_deferred('deferred_notification') }}
-        {{ layout_slot_deferred('deferred_countdown') }}
-      </div>
-    </section>
+    <main class="demo-layout__main deferred-demo-page__main">
+      <article class="feature-detail" data-section="{{ section }}" data-slug="{{ slug }}">
+        <section class="feature-detail__l1 deferred-demo-page__hero">
+          <header class="feature-detail__header">
+            <div class="feature-detail__header-copy">
+              <a href="/demo/rendering" class="feature-detail__back">← Rendering</a>
+              <p class="feature-detail__eyebrow">SSR-FIRST LIVE UI</p>
+              <h1 class="feature-detail__title">{{ featureTitle }}</h1>
+              <p class="feature-detail__entry-line">{{ entryLine }}</p>
+            </div>
+            <div class="feature-detail__summary-card">
+              <p class="feature-detail__summary-label">Deferred contract</p>
+              <p class="feature-detail__summary-text">{{ summary }}</p>
+            </div>
+          </header>
 
-    {# ================================================================
-       L1 → L2 DISCLOSURE PROMPT
-       ================================================================ #}
-    {% include '@project-layouts-semitexa-demo/components/disclosure-prompt.html.twig' with {
-      label: learnMoreLabel|default('How it works →'),
-      variant: 'learnMore',
-      target: 'l2-' ~ section ~ '-' ~ slug,
-    } only %}
-
-    {# ================================================================
-       L2 — CODE WALKTHROUGH
-       ================================================================ #}
-    <div id="l2-{{ section }}-{{ slug }}" class="expandable-section" aria-expanded="false" data-expandable>
-      <div class="expandable-section__inner">
-        <div class="feature-detail__l2">
-
-          {# Code tabs #}
-          {% if sourceCode is defined and sourceCode|length > 0 %}
-            {% include '@project-layouts-semitexa-demo/components/code-block.html.twig' with {
-              tabs: sourceCode,
-              featureSlug: slug,
-            } only %}
+          {% if highlights is defined and highlights|length > 0 %}
+            <div class="feature-detail__highlights">
+              {% for highlight in highlights %}
+                <span class="feature-detail__highlight">{{ highlight }}</span>
+              {% endfor %}
+            </div>
           {% endif %}
 
-          {# L2 → L3 disclosure prompt #}
-          {% include '@project-layouts-semitexa-demo/components/disclosure-prompt.html.twig' with {
-            label: deepDiveLabel|default('Under the hood →'),
-            variant: 'deepDive',
-            target: 'l3-' ~ section ~ '-' ~ slug,
-          } only %}
-        </div>
-      </div>
-    </div>
-
-    {# ================================================================
-       L3 — DEEP DIVE DRAWER
-       ================================================================ #}
-    <div id="l3-{{ section }}-{{ slug }}" class="deep-dive-drawer" aria-expanded="false" data-drawer>
-      <div class="deep-dive-drawer__overlay" data-drawer-close></div>
-      <div class="deep-dive-drawer__panel">
-        <button class="deep-dive-drawer__close" type="button" aria-label="Close details panel" data-drawer-close>&times;</button>
-        <div class="deep-dive-drawer__content">
-          <div class="feature-detail__l3">
-            {% if explanation is defined %}
-              {% if explanation.how is defined and explanation.how %}
-                <section class="feature-detail__l3-section">
-                  <h3>How it works</h3>
-                  <p>{{ explanation.how }}</p>
-                </section>
-              {% endif %}
-              {% if explanation.why is defined and explanation.why %}
-                <section class="feature-detail__l3-section">
-                  <h3>Why it matters</h3>
-                  <p>{{ explanation.why }}</p>
-                </section>
-              {% endif %}
-              {% if explanation.keywords is defined and explanation.keywords|length > 0 %}
-                <section class="feature-detail__l3-section">
-                  <h3>Key concepts</h3>
-                  <dl class="feature-detail__keywords">
-                    {% for kw in explanation.keywords %}
-                      <dt>{{ kw.term }}</dt>
-                      <dd>{{ kw.definition }}</dd>
-                    {% endfor %}
-                  </dl>
-                </section>
-              {% endif %}
-            {% endif %}
+          <div class="preview-card deferred-demo-page__primer">
+            <div class="preview-card__header">
+              <p class="preview-card__eyebrow">Why it matters</p>
+              <h2 class="preview-card__title">{{ infoWhat|default('Deferred slots keep SSR pages usable while slower regions stream in later.') }}</h2>
+            </div>
+            <p class="preview-card__summary">{{ infoHow|default('The shell is rendered first, then the server streams final slot HTML over SSE instead of shipping a client-side rebuild.') }}</p>
+            <p class="preview-card__summary">{{ infoWhy|default('You keep one rendering model: HTML in, HTML out, no SPA handoff.') }}</p>
           </div>
-        </div>
-      </div>
-    </div>
 
-  </article>
-{% endblock %}
+          <div class="deferred-demo-page__stats" aria-label="Deferred delivery signals">
+            <article class="preview-card preview-card--nested deferred-demo-page__stat">
+              <p class="preview-card__eyebrow">First paint</p>
+              <h3 class="preview-card__title">Shell is ready before slow regions</h3>
+              <p class="preview-card__summary">Navigation, copy, and layout arrive immediately. Expensive regions can take their time.</p>
+            </article>
+            <article class="preview-card preview-card--nested deferred-demo-page__stat">
+              <p class="preview-card__eyebrow">Delivery</p>
+              <h3 class="preview-card__title">HTML streams in, not client state</h3>
+              <p class="preview-card__summary">The server renders each slot and swaps it into place. No JSON hydration dance and no page rebuild.</p>
+            </article>
+            <article class="preview-card preview-card--nested deferred-demo-page__stat">
+              <p class="preview-card__eyebrow">Architecture</p>
+              <h3 class="preview-card__title">One rendering model everywhere</h3>
+              <p class="preview-card__summary">Static shell, deferred zones, and live widgets all stay inside the same SSR-first mental model.</p>
+            </article>
+          </div>
+
+          <div class="deferred-demo-page__section-head">
+            <div>
+              <p class="preview-card__eyebrow">Delivery modes</p>
+              <h2 class="preview-card__title">Deferred blocks support more than one delivery contract.</h2>
+            </div>
+            <p class="preview-card__summary">`html` is the canonical SSR-first default. `template` is available when you want to reuse a published client template. `fallback` is not a declared slot mode at all, but an emergency recovery path when the normal deferred pipeline fails.</p>
+          </div>
+
+          <div class="deferred-demo-page__modes" aria-label="Deferred block delivery modes">
+            <article class="preview-card preview-card--nested deferred-demo-page__mode deferred-demo-page__mode--recommended">
+              <p class="preview-card__eyebrow">Recommended default</p>
+              <h3 class="preview-card__title"><code>mode: html</code></h3>
+              <p class="preview-card__summary">The server renders the final fragment and streams ready-to-swap HTML over SSE.</p>
+              <ul class="deferred-demo-page__mode-list">
+                <li>Best for SSR-first pages where the server owns rendering end to end.</li>
+                <li>Zero client templating logic after the block arrives.</li>
+                <li>Best fit for slots with rich Twig markup, SEO-sensitive content, or server-only presentation rules.</li>
+              </ul>
+            </article>
+
+            <article class="preview-card preview-card--nested deferred-demo-page__mode">
+              <p class="preview-card__eyebrow">Published template reuse</p>
+              <h3 class="preview-card__title"><code>mode: template</code></h3>
+              <p class="preview-card__summary">The server sends structured data plus a published template path, and the client renders that template locally.</p>
+              <ul class="deferred-demo-page__mode-list">
+                <li>Useful when the same template is intentionally shared between server output and deferred client rendering.</li>
+                <li>Reduces payload size when HTML would be much heavier than the data slice.</li>
+                <li>Use only when the client-side template contract is deliberate and stable.</li>
+              </ul>
+            </article>
+
+            <article class="preview-card preview-card--nested deferred-demo-page__mode">
+              <p class="preview-card__eyebrow">Recovery path</p>
+              <h3 class="preview-card__title"><code>mode: fallback</code></h3>
+              <p class="preview-card__summary">This is not a slot mode you configure. It is the client runtime's rescue path when SSE delivery or template rendering fails.</p>
+              <ul class="deferred-demo-page__mode-list">
+                <li>The browser fetches already-rendered slot HTML from the fallback endpoint.</li>
+                <li>Useful for resilience, not as the main architecture choice.</li>
+                <li>If you see this often, fix the primary deferred path instead of designing around fallback.</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="feature-detail__deferred-demo">
+          <div class="deferred-demo-page__section-head">
+            <div>
+              <p class="preview-card__eyebrow">Live deferred surface</p>
+              <h2 class="preview-card__title">The shell is already there. These four regions arrive after it.</h2>
+            </div>
+            <p class="preview-card__summary">Each card below starts as skeleton HTML and is later replaced by final server-rendered content over SSE. Some stay pure SSR fragments, while others wake up a tiny scoped client module after delivery.</p>
+          </div>
+
+          <div class="deferred-demo-page__flow" aria-label="Deferred rendering flow">
+            <div class="deferred-demo-page__flow-step">
+              <span class="deferred-demo-page__flow-index">01</span>
+              <div>
+                <h3>Render shell</h3>
+                <p>The page becomes usable immediately with real structure, headings, and navigation.</p>
+              </div>
+            </div>
+            <div class="deferred-demo-page__flow-step">
+              <span class="deferred-demo-page__flow-index">02</span>
+              <div>
+                <h3>Stream late regions</h3>
+                <p>Deferred slots keep loading in the background while the user is already on the page.</p>
+              </div>
+            </div>
+            <div class="deferred-demo-page__flow-step">
+              <span class="deferred-demo-page__flow-index">03</span>
+              <div>
+                <h3>Swap HTML in place</h3>
+                <p>The browser receives final HTML fragments instead of client-side instructions to rebuild the interface.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="deferred-blocks-grid">
+            {{ layout_slot_deferred('deferred_product_carousel') }}
+            {{ layout_slot_deferred('deferred_chart_widget') }}
+            {{ layout_slot_deferred('deferred_search_filter') }}
+            {{ layout_slot_deferred('deferred_countdown') }}
+          </div>
+        </section>
+      </article>
+    </main>
+
+    <footer class="demo-footer">
+      <p>Semitexa Framework Demo &middot; Deferred slots streaming server-rendered HTML</p>
+    </footer>
+
+    {{ __ssr_deferred_manifest|default('')|raw }}
+    {{ __ssr_runtime_script|default('')|raw }}
+    {{ asset_body() }}
+  </body>
+</html>

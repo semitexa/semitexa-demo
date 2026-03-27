@@ -7,21 +7,38 @@
 
     <header class="demo-section-page__header">
       <a href="/demo" class="demo-section-page__back">← All sections</a>
-      <div class="demo-section-page__title-row">
-        <span class="demo-section-page__icon" aria-hidden="true">{{ sectionIcon|default('') }}</span>
-        <h1 class="demo-section-page__title">{{ sectionLabel|default('') }}</h1>
+      <div class="demo-section-page__masthead">
+        <div class="demo-section-page__title-row">
+          <span class="demo-section-page__icon" aria-hidden="true">{{ sectionIcon|default('') }}</span>
+          <div>
+            <p class="demo-section-page__eyebrow">Section Overview</p>
+            <h1 class="demo-section-page__title">{{ sectionLabel|default('') }}</h1>
+          </div>
+        </div>
+        <div class="demo-section-page__stat">
+          <span class="demo-section-page__stat-value">{{ features|default([])|length }}</span>
+          <span class="demo-section-page__stat-label">live features</span>
+        </div>
       </div>
       <p class="demo-section-page__summary">{{ sectionSummary|default('') }}</p>
     </header>
 
     {% if features|default([])|length > 0 %}
       <section class="demo-section-page__features">
+        <div class="demo-block-heading demo-block-heading--tight">
+          <p class="demo-block-heading__eyebrow">Feature List</p>
+          <p class="demo-block-heading__text">Each feature page pairs live output with the source that produced it.</p>
+        </div>
         <div class="demo-sections__grid">
           {% for feature in features %}
-            <a href="{{ feature.href|default('/demo/' ~ section ~ '/' ~ feature.slug) }}" class="feature-card">
+            <a href="{{ feature.href|default('/demo/' ~ section ~ '/' ~ feature.slug) }}" class="feature-card feature-card--feature">
               <div class="feature-card__body">
+                <p class="feature-card__eyebrow">{{ sectionLabel|default(section|upper) }}</p>
                 <h3 class="feature-card__title">{{ feature.title }}</h3>
                 <p class="feature-card__summary">{{ feature.summary }}</p>
+                <div class="feature-card__meta">
+                  <span class="feature-card__count">Open feature</span>
+                </div>
               </div>
             </a>
           {% endfor %}

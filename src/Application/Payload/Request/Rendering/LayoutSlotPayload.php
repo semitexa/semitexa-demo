@@ -17,14 +17,14 @@ use Semitexa\Demo\Attributes\DemoFeature;
 )]
 #[DemoFeature(
     section: 'rendering',
-    title: 'Layout Slots',
+    title: 'Slot Resources',
     slug: 'slots',
-    summary: 'Fill named layout regions from independent slot resources — zero coupling between page regions.',
-    order: 2,
-    highlights: ['#[AsSlotResource]', 'HtmlSlotResponse', 'layout_slot()', 'slot handle', 'independent rendering'],
-    entryLine: 'Fill named layout regions from independent slot resources — zero coupling between page regions.',
-    learnMoreLabel: 'See slot registration →',
-    deepDiveLabel: 'Slot resolution order →',
+    summary: 'Each page region is its own resource pipeline with the same template system as the main page — no scattered partial glue, no mystery wiring.',
+    order: 3,
+    highlights: ['#[AsSlotResource]', 'HtmlSlotResponse', 'layout_slot()', 'SlotHandlerPipeline', 'shared Twig'],
+    entryLine: 'A slot is not a fragment hack. It is a real resource with its own handler pipeline, template, and lifecycle.',
+    learnMoreLabel: 'See the slot pipeline →',
+    deepDiveLabel: 'Why unified templates matter →',
 )]
 class LayoutSlotPayload
 {

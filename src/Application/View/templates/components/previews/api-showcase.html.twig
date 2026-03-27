@@ -1,0 +1,43 @@
+<div class="preview-card preview-card--api">
+  <div class="preview-card__header">
+    <p class="preview-card__eyebrow">Intelligent API</p>
+    <h3 class="preview-card__title">One dataset, multiple machine-facing shapes</h3>
+    <p class="preview-card__summary">These links hit the real `/demo/api/v1/products` endpoints. Change headers or query params and the response shape shifts without swapping handlers.</p>
+  </div>
+
+  <div class="preview-stats">
+    <div class="preview-stats__item">
+      <span class="preview-stats__label">Collection</span>
+      <span class="preview-stats__value"><code>{{ collectionHref }}</code></span>
+    </div>
+    <div class="preview-stats__item">
+      <span class="preview-stats__label">Detail</span>
+      <span class="preview-stats__value"><code>{{ detailHref }}</code></span>
+    </div>
+    <div class="preview-stats__item">
+      <span class="preview-stats__label">JSON-LD</span>
+      <span class="preview-stats__value"><code>{{ jsonLdHref }}</code></span>
+    </div>
+  </div>
+
+  <div class="preview-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Consumer</th>
+          <th>Headers / Params</th>
+          <th>Outcome</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for profile in profiles %}
+          <tr>
+            <td><a href="{{ profile.href }}">{{ profile.consumer }}</a></td>
+            <td><code>{{ profile.headers }}</code></td>
+            <td>{{ profile.outcome }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

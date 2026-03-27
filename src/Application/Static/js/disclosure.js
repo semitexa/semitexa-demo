@@ -118,13 +118,8 @@
     var trigger = e.target.closest('[data-disclosure-trigger]');
     if (trigger) {
       var targetId = trigger.getAttribute('data-disclosure-trigger');
-      toggleSection(targetId, true);
+      toggleSection(targetId);
       trigger.removeAttribute('data-first-view');
-
-      // Dispatch custom event
-      document.dispatchEvent(new CustomEvent('disclosure:expand', {
-        detail: { targetId: targetId },
-      }));
       return;
     }
 

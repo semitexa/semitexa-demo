@@ -1,0 +1,55 @@
+<div class="preview-card preview-card--layered">
+  <p class="preview-card__eyebrow">Canonical Path</p>
+  <h3 class="preview-card__title">Business code should not pass ORM resources around</h3>
+  <p class="preview-card__summary">
+    In Semitexa, handlers and services depend on repository contracts and receive domain models back.
+    Resource models stay behind the persistence boundary unless you deliberately opt into a resource-level read.
+  </p>
+
+  <div class="preview-callout">
+    <p class="preview-callout__eyebrow">What the demo should teach</p>
+    <ul class="preview-callout__list">
+      {% for item in principles %}
+        <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="preview-compare">
+    {% for lane in lanes %}
+      <article class="preview-compare__card preview-compare__card--{{ lane.tone }}">
+        <div class="preview-compare__meta">
+          <p class="preview-compare__eyebrow">{{ lane.badge }}</p>
+          <h4 class="preview-compare__title">{{ lane.title }}</h4>
+        </div>
+        <p class="preview-compare__summary">{{ lane.summary }}</p>
+        <div class="preview-chip-list">
+          {% for chip in lane.chips %}
+            <span class="preview-chip">{{ chip }}</span>
+          {% endfor %}
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+
+  <div class="preview-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Step</th>
+          <th>Canonical flow</th>
+          <th>Why it stays clean</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for step in steps %}
+          <tr>
+            <td>{{ step.name }}</td>
+            <td>{{ step.flow }}</td>
+            <td>{{ step.why }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

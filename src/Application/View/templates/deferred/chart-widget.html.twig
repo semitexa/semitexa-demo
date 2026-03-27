@@ -1,4 +1,12 @@
 <div class="deferred-block deferred-block--chart" data-block="chart-widget">
+    <div class="deferred-block__header">
+        <div>
+            <p class="deferred-block__eyebrow">Canvas enhancement</p>
+            <h3 class="deferred-block__title">Demand chart</h3>
+        </div>
+        <span class="deferred-block__badge">Draw after delivery</span>
+    </div>
+    <p class="deferred-block__summary">The slot arrives late as HTML, then the client module draws a lightweight chart from the data already embedded in the fragment.</p>
     <canvas
         class="chart-canvas"
         data-chart-type="{{ chartType|default('bar') }}"
@@ -7,4 +15,11 @@
         height="200"
         aria-label="Demo chart"
     ></canvas>
+    <div class="deferred-block__legend">
+        <span>Mon</span>
+        <span>Tue</span>
+        <span>Wed</span>
+        <span>Thu</span>
+        <span>Fri</span>
+    </div>
 </div>

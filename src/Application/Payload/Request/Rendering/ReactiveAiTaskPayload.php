@@ -20,7 +20,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     title: 'Reactive AI Task',
     slug: 'reactive-ai',
     summary: 'Submit a task and watch the AI pipeline stages reveal one by one as the cron job processes it.',
-    order: 12,
+    order: 13,
     highlights: ['DemoAiTask', 'stage-by-stage', 'refreshInterval: 2', 'user-triggered → cron pickup'],
     entryLine: 'Submit a task and watch the AI pipeline stages reveal one by one as the cron job processes it.',
     learnMoreLabel: 'See submit form →',

@@ -1,0 +1,59 @@
+<div class="preview-card preview-card--layered">
+  <p class="preview-card__eyebrow">ORM Kill Feature</p>
+  <h3 class="preview-card__title">One table. Two modules. Zero cross-module edits.</h3>
+  <p class="preview-card__summary">
+    In most stacks, the second module has to reopen the first module's model just to add a few extra columns.
+    Semitexa keeps that additive: both resources point at the same table, and schema collection merges the result.
+  </p>
+
+  <div class="preview-callout">
+    <p class="preview-callout__eyebrow">Why teams hate the usual approach</p>
+    <ul class="preview-callout__list">
+      {% for painPoint in painPoints %}
+        <li>{{ painPoint }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="preview-compare">
+    {% for module in moduleColumns %}
+      <article class="preview-compare__card preview-compare__card--{{ module.tone }}">
+        <div class="preview-compare__meta">
+          <p class="preview-compare__eyebrow">{{ module.badge }}</p>
+          <h4 class="preview-compare__title">{{ module.title }}</h4>
+        </div>
+        <p class="preview-compare__summary">{{ module.summary }}</p>
+        <div class="preview-chip-list">
+          {% for column in module.columns %}
+            <span class="preview-chip">{{ column }}</span>
+          {% endfor %}
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+
+  <div class="preview-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Merged column</th>
+          <th>Owned by</th>
+          <th>Why it stays safe</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for column in mergedColumns %}
+          <tr>
+            <td><code>{{ column.name }}</code></td>
+            <td>
+              <span class="preview-pill {% if column.owner == 'Merchandising' %}preview-pill--warning{% endif %}">
+                {{ column.owner }}
+              </span>
+            </td>
+            <td>{{ column.note }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

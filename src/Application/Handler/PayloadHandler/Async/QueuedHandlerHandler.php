@@ -9,6 +9,7 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Async\QueuedHandlerPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -21,35 +22,11 @@ final class QueuedHandlerHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(QueuedHandlerPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $resultPreview = '<div class="result-preview">'
-            . '<p>Queued events are serialised and pushed to a message queue (e.g. RabbitMQ). '
-            . 'A separate consumer worker processes them independently — survives app restarts.</p>'
-            . '<pre class="code-inline">'
-            . htmlspecialchars(
-                "#[AsEventListener(\n"
-                . "    event: DemoItemCreated::class,\n"
-                . "    execution: EventExecution::Queued,\n"
-                . "    queue: 'demo.notifications',\n"
-                . ")]\n"
-                . "final class DemoNotificationListener\n"
-                . "{\n"
-                . "    public function handle(DemoItemCreated \$event): void { ... }\n"
-                . "}"
-            )
-            . '</pre>'
-            . '<table class="data-table" style="margin-top:1rem">'
-            . '<thead><tr><th>Feature</th><th>Supported</th></tr></thead>'
-            . '<tbody>'
-            . '<tr><td>Automatic retry on failure</td><td>✓</td></tr>'
-            . '<tr><td>Dead-letter queue (DLQ)</td><td>✓</td></tr>'
-            . '<tr><td>Cross-worker delivery</td><td>✓</td></tr>'
-            . '<tr><td>Priority queues</td><td>✓</td></tr>'
-            . '<tr><td>Survives worker restart</td><td>✓</td></tr>'
-            . '</tbody></table>'
-            . '</div>';
-
         $explanation = $this->explanationProvider->getExplanation('events', 'queued') ?? [];
 
         $sourceCode = [
@@ -58,6 +35,16 @@ final class QueuedHandlerHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Queued Handler — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'events',
+                'currentSlug' => 'queued',
+                'infoWhat' => $explanation['what'] ?? 'Queued listeners are serialized into a durable transport and processed by separate workers.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('events')
             ->withSlug('queued')
             ->withTitle('Queued Handler')
@@ -66,7 +53,20 @@ final class QueuedHandlerHandler implements TypedHandlerInterface
             ->withHighlights(['EventExecution::Queued', 'queue transport', 'RabbitMQ', 'retry', 'DLQ'])
             ->withLearnMoreLabel('See the queue configuration →')
             ->withDeepDiveLabel('Queue driver internals →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
+                'eyebrow' => 'Durable Transport',
+                'title' => 'Push the listener to a queue',
+                'summary' => 'Queued listeners survive restarts because the event payload is serialized into the transport instead of staying in worker memory.',
+                'codeSnippet' => "#[AsEventListener(\n    event: DemoItemCreated::class,\n    execution: EventExecution::Queued,\n    queue: 'demo.notifications',\n)]\nfinal class DemoNotificationListener\n{\n    public function handle(DemoItemCreated \$event): void { ... }\n}",
+                'columns' => ['Feature', 'Supported'],
+                'rows' => [
+                    [['text' => 'Automatic retry on failure'], ['text' => 'Yes', 'variant' => 'success']],
+                    [['text' => 'Dead-letter queue (DLQ)'], ['text' => 'Yes', 'variant' => 'success']],
+                    [['text' => 'Cross-worker delivery'], ['text' => 'Yes', 'variant' => 'success']],
+                    [['text' => 'Priority queues'], ['text' => 'Yes', 'variant' => 'success']],
+                    [['text' => 'Survives worker restart'], ['text' => 'Yes', 'variant' => 'success']],
+                ],
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

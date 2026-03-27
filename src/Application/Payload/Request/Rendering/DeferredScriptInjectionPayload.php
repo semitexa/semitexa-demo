@@ -20,7 +20,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     title: 'Script Injection',
     slug: 'deferred-scripts',
     summary: 'Deferred blocks carry their own JS — injected once when the block arrives, never duplicated.',
-    order: 6,
+    order: 7,
     highlights: ['clientModules', 'semitexa:block:rendered', 'auto-play', 'script isolation'],
     entryLine: 'Deferred blocks carry their own JS — injected once when the block arrives, never duplicated.',
     learnMoreLabel: 'See the clientModules pattern →',

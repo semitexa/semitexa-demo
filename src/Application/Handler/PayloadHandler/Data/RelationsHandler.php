@@ -117,38 +117,16 @@ final class RelationsHandler implements TypedHandlerInterface
                     ['label' => 'Products → category + reviews'],
                 ],
             ])
-            ->withL3Content($this->renderSecondaryRelationTable($productRows))
+            ->withL3ContentTemplate('@project-layouts-semitexa-demo/components/previews/relation-details.html.twig', [
+                'eyebrow' => 'BelongsTo + HasMany',
+                'title' => 'Products → category + reviews',
+                'summary' => 'Each product resolves its parent category and child reviews through relation metadata.',
+                'columns' => ['Product', 'Category', 'Reviews'],
+                'rows' => $productRows,
+                'emptyMessage' => 'No related products available.',
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
-    }
-
-    /**
-     * @param list<array<int, array{text: string}>> $rows
-     */
-    private function renderSecondaryRelationTable(array $rows): string
-    {
-        $cells = '';
-
-        foreach ($rows as $row) {
-            $cells .= sprintf(
-                '<tr><td>%s</td><td>%s</td><td>%s</td></tr>',
-                htmlspecialchars($row[0]['text'], ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars($row[1]['text'], ENT_QUOTES, 'UTF-8'),
-                htmlspecialchars($row[2]['text'], ENT_QUOTES, 'UTF-8'),
-            );
-        }
-
-        if ($cells === '') {
-            $cells = '<tr><td colspan="3">No related products available.</td></tr>';
-        }
-
-        return '<div class="preview-card">'
-            . '<p class="preview-card__eyebrow">BelongsTo + HasMany</p>'
-            . '<h3 class="preview-card__title">Products → category + reviews</h3>'
-            . '<p class="preview-card__summary">Each product resolves its parent category and child reviews through relation metadata.</p>'
-            . '<div class="preview-table-wrap"><table class="preview-table"><thead><tr><th>Product</th><th>Category</th><th>Reviews</th></tr></thead><tbody>'
-            . $cells
-            . '</tbody></table></div></div>';
     }
 
     /**

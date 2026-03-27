@@ -1,0 +1,35 @@
+<div class="preview-card">
+  {% if eyebrow is defined and eyebrow %}
+    <p class="preview-card__eyebrow">{{ eyebrow }}</p>
+  {% endif %}
+  {% if title is defined and title %}
+    <h3 class="preview-card__title">{{ title }}</h3>
+  {% endif %}
+  {% if summary is defined and summary %}
+    <p class="preview-card__summary">{{ summary }}</p>
+  {% endif %}
+
+  {% if signals is defined and signals|length > 0 %}
+    <div class="preview-stats">
+      {% for signal in signals %}
+        <div class="preview-stats__item">
+          <span class="preview-stats__value">{{ signal.value }}</span>
+          <span class="preview-stats__label">{{ signal.label }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="preview-grid preview-grid--analytics">
+    {% for panel in panels|default([]) %}
+      <div class="preview-card preview-card--nested">
+        <p class="preview-card__eyebrow">{{ panel.label }}</p>
+        <div class="preview-metric">
+          <span class="preview-metric__value">{{ panel.value }}</span>
+          <span class="preview-metric__label">Latest snapshot</span>
+        </div>
+        <p class="preview-note">{{ panel.updated }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>

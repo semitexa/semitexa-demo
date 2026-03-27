@@ -13,7 +13,7 @@ use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
     template: '@project-layouts-semitexa-demo/deferred/countdown-timer.html.twig',
     deferred: true,
     skeletonTemplate: '@project-layouts-semitexa-demo/deferred/countdown-timer.skeleton.html.twig',
-    clientModules: ['deferred/countdown-timer.js'],
+    clientModules: ['@project-static-semitexa-demo/deferred/countdown-timer.js'],
 )]
 final class DeferredCountdownSlot extends HtmlSlotResponse
 {

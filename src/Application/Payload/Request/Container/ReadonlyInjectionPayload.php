@@ -11,9 +11,9 @@ use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
-    responseWith: DemoFeatureResource::class,
     path: '/demo/di/readonly',
     methods: ['GET'],
+    responseWith: DemoFeatureResource::class,
 )]
 #[DemoFeature(
     section: 'di',

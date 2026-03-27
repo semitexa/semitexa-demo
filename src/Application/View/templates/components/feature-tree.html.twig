@@ -19,7 +19,7 @@
         {% for feature in section.features|default([]) %}
           <li class="feature-tree__item{{ (currentSection == section.key and currentSlug == feature.slug) ? ' feature-tree__item--active' : '' }}">
             <a
-              href="/demo/{{ section.key }}/{{ feature.slug }}"
+              href="{{ feature.href|default('/demo/' ~ section.key ~ '/' ~ feature.slug) }}"
               class="feature-tree__link"
               data-feature-slug="{{ feature.slug }}"
             >{{ feature.title }}</a>

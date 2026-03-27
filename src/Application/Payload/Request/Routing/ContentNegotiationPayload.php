@@ -21,7 +21,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     title: 'Content Negotiation',
     slug: 'content-negotiation',
     summary: 'One endpoint, multiple response formats — automatically.',
-    order: 3,
+    order: 5,
     highlights: ['#[AsPayload(produces)]', 'Accept header', '?_format= override', 'ContentNegotiator'],
     entryLine: 'One endpoint serves JSON or HTML depending on the Accept header — no branching in handler code.',
     learnMoreLabel: 'Toggle formats →',

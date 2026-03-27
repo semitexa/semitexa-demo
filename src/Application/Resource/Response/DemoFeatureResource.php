@@ -94,8 +94,22 @@ class DemoFeatureResource extends HtmlResponse implements ResourceInterface
         return $this->with('l2Content', $content);
     }
 
+    public function withL2ContentTemplate(string $template, array $data = []): self
+    {
+        return $this
+            ->with('l2ContentTemplate', $template)
+            ->with('l2ContentData', $data);
+    }
+
     public function withL3Content(string $content): self
     {
         return $this->with('l3Content', $content);
+    }
+
+    public function withL3ContentTemplate(string $template, array $data = []): self
+    {
+        return $this
+            ->with('l3ContentTemplate', $template)
+            ->with('l3ContentData', $data);
     }
 }

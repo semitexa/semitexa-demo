@@ -1,0 +1,36 @@
+<div class="preview-card">
+  <p class="preview-card__eyebrow">Single Responsibility</p>
+  <h3 class="preview-card__title">One place to trust, one place to act</h3>
+  <p class="preview-card__summary">
+    This is the architectural payoff: payloads own the external boundary, handlers own the use case.
+    The split is visible in code review and stays stable across the whole application.
+  </p>
+
+  <div class="preview-checklist">
+    {% for rule in rules %}
+      <div class="preview-checklist__item">
+        <span class="preview-checklist__icon" aria-hidden="true">+</span>
+        <p>{{ rule }}</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="preview-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Boundary concern</th>
+          <th>What Semitexa does with it</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for check in checks %}
+          <tr>
+            <td><span class="preview-pill">{{ check.label }}</span></td>
+            <td>{{ check.detail }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

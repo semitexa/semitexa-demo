@@ -1,0 +1,24 @@
+<div class="preview-card preview-card--nested api-schema-notes">
+  <p class="preview-card__eyebrow">Contract Notes</p>
+  <h3 class="preview-card__title">What this explorer is proving</h3>
+  <div class="preview-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Operation</th>
+          <th>What changes</th>
+          <th>Why it matters</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for operation in operations %}
+          <tr>
+            <td><code>{{ operation.method }} {{ operation.url }}</code></td>
+            <td>{{ operation.summary }}</td>
+            <td>Consumers can validate the contract before writing integration code.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

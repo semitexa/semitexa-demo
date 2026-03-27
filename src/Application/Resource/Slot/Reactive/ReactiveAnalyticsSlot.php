@@ -14,7 +14,7 @@ use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
     deferred: true,
     skeletonTemplate: '@project-layouts-semitexa-demo/reactive/analytics.skeleton.html.twig',
     refreshInterval: 5,
-    clientModules: ['reactive/analytics-panels.js'],
+    clientModules: ['@project-static-semitexa-demo/reactive/analytics-panels.js'],
 )]
 final class ReactiveAnalyticsSlot extends HtmlSlotResponse
 {

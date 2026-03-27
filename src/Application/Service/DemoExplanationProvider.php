@@ -48,6 +48,27 @@ final class DemoExplanationProvider
                 ['term' => 'ClassDiscovery', 'definition' => 'Reads the Composer classmap to find all classes with a given attribute.'],
             ],
         ],
+        'routing/payload-shield' => [
+            'what' => 'Payloads are the shield from external data: hydration, type casting, and validation happen before the handler, so application code works with one trusted object.',
+            'how' => 'RequestDtoHydrator maps request input into the payload via typed setters, PayloadValidator calls validate() when the payload implements ValidatablePayload, and invalid input returns 422 before the handler is executed.',
+            'why' => 'This makes single responsibility obvious. The payload owns the transport boundary and input truth. The handler owns the use case. Validation stops being scattered controller glue and becomes one explicit contract.',
+            'keywords' => [
+                ['term' => 'ValidatablePayload', 'definition' => 'Payload contract that lets the framework validate incoming data before the handler runs.'],
+                ['term' => 'RequestDtoHydrator', 'definition' => 'Hydrates payload DTOs from HTTP input by calling typed setters.'],
+                ['term' => 'PayloadValidator', 'definition' => 'Runs payload validation and short-circuits invalid requests with a consistent error response.'],
+            ],
+        ],
+        'routing/public-endpoint' => [
+            'what' => 'Semitexa is closed by default: every payload requires authentication unless you explicitly opt it into anonymous access with #[PublicEndpoint].',
+            'how' => 'The access policy resolver inspects payload attributes at boot. If #[PublicEndpoint] is present, the route is marked public; otherwise the authorizer treats guest access as AuthenticationRequired and the pipeline returns 401 before the handler runs.',
+            'why' => 'This flips the usual risk profile. Teams do not have to remember to secure every endpoint one by one. The safe default is built in, and public exposure becomes a deliberate code review event.',
+            'keywords' => [
+                ['term' => '#[PublicEndpoint]', 'definition' => 'Marks a payload as explicitly reachable without authentication.'],
+                ['term' => 'default private', 'definition' => 'The absence of #[PublicEndpoint] means the endpoint is treated as protected for guests.'],
+                ['term' => '401 Unauthorized', 'definition' => 'The framework response returned when a guest hits a protected endpoint.'],
+                ['term' => 'Authorizer', 'definition' => 'Core service that decides whether the current subject may access the resolved payload.'],
+            ],
+        ],
         'routing/parameterized' => [
             'what' => 'Path parameters like {slug} are extracted from the URL and injected into the payload DTO via setter methods.',
             'how' => 'The router uses regex requirements to constrain what each parameter matches. The RequestDtoHydrator calls setters on the payload DTO with the extracted values. Default values are used when a parameter is not present.',
@@ -66,17 +87,6 @@ final class DemoExplanationProvider
                 ['term' => 'Accept header', 'definition' => 'HTTP header the client sends to indicate preferred response formats.'],
             ],
         ],
-        'routing/typed-handler' => [
-            'what' => 'Handlers declare concrete Payload and Resource types in their handle() signature — no instanceof, no casting, no guessing.',
-            'how' => 'TypedHandlerInterface enforces that handle() accepts a specific Payload type and returns a specific Resource type. The HandlerReflectionCache validates signatures at boot, catching mismatches before any request is served.',
-            'why' => 'Concrete types in the handler signature eliminate an entire class of runtime errors. IDEs provide full autocompletion, and static analysis tools can verify correctness without running the code.',
-            'keywords' => [
-                ['term' => 'TypedHandlerInterface', 'definition' => 'Interface requiring concrete Payload and Resource types in the handle() method signature.'],
-                ['term' => 'HandlerReflectionCache', 'definition' => 'Validates handler method signatures at boot to catch type mismatches early.'],
-                ['term' => '#[AsPayloadHandler]', 'definition' => 'Attribute that registers a class as the handler for a specific (Payload, Resource) pair.'],
-            ],
-        ],
-
         // --- Container / DI section ---
         'di/basic-injection' => [
             'what' => 'Services are injected into handlers via #[InjectAsReadonly] property attributes — no constructor wiring, no YAML.',
@@ -116,10 +126,60 @@ final class DemoExplanationProvider
                 ['term' => '#[TenantScoped]', 'definition' => 'Automatically filters queries by the current tenant ID.'],
             ],
         ],
+        'data/table-extension' => [
+            'what' => 'Two modules can point at the same table and contribute their own columns without one module editing the other module\'s resource class.',
+            'how' => 'SchemaCollector groups discovered ORM resources by table name. When another resource maps to the same table, it adds only missing columns and leaves already-defined columns alone.',
+            'why' => 'This removes one of the most painful ownership traps in modular systems: the first module does not permanently own the whole table forever. Later modules stay additive instead of invasive.',
+            'keywords' => [
+                ['term' => 'Shared table extension', 'definition' => 'Multiple ORM resources map to one physical table and extend its schema collaboratively.'],
+                ['term' => 'SchemaCollector', 'definition' => 'Collects table definitions from resource attributes and merges columns by table name.'],
+                ['term' => 'Module isolation', 'definition' => 'A later module can add persistence fields without reopening the source code of the original module.'],
+            ],
+        ],
+        'data/domain-models' => [
+            'what' => 'Semitexa deliberately separates persistence resources from domain-level business models instead of pretending one class should do both jobs.',
+            'how' => 'A resource class maps the table and may implement DomainMappable. Repositories then return domain objects on the normal read path, while explicit resource reads stay available through fetchOneAsResource() and fetchAllAsResource().',
+            'why' => 'This keeps business code free from ORM metadata and keeps persistence code free from fake business semantics. The boundary stays reviewable and intentional.',
+            'keywords' => [
+                ['term' => 'DomainMappable', 'definition' => 'Resource contract that converts storage resources to domain objects and back again.'],
+                ['term' => 'Resource model', 'definition' => 'ORM-facing class responsible for table mapping, columns, indexes, and storage conversion.'],
+                ['term' => 'Domain model', 'definition' => 'Business object carrying behavior, invariants, and ubiquitous language without persistence metadata.'],
+            ],
+        ],
+        'data/repository-workflow' => [
+            'what' => 'The canonical Semitexa repository workflow is domain-first: application code depends on repository contracts and works with domain models, not raw ORM resources.',
+            'how' => 'Repository contracts return domain objects. ORM repository implementations sit behind the contract, convert through DomainMappable, and only expose resource-level reads through explicit methods like fetchOneAsResource().',
+            'why' => 'This keeps the demo honest about best practices. Resource-level CRUD still exists, but it is not what we should teach as the primary architectural path.',
+            'keywords' => [
+                ['term' => 'Repository contract', 'definition' => 'Application-facing interface that expresses persistence in domain language.'],
+                ['term' => 'Domain-first read path', 'definition' => 'Default repository reads return business models instead of persistence resources.'],
+                ['term' => 'fetchOneAsResource()', 'definition' => 'Explicit low-level read path for infrastructure cases that truly need raw ORM resources.'],
+            ],
+        ],
+        'data/schema-sync' => [
+            'what' => 'Semitexa minimizes migration churn by computing schema changes directly from code and the current database instead of requiring constant hand-written migrations.',
+            'how' => 'orm:sync collects the code schema, compares it with the live database, builds an execution plan, and separates safe changes from destructive ones. Drops use a two-phase flow: first mark deprecated, later drop only with explicit approval.',
+            'why' => 'This reduces busywork, makes destructive intent visible, and still gives teams exact SQL artifacts when they need them for review or deployment.',
+            'keywords' => [
+                ['term' => 'orm:sync', 'definition' => 'Command that computes and optionally executes the schema synchronization plan.'],
+                ['term' => 'Two-phase drop', 'definition' => 'Column or table removal is delayed: first deprecate, then drop on a later explicit destructive pass.'],
+                ['term' => 'AuditLogger', 'definition' => 'Writes executed sync operations as both JSON and SQL files under var/migrations/history.'],
+            ],
+        ],
+        'data/n-plus-one' => [
+            'what' => 'Semitexa avoids N+1 by letting each screen define the exact table slice it needs, then batch-loading explicit relations for the whole result set.',
+            'how' => 'You can model multiple resource abstractions over the same table. A slim list resource selects only the required columns, and StreamingHydrator loads relations for all hydrated resources in one batch instead of per-row lazy lookups.',
+            'why' => 'This removes the usual ORM trade-off between over-fetching giant entities and hiding extra queries behind lazy loading. The fetch plan is explicit, reviewable, and stable under load.',
+            'keywords' => [
+                ['term' => 'N+1', 'definition' => 'A query anti-pattern where one base query triggers one extra query per returned row.'],
+                ['term' => 'StreamingHydrator', 'definition' => 'Hydrates many rows and batch-loads relations once for the whole result set.'],
+                ['term' => 'Resource slice', 'definition' => 'A narrow resource abstraction over a table containing only the columns and relations required by one use case.'],
+            ],
+        ],
         'data/repositories' => [
-            'what' => 'Repositories provide typed query methods and implement domain interfaces. The ORM repository is an implementation detail.',
-            'how' => 'AbstractRepository provides a fluent query builder — select(), where(), orderBy(), fetchAll(). Domain code depends on the repository interface, not the ORM implementation.',
-            'why' => 'Typed repository interfaces make data access explicit and testable. The handler asks for what it needs; the repository decides how to get it.',
+            'what' => 'Repositories provide typed query methods behind domain-facing contracts. The ORM repository is the storage implementation, not the business abstraction.',
+            'how' => 'AbstractRepository can return domain models by default when the resource implements DomainMappable. When infrastructure code truly needs raw persistence objects, SelectQuery exposes fetchOneAsResource() and fetchAllAsResource() explicitly.',
+            'why' => 'This keeps handlers and services speaking domain language most of the time, while still allowing resource-level operations when persistence details actually matter.',
             'keywords' => [
                 ['term' => '#[SatisfiesRepositoryContract]', 'definition' => 'Marks a class as the ORM implementation of a domain repository interface.'],
                 ['term' => 'AbstractRepository', 'definition' => 'Base class providing fluent query builder methods for ORM repositories.'],
@@ -153,6 +213,17 @@ final class DemoExplanationProvider
                 ['term' => 'RbacService', 'definition' => 'Service that resolves user → roles → permissions for access control checks.'],
             ],
         ],
+        'auth/requires-permission' => [
+            'what' => 'A payload can declare one required permission slug, and the framework enforces it before the handler is even called.',
+            'how' => 'The authorization listener reads #[RequiresPermission] from the resolved payload, asks the authorizer for an access decision, and maps the result to 401 for guests or 403 for authenticated users missing the permission.',
+            'why' => 'This keeps access control reviewable and removes defensive authorization code from handlers. The contract lives on the route boundary where reviewers expect to find it.',
+            'keywords' => [
+                ['term' => '#[RequiresPermission]', 'definition' => 'Declares the exact permission slug required to execute the payload.'],
+                ['term' => '401 Unauthorized', 'definition' => 'Returned when a guest subject hits a permission-protected route.'],
+                ['term' => '403 Forbidden', 'definition' => 'Returned when the subject is authenticated but missing the declared permission.'],
+                ['term' => 'guard chain', 'definition' => 'The authorization flow that evaluates the payload policy before the handler runs.'],
+            ],
+        ],
 
         // --- Events section ---
         'events/sync-dispatch' => [
@@ -184,13 +255,74 @@ final class DemoExplanationProvider
                 ['term' => 'renderTemplate()', 'definition' => 'Renders a Twig template with the resource\'s accumulated context.'],
             ],
         ],
+        'rendering/resource-dtos' => [
+            'what' => 'Resource DTOs are the real presentation boundary: handlers build one typed response object, and templates consume that object instead of reshaping ad hoc arrays.',
+            'how' => 'A payload declares responseWith, the handler receives a concrete resource DTO, and the resource accumulates named presentation fields through with*() methods before HtmlResponse auto-renders the declared template.',
+            'why' => 'This is real separation of data and presentation. The template stops doing data surgery, partials stop inventing their own mapping rules, and the whole view layer reads from one explicit source of truth.',
+            'keywords' => [
+                ['term' => '#[AsResource]', 'definition' => 'Declares the template and render handle for a typed response DTO.'],
+                ['term' => 'HtmlResponse', 'definition' => 'Base SSR response that stores render context and auto-renders the declared template.'],
+                ['term' => 'with*() methods', 'definition' => 'Explicit resource methods that define the vocabulary of data allowed to reach the template.'],
+            ],
+        ],
         'rendering/slot-resources' => [
-            'what' => 'Slot resources are independent page regions — sidebar, footer, widgets — hydrated by their own handlers, not the page handler.',
-            'how' => '#[AsSlotResource] registers a slot for a specific page handle. The slot system instantiates the slot DTO, runs its slot handler pipeline, and renders the slot template. Slots can be deferred (loaded after page load via SSE).',
-            'why' => 'Slots keep page handlers focused on page-level data. Independent blocks get their own handlers, making them reusable across pages and independently cacheable.',
+            'what' => 'Slot resources make page regions first-class: nav, sidebar, info rails, widgets, and deferred panels all use the same resource-and-template model as the main page.',
+            'how' => '#[AsSlotResource] registers a region for a layout handle. layout_slot() resolves the slot, SlotRenderer creates the resource, SlotHandlerPipeline hydrates it, and Twig renders it with the same conventions as any normal page response.',
+            'why' => 'This avoids fragment chaos. Frontend and backend stop using different composition systems, and every page region becomes explicit, typed, reusable, and independently evolvable.',
             'keywords' => [
                 ['term' => '#[AsSlotResource]', 'definition' => 'Registers a class as a renderable slot for a specific page handle.'],
                 ['term' => 'layout_slot()', 'definition' => 'Twig function that renders a named slot in a layout template.'],
+                ['term' => 'SlotHandlerPipeline', 'definition' => 'Executes typed handlers for a slot resource before rendering its template.'],
+            ],
+        ],
+        'rendering/deferred' => [
+            'what' => 'Deferred slots let the first response stay server-rendered and usable while slower regions arrive later as server-rendered HTML.',
+            'how' => '#[AsSlotResource(deferred: true)] marks a region for late delivery. The page sends skeleton HTML first, then DeferredBlockOrchestrator streams final slot HTML over SSE and the client swaps it in place.',
+            'why' => 'This is SSR-first live UI, not a client-side page rebuild. The shell stays fast, and heavy regions remain inside the same template and response model as the rest of the page.',
+            'keywords' => [
+                ['term' => 'deferred: true', 'definition' => 'Moves a slot out of the critical render path without removing it from SSR.'],
+                ['term' => 'skeletonTemplate', 'definition' => 'Placeholder HTML rendered immediately while the real slot is still preparing.'],
+                ['term' => 'DeferredBlockOrchestrator', 'definition' => 'Coordinates server-side delivery of deferred slot HTML over SSE.'],
+            ],
+        ],
+        'rendering/deferred-live' => [
+            'what' => 'A live slot can keep refreshing itself while the page remains SSR-first and HTML-driven.',
+            'how' => 'refreshInterval on #[AsSlotResource] tells the framework to re-fetch the slot over SSE on a timer. The client swaps HTML in place and reconnects automatically if the stream drops.',
+            'why' => 'This gives you live widgets without building a parallel client-side rendering system just to maintain one dynamic region.',
+            'keywords' => [
+                ['term' => 'refreshInterval', 'definition' => 'Declarative live-refresh interval for a slot resource.'],
+                ['term' => 'SSE reconnection', 'definition' => 'Keeps the live slot updating even if the stream temporarily drops.'],
+                ['term' => 'SSR-first live UI', 'definition' => 'A live region remains part of the server-rendered page model instead of becoming a mini SPA.'],
+            ],
+        ],
+        'rendering/reactive-report' => [
+            'what' => 'Reactive slots reflect changing server state as live HTML, so scheduled jobs and background work appear in the UI without page reloads.',
+            'how' => 'A job updates storage, ReactiveReportSlot re-renders from DemoJobRun state on each refresh tick, and the page swaps the returned HTML into the existing shell.',
+            'why' => 'The page feels live, but the architecture remains coherent: one SSR-first shell, one slot model, one rendering pipeline, no separate frontend state machine.',
+            'keywords' => [
+                ['term' => 'ReactiveReportSlot', 'definition' => 'Deferred slot resource that turns background job state into live HTML.'],
+                ['term' => 'DemoJobRun', 'definition' => 'Stores report execution state consumed by the live slot.'],
+                ['term' => 'SSR-first live UI', 'definition' => 'Background changes appear in the page through server-rendered slot updates, not SPA state orchestration.'],
+            ],
+        ],
+        'rendering/reactive-import' => [
+            'what' => 'Long-running import progress stays owned by the server, and the page simply keeps receiving fresh HTML snapshots of that truth.',
+            'how' => 'The import job writes progress_percent and progress_message into DemoJobRun. ReactiveImportSlot re-renders on refreshInterval and the browser swaps the returned HTML into the existing page shell.',
+            'why' => 'You do not need a frontend progress engine just to keep a counter moving. The server stays authoritative, and the UI still feels live.',
+            'keywords' => [
+                ['term' => 'DemoJobRun', 'definition' => 'Stores the import state that the live slot turns into visible progress.'],
+                ['term' => 'ReactiveImportSlot', 'definition' => 'Deferred slot resource that keeps re-rendering the import panel as batches advance.'],
+                ['term' => 'SSR-first live UI', 'definition' => 'The page remains server-rendered even while progress updates keep arriving.'],
+            ],
+        ],
+        'rendering/reactive-analytics' => [
+            'what' => 'A live dashboard can be assembled from independent server snapshots, so panels update progressively without waiting for one giant frontend state sync.',
+            'how' => 'Analytics jobs write their own snapshots, ReactiveAnalyticsSlot re-renders on refreshInterval, and each panel reflects the latest server state as soon as it is available.',
+            'why' => 'This keeps dashboards honest and incremental. The UI feels live, but the architecture stays SSR-first instead of drifting into client-side orchestration code.',
+            'keywords' => [
+                ['term' => 'DemoAnalyticsSnapshot', 'definition' => 'Stores one analytics slice so panels can update independently.'],
+                ['term' => 'ReactiveAnalyticsSlot', 'definition' => 'Deferred slot that turns the latest snapshot set into a live dashboard panel surface.'],
+                ['term' => 'SSR-first live UI', 'definition' => 'Panels update as server-rendered HTML instead of a client app rebuilding the dashboard.'],
             ],
         ],
 
@@ -265,6 +397,16 @@ final class DemoExplanationProvider
                 ['term' => 'MachineCredential', 'definition' => 'API key entity with scopes, revocation, and audit trail.'],
             ],
         ],
+        'api/schema-discovery' => [
+            'what' => 'Schema Discovery turns the raw `_schema` endpoint into a small interactive API console. The page still talks to the real live Semitexa routes.',
+            'how' => 'The human-facing demo page is a normal DemoFeatureResource, but each operation button issues a fetch() call against the external API endpoints under `/demo/api/...`. The schema contract and example responses are preloaded server-side so the page reads like documentation before you click anything.',
+            'why' => 'This is closer to how people evaluate APIs in practice: they want to poke the contract, compare responses, and confirm the system shape without wiring Postman first.',
+            'keywords' => [
+                ['term' => '_schema', 'definition' => 'Machine-facing schema endpoint returning JSON Schema for the product contract.'],
+                ['term' => 'application/schema+json', 'definition' => 'Explicit media type for tooling that consumes JSON Schema documents.'],
+                ['term' => 'Sparse fieldset', 'definition' => 'A client asks for only the fields it needs via `fields=...`.'],
+            ],
+        ],
         'api/machine-auth' => [
             'what' => 'Machine-to-machine authentication via Bearer tokens. API clients authenticate with {id}:{secret} credentials.',
             'how' => 'MachineAuthHandler reads the Authorization: Bearer header, splits {id}:{secret}, validates against MachineCredentialRepository, and sets a MachinePrincipal on AuthContext.',
@@ -283,6 +425,16 @@ final class DemoExplanationProvider
             'keywords' => [
                 ['term' => '#[TestablePayload]', 'definition' => 'Marks a payload for automated contract testing with configurable strategies.'],
                 ['term' => 'MonkeyTestingStrategy', 'definition' => 'Sends random/malformed input to test endpoint robustness.'],
+            ],
+        ],
+        'testing/orm-console' => [
+            'what' => 'The ORM includes a practical console toolkit for schema inspection, diffing, syncing, and seeding with safe defaults.',
+            'how' => 'orm:status reports server capabilities and sync state, orm:diff shows the delta, orm:sync can dry-run or export the SQL plan, and orm:seed applies defaults() upserts for seedable resources.',
+            'why' => 'A framework should not stop at attributes and repositories. Real teams need an operational surface that explains what will happen before it changes production state.',
+            'keywords' => [
+                ['term' => 'orm:status', 'definition' => 'Reports database/server capabilities and whether the schema is currently in sync.'],
+                ['term' => 'orm:diff', 'definition' => 'Shows structural differences between the code schema and the live database.'],
+                ['term' => '--output', 'definition' => 'Exports the computed SQL plan to a file for audit, review, or deployment pipelines.'],
             ],
         ],
     ];

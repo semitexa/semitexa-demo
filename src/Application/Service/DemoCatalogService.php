@@ -15,7 +15,7 @@ final class DemoCatalogService
             'key' => 'routing',
             'label' => 'Routing & Handlers',
             'summary' => 'Attribute-driven routes, typed handlers, and content negotiation in one coherent request pipeline.',
-            'icon' => 'Paths',
+            'icon' => 'RT',
             'eyebrow' => 'HTTP Layer',
             'starter' => true,
             'prerequisites' => [],
@@ -24,7 +24,7 @@ final class DemoCatalogService
             'key' => 'di',
             'label' => 'Dependency Injection',
             'summary' => 'Readonly, mutable, and contract-based wiring designed for long-running Swoole workers.',
-            'icon' => 'Graph',
+            'icon' => 'DI',
             'eyebrow' => 'Container',
             'starter' => true,
             'prerequisites' => [],
@@ -33,7 +33,7 @@ final class DemoCatalogService
             'key' => 'data',
             'label' => 'Data & Persistence',
             'summary' => 'Attribute-mapped resources, repositories, filtering, pagination, and relations with real demo data.',
-            'icon' => 'SQL',
+            'icon' => 'DB',
             'eyebrow' => 'Persistence',
             'starter' => true,
             'prerequisites' => [],
@@ -42,7 +42,7 @@ final class DemoCatalogService
             'key' => 'auth',
             'label' => 'Auth & Security',
             'summary' => 'Session auth, machine credentials, RBAC, and route protection with visible outcomes.',
-            'icon' => 'Guard',
+            'icon' => 'AU',
             'eyebrow' => 'Security',
             'starter' => false,
             'prerequisites' => [],
@@ -51,7 +51,7 @@ final class DemoCatalogService
             'key' => 'events',
             'label' => 'Events & Async',
             'summary' => 'Synchronous and deferred event flows, queues, and SSE-style interactions.',
-            'icon' => 'Flow',
+            'icon' => 'EV',
             'eyebrow' => 'Async',
             'starter' => false,
             'prerequisites' => [],
@@ -60,7 +60,7 @@ final class DemoCatalogService
             'key' => 'rendering',
             'label' => 'Rendering & SSR',
             'summary' => 'Layouts, components, deferred blocks, and reactive UI patterns rendered on the server.',
-            'icon' => 'View',
+            'icon' => 'UI',
             'eyebrow' => 'Frontend',
             'starter' => false,
             'prerequisites' => [],
@@ -69,7 +69,7 @@ final class DemoCatalogService
             'key' => 'platform',
             'label' => 'Platform',
             'summary' => 'Tenant-aware configuration, data isolation, resolver chains, and platform-level behavior.',
-            'icon' => 'Tenant',
+            'icon' => 'PL',
             'eyebrow' => 'Platform',
             'starter' => false,
             'prerequisites' => ['data', 'rendering'],
@@ -124,7 +124,7 @@ final class DemoCatalogService
                         'title' => $entry['attribute']->title,
                         'slug' => $entry['attribute']->slug,
                         'summary' => $entry['attribute']->summary,
-                        'href' => '/demo/' . $entry['attribute']->section . '/' . $entry['attribute']->slug,
+                        'href' => $entry['path'] ?? '/demo/' . $entry['attribute']->section . '/' . $entry['attribute']->slug,
                     ],
                     $features,
                 ),
@@ -142,6 +142,21 @@ final class DemoCatalogService
         ));
     }
 
+    public function getNavSections(): array
+    {
+        return array_map(
+            static fn (array $section): array => [
+                'key' => $section['key'],
+                'label' => $section['label'],
+                'icon' => $section['icon'],
+                'eyebrow' => $section['eyebrow'],
+                'featureCount' => $section['featureCount'],
+                'href' => $section['href'],
+            ],
+            $this->getSections(),
+        );
+    }
+
     public function getSection(string $section): ?array
     {
         foreach ($this->getSections(includeEmpty: true) as $entry) {
@@ -156,6 +171,13 @@ final class DemoCatalogService
     public function getFeatureTree(): array
     {
         return $this->getSections();
+    }
+
+    public function getFeatureTreeForSection(string $section): array
+    {
+        $entry = $this->getSection($section);
+
+        return $entry === null ? [] : [$entry];
     }
 
     public function getFeaturedFeatures(): array
@@ -221,7 +243,7 @@ final class DemoCatalogService
                 'label' => self::SECTION_META[$section]['label'] ?? ucfirst($section),
                 'title' => $feature->title,
                 'summary' => $feature->entryLine !== '' ? $feature->entryLine : $feature->summary,
-                'href' => '/demo/' . $section . '/' . $feature->slug,
+                'href' => $this->featureRegistry->getPath($section, $slug) ?? '/demo/' . $section . '/' . $feature->slug,
             ];
         }
 

@@ -1,0 +1,26 @@
+<div class="preview-card">
+  {% if eyebrow is defined and eyebrow %}
+    <p class="preview-card__eyebrow">{{ eyebrow }}</p>
+  {% endif %}
+  {% if title is defined and title %}
+    <h3 class="preview-card__title">{{ title }}</h3>
+  {% endif %}
+  {% if summary is defined and summary %}
+    <p class="preview-card__summary">{{ summary }}</p>
+  {% endif %}
+
+  <div class="preview-grid preview-grid--two-up">
+    {% for timer in timers|default([]) %}
+      <div class="preview-card preview-card--nested">
+        <p class="preview-card__eyebrow">{{ timer.label }}</p>
+        <div class="preview-metric">
+          <span class="preview-metric__value">{{ timer.display }}</span>
+          <span class="preview-metric__label">{{ timer.caption }}</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar__fill" style="width: {{ timer.progress }}%"></div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>

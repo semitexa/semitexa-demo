@@ -9,6 +9,7 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Container\ServiceContractPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -21,23 +22,11 @@ final class ServiceContractHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(ServiceContractPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $resultPreview = '<div class="result-preview">'
-            . '<p>Service contracts let handlers depend on <strong>interfaces</strong>, not implementations. '
-            . 'The container resolves the binding at boot using the <code>#[SatisfiesServiceContract]</code> attribute.</p>'
-            . '<pre class="code-inline">'
-            . htmlspecialchars(
-                "// Interface — what you inject:\ninterface MailerInterface { public function send(Mail \$mail): void; }\n\n"
-                . "// Implementation — what gets resolved:\n#[SatisfiesServiceContract(of: MailerInterface::class)]\nfinal class SmtpMailer implements MailerInterface { ... }\n\n"
-                . "// Handler — only knows the interface:\n#[InjectAsReadonly]\nprotected MailerInterface \$mailer;"
-            )
-            . '</pre>'
-            . '<p class="note">Swap the implementation (e.g. for testing or a different provider) '
-            . 'by pointing <code>#[SatisfiesServiceContract]</code> at a different class — '
-            . 'no handler code changes required.</p>'
-            . '</div>';
-
         $explanation = $this->explanationProvider->getExplanation('di', 'contracts') ?? [];
 
         $sourceCode = [
@@ -46,6 +35,16 @@ final class ServiceContractHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Service Contracts — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'di',
+                'currentSlug' => 'contracts',
+                'infoWhat' => $explanation['what'] ?? 'Service contracts bind interfaces to implementations at boot, keeping handlers decoupled.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('di')
             ->withSlug('contracts')
             ->withTitle('Service Contracts')
@@ -54,7 +53,13 @@ final class ServiceContractHandler implements TypedHandlerInterface
             ->withHighlights(['#[SatisfiesServiceContract]', '#[SatisfiesRepositoryContract]', 'interface binding', 'swap implementations'])
             ->withLearnMoreLabel('See contract attributes →')
             ->withDeepDiveLabel('How contract resolution works →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
+                'eyebrow' => 'Interface Binding',
+                'title' => 'Handlers depend on contracts',
+                'summary' => 'The container resolves an implementation at boot via a service contract attribute.',
+                'codeSnippet' => "// Interface — what you inject:\ninterface MailerInterface { public function send(Mail \$mail): void; }\n\n// Implementation — what gets resolved:\n#[SatisfiesServiceContract(of: MailerInterface::class)]\nfinal class SmtpMailer implements MailerInterface { ... }\n\n// Handler — only knows the interface:\n#[InjectAsReadonly]\nprotected MailerInterface \$mailer;",
+                'note' => 'Swap implementations for testing or providers without changing handler code.',
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

@@ -1,0 +1,38 @@
+<div class="preview-card preview-card--layered">
+  <p class="preview-card__eyebrow">Operational Surface</p>
+  <h3 class="preview-card__title">CLI that explains the plan before touching the database</h3>
+  <p class="preview-card__summary">
+    The ORM console commands are part of the product story. They let you inspect status, review diffs, export SQL plans, and seed data
+    without improvising custom scripts.
+  </p>
+
+  <div class="preview-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Command</th>
+          <th>Purpose</th>
+          <th>Operational value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for command in commands %}
+          <tr>
+            <td><code>{{ command.name }}</code></td>
+            <td>{{ command.purpose }}</td>
+            <td>{{ command.value }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="preview-code-stack">
+    {% for snippet in snippets %}
+      <div class="preview-code-stack__item">
+        <p class="preview-code-stack__label">{{ snippet.label }}</p>
+        <pre class="preview-code"><code>{{ snippet.code }}</code></pre>
+      </div>
+    {% endfor %}
+  </div>
+</div>

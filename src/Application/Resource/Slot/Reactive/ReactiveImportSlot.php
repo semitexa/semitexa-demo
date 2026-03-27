@@ -14,7 +14,7 @@ use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
     deferred: true,
     skeletonTemplate: '@project-layouts-semitexa-demo/reactive/import.skeleton.html.twig',
     refreshInterval: 2,
-    clientModules: ['reactive/import-counters.js'],
+    clientModules: ['@project-static-semitexa-demo/reactive/import-counters.js'],
 )]
 final class ReactiveImportSlot extends HtmlSlotResponse
 {

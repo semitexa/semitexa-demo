@@ -10,6 +10,7 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Handler\DomainListener\DemoNotificationListener;
 use Semitexa\Demo\Application\Payload\Request\Async\DeferredHandlerPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -22,21 +23,11 @@ final class DeferredHandlerHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(DeferredHandlerPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $resultPreview = '<div class="result-preview">'
-            . '<p>With <code>EventExecution::Async</code>, the listener is scheduled via '
-            . '<code>Swoole\Event::defer()</code>. The response reaches the client first, '
-            . 'then the listener runs in the same worker coroutine — zero additional threads.</p>'
-            . '<table class="data-table">'
-            . '<thead><tr><th>Mode</th><th>When it runs</th><th>Survives restart</th><th>Best for</th></tr></thead>'
-            . '<tbody>'
-            . '<tr><td><code>Sync</code></td><td>Before response</td><td>N/A</td><td>Validation, side-effects that must complete</td></tr>'
-            . '<tr><td><code>Async</code></td><td>After response</td><td>No</td><td>Email, cache bust, audit log</td></tr>'
-            . '<tr><td><code>Queued</code></td><td>Worker picks up</td><td>Yes</td><td>Heavy jobs, retry logic, cross-worker</td></tr>'
-            . '</tbody></table>'
-            . '</div>';
-
         $explanation = $this->explanationProvider->getExplanation('events', 'deferred') ?? [];
 
         $sourceCode = [
@@ -46,6 +37,16 @@ final class DeferredHandlerHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Deferred Handler — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'events',
+                'currentSlug' => 'deferred',
+                'infoWhat' => $explanation['what'] ?? 'Async listeners run after the response via Swoole defer in the same worker.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('events')
             ->withSlug('deferred')
             ->withTitle('Deferred Handler')
@@ -54,7 +55,32 @@ final class DeferredHandlerHandler implements TypedHandlerInterface
             ->withHighlights(['EventExecution::Async', 'Swoole\\Event::defer()', 'post-response', 'non-blocking'])
             ->withLearnMoreLabel('See the deferred listener →')
             ->withDeepDiveLabel('How Swoole defer works →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
+                'eyebrow' => 'Post-Response Execution',
+                'title' => 'Same worker, later in the lifecycle',
+                'summary' => 'Async listeners are scheduled with Swoole defer, so the client gets the response before the listener runs.',
+                'columns' => ['Mode', 'When it runs', 'Survives restart', 'Best for'],
+                'rows' => [
+                    [
+                        ['text' => 'Sync', 'code' => true],
+                        ['text' => 'Before response'],
+                        ['text' => 'N/A'],
+                        ['text' => 'Validation, required side-effects'],
+                    ],
+                    [
+                        ['text' => 'Async', 'code' => true],
+                        ['text' => 'After response'],
+                        ['text' => 'No'],
+                        ['text' => 'Email, cache bust, audit log'],
+                    ],
+                    [
+                        ['text' => 'Queued', 'code' => true],
+                        ['text' => 'Worker picks up'],
+                        ['text' => 'Yes'],
+                        ['text' => 'Heavy jobs, retry logic, cross-worker'],
+                    ],
+                ],
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

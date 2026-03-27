@@ -1,0 +1,55 @@
+<div class="preview-card preview-card--layered">
+  <p class="preview-card__eyebrow">Two Model Layers</p>
+  <h3 class="preview-card__title">Resource model and domain model do different jobs</h3>
+  <p class="preview-card__summary">
+    Semitexa does not force one giant class to be table mapping, behavior container, and business language at the same time.
+    The ORM resource maps persistence. The domain model carries the business rules.
+  </p>
+
+  <div class="preview-callout">
+    <p class="preview-callout__eyebrow">Why this matters</p>
+    <ul class="preview-callout__list">
+      {% for painPoint in painPoints %}
+        <li>{{ painPoint }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="preview-compare">
+    {% for layer in layers %}
+      <article class="preview-compare__card preview-compare__card--{{ layer.tone }}">
+        <div class="preview-compare__meta">
+          <p class="preview-compare__eyebrow">{{ layer.badge }}</p>
+          <h4 class="preview-compare__title">{{ layer.title }}</h4>
+        </div>
+        <p class="preview-compare__summary">{{ layer.summary }}</p>
+        <div class="preview-chip-list">
+          {% for chip in layer.chips %}
+            <span class="preview-chip">{{ chip }}</span>
+          {% endfor %}
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+
+  <div class="preview-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Concern</th>
+          <th>Resource model</th>
+          <th>Domain model</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            <td>{{ row.concern }}</td>
+            <td>{{ row.resource }}</td>
+            <td>{{ row.domain }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

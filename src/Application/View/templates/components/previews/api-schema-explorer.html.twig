@@ -1,0 +1,47 @@
+<div class="preview-card preview-card--api-schema api-explorer" data-api-explorer>
+  <div class="preview-card__header">
+    <p class="preview-card__eyebrow">Schema Discovery</p>
+    <h3 class="preview-card__title">Mini Swagger for the live Semitexa API</h3>
+    <p class="preview-card__summary">Click any operation below. The panel on the right performs a real request against the current `/demo/api/...` endpoint and shows the exact response body.</p>
+  </div>
+
+  <div class="api-explorer__layout">
+    <div class="api-explorer__operations">
+      {% for operation in operations %}
+        <button
+          type="button"
+          class="api-explorer__operation{{ loop.first ? ' is-active' : '' }}"
+          data-api-request
+          data-method="{{ operation.method }}"
+          data-url="{{ operation.url }}"
+          data-headers="{{ operation.headers|json_encode|e('html_attr') }}"
+        >
+          <span class="api-explorer__method">{{ operation.method }}</span>
+          <span class="api-explorer__label">{{ operation.label }}</span>
+          <span class="api-explorer__path">{{ operation.url }}</span>
+          <span class="api-explorer__summary">{{ operation.summary }}</span>
+        </button>
+      {% endfor %}
+    </div>
+
+    <div class="api-explorer__response">
+      <div class="api-explorer__response-head">
+        <div>
+          <p class="api-explorer__response-eyebrow">Live response</p>
+          <h4 class="api-explorer__response-title" data-api-response-title>{{ initialOperation.label }}</h4>
+        </div>
+        <div class="api-explorer__meta">
+          <span class="api-explorer__status" data-api-response-status>{{ initialOperation.responseStatus }}</span>
+          <span class="api-explorer__content-type" data-api-response-type>{{ initialOperation.responseContentType }}</span>
+        </div>
+      </div>
+
+      <div class="api-explorer__headers">
+        <p class="api-explorer__headers-label">Request headers</p>
+        <pre class="api-explorer__headers-code" data-api-request-headers>{{ initialOperation.headers|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+      </div>
+
+      <pre class="api-explorer__body" data-api-response-body>{{ initialOperation.responseBody }}</pre>
+    </div>
+  </div>
+</div>

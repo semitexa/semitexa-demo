@@ -1,0 +1,49 @@
+<div class="preview-card preview-card--layered">
+  <p class="preview-card__eyebrow">Trusted Input Boundary</p>
+  <h3 class="preview-card__title">Payloads turn raw HTTP into application-grade data</h3>
+  <p class="preview-card__summary">
+    The payload is not a passive DTO. It is the shield between external input and the use case:
+    hydration, type casting, and validation happen first, and only then does business code run.
+  </p>
+
+  <div class="preview-callout">
+    <p class="preview-callout__eyebrow">What usually goes wrong</p>
+    <ul class="preview-callout__list">
+      {% for painPoint in painPoints %}
+        <li>{{ painPoint }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="preview-stats">
+    {% for signal in signals %}
+      <div class="preview-stats__item">
+        <span class="preview-stats__value">{{ signal.value }}</span>
+        <span class="preview-stats__label">{{ signal.label }}</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="preview-flow">
+    {% for step in pipeline %}
+      <article class="preview-flow__step">
+        <p class="preview-flow__eyebrow">Step {{ loop.index }}</p>
+        <h4 class="preview-flow__title">{{ step.stage }}</h4>
+        <p class="preview-flow__summary">{{ step.detail }}</p>
+      </article>
+    {% endfor %}
+  </div>
+
+  <div class="preview-compare">
+    {% for item in compare %}
+      <article class="preview-compare__card preview-compare__card--{{ item.variant }}">
+        <div class="preview-compare__meta">
+          <p class="preview-compare__eyebrow">{{ item.eyebrow }}</p>
+          <h4 class="preview-compare__title">{{ item.title }}</h4>
+        </div>
+        <p class="preview-compare__summary">{{ item.summary }}</p>
+        <p class="preview-note">{{ item.note }}</p>
+      </article>
+    {% endfor %}
+  </div>
+</div>

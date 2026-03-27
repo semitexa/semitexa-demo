@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Service;
 
 use Semitexa\Core\Attributes\AsService;
+use Semitexa\Core\Util\ProjectRoot;
 
 /**
  * Reads PHP source files and extracts attribute metadata for display in the demo UI.
@@ -29,7 +30,7 @@ final class DemoSourceCodeReader
 
         $contents = file_get_contents($fileName);
 
-        return $contents !== false ? $contents : '';
+        return $contents !== false ? $this->sanitizeForDisplay($contents) : '';
     }
 
     /**
@@ -44,5 +45,50 @@ final class DemoSourceCodeReader
         $ref = new \ReflectionClass($className);
 
         return $ref->getAttributes();
+    }
+
+    public function readProjectRelativeSource(string $relativePath): string
+    {
+        $path = ProjectRoot::get() . '/' . ltrim($relativePath, '/');
+
+        if (!is_readable($path)) {
+            return '';
+        }
+
+        $contents = file_get_contents($path);
+
+        return $contents !== false ? $this->sanitizeForDisplay($contents) : '';
+    }
+
+    private function sanitizeForDisplay(string $contents): string
+    {
+        $lines = preg_split("/\r\n|\n|\r/", $contents) ?: [];
+        $filtered = [];
+        $skippingDemoFeature = false;
+
+        foreach ($lines as $line) {
+            if (preg_match('/^use\s+Semitexa\\\\Demo\\\\Attributes\\\\DemoFeature;$/', trim($line)) === 1) {
+                continue;
+            }
+
+            if (str_contains($line, '#[DemoFeature(')) {
+                $skippingDemoFeature = true;
+                continue;
+            }
+
+            if ($skippingDemoFeature) {
+                if (trim($line) === ')]') {
+                    $skippingDemoFeature = false;
+                }
+
+                continue;
+            }
+
+            $filtered[] = $line;
+        }
+
+        $sanitized = implode("\n", $filtered);
+
+        return preg_replace("/\n{3,}/", "\n\n", $sanitized) ?? $sanitized;
     }
 }

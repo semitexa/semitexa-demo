@@ -20,7 +20,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     title: 'Filtering',
     slug: 'filtering',
     summary: 'Mark a property #[Filterable] and the ORM handles the rest — no manual WHERE clauses.',
-    order: 5,
+    order: 10,
     highlights: ['#[Filterable]', 'FilterableTrait', 'FilterableResourceInterface', 'getFilterCriteria()'],
     entryLine: 'Mark a property #[Filterable] and the ORM handles the rest — no manual WHERE clauses.',
     learnMoreLabel: 'See the filter attributes →',

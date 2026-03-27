@@ -1,40 +1,97 @@
 <div class="code-block" data-code-block>
-  {# Tab navigation #}
-  {% if tabs|default({})|length > 1 %}
-    <div class="code-block__tabs" role="tablist">
-      {% for label, source in tabs %}
-        <button
-          class="code-block__tab{{ loop.first ? ' code-block__tab--active' : '' }}"
-          role="tab"
-          aria-selected="{{ loop.first ? 'true' : 'false' }}"
-          aria-controls="code-panel-{{ featureSlug|default('default') }}-{{ loop.index }}"
-          data-code-tab="{{ loop.index }}"
-        >{{ label }}</button>
-      {% endfor %}
-    </div>
-  {% endif %}
+  {% set codeQuotes = [
+    {'quote': 'Talk is cheap. Show me the code.', 'author': 'Linus Torvalds'},
+    {'quote': 'Programs must be written for people to read, and only incidentally for machines to execute.', 'author': 'Harold Abelson'},
+    {'quote': 'Simplicity is prerequisite for reliability.', 'author': 'Edsger W. Dijkstra'},
+    {'quote': 'Controlling complexity is the essence of computer programming.', 'author': 'Brian Kernighan'},
+    {'quote': 'Deleted code is debugged code.', 'author': 'Jeff Sickel'}
+  ] %}
+  {% set selectedQuote = random(codeQuotes) %}
+  {% set annotationMap = {
+    'payload': 'Trusted input boundary',
+    'handler': 'Application entry point',
+    'resource': 'Presentation boundary',
+    'template': 'Rendered HTML surface',
+    'slot': 'Secondary page region',
+    'repository': 'Persistence adapter',
+    'domain': 'Business model',
+    'schema': 'Contract surface',
+    'console': 'CLI entry point'
+  } %}
 
-  {# Code panels #}
-  {% for label, source in tabs|default({}) %}
-    <div
-      id="code-panel-{{ featureSlug|default('default') }}-{{ loop.index }}"
-      class="code-block__panel{{ loop.first ? ' code-block__panel--active' : '' }}"
-      role="tabpanel"
-      {% if not loop.first %}hidden{% endif %}
-    >
-      <div class="code-block__header">
-        <span class="code-block__label">{{ label }}</span>
-        <button
-          class="code-block__copy"
-          type="button"
-          title="Copy to clipboard"
-          data-copy-source="code-source-{{ featureSlug|default('default') }}-{{ loop.index }}"
-        >Copy</button>
+  <div class="code-block__frame">
+    <div class="code-block__masthead">
+      <div class="code-block__intro">
+        <p class="code-block__quote-line">
+          <span class="code-block__quote-author">&copy; {{ selectedQuote.author }}:</span>
+          <span class="code-block__headline">"{{ selectedQuote.quote }}"</span>
+        </p>
       </div>
-      <pre class="code-block__pre"><code
-        id="code-source-{{ featureSlug|default('default') }}-{{ loop.index }}"
-        class="code-block__code"
-      >{{ source|e }}</code></pre>
     </div>
-  {% endfor %}
+
+    {% if tabs|default({})|length > 1 %}
+      <div class="code-block__tabs" role="tablist">
+        {% for label, source in tabs %}
+          {% set lowerLabel = label|lower %}
+          {% set note = 'Implementation slice' %}
+          {% for needle, text in annotationMap %}
+            {% if note == 'Implementation slice' and needle in lowerLabel %}
+              {% set note = text %}
+            {% endif %}
+          {% endfor %}
+          <button
+            class="code-block__tab{{ loop.first ? ' code-block__tab--active' : '' }}"
+            role="tab"
+            aria-selected="{{ loop.first ? 'true' : 'false' }}"
+            aria-controls="code-panel-{{ featureSlug|default('default') }}-{{ loop.index }}"
+            data-code-tab="{{ loop.index }}"
+          >
+            <span class="code-block__tab-title">{{ label }}</span>
+            <span class="code-block__tab-note">{{ note }}</span>
+          </button>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% for label, source in tabs|default({}) %}
+      {% set lowerLabel = label|lower %}
+      {% set note = 'Implementation slice' %}
+      {% for needle, text in annotationMap %}
+        {% if note == 'Implementation slice' and needle in lowerLabel %}
+          {% set note = text %}
+        {% endif %}
+      {% endfor %}
+      <div
+        id="code-panel-{{ featureSlug|default('default') }}-{{ loop.index }}"
+        class="code-block__panel{{ loop.first ? ' code-block__panel--active' : '' }}"
+        role="tabpanel"
+        {% if not loop.first %}hidden{% endif %}
+      >
+        <div class="code-block__header">
+          <div class="code-block__file">
+            <span class="code-block__label">{{ label }}</span>
+            <span class="code-block__file-note">{{ note }}</span>
+          </div>
+          <button
+            class="code-block__copy"
+            type="button"
+            title="Copy to clipboard"
+            data-copy-source="code-source-{{ featureSlug|default('default') }}-{{ loop.index }}"
+            data-copy-raw-source="code-raw-{{ featureSlug|default('default') }}-{{ loop.index }}"
+          >Copy</button>
+        </div>
+        <pre class="code-block__pre"><code
+          id="code-source-{{ featureSlug|default('default') }}-{{ loop.index }}"
+          class="code-block__code"
+        >{% for line in source|split('\n') %}<span class="code-block__line"><span class="code-block__line-number" aria-hidden="true">{{ loop.index }}</span><span class="code-block__line-code">{{ highlight_php(line) }}</span></span>{% if not loop.last %}
+{% endif %}{% endfor %}</code></pre>
+        <textarea
+          id="code-raw-{{ featureSlug|default('default') }}-{{ loop.index }}"
+          class="code-block__raw-source"
+          tabindex="-1"
+          aria-hidden="true"
+        >{{ source }}</textarea>
+      </div>
+    {% endfor %}
+  </div>
 </div>

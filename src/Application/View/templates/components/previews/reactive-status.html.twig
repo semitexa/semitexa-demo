@@ -1,0 +1,20 @@
+<div class="preview-card">
+  {% if eyebrow is defined and eyebrow %}
+    <p class="preview-card__eyebrow">{{ eyebrow }}</p>
+  {% endif %}
+  {% if title is defined and title %}
+    <h3 class="preview-card__title">{{ title }}</h3>
+  {% endif %}
+  {% if summary is defined and summary %}
+    <p class="preview-card__summary">{{ summary }}</p>
+  {% endif %}
+
+  <div class="preview-status-row">
+    <span class="preview-pill preview-pill--{{ statusVariant|default('neutral') }}">{{ statusLabel|default('Idle') }}</span>
+    <span class="preview-note">{{ message|default('Waiting for next update…') }}</span>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-bar__fill" style="width: {{ progress|default(0) }}%"></div>
+  </div>
+</div>

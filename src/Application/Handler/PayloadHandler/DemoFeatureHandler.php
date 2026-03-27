@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Handler\PayloadHandler;
 
-use Semitexa\Core\Attributes\AsPayloadHandler;
 use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Exception\NotFoundException;
@@ -15,7 +14,6 @@ use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoFeatureRegistry;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
-#[AsPayloadHandler(payload: DemoFeaturePayload::class, resource: DemoFeatureResource::class)]
 final class DemoFeatureHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
