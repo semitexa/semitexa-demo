@@ -13,6 +13,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoSectionResource;
     path: '/demo/{section}',
     methods: ['GET'],
     responseWith: DemoSectionResource::class,
+    produces: ['application/json', 'text/html'],
     requirements: [
         'section' => '[a-z][a-z0-9-]+',
     ],

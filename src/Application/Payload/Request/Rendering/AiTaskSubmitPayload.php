@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 #[PublicEndpoint]
 #[AsPayload(
     responseWith: DemoFeatureResource::class,
+    produces: ['application/json', 'text/html'],
     path: '/demo/rendering/reactive-ai/submit',
     methods: ['GET', 'POST'],
 )]

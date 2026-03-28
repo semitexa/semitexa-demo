@@ -3,18 +3,44 @@
   <h3 class="preview-card__title">One endpoint, multiple representations</h3>
   <p class="preview-card__summary">The same handler output can render as HTML for browsers or JSON for API consumers.</p>
 
-  <div class="preview-stats">
+  <div class="preview-stats preview-stats--stacked">
     <div class="preview-stats__item">
-      <span class="preview-stats__value"><code>Accept: application/json</code></span>
-      <span class="preview-stats__label">Negotiated format</span>
+      <span class="preview-stats__value"><code>GET /demo/routing/products</code></span>
+      <span class="preview-stats__label">Single endpoint</span>
     </div>
     <div class="preview-stats__item">
-      <span class="preview-stats__value"><code>Accept: text/html</code></span>
-      <span class="preview-stats__label">Current page</span>
+      <span class="preview-stats__value"><code>Accept: text/html</code> or <code>Accept: application/json</code></span>
+      <span class="preview-stats__label">Representation switch</span>
     </div>
   </div>
 
-  <pre class="preview-code"><code>{{ jsonPreview }}</code></pre>
+  <div class="preview-negotiation" data-negotiation-preview>
+    <div class="preview-negotiation__toolbar" role="tablist" aria-label="Response format switcher">
+      <button type="button" class="preview-negotiation__tab preview-negotiation__tab--active" data-negotiation-tab="html" aria-selected="true">Accept: text/html</button>
+      <button type="button" class="preview-negotiation__tab" data-negotiation-tab="json" aria-selected="false">Accept: application/json</button>
+    </div>
+
+    <div class="preview-negotiation__panel preview-negotiation__panel--active" data-negotiation-panel="html">
+      <div class="preview-negotiation__surface">
+        <p class="preview-negotiation__eyebrow">HTML response</p>
+        <div class="preview-negotiation__html-list">
+          {% for product in products %}
+            <article class="preview-negotiation__html-item">
+              <div>
+                <h4>{{ product.name }}</h4>
+                <p>Rendered as a normal SSR page fragment for the browser.</p>
+              </div>
+              <span class="preview-pill preview-pill--active">${{ '%0.2f'|format(product.price) }}</span>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-negotiation__panel" data-negotiation-panel="json" hidden>
+      <pre class="preview-code"><code>{{ jsonPreview }}</code></pre>
+    </div>
+  </div>
 
   <div class="preview-actions">
     <a href="/demo/routing/products?_format=json" class="preview-button preview-button--secondary" target="_blank" rel="noopener">Try ?_format=json</a>

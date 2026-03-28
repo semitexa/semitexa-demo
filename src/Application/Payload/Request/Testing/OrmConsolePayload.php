@@ -14,6 +14,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     path: '/demo/testing/orm-console',
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
+    produces: ['application/json', 'text/html'],
 )]
 #[DemoFeature(
     section: 'testing',

@@ -40,12 +40,23 @@ final class DemoExplanationProvider
         // --- Routing section ---
         'routing/basic' => [
             'what' => 'A single #[AsPayload] attribute on a PHP class creates a fully routed HTTP endpoint — no XML, no YAML, no config files.',
-            'how' => 'The framework scans the Composer classmap for classes with #[AsPayload], extracts path and method metadata, and registers routes at boot. The route compiler turns path patterns into optimized regex matchers cached in memory.',
-            'why' => 'Keeping route definitions co-located with their request DTOs means a reader can understand what an endpoint accepts and where it lives by reading a single file. There is no "routes file" to keep in sync.',
+            'how' => 'The framework scans the Composer classmap for classes with #[AsPayload], extracts path and method metadata, resolves env:: placeholders if present, and registers routes at boot. The route compiler then turns path patterns into optimized regex matchers cached in memory.',
+            'why' => 'Keeping route definitions co-located with their request DTOs means a reader can understand what an endpoint accepts and where it lives by reading a single file. At the same time, env:: syntax lets operations move a route without reopening PHP code when deployment topology demands it.',
             'keywords' => [
                 ['term' => '#[AsPayload]', 'definition' => 'Attribute that marks a class as a request DTO and declares its HTTP route.'],
+                ['term' => 'env::VAR_NAME::/default/path', 'definition' => 'Special attribute syntax that lets a payload read its route path, name, or other metadata from .env with a safe default fallback.'],
                 ['term' => 'responseWith', 'definition' => 'Links the payload to the Resource DTO that shapes the response.'],
                 ['term' => 'ClassDiscovery', 'definition' => 'Reads the Composer classmap to find all classes with a given attribute.'],
+            ],
+        ],
+        'routing/env-route-override' => [
+            'what' => 'A payload can keep the route contract in PHP while still letting operations move the public URL through .env.',
+            'how' => 'AsPayload path values support env::VAR::/fallback syntax. During route discovery, Semitexa resolves the env key first and falls back to the inline path when the variable is absent.',
+            'why' => 'This gives deployment flexibility without losing the architectural advantage of payload-owned routes. The route remains reviewable in code, but environment-specific URL decisions stop forcing PHP edits.',
+            'keywords' => [
+                ['term' => 'env::VAR_NAME::/fallback', 'definition' => 'Environment-aware attribute syntax that resolves to an env value with a safe inline default.'],
+                ['term' => 'resolved route metadata', 'definition' => 'The runtime route definition after env placeholders, inherited attributes, and response metadata have been normalized.'],
+                ['term' => 'payload-owned route contract', 'definition' => 'The payload DTO remains the canonical place where path, methods, response type, and alternates are declared.'],
             ],
         ],
         'routing/payload-shield' => [
@@ -56,6 +67,16 @@ final class DemoExplanationProvider
                 ['term' => 'ValidatablePayload', 'definition' => 'Payload contract that lets the framework validate incoming data before the handler runs.'],
                 ['term' => 'RequestDtoHydrator', 'definition' => 'Hydrates payload DTOs from HTTP input by calling typed setters.'],
                 ['term' => 'PayloadValidator', 'definition' => 'Runs payload validation and short-circuits invalid requests with a consistent error response.'],
+            ],
+        ],
+        'routing/payload-parts' => [
+            'what' => 'A payload can be extended by another module without reopening the original route class, so one transport boundary can stay singular while modules stay additive.',
+            'how' => 'A base module declares the payload with #[AsPayload]. Another module contributes a trait marked with #[AsPayloadPart(base: ...)]. At runtime PayloadDtoFactory composes a wrapper class that extends the base payload and uses all matching traits.',
+            'why' => 'This solves a painful modularity problem: extra request concerns do not force a fork of the original payload and do not leak into untyped arrays. The handler still receives one trusted DTO.',
+            'keywords' => [
+                ['term' => '#[AsPayloadPart]', 'definition' => 'Marks a trait as an additive extension of an existing payload class.'],
+                ['term' => 'PayloadDtoFactory', 'definition' => 'Builds the runtime wrapper class that extends the base payload and mixes in discovered payload-part traits.'],
+                ['term' => 'trait composition', 'definition' => 'Lets separate modules add typed setters and getters to the same request boundary without modifying the base payload source.'],
             ],
         ],
         'routing/public-endpoint' => [

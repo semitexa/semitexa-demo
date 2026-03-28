@@ -118,7 +118,7 @@ final class DemoFeatureRegistry
 
     private function resolvePath(AsPayload $payload): ?string
     {
-        $path = $payload->path;
+        $path = $this->resolveEnvPath($payload->path);
         if ($path === null || $path === '') {
             return null;
         }
@@ -137,5 +137,28 @@ final class DemoFeatureRegistry
             },
             $path,
         ) ?? $path;
+    }
+
+    private function resolveEnvPath(?string $path): ?string
+    {
+        if ($path === null || $path === '') {
+            return $path;
+        }
+
+        if (!str_starts_with($path, 'env::')) {
+            return $path;
+        }
+
+        $parts = explode('::', $path, 3);
+        if (count($parts) !== 3 || $parts[1] === '') {
+            return $path;
+        }
+
+        $value = getenv($parts[1]);
+        if (!is_string($value) || $value === '') {
+            return $parts[2];
+        }
+
+        return $value;
     }
 }

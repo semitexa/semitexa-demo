@@ -14,6 +14,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     path: '/demo/auth/requires-permission',
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
+    produces: ['application/json', 'text/html'],
 )]
 #[DemoFeature(
     section: 'auth',

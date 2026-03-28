@@ -14,6 +14,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     path: '/demo/platform/tenancy/isolation',
     methods: ['GET'],
     responseWith: DemoTenantIsolationResource::class,
+    produces: ['application/json', 'text/html'],
 )]
 #[DemoFeature(
     section: 'platform',

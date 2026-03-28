@@ -14,6 +14,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     path: '/demo/rendering/deferred',
     methods: ['GET'],
     responseWith: DeferredBlocksDemoResource::class,
+    produces: ['application/json', 'text/html'],
 )]
 #[DemoFeature(
     section: 'rendering',

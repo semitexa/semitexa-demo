@@ -50,8 +50,8 @@ final class BasicRouteHandler implements TypedHandlerInterface
             ->withSlug('basic')
             ->withTitle('Basic Route')
             ->withSummary('Define a route with one attribute — no XML, no YAML, no config files.')
-            ->withEntryLine('Define a route with one attribute — no XML, no YAML, no config files.')
-            ->withHighlights(['#[AsPayload]', 'responseWith', 'TypedHandlerInterface'])
+            ->withEntryLine('Define a route with one attribute — and even the path can move through .env without touching PHP code.')
+            ->withHighlights(['#[AsPayload]', 'env::ROUTE_PATH', 'responseWith', 'TypedHandlerInterface'])
             ->withLearnMoreLabel('See the code →')
             ->withDeepDiveLabel('How route compilation works →')
             ->withSourceCode($sourceCode)
@@ -59,11 +59,11 @@ final class BasicRouteHandler implements TypedHandlerInterface
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/route-snapshot.html.twig', [
                 'eyebrow' => 'Route Discovery',
                 'title' => 'Single attribute, live endpoint',
-                'summary' => 'This page is reachable because the payload declared its route metadata directly in PHP.',
+                'summary' => 'This page is reachable because the payload declared its route metadata directly in PHP, and that path can still be overridden from .env.',
                 'method' => 'GET',
                 'path' => '/demo/routing/basic',
                 'status' => '200 OK',
-                'facts' => ['#[AsPayload]', 'Typed handler', 'No central routes file'],
+                'facts' => ['#[AsPayload]', 'env:: path override', 'Typed handler', 'No central routes file'],
             ]);
     }
 }

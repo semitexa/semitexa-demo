@@ -14,6 +14,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     path: '/demo/platform/tenancy/queue',
     methods: ['GET'],
     responseWith: DemoTenantQueueResource::class,
+    produces: ['application/json', 'text/html'],
 )]
 #[DemoFeature(
     section: 'platform',

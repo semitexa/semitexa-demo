@@ -93,11 +93,11 @@ final class NPlusOneHandler implements TypedHandlerInterface
                 ],
             ])
             ->withSourceCode([
-                'Fat Entity Contrast' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Examples/Orm/NPlusOne/FatProductEntity.example.php'),
-                'Product Card Slice' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Examples/Orm/NPlusOne/ProductCardResource.example.php'),
-                'Product Card + Reviews Slice' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Examples/Orm/NPlusOne/ProductCardWithReviewsResource.example.php'),
-                'StreamingHydrator' => $this->sourceCodeReader->readClassSource(StreamingHydrator::class),
-                'Feature Handler' => $this->sourceCodeReader->readClassSource(self::class),
+                'Fat Entity' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Examples/Orm/NPlusOne/FatProductEntity.example.php'),
+                'Card Slice' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Examples/Orm/NPlusOne/ProductCardResource.example.php'),
+                'Card + Reviews' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Examples/Orm/NPlusOne/ProductCardWithReviewsResource.example.php'),
+                'Hydrator' => $this->sourceCodeReader->readClassSource(StreamingHydrator::class),
+                'Handler' => $this->sourceCodeReader->readClassSource(self::class),
             ])
             ->withExplanation($explanation);
     }

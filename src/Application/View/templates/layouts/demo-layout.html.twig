@@ -9,6 +9,7 @@
     {{ meta('og:title') }}
     {{ meta('og:description') }}
     {{ meta('og:type') }}
+    {{ headExtraMarkup|default('')|raw }}
     {{ semantic_head() }}
     {{ asset_head() }}
     {{ __ssr_preload_hints|default('')|raw }}

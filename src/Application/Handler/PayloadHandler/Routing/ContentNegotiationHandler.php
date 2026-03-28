@@ -16,6 +16,9 @@ use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 #[AsPayloadHandler(payload: ContentNegotiationPayload::class, resource: DemoFeatureResource::class)]
 final class ContentNegotiationHandler implements TypedHandlerInterface
 {
+    private const FEATURE_TITLE = 'Content Negotiation';
+    private const FEATURE_SUMMARY = 'One endpoint, multiple response formats — automatically.';
+    private const FEATURE_ENTRY_LINE = 'One endpoint serves JSON or HTML depending on the Accept header — no branching in handler code.';
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
@@ -34,6 +37,7 @@ final class ContentNegotiationHandler implements TypedHandlerInterface
     public function handle(ContentNegotiationPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
         $explanation = $this->explanationProvider->getExplanation('routing', 'content-negotiation') ?? [];
+        $shellContext = $this->buildShellContext($explanation);
 
         $sourceCode = [
             'Payload' => $this->sourceCodeReader->readClassSource(ContentNegotiationPayload::class),
@@ -42,23 +46,21 @@ final class ContentNegotiationHandler implements TypedHandlerInterface
 
         $jsonPreview = json_encode(['products' => self::PRODUCTS], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) ?: '{}';
 
+        $keywords = ['routing', 'content negotiation', 'html', 'json', 'payload'];
+
         return $resource
-            ->pageTitle('Content Negotiation — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'routing',
-                'currentSlug' => 'content-negotiation',
-                'infoWhat' => $explanation['what'] ?? 'One endpoint, multiple response formats — automatically.',
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
-            ])
+            ->pageTitle(self::FEATURE_TITLE . ' — Semitexa Demo')
+            ->seoTag('description', self::FEATURE_ENTRY_LINE)
+            ->seoTag('keywords', implode(', ', $keywords))
+            ->seoTag('og:title', self::FEATURE_TITLE . ' — Semitexa Demo')
+            ->seoTag('og:description', self::FEATURE_ENTRY_LINE)
+            ->seoTag('og:type', 'article')
+            ->withDemoShellContext($shellContext)
             ->withSection('routing')
             ->withSlug('content-negotiation')
-            ->withTitle('Content Negotiation')
-            ->withSummary('One endpoint, multiple response formats — automatically.')
-            ->withEntryLine('One endpoint serves JSON or HTML depending on the Accept header — no branching in handler code.')
+            ->withTitle(self::FEATURE_TITLE)
+            ->withSummary(self::FEATURE_SUMMARY)
+            ->withEntryLine(self::FEATURE_ENTRY_LINE)
             ->withHighlights(['#[AsPayload(produces)]', 'Accept header', '?_format= override', 'ContentNegotiator'])
             ->withLearnMoreLabel('Toggle formats →')
             ->withDeepDiveLabel('How negotiation works →')
@@ -66,6 +68,21 @@ final class ContentNegotiationHandler implements TypedHandlerInterface
             ->withExplanation($explanation)
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/content-negotiation.html.twig', [
                 'jsonPreview' => $jsonPreview,
+                'products' => self::PRODUCTS,
             ]);
+    }
+
+    private function buildShellContext(array $explanation): array
+    {
+        return [
+            'navSections' => $this->catalog->getSections(),
+            'featureTree' => $this->catalog->getFeatureTree(),
+            'currentSection' => 'routing',
+            'currentSlug' => 'content-negotiation',
+            'infoWhat' => $explanation['what'] ?? self::FEATURE_SUMMARY,
+            'infoHow' => $explanation['how'] ?? null,
+            'infoWhy' => $explanation['why'] ?? null,
+            'infoKeywords' => $explanation['keywords'] ?? [],
+        ];
     }
 }

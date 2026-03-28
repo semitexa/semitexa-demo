@@ -14,6 +14,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
     path: '/demo/data/products',
     methods: ['GET', 'POST'],
     responseWith: DemoFeatureResource::class,
+    produces: ['application/json', 'text/html'],
 )]
 class OrmCrudPayload
 {
