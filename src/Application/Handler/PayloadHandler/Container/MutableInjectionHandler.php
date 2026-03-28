@@ -41,7 +41,7 @@ final class MutableInjectionHandler implements TypedHandlerInterface
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'di',
                 'currentSlug' => 'mutable',
-                'infoWhat' => $explanation['what'] ?? 'Mutable injections clone a service per request so handlers can keep transient state safely.',
+                'infoWhat' => $explanation['what'] ?? 'Mutable injections clone a service per execution so handlers can keep transient state safely.',
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
@@ -49,20 +49,20 @@ final class MutableInjectionHandler implements TypedHandlerInterface
             ->withSection('di')
             ->withSlug('mutable')
             ->withTitle('Mutable Injection')
-            ->withSummary('Request-scoped services get a fresh clone per request — safe state without global mutation.')
-            ->withEntryLine('Request-scoped services get a fresh clone per request — safe state without global mutation.')
-            ->withHighlights(['#[InjectAsMutable]', 'request-scoped', 'clone', 'state isolation'])
+            ->withSummary('Execution-scoped services get a fresh clone every run — safe state without contaminating the worker.')
+            ->withEntryLine('Execution-scoped services get a fresh clone every run — safe state without contaminating the worker.')
+            ->withHighlights(['#[InjectAsMutable]', 'execution-scoped', 'clone', 'state isolation'])
             ->withLearnMoreLabel('See mutable injection →')
             ->withDeepDiveLabel('Clone lifecycle under the hood →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
-                'eyebrow' => 'Request Scope',
-                'title' => 'Fresh clone for every request',
-                'summary' => 'Mutable services can safely accumulate transient state because the container clones them per request.',
+                'eyebrow' => 'Execution Scope',
+                'title' => 'Fresh clone for every execution',
+                'summary' => 'Mutable services can safely accumulate transient state because the container clones them for each execution context.',
                 'paragraphs' => [
-                    'Any state collected during a request is discarded when the response completes.',
+                    'Any state collected during one execution is discarded when that HTTP request, console command, or async job completes.',
                 ],
-                'codeSnippet' => "#[InjectAsMutable]\nprotected RequestBag \$bag;\n\n// Each request gets a fresh clone:\n// \$this->bag !== <previous request\\'s bag>",
-                'note' => 'Use mutable injection for session-like or request-specific context objects, not for shared worker services.',
+                'codeSnippet' => "#[InjectAsMutable]\nprotected ExecutionBag \$bag;\n\n// Each execution gets a fresh clone:\n// \$this->bag !== <previous execution\\'s bag>",
+                'note' => 'Use mutable injection for execution-specific context objects, not for shared worker services.',
             ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);

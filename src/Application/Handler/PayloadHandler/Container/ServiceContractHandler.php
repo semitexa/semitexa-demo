@@ -40,7 +40,7 @@ final class ServiceContractHandler implements TypedHandlerInterface
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'di',
                 'currentSlug' => 'contracts',
-                'infoWhat' => $explanation['what'] ?? 'Service contracts bind interfaces to implementations at boot, keeping handlers decoupled.',
+                'infoWhat' => $explanation['what'] ?? 'Service contracts bind interfaces to explicit module-owned implementations at boot, keeping handlers deterministic and decoupled.',
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
@@ -48,17 +48,17 @@ final class ServiceContractHandler implements TypedHandlerInterface
             ->withSection('di')
             ->withSlug('contracts')
             ->withTitle('Service Contracts')
-            ->withSummary('Depend on interfaces, not implementations — swap adapters without touching handlers.')
-            ->withEntryLine('Depend on interfaces, not implementations — swap adapters without touching handlers.')
-            ->withHighlights(['#[SatisfiesServiceContract]', '#[SatisfiesRepositoryContract]', 'interface binding', 'swap implementations'])
+            ->withSummary('Depend on contracts, but keep ownership explicit — deterministic substitution instead of runtime magic.')
+            ->withEntryLine('Depend on contracts, but keep ownership explicit — deterministic substitution instead of runtime magic.')
+            ->withHighlights(['#[SatisfiesServiceContract]', 'module-owned capability', 'closed-world factory', 'deterministic binding'])
             ->withLearnMoreLabel('See contract attributes →')
             ->withDeepDiveLabel('How contract resolution works →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
                 'eyebrow' => 'Interface Binding',
                 'title' => 'Handlers depend on contracts',
-                'summary' => 'The container resolves an implementation at boot via a service contract attribute.',
-                'codeSnippet' => "// Interface — what you inject:\ninterface MailerInterface { public function send(Mail \$mail): void; }\n\n// Implementation — what gets resolved:\n#[SatisfiesServiceContract(of: MailerInterface::class)]\nfinal class SmtpMailer implements MailerInterface { ... }\n\n// Handler — only knows the interface:\n#[InjectAsReadonly]\nprotected MailerInterface \$mailer;",
-                'note' => 'Swap implementations for testing or providers without changing handler code.',
+                'summary' => 'The container resolves a contract at boot from explicit ownership and implementation metadata, not from hidden container lookups.',
+                'codeSnippet' => "// Contract owned by the module:\ninterface MailerInterface { public function send(Mail \$mail): void; }\n\n// Explicit implementation:\n#[SatisfiesServiceContract(of: MailerInterface::class)]\nfinal class SmtpMailer implements MailerInterface { ... }\n\n// Handler only knows the contract:\n#[InjectAsReadonly]\nprotected MailerInterface \$mailer;",
+                'note' => 'The goal is not unlimited runtime swapping. The goal is a reviewable, deterministic binding graph.',
             ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);

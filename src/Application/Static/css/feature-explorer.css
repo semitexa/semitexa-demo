@@ -1,14 +1,14 @@
 /* ==========================================================================
-   Feature Explorer — Three-panel layout, sidebar, info panel, responsive
+   Feature Explorer — Sidebar + document layout, responsive
    ========================================================================== */
 
-/* --- Three-zone grid --- */
+/* --- Two-zone grid --- */
 
 .demo-layout__grid {
   display: grid;
-  grid-template-columns: 240px 1fr 280px;
+  grid-template-columns: 240px minmax(0, 1fr);
   gap: 1.25rem;
-  max-width: 1400px;
+  max-width: 1220px;
   margin: 0 auto;
   min-height: calc(100vh - 120px);
   padding: 1.25rem 1.25rem 2rem;
@@ -100,20 +100,6 @@
 .demo-layout__main {
   padding: 0.25rem;
   overflow-x: hidden;
-}
-
-/* --- Info panel --- */
-
-.demo-layout__info {
-  border: 1px solid var(--demo-border, #e2e8f0);
-  border-radius: 22px;
-  padding: 1.1rem 1rem;
-  overflow-y: auto;
-  position: sticky;
-  top: 78px;
-  height: calc(100vh - 96px);
-  background: linear-gradient(180deg, rgba(255, 251, 246, 0.88), rgba(239, 228, 213, 0.88));
-  box-shadow: var(--demo-shadow-sm);
 }
 
 /* --- Feature tree (sidebar component) --- */
@@ -252,10 +238,6 @@
   .demo-layout__sidebar {
     top: 72px;
     height: calc(100vh - 90px);
-  }
-
-  .demo-layout__info {
-    display: none;
   }
 }
 

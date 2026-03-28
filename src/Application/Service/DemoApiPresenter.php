@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Service;
 
 use Semitexa\Core\Attributes\AsService;
+use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Request;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoCategoryResource;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
@@ -16,11 +17,14 @@ use Semitexa\Demo\Application\Db\MySQL\Repository\DemoReviewRepository;
 #[AsService]
 final class DemoApiPresenter
 {
-    public function __construct(
-        private readonly DemoProductRepository $products,
-        private readonly DemoCategoryRepository $categories,
-        private readonly DemoReviewRepository $reviews,
-    ) {}
+    #[InjectAsReadonly]
+    protected DemoProductRepository $products;
+
+    #[InjectAsReadonly]
+    protected DemoCategoryRepository $categories;
+
+    #[InjectAsReadonly]
+    protected DemoReviewRepository $reviews;
 
     public function buildCollection(
         Request $request,

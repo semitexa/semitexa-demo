@@ -109,30 +109,45 @@ final class DemoExplanationProvider
             ],
         ],
         // --- Container / DI section ---
-        'di/basic-injection' => [
-            'what' => 'Services are injected into handlers via #[InjectAsReadonly] property attributes — no constructor wiring, no YAML.',
-            'how' => 'The DI container reads injection attributes on handler properties and populates them after construction. #[InjectAsReadonly] services are built once per worker and shared across requests.',
-            'why' => 'Property injection with explicit lifecycle attributes makes dependency scope visible in the code. A reader can tell at a glance whether a dependency is shared or per-request.',
+        'di/overview' => [
+            'what' => 'Semitexa has one canonical dependency injection model for container-managed framework objects: protected property injection via explicit attributes.',
+            'how' => 'The container creates the object, injects configuration and service properties, validates the whole graph at boot, and rejects hidden or competing dependency paths. Readonly services are shared per worker, execution-scoped services are cloned per execution, factories stay explicit, and contracts resolve through declared ownership metadata.',
+            'why' => 'The goal is not DI flexibility. The goal is deterministic behavior in a long-running runtime. When the framework uses one visible injection path, boot stays reviewable, graceful reloads stay reliable, and large refactors stop failing because one class quietly used a different dependency pattern.',
             'keywords' => [
-                ['term' => '#[InjectAsReadonly]', 'definition' => 'Injects a service that is built once per worker and shared across all requests.'],
-                ['term' => '#[InjectAsMutable]', 'definition' => 'Injects a service that is cloned per request, safe for request-scoped state.'],
+                ['term' => 'canonical DI path', 'definition' => 'The single allowed dependency path for container-managed framework objects: explicit attribute-based property injection.'],
+                ['term' => 'container-managed framework object', 'definition' => 'A discovered framework class such as a service, repository, handler, or listener that the container instantiates and validates.'],
+                ['term' => 'execution-scoped', 'definition' => 'A lifecycle where a fresh clone is used for one HTTP request, console command, or async execution and then discarded.'],
+                ['term' => 'boot-time validation', 'definition' => 'The container validates dependency bindings and lifecycle rules during boot so ambiguity fails early and loudly.'],
             ],
         ],
-        'di/service-contracts' => [
-            'what' => 'Service contracts declare what a module provides. #[SatisfiesServiceContract] marks the concrete implementation.',
-            'how' => 'When multiple modules provide the same contract, the module hierarchy (extends) determines which implementation wins. The registry generates resolver classes that make substitution explicit.',
-            'why' => 'Explicit contracts prevent hidden substitution. A reader can find every implementation of an interface without searching the whole codebase.',
+        'di/basic-injection' => [
+            'what' => 'Semitexa uses one canonical DI path for container-managed framework objects: explicit property attributes, no constructor wiring, no hidden service lookup.',
+            'how' => 'The container instantiates the object first, then hydrates protected properties marked with #[InjectAsReadonly], #[InjectAsMutable], #[InjectAsFactory], or #[Config]. Because every dependency enters through one visible channel, boot validation and static analysis can reject ambiguity before runtime.',
+            'why' => 'This is not just stylistic consistency. In a long-running worker, mixed DI styles create boot fragility. A single-path model makes the dependency graph locally readable, easier for LLMs to modify correctly, and much more stable during large refactors and graceful reloads.',
+            'keywords' => [
+                ['term' => '#[InjectAsReadonly]', 'definition' => 'Injects a service that is built once per worker and shared across executions.'],
+                ['term' => '#[InjectAsMutable]', 'definition' => 'Injects an execution-scoped service clone, safe for per-execution state.'],
+                ['term' => 'single-path DI', 'definition' => 'Container-managed classes receive dependencies through one explicit attribute-based property model, not a mix of constructors, service locators, and magic context.'],
+                ['term' => 'boot fragility', 'definition' => 'A failure mode where one ambiguous or legacy DI pattern breaks container boot, CLI tooling, or worker reload after large changes.'],
+            ],
+        ],
+        'di/contracts' => [
+            'what' => 'A service contract is module-owned and explicit: one module declares the capability, and its implementations advertise themselves with #[SatisfiesServiceContract].',
+            'how' => 'The container registry resolves contracts at boot from attributes, not string lookups. For keyed factories, Semitexa uses closed-world backed enums so the allowed variants are declared in code and validated exhaustively.',
+            'why' => 'This keeps substitution deterministic instead of magical. A reader can see who owns the capability, which implementations exist, and whether the selection space is complete without reverse-engineering runtime behavior.',
             'keywords' => [
                 ['term' => '#[SatisfiesServiceContract]', 'definition' => 'Marks a class as the implementation of a service contract interface.'],
-                ['term' => 'ContractFactoryInterface', 'definition' => 'Factory for multi-implementation contracts — resolves by key at runtime.'],
+                ['term' => 'module-owned capability', 'definition' => 'A contract lives with the module that owns the behavior and ships at least one valid implementation.'],
+                ['term' => 'closed-world factory', 'definition' => 'A factory whose selectable implementations are exhaustively declared by a backed enum instead of open-ended strings.'],
             ],
         ],
         'di/scoped-services' => [
-            'what' => 'Mutable services are cloned per request, preventing state leakage between concurrent requests in a Swoole worker.',
-            'how' => 'The container maintains a readonly tier (shared, built once) and a mutable tier (prototype, cloned per get()). #[InjectAsMutable] services receive the current request context after cloning.',
-            'why' => 'In a long-running Swoole process, shared mutable state is a correctness bug. The two-tier model makes lifecycle explicit — if a service holds request state, it must be mutable.',
+            'what' => 'Execution-scoped services are cloned for each framework execution, preventing state leakage across HTTP requests, console runs, and async jobs.',
+            'how' => 'The container keeps a readonly tier for shared worker services and an execution-scoped tier for cloned prototypes. #[InjectAsMutable] marks the second case explicitly, and the current execution context is injected only into those declared mutable properties.',
+            'why' => 'Long-running workers make lifecycle bugs real. If stateful services accidentally become shared, the bug is cross-request contamination. Explicit execution scope keeps state boundaries reviewable and safe.',
             'keywords' => [
-                ['term' => 'Two-tier DI', 'definition' => 'Readonly (worker-shared) + mutable (request-cloned) container tiers for Swoole safety.'],
+                ['term' => 'Two-tier DI', 'definition' => 'Readonly (worker-shared) + execution-scoped (cloned per execution) container tiers for long-running runtime safety.'],
+                ['term' => 'execution-scoped', 'definition' => 'A lifecycle where a fresh instance is used for one HTTP request, console command, or async execution and then discarded.'],
             ],
         ],
 

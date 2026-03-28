@@ -18,14 +18,7 @@
           <a href="/demo/{{ section }}" class="feature-detail__back">← {{ section|title }}</a>
           <p class="feature-detail__eyebrow">{{ section|upper }} FEATURE</p>
           <h1 class="feature-detail__title">
-            {% if section == 'routing' and slug == 'payload-shield' %}
-              <span class="feature-detail__title-icon feature-detail__title-icon--shield" aria-hidden="true">
-                <svg viewBox="0 0 24 24" focusable="false">
-                  <path d="M12 2.5 4.5 5.5v5.84c0 4.64 2.84 8.88 7.5 10.66 4.66-1.78 7.5-6.02 7.5-10.66V5.5L12 2.5Zm0 2.16 5.5 2.2v4.48c0 3.73-2.2 7.16-5.5 8.74-3.3-1.58-5.5-5.01-5.5-8.74V6.86L12 4.66Z" fill="currentColor"/>
-                  <path d="m10.96 14.8-2.58-2.58 1.42-1.42 1.16 1.17 3.24-3.25 1.42 1.42-4.66 4.66Z" fill="currentColor"/>
-                </svg>
-              </span>
-            {% endif %}
+            {{ demo_title_icon(featureTitle, section, slug) }}
             <span>{{ featureTitle }}</span>
           </h1>
           <p class="feature-detail__entry-line">{{ entryLine }}</p>
@@ -64,6 +57,21 @@
               <span class="feature-detail__highlight feature-detail__highlight--plain">{{ highlight }}</span>
             {% endif %}
           {% endfor %}
+        </div>
+      {% endif %}
+
+      {% set inlineWhat = infoWhat|default(summary|default(sectionSummary|default(null))) %}
+      {% set inlineHow = infoHow|default(explanation.how|default(null)) %}
+      {% set inlineWhy = infoWhy|default(explanation.why|default(null)) %}
+      {% set inlineKeywords = infoKeywords|default(explanation.keywords|default([])) %}
+      {% if inlineWhat or inlineHow or inlineWhy or inlineKeywords|length > 0 %}
+        <div class="feature-detail__context">
+          {% include '@project-layouts-semitexa-demo/partials/feature-info.html.twig' with {
+            what: inlineWhat,
+            how: inlineHow,
+            why: inlineWhy,
+            keywords: inlineKeywords,
+          } only %}
         </div>
       {% endif %}
     </section>

@@ -27,7 +27,7 @@
       {% endblock %}
     </header>
 
-    {# --- Three-zone layout: sidebar + main + info panel --- #}
+    {# --- Two-zone layout: sidebar + main document --- #}
     <div class="demo-layout__grid">
 
       {# Sidebar: feature tree navigation (240px) #}
@@ -49,18 +49,6 @@
           {{ layout_slot('main_after') }}
         {% endblock %}
       </main>
-
-      {# Info panel: What / How / Why (280px) #}
-      <aside class="demo-layout__info" aria-label="Feature information">
-        {% block info_panel %}
-          {% include '@project-layouts-semitexa-demo/partials/feature-info.html.twig' with {
-            what: infoWhat|default(summary|default(sectionSummary|default(null))),
-            how: infoHow|default(null),
-            why: infoWhy|default(null),
-            keywords: infoKeywords|default([]),
-          } only %}
-        {% endblock %}
-      </aside>
 
     </div>
 

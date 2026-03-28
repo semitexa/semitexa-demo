@@ -67,17 +67,19 @@
 
 .code-block__tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.55rem;
   padding: 0.95rem 1.1rem 0;
   background: transparent;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  overflow-x: auto;
+  overflow-x: hidden;
 }
 
 .code-block__tab {
   display: grid;
   gap: 0.2rem;
-  min-width: 170px;
+  flex: 1 1 12rem;
+  min-width: 0;
   padding: 0.8rem 0.95rem 0.9rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-bottom: none;
@@ -86,7 +88,6 @@
   color: #b8c3d6;
   font-size: 0.8125rem;
   cursor: pointer;
-  white-space: nowrap;
   text-align: left;
   transition: color 120ms ease, background 120ms ease, transform 120ms ease, border-color 120ms ease;
 }
@@ -112,12 +113,20 @@
 .code-block__tab-title {
   font-family: var(--demo-font-mono, monospace);
   font-size: 0.83rem;
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .code-block__tab-note {
   font-size: 0.71rem;
   color: #8ea0bb;
   letter-spacing: 0.04em;
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* --- Panel --- */
@@ -356,10 +365,12 @@
 
   .code-block__tabs {
     padding-top: 0.8rem;
+    overflow-x: auto;
+    flex-wrap: nowrap;
   }
 
   .code-block__tab {
-    min-width: 150px;
+    flex: 0 0 150px;
   }
 }
 

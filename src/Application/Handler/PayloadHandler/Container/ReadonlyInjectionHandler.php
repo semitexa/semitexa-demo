@@ -46,7 +46,7 @@ final class ReadonlyInjectionHandler implements TypedHandlerInterface
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'di',
                 'currentSlug' => 'readonly',
-                'infoWhat' => $explanation['what'] ?? 'Readonly injections are worker-scoped services resolved once and reused across requests.',
+                'infoWhat' => $explanation['what'] ?? 'Readonly injections are worker-scoped services resolved once and reused across executions.',
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
@@ -54,15 +54,15 @@ final class ReadonlyInjectionHandler implements TypedHandlerInterface
             ->withSection('di')
             ->withSlug('readonly')
             ->withTitle('Readonly Injection')
-            ->withSummary('Stateless services share one instance per worker — zero-cost injection after boot.')
-            ->withEntryLine('Stateless services share one instance per worker — zero-cost injection after boot.')
-            ->withHighlights(['#[InjectAsReadonly]', 'worker-scoped', 'shared instance', 'zero allocation'])
+            ->withSummary('One explicit DI path, one shared worker instance — fast at runtime and stable under reload.')
+            ->withEntryLine('One explicit DI path, one shared worker instance — fast at runtime and stable under reload.')
+            ->withHighlights(['#[InjectAsReadonly]', 'worker-scoped', 'single-path DI', 'reload-stable'])
             ->withLearnMoreLabel('See the injection attribute →')
             ->withDeepDiveLabel('Container tiers explained →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
                 'eyebrow' => 'Worker Scope',
                 'title' => 'One boot, reused per request',
-                'summary' => 'This handler receives three readonly services. Their object IDs stay stable for the life of the worker.',
+                'summary' => 'This handler receives readonly services through visible property attributes only. Their object IDs stay stable for the life of the worker.',
                 'columns' => ['Service', 'Scope', 'Object ID'],
                 'rows' => [
                     [
@@ -81,7 +81,7 @@ final class ReadonlyInjectionHandler implements TypedHandlerInterface
                         ['text' => sprintf('#%d', spl_object_id($this->explanationProvider)), 'code' => true],
                     ],
                 ],
-                'note' => 'Object IDs are stable across requests, so readonly services avoid per-request allocation.',
+                'note' => 'Object IDs stay stable across executions, so readonly services avoid repeated allocation and do not depend on hidden constructor wiring.',
             ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);

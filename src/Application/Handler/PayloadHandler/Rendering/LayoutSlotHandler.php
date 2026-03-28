@@ -9,7 +9,6 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Rendering\LayoutSlotPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Resource\Slot\DemoFeatureInfoSlot;
 use Semitexa\Demo\Application\Resource\Slot\DemoNavSlot;
 use Semitexa\Demo\Application\Resource\Slot\DemoSidebarSlot;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
@@ -24,7 +23,6 @@ final class LayoutSlotHandler implements TypedHandlerInterface
     private const DEMO_SLOTS = [
         ['slot' => 'demo_nav',          'class' => DemoNavSlot::class,         'handle' => 'demo', 'desc' => 'Top navigation as a standalone resource'],
         ['slot' => 'demo_sidebar',      'class' => DemoSidebarSlot::class,     'handle' => 'demo', 'desc' => 'Feature tree with its own handler pipeline'],
-        ['slot' => 'demo_feature_info', 'class' => DemoFeatureInfoSlot::class, 'handle' => 'demo', 'desc' => 'Field-notes panel rendered independently'],
     ];
 
     #[InjectAsReadonly]
@@ -67,7 +65,7 @@ final class LayoutSlotHandler implements TypedHandlerInterface
                     'When regions are not first-class resources, no one can tell where their data really comes from or how they are refreshed.',
                 ],
                 'signals' => [
-                    ['value' => '3', 'label' => 'live slot resources in this shell'],
+                    ['value' => '2', 'label' => 'live slot resources in this shell'],
                     ['value' => '1', 'label' => 'shared Twig system for page and slots'],
                     ['value' => '0', 'label' => 'mystery data glue between regions'],
                 ],

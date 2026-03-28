@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Service;
 
 use Semitexa\Core\Attributes\AsService;
+use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Demo\Attributes\DemoFeature;
 
 #[AsService]
 final class DemoCatalogService
 {
+    #[InjectAsReadonly]
+    protected DemoFeatureRegistry $featureRegistry;
+
     private const SECTION_META = [
         'routing' => [
             'key' => 'routing',
@@ -23,7 +27,7 @@ final class DemoCatalogService
         'di' => [
             'key' => 'di',
             'label' => 'Dependency Injection',
-            'summary' => 'Readonly, mutable, and contract-based wiring designed for long-running Swoole workers.',
+            'summary' => 'Single-path DI with explicit lifecycles, deterministic contracts, and stable boot behavior for long-running workers.',
             'icon' => 'DI',
             'eyebrow' => 'Container',
             'starter' => true,
@@ -99,10 +103,6 @@ final class DemoCatalogService
         ['section' => 'rendering', 'slug' => 'reactive-ai'],
         ['section' => 'platform', 'slug' => 'tenancy-resolution'],
     ];
-
-    public function __construct(
-        private readonly DemoFeatureRegistry $featureRegistry,
-    ) {}
 
     public function getSections(bool $includeEmpty = false): array
     {
