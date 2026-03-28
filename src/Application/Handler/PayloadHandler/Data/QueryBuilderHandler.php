@@ -49,19 +49,22 @@ final class QueryBuilderHandler implements TypedHandlerInterface
             ];
         }
 
-        $querySnippet = '$products = $this->select()' . "\n"
-            . ($payload->getStatus() !== null ? sprintf("    ->where('status', '=', '%s')\n", htmlspecialchars($payload->getStatus())) : '')
-            . ($payload->getMinPrice() !== null ? sprintf("    ->where('price', '>=', %.2f)\n", $payload->getMinPrice()) : '')
-            . ($payload->getMaxPrice() !== null ? sprintf("    ->where('price', '<=', %.2f)\n", $payload->getMaxPrice()) : '')
-            . ($payload->getOrderBy() !== null ? sprintf("    ->orderBy('%s', 'ASC')\n", htmlspecialchars($payload->getOrderBy())) : '')
+        $querySnippet = '$products = $orm->repository(DemoProductTableModel::class, DemoProductResource::class)' . "\n"
+            . '    ->query()' . "\n"
+            . ($payload->getStatus() !== null ? sprintf("    ->where(DemoProductTableModel::column('status'), Operator::Equals, '%s')\n", htmlspecialchars($payload->getStatus())) : '')
+            . ($payload->getMinPrice() !== null ? sprintf("    ->where(DemoProductTableModel::column('price'), Operator::GreaterThanOrEquals, %.2f)\n", $payload->getMinPrice()) : '')
+            . ($payload->getMaxPrice() !== null ? sprintf("    ->where(DemoProductTableModel::column('price'), Operator::LessThanOrEquals, %.2f)\n", $payload->getMaxPrice()) : '')
+            . ($payload->getOrderBy() !== null ? sprintf("    ->orderBy(DemoProductTableModel::column('%s'), Direction::Asc)\n", htmlspecialchars($payload->getOrderBy())) : '')
             . sprintf("    ->limit(%d)\n", $payload->getLimit())
-            . '    ->fetchAll();';
+            . '    ->fetchAllAs(DemoProductResource::class, $orm->getMapperRegistry());';
 
         $explanation = $this->explanationProvider->getExplanation('data', 'query') ?? [];
 
         $sourceCode = [
-            'Handler' => $this->sourceCodeReader->readClassSource(self::class),
-            'Repository' => $this->sourceCodeReader->readClassSource(DemoProductRepository::class),
+            'Catalog Repository' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Examples/Orm/QueryBuilder/ProductReadRepository.example.php'),
+            'Admin Repository' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Examples/Orm/QueryBuilder/ProductAdminRepository.example.php'),
+            'Injected Builder' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Examples/Orm/QueryBuilder/ProductQueryBuilder.example.php'),
+            'Real Demo Repository' => $this->sourceCodeReader->readClassSource(DemoProductRepository::class),
         ];
 
         return $resource
@@ -81,13 +84,13 @@ final class QueryBuilderHandler implements TypedHandlerInterface
             ->withTitle('Query Builder')
             ->withSummary('Compose type-safe queries with a fluent API — no raw SQL, no magic strings.')
             ->withEntryLine('Compose type-safe queries with a fluent API — no raw SQL, no magic strings.')
-            ->withHighlights(['SelectQuery', 'where()', 'orderBy()', 'limit()', 'fetchAll()', 'fetchOne()'])
+            ->withHighlights(['TableModelQuery', 'where()', 'orderBy()', 'limit()', 'fetchAll()', 'fetchOne()'])
             ->withLearnMoreLabel('See the query builder →')
-            ->withDeepDiveLabel('How SelectQuery compiles SQL →')
+            ->withDeepDiveLabel('How TableModelQuery compiles SQL →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/data-table.html.twig', [
                 'eyebrow' => 'Query Builder',
                 'title' => 'Compiled query example',
-                'summary' => 'The repository composes fluent constraints, then materializes a filtered collection.',
+                'summary' => 'The repository composes fluent constraints with typed column references, then materializes a filtered collection.',
                 'stats' => [
                     ['value' => (string) $count, 'label' => 'Returned rows'],
                     ['value' => (string) $payload->getLimit(), 'label' => 'Limit'],

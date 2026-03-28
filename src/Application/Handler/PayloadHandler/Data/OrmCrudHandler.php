@@ -91,7 +91,7 @@ final class OrmCrudHandler implements TypedHandlerInterface
             ->withTitle('ORM CRUD')
             ->withSummary('Define your schema once with attributes — reads, writes, and soft-deletes are handled by the ORM.')
             ->withEntryLine('Define your schema once with attributes — reads, writes, and soft-deletes are handled by the ORM.')
-            ->withHighlights(['#[FromTable]', '#[Column]', 'HasUuidV7', 'HasTimestamps', 'SoftDeletes', 'AbstractRepository'])
+            ->withHighlights(['#[FromTable]', '#[Column]', 'HasUuidV7', 'HasTimestamps', 'SoftDeletes', 'DomainRepository'])
             ->withLearnMoreLabel('See the model & repository →')
             ->withDeepDiveLabel('How the ORM maps resources →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/data-table.html.twig', [

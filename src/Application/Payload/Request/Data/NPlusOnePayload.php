@@ -22,7 +22,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     slug: 'n-plus-one',
     summary: 'Semitexa avoids N+1 by using resource slices for the exact columns and relations each screen needs, instead of hiding database traffic behind implicit relation loading.',
     order: 7,
-    highlights: ['StreamingHydrator', 'resource slice', 'no lazy loading', '#[FromTable]', 'batch relations'],
+    highlights: ['TableModelRelationLoader', 'resource slice', 'no lazy loading', '#[FromTable]', 'batch relations'],
     entryLine: 'No magic, no lazy loading, no bloated entity graphs. A screen asks for one slice, the ORM hydrates exactly that slice.',
     learnMoreLabel: 'Compare the two ORM styles →',
     deepDiveLabel: 'How Semitexa avoids N+1 →',

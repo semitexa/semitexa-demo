@@ -96,7 +96,7 @@ final class RelationsHandler implements TypedHandlerInterface
             ->withTitle('Relations')
             ->withSummary('Declare associations with attributes — eager loading, N+1 prevention, and nested reads.')
             ->withEntryLine('Declare associations with attributes — eager loading, N+1 prevention, and nested reads.')
-            ->withHighlights(['#[HasMany]', '#[BelongsTo]', 'CascadeSaver', 'CascadeDeleter', 'eager loading'])
+            ->withHighlights(['#[HasMany]', '#[BelongsTo]', 'RelationWritePolicy', 'AggregateWriteEngine', 'eager loading'])
             ->withLearnMoreLabel('See the relation attributes →')
             ->withDeepDiveLabel('How eager loading works →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/data-table.html.twig', [

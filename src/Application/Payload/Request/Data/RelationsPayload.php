@@ -22,7 +22,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     slug: 'relations',
     summary: 'Declare associations with attributes — eager loading, N+1 prevention, and nested reads.',
     order: 8,
-    highlights: ['#[HasMany]', '#[BelongsTo]', 'CascadeSaver', 'CascadeDeleter', 'eager loading'],
+    highlights: ['#[HasMany]', '#[BelongsTo]', 'RelationWritePolicy', 'AggregateWriteEngine', 'eager loading'],
     entryLine: 'Declare associations with attributes — eager loading, N+1 prevention, and nested reads.',
     learnMoreLabel: 'See the relation attributes →',
     deepDiveLabel: 'How eager loading works →',

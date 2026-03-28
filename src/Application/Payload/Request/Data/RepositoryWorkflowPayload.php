@@ -22,8 +22,8 @@ use Semitexa\Demo\Attributes\DemoFeature;
     slug: 'repository-workflow',
     summary: 'The canonical Semitexa path: handlers depend on repository contracts, repositories return domain models, and persistence resources stay behind the boundary.',
     order: 1,
-    highlights: ['repository contract', 'domain model', 'DomainMappable', '#[SatisfiesRepositoryContract]', 'fetchOne()'],
-    entryLine: 'The demo should sell the canon: business code speaks domain language, and ORM resources stay inside the persistence layer.',
+    highlights: ['repository contract', 'TableModel', '#[AsMapper]', 'DomainRepository', 'fetchOneAs()'],
+    entryLine: 'Business code should work with domain models, while TableModel and mapper logic stay inside the persistence layer.',
     learnMoreLabel: 'See the canonical flow →',
     deepDiveLabel: 'Where resource reads still belong →',
 )]

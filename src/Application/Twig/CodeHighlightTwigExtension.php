@@ -11,6 +11,24 @@ use Twig\Markup;
 #[AsTwigExtension]
 final class CodeHighlightTwigExtension
 {
+    private const BUILTIN_TYPE_NAMES = [
+        'array',
+        'bool',
+        'callable',
+        'float',
+        'int',
+        'iterable',
+        'mixed',
+        'never',
+        'null',
+        'object',
+        'parent',
+        'self',
+        'static',
+        'string',
+        'void',
+    ];
+
     private const KEYWORD_TOKEN_NAMES = [
         'T_ABSTRACT',
         'T_ARRAY',
@@ -94,6 +112,11 @@ final class CodeHighlightTwigExtension
             [$this, 'highlightPhp'],
             ['is_safe' => ['html']],
         );
+        TwigExtensionRegistry::registerFunction(
+            'highlight_php_lines',
+            [$this, 'highlightPhpLines'],
+            ['is_safe' => ['html']],
+        );
     }
 
     public function highlightPhp(string $source): Markup
@@ -102,34 +125,67 @@ final class CodeHighlightTwigExtension
             return new Markup('', 'UTF-8');
         }
 
+        $syntheticOpenTag = !str_contains($source, '<?');
         $html = '';
-        $tokens = token_get_all($source, TOKEN_PARSE);
+        $tokens = token_get_all($syntheticOpenTag ? "<?php\n" . $source : $source, TOKEN_PARSE);
 
-        foreach ($tokens as $token) {
+        foreach ($tokens as $index => $token) {
             if (is_string($token)) {
-                $html .= $this->wrapOperator($token);
+                $html .= $this->renderTextFragment($token, $this->classForOperator($token));
                 continue;
             }
 
             [$id, $text] = $token;
-            $class = $this->classForToken($id, $text);
+            if ($syntheticOpenTag && $index === 0 && in_array($id, [T_OPEN_TAG, T_OPEN_TAG_WITH_ECHO], true)) {
+                continue;
+            }
+            $class = $this->classForToken($tokens, $index, $id, $text);
+            $html .= $this->renderTextFragment($text, $class);
+        }
 
-            if ($class === null) {
-                $html .= htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        return new Markup($html, 'UTF-8');
+    }
+
+    public function highlightPhpLines(string $source): Markup
+    {
+        if ($source === '') {
+            return new Markup('', 'UTF-8');
+        }
+
+        $syntheticOpenTag = !str_contains($source, '<?');
+        $tokens = token_get_all($syntheticOpenTag ? "<?php\n" . $source : $source, TOKEN_PARSE);
+        $lines = [''];
+
+        foreach ($tokens as $index => $token) {
+            if (is_string($token)) {
+                $this->appendTextToLines($lines, $token, $this->classForOperator($token));
                 continue;
             }
 
+            [$id, $text] = $token;
+            if ($syntheticOpenTag && $index === 0 && in_array($id, [T_OPEN_TAG, T_OPEN_TAG_WITH_ECHO], true)) {
+                continue;
+            }
+
+            $this->appendTextToLines($lines, $text, $this->classForToken($tokens, $index, $id, $text));
+        }
+
+        $html = '';
+        foreach ($lines as $index => $lineHtml) {
             $html .= sprintf(
-                '<span class="%s">%s</span>',
-                $class,
-                htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+                '<span class="code-block__line"><span class="code-block__line-number" aria-hidden="true">%d</span><span class="code-block__line-code">%s</span></span>',
+                $index + 1,
+                $lineHtml,
             );
         }
 
         return new Markup($html, 'UTF-8');
     }
 
-    private function classForToken(int $id, string $text): ?string
+    /**
+     * @param array<int, array{0:int,1:string,2?:int}|string> $tokens
+     */
+    private function classForToken(array $tokens, int $index, int $id, string $text): ?string
     {
         if ($this->isTokenNamed($id, self::KEYWORD_TOKEN_NAMES)) {
             return 'code-token code-token--keyword';
@@ -147,16 +203,35 @@ final class CodeHighlightTwigExtension
             T_CONSTANT_ENCAPSED_STRING, T_ENCAPSED_AND_WHITESPACE => 'code-token code-token--string',
             T_LNUMBER, T_DNUMBER => 'code-token code-token--number',
             T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED, T_NAME_RELATIVE => 'code-token code-token--name',
-            T_STRING => $this->classifyStringToken($text),
+            T_STRING => $this->classifyStringToken($tokens, $index, $text),
             T_WHITESPACE => null,
             default => null,
         };
     }
 
-    private function classifyStringToken(string $text): string
+    /**
+     * @param array<int, array{0:int,1:string,2?:int}|string> $tokens
+     */
+    private function classifyStringToken(array $tokens, int $index, string $text): string
     {
-        if (in_array(strtolower($text), ['true', 'false', 'null'], true)) {
+        $lower = strtolower($text);
+
+        if (in_array($lower, ['true', 'false', 'null'], true)) {
             return 'code-token code-token--literal';
+        }
+
+        if (in_array($lower, self::BUILTIN_TYPE_NAMES, true)) {
+            return 'code-token code-token--type';
+        }
+
+        $previousTokenId = $this->previousNonWhitespaceTokenId($tokens, $index);
+        if ($previousTokenId === T_FUNCTION) {
+            return 'code-token code-token--function';
+        }
+
+        $nextTokenText = $this->nextNonWhitespaceTokenText($tokens, $index);
+        if ($nextTokenText === '(') {
+            return 'code-token code-token--function';
         }
 
         if ($text !== '' && ctype_upper($text[0])) {
@@ -166,20 +241,16 @@ final class CodeHighlightTwigExtension
         return 'code-token code-token--identifier';
     }
 
-    private function wrapOperator(string $text): string
+    private function classForOperator(string $text): ?string
     {
-        $escaped = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-
         if (trim($text) === '') {
-            return $escaped;
+            return null;
         }
 
-        $class = match ($text) {
+        return match ($text) {
             '(', ')', '[', ']', '{', '}', ',', ';' => 'code-token code-token--punctuation',
             default => 'code-token code-token--operator',
         };
-
-        return sprintf('<span class="%s">%s</span>', $class, $escaped);
     }
 
     /**
@@ -188,5 +259,85 @@ final class CodeHighlightTwigExtension
     private function isTokenNamed(int $id, array $tokenNames): bool
     {
         return in_array(token_name($id), $tokenNames, true);
+    }
+
+    /**
+     * @param array<int, array{0:int,1:string,2?:int}|string> $tokens
+     */
+    private function previousNonWhitespaceTokenId(array $tokens, int $index): int|string|null
+    {
+        for ($cursor = $index - 1; $cursor >= 0; $cursor--) {
+            $token = $tokens[$cursor];
+
+            if (is_string($token)) {
+                if (trim($token) === '') {
+                    continue;
+                }
+
+                return $token;
+            }
+
+            if ($token[0] === T_WHITESPACE) {
+                continue;
+            }
+
+            return $token[0];
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array<int, array{0:int,1:string,2?:int}|string> $tokens
+     */
+    private function nextNonWhitespaceTokenText(array $tokens, int $index): ?string
+    {
+        for ($cursor = $index + 1, $count = count($tokens); $cursor < $count; $cursor++) {
+            $token = $tokens[$cursor];
+
+            if (is_string($token)) {
+                if (trim($token) === '') {
+                    continue;
+                }
+
+                return $token;
+            }
+
+            if ($token[0] === T_WHITESPACE) {
+                continue;
+            }
+
+            return $token[1];
+        }
+
+        return null;
+    }
+
+    private function renderTextFragment(string $text, ?string $class): string
+    {
+        $escaped = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+        if ($class === null) {
+            return $escaped;
+        }
+
+        return sprintf('<span class="%s">%s</span>', $class, $escaped);
+    }
+
+    /**
+     * @param array<int, string> $lines
+     */
+    private function appendTextToLines(array &$lines, string $text, ?string $class): void
+    {
+        $parts = preg_split("/(\r\n|\n|\r)/", $text, -1, PREG_SPLIT_DELIM_CAPTURE) ?: [$text];
+
+        foreach ($parts as $part) {
+            if ($part === "\n" || $part === "\r" || $part === "\r\n") {
+                $lines[] = '';
+                continue;
+            }
+
+            $lines[array_key_last($lines)] .= $this->renderTextFragment($part, $class);
+        }
     }
 }

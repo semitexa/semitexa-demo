@@ -83,8 +83,7 @@
         <pre class="code-block__pre"><code
           id="code-source-{{ featureSlug|default('default') }}-{{ loop.index }}"
           class="code-block__code"
-        >{% for line in source|split('\n') %}<span class="code-block__line"><span class="code-block__line-number" aria-hidden="true">{{ loop.index }}</span><span class="code-block__line-code">{{ highlight_php(line) }}</span></span>{% if not loop.last %}
-{% endif %}{% endfor %}</code></pre>
+        >{{ highlight_php_lines(source) }}</code></pre>
         <textarea
           id="code-raw-{{ featureSlug|default('default') }}-{{ loop.index }}"
           class="code-block__raw-source"

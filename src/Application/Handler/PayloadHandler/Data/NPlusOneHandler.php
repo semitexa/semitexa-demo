@@ -12,7 +12,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Orm\Hydration\StreamingHydrator;
+use Semitexa\Orm\Hydration\TableModelRelationLoader;
 
 #[AsPayloadHandler(payload: NPlusOnePayload::class, resource: DemoFeatureResource::class)]
 final class NPlusOneHandler implements TypedHandlerInterface
@@ -47,7 +47,7 @@ final class NPlusOneHandler implements TypedHandlerInterface
             ->withTitle('N+1 Without Magic')
             ->withSummary('Semitexa avoids N+1 by using resource slices for the exact columns and relations each screen needs, instead of hiding database traffic behind implicit relation loading.')
             ->withEntryLine('No magic, no lazy loading, no bloated entity graphs. A screen asks for one slice, the ORM hydrates exactly that slice.')
-            ->withHighlights(['StreamingHydrator', 'resource slice', 'no lazy loading', '#[FromTable]', 'batch relations'])
+            ->withHighlights(['TableModelRelationLoader', 'resource slice', 'no lazy loading', '#[FromTable]', 'batch relations'])
             ->withLearnMoreLabel('Compare the two ORM styles →')
             ->withDeepDiveLabel('How Semitexa avoids N+1 →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/n-plus-one-showcase.html.twig', [
@@ -88,7 +88,7 @@ final class NPlusOneHandler implements TypedHandlerInterface
                 'rules' => [
                     'A screen is free to define its own resource abstraction for the same table instead of inheriting one bloated canonical entity.',
                     'The slim slice contains only the columns that the screen actually renders.',
-                    'If relations are needed, StreamingHydrator batch-loads them for the whole result set instead of firing lookups row by row.',
+                    'If relations are needed, the TableModel relation loader batch-loads them for the whole result set instead of firing lookups row by row.',
                     'Because there is no lazy loading, the fetch plan is visible in the code review and stable in production.',
                 ],
             ])
@@ -96,7 +96,7 @@ final class NPlusOneHandler implements TypedHandlerInterface
                 'Fat Entity' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Examples/Orm/NPlusOne/FatProductEntity.example.php'),
                 'Card Slice' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Examples/Orm/NPlusOne/ProductCardResource.example.php'),
                 'Card + Reviews' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Examples/Orm/NPlusOne/ProductCardWithReviewsResource.example.php'),
-                'Hydrator' => $this->sourceCodeReader->readClassSource(StreamingHydrator::class),
+                'Relation Loader' => $this->sourceCodeReader->readClassSource(TableModelRelationLoader::class),
                 'Handler' => $this->sourceCodeReader->readClassSource(self::class),
             ])
             ->withExplanation($explanation);

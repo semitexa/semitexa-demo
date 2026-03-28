@@ -22,7 +22,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     slug: 'domain-models',
     summary: 'Semitexa separates persistence resources from business models. Resources map tables; domain models carry behavior and invariants.',
     order: 6,
-    highlights: ['DomainMappable', 'fromDomain()', 'toDomain()', '#[SatisfiesRepositoryContract]', 'fetchOneAsResource()'],
+    highlights: ['#[AsMapper]', 'TableModel', 'DomainRepository', 'fetchOneAs()', 'explicit mapping'],
     entryLine: 'Resource models exist for persistence. Domain models exist for business behavior. Repositories bridge them instead of collapsing them into one class.',
     learnMoreLabel: 'See both layers side by side →',
     deepDiveLabel: 'How repositories bridge the layers →',

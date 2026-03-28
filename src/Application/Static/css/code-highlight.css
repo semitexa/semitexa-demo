@@ -302,13 +302,18 @@
   color: #ffd6fa;
 }
 
+.code-token--function {
+  color: #ffd166;
+  font-weight: 600;
+}
+
 .code-token--identifier {
-  color: #e2e8f0;
+  color: #d3deef;
 }
 
 .code-token--operator,
 .code-token--punctuation {
-  color: #9babc2;
+  color: #8a9bb7;
 }
 
 /* --- Source code partial --- */

@@ -174,22 +174,23 @@ final class DemoExplanationProvider
         ],
         'data/domain-models' => [
             'what' => 'Semitexa deliberately separates persistence resources from domain-level business models instead of pretending one class should do both jobs.',
-            'how' => 'A resource class maps the table and may implement DomainMappable. Repositories then return domain objects on the normal read path, while explicit resource reads stay available through fetchOneAsResource() and fetchAllAsResource().',
+            'how' => 'A TableModel maps the table, and an explicit mapper converts between persistence and domain. Repositories then return domain objects on the normal read path.',
             'why' => 'This keeps business code free from ORM metadata and keeps persistence code free from fake business semantics. The boundary stays reviewable and intentional.',
             'keywords' => [
-                ['term' => 'DomainMappable', 'definition' => 'Resource contract that converts storage resources to domain objects and back again.'],
+                ['term' => 'TableModel', 'definition' => 'Persistence-side model that maps one table row shape and relation metadata.'],
+                ['term' => 'Mapper', 'definition' => 'Explicit converter between TableModel and DomainModel.'],
                 ['term' => 'Resource model', 'definition' => 'ORM-facing class responsible for table mapping, columns, indexes, and storage conversion.'],
                 ['term' => 'Domain model', 'definition' => 'Business object carrying behavior, invariants, and ubiquitous language without persistence metadata.'],
             ],
         ],
         'data/repository-workflow' => [
             'what' => 'The canonical Semitexa repository workflow is domain-first: application code depends on repository contracts and works with domain models, not raw ORM resources.',
-            'how' => 'Repository contracts return domain objects. ORM repository implementations sit behind the contract, convert through DomainMappable, and only expose resource-level reads through explicit methods like fetchOneAsResource().',
+            'how' => 'Repository contracts return domain objects. ORM repository implementations sit behind the contract, convert through explicit mappers, and keep persistence models behind the boundary.',
             'why' => 'This keeps the demo honest about best practices. Resource-level CRUD still exists, but it is not what we should teach as the primary architectural path.',
             'keywords' => [
                 ['term' => 'Repository contract', 'definition' => 'Application-facing interface that expresses persistence in domain language.'],
                 ['term' => 'Domain-first read path', 'definition' => 'Default repository reads return business models instead of persistence resources.'],
-                ['term' => 'fetchOneAsResource()', 'definition' => 'Explicit low-level read path for infrastructure cases that truly need raw ORM resources.'],
+                ['term' => 'DomainRepository', 'definition' => 'New ORM entry point that coordinates TableModel queries, mapping, and aggregate writes.'],
             ],
         ],
         'data/schema-sync' => [
@@ -204,21 +205,21 @@ final class DemoExplanationProvider
         ],
         'data/n-plus-one' => [
             'what' => 'Semitexa avoids N+1 by letting each screen define the exact table slice it needs, then batch-loading explicit relations for the whole result set.',
-            'how' => 'You can model multiple resource abstractions over the same table. A slim list resource selects only the required columns, and StreamingHydrator loads relations for all hydrated resources in one batch instead of per-row lazy lookups.',
+            'how' => 'You can model multiple resource abstractions over the same table. A slim list resource selects only the required columns, and the TableModel relation loader batch-loads explicit relations for all hydrated rows in one pass instead of per-row lazy lookups.',
             'why' => 'This removes the usual ORM trade-off between over-fetching giant entities and hiding extra queries behind lazy loading. The fetch plan is explicit, reviewable, and stable under load.',
             'keywords' => [
                 ['term' => 'N+1', 'definition' => 'A query anti-pattern where one base query triggers one extra query per returned row.'],
-                ['term' => 'StreamingHydrator', 'definition' => 'Hydrates many rows and batch-loads relations once for the whole result set.'],
+                ['term' => 'TableModelRelationLoader', 'definition' => 'Batch-loads explicit relations once for the whole result set on the TableModel layer.'],
                 ['term' => 'Resource slice', 'definition' => 'A narrow resource abstraction over a table containing only the columns and relations required by one use case.'],
             ],
         ],
         'data/repositories' => [
             'what' => 'Repositories provide typed query methods behind domain-facing contracts. The ORM repository is the storage implementation, not the business abstraction.',
-            'how' => 'AbstractRepository can return domain models by default when the resource implements DomainMappable. When infrastructure code truly needs raw persistence objects, SelectQuery exposes fetchOneAsResource() and fetchAllAsResource() explicitly.',
+            'how' => 'The new ORM path separates TableModel, mapper, and domain model explicitly. Repository code coordinates them and keeps persistence concerns out of handlers.',
             'why' => 'This keeps handlers and services speaking domain language most of the time, while still allowing resource-level operations when persistence details actually matter.',
             'keywords' => [
                 ['term' => '#[SatisfiesRepositoryContract]', 'definition' => 'Marks a class as the ORM implementation of a domain repository interface.'],
-                ['term' => 'AbstractRepository', 'definition' => 'Base class providing fluent query builder methods for ORM repositories.'],
+                ['term' => 'DomainRepository', 'definition' => 'Typed repository surface over TableModel queries and aggregate persistence engine.'],
             ],
         ],
         'data/seeder' => [

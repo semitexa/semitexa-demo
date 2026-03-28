@@ -22,10 +22,10 @@ use Semitexa\Demo\Attributes\DemoFeature;
     slug: 'query',
     summary: 'Compose type-safe queries with a fluent API — no raw SQL, no magic strings.',
     order: 2,
-    highlights: ['SelectQuery', 'where()', 'orderBy()', 'limit()', 'fetchAll()', 'fetchOne()'],
+    highlights: ['TableModelQuery', 'where()', 'orderBy()', 'limit()', 'fetchAll()', 'fetchOne()'],
     entryLine: 'Compose type-safe queries with a fluent API — no raw SQL, no magic strings.',
     learnMoreLabel: 'See the query builder →',
-    deepDiveLabel: 'How SelectQuery compiles SQL →',
+    deepDiveLabel: 'How TableModelQuery compiles SQL →',
 )]
 class QueryBuilderPayload
 {
