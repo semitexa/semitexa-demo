@@ -1,0 +1,17 @@
+<aside class="dashboard-sidebar">
+  {% include 'partials/sidebar-nav.html.twig' with { items: nav_items } %}
+
+  {% if user is defined %}
+    {% include 'partials/sidebar-user-card.html.twig' with {
+      user: user,
+      permissions: permissions,
+      team: current_team
+    } %}
+  {% endif %}
+
+  {% include 'partials/sidebar-metrics.html.twig' with {
+    stats: stats,
+    alerts: alerts,
+    recommendations: recommendations
+  } %}
+</aside>

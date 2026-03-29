@@ -1,0 +1,46 @@
+<div class="preview-card">
+  <p class="preview-card__eyebrow">Session State</p>
+  <h3 class="preview-card__title">{{ stateTitle }}</h3>
+  <p class="preview-card__summary">{{ stateSummary }}</p>
+
+  {% if currentUser is defined and currentUser %}
+    <div class="preview-stats">
+      <div class="preview-stats__item">
+        <span class="preview-stats__value">{{ currentUser }}</span>
+        <span class="preview-stats__label">User</span>
+      </div>
+      <div class="preview-stats__item">
+        <span class="preview-stats__value">{{ currentRole }}</span>
+        <span class="preview-stats__label">Role</span>
+      </div>
+      <div class="preview-stats__item">
+        <span class="preview-stats__value">{{ loginCount }}</span>
+        <span class="preview-stats__label">Session logins</span>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if permissions is defined and permissions|length > 0 %}
+    <div class="preview-card__chips">
+      {% for permission in permissions %}
+        <span class="preview-chip">{{ permission }}</span>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if currentUser is defined and currentUser %}
+    <form method="POST" action="/demo/auth/session" class="preview-form">
+      <input type="hidden" name="action" value="logout" />
+      <button type="submit" class="preview-button preview-button--secondary">Logout</button>
+    </form>
+  {% else %}
+    <form method="POST" action="/demo/auth/session" class="preview-form preview-form--stacked">
+      <input type="hidden" name="action" value="login" />
+      <div class="preview-actions">
+        {% for role in roles %}
+          <button type="submit" name="role" value="{{ role.key }}" class="preview-button preview-button--primary">Login as {{ role.label }}</button>
+        {% endfor %}
+      </div>
+    </form>
+  {% endif %}
+</div>

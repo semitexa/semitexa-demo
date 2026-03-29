@@ -11,18 +11,19 @@ use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
-    responseWith: DemoFeatureResource::class,
     path: '/demo/di/mutable',
     methods: ['GET'],
+    responseWith: DemoFeatureResource::class,
+    produces: ['application/json', 'text/html'],
 )]
 #[DemoFeature(
     section: 'di',
     title: 'Mutable Injection',
     slug: 'mutable',
-    summary: 'Request-scoped services get a fresh clone per request — safe state without global mutation.',
-    order: 2,
-    highlights: ['#[InjectAsMutable]', 'request-scoped', 'clone', 'state isolation'],
-    entryLine: 'Request-scoped services get a fresh clone per request — safe state without global mutation.',
+    summary: 'Execution-scoped services get a fresh clone every run — safe state without contaminating the worker.',
+    order: 3,
+    highlights: ['#[InjectAsMutable]', 'execution-scoped', 'clone', 'state isolation'],
+    entryLine: 'Execution-scoped services get a fresh clone every run — safe state without contaminating the worker.',
     learnMoreLabel: 'See mutable injection →',
     deepDiveLabel: 'Clone lifecycle under the hood →',
 )]

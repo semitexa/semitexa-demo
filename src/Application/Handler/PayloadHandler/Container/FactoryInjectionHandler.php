@@ -9,6 +9,7 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Container\FactoryInjectionPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -21,25 +22,11 @@ final class FactoryInjectionHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(FactoryInjectionPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $resultPreview = '<div class="result-preview">'
-            . '<p>Factory injection gives you a <strong>callable</strong> that produces a fresh instance on every call. '
-            . 'The factory itself is worker-scoped; only the produced objects are new.</p>'
-            . '<pre class="code-inline">'
-            . htmlspecialchars(
-                "#[InjectAsFactory]\n"
-                . "protected \Closure \$mailerFactory;\n\n"
-                . "public function handle(...): ... {\n"
-                . "    \$mailer = (\$this->mailerFactory)();\n"
-                . "    // \$mailer is a brand-new instance\n"
-                . "}"
-            )
-            . '</pre>'
-            . '<p class="note">Use factories when a service is expensive to keep alive but cheap to construct on demand, '
-            . 'or when each call needs isolated configuration.</p>'
-            . '</div>';
-
         $explanation = $this->explanationProvider->getExplanation('di', 'factory') ?? [];
 
         $sourceCode = [
@@ -48,15 +35,31 @@ final class FactoryInjectionHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Factory Injection — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'di',
+                'currentSlug' => 'factory',
+                'infoWhat' => $explanation['what'] ?? 'Factory injections expose a validated selection point for fresh instances without reopening the container model.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('di')
             ->withSlug('factory')
             ->withTitle('Factory Injection')
-            ->withSummary('On-demand service creation — the factory is shared, but each call produces a new instance.')
-            ->withEntryLine('On-demand service creation — the factory is shared, but each call produces a new instance.')
-            ->withHighlights(['#[InjectAsFactory]', 'factory callable', 'on-demand', 'lazy instantiation'])
+            ->withSummary('On-demand creation stays explicit — lazy instances without falling back to service locator habits.')
+            ->withEntryLine('On-demand creation stays explicit — lazy instances without falling back to service locator habits.')
+            ->withHighlights(['#[InjectAsFactory]', 'closed-world selection', 'on-demand', 'lazy instantiation'])
             ->withLearnMoreLabel('See factory injection →')
             ->withDeepDiveLabel('Lazy instantiation patterns →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
+                'eyebrow' => 'On-Demand Creation',
+                'title' => 'Shared factory, fresh product',
+                'summary' => 'The factory is injected explicitly by the container. The object it returns is new on every call, but the creation path remains reviewable.',
+                'codeSnippet' => "#[InjectAsFactory]\nprotected \\Closure \$mailerFactory;\n\npublic function handle(...): ... {\n    \$mailer = (\$this->mailerFactory)();\n    // New instance, still from an explicit DI path\n}",
+                'note' => 'Use factories when creation must stay lazy. Do not fall back to ad-hoc container access inside services.',
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

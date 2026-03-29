@@ -10,6 +10,7 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
 use Semitexa\Demo\Application\Payload\Request\Data\QueryBuilderPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -25,6 +26,9 @@ final class QueryBuilderHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(QueryBuilderPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
         $products = $this->productRepository->findFiltered(
@@ -36,49 +40,66 @@ final class QueryBuilderHandler implements TypedHandlerInterface
         );
 
         $count = count($products);
-        $rows = '';
+        $rows = [];
         foreach (array_slice($products, 0, 5) as $product) {
-            $rows .= sprintf(
-                '<tr><td>%s</td><td>$%.2f</td><td>%s</td></tr>',
-                htmlspecialchars($product->name),
-                $product->price,
-                htmlspecialchars($product->status),
-            );
+            $rows[] = [
+                ['text' => $product->name],
+                ['text' => '$' . number_format((float) $product->price, 2)],
+                ['text' => (string) $product->status],
+            ];
         }
 
-        $querySnippet = '$products = $this->select()' . "\n"
-            . ($payload->getStatus() !== null ? sprintf("    ->where('status', '=', '%s')\n", htmlspecialchars($payload->getStatus())) : '')
-            . ($payload->getMinPrice() !== null ? sprintf("    ->where('price', '>=', %.2f)\n", $payload->getMinPrice()) : '')
-            . ($payload->getMaxPrice() !== null ? sprintf("    ->where('price', '<=', %.2f)\n", $payload->getMaxPrice()) : '')
-            . ($payload->getOrderBy() !== null ? sprintf("    ->orderBy('%s', 'ASC')\n", htmlspecialchars($payload->getOrderBy())) : '')
+        $querySnippet = '$products = $orm->repository(DemoProductTableModel::class, DemoProductResource::class)' . "\n"
+            . '    ->query()' . "\n"
+            . ($payload->getStatus() !== null ? sprintf("    ->where(DemoProductTableModel::column('status'), Operator::Equals, '%s')\n", $payload->getStatus()) : '')
+            . ($payload->getMinPrice() !== null ? sprintf("    ->where(DemoProductTableModel::column('price'), Operator::GreaterThanOrEquals, %.2f)\n", $payload->getMinPrice()) : '')
+            . ($payload->getMaxPrice() !== null ? sprintf("    ->where(DemoProductTableModel::column('price'), Operator::LessThanOrEquals, %.2f)\n", $payload->getMaxPrice()) : '')
+            . ($payload->getOrderBy() !== null ? sprintf("    ->orderBy(DemoProductTableModel::column('%s'), Direction::Asc)\n", $payload->getOrderBy()) : '')
             . sprintf("    ->limit(%d)\n", $payload->getLimit())
-            . '    ->fetchAll();';
-
-        $resultPreview = '<div class="result-preview">'
-            . '<p>Query returned <strong>' . $count . ' products</strong>.</p>'
-            . '<pre class="code-inline">' . htmlspecialchars($querySnippet) . '</pre>'
-            . '<table class="data-table"><thead><tr><th>Name</th><th>Price</th><th>Status</th></tr></thead>'
-            . '<tbody>' . ($rows ?: '<tr><td colspan="3">No results — seed the data first.</td></tr>') . '</tbody>'
-            . '</table></div>';
+            . '    ->fetchAllAs(DemoProductResource::class, $orm->getMapperRegistry());';
 
         $explanation = $this->explanationProvider->getExplanation('data', 'query') ?? [];
 
         $sourceCode = [
-            'Handler' => $this->sourceCodeReader->readClassSource(self::class),
-            'Repository' => $this->sourceCodeReader->readClassSource(DemoProductRepository::class),
+            'Catalog Repository' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Examples/Orm/QueryBuilder/ProductReadRepository.example.php'),
+            'Admin Repository' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Examples/Orm/QueryBuilder/ProductAdminRepository.example.php'),
+            'Injected Builder' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Examples/Orm/QueryBuilder/ProductQueryBuilder.example.php'),
+            'Real Demo Repository' => $this->sourceCodeReader->readClassSource(DemoProductRepository::class),
         ];
 
         return $resource
             ->pageTitle('Query Builder — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'data',
+                'currentSlug' => 'query',
+                'infoWhat' => $explanation['what'] ?? 'Compose type-safe queries with a fluent API — no raw SQL, no magic strings.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('data')
             ->withSlug('query')
             ->withTitle('Query Builder')
             ->withSummary('Compose type-safe queries with a fluent API — no raw SQL, no magic strings.')
             ->withEntryLine('Compose type-safe queries with a fluent API — no raw SQL, no magic strings.')
-            ->withHighlights(['SelectQuery', 'where()', 'orderBy()', 'limit()', 'fetchAll()', 'fetchOne()'])
+            ->withHighlights(['TableModelQuery', 'where()', 'orderBy()', 'limit()', 'fetchAll()', 'fetchOne()'])
             ->withLearnMoreLabel('See the query builder →')
-            ->withDeepDiveLabel('How SelectQuery compiles SQL →')
-            ->withResultPreview($resultPreview)
+            ->withDeepDiveLabel('How TableModelQuery compiles SQL →')
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/data-table.html.twig', [
+                'eyebrow' => 'Query Builder',
+                'title' => 'Compiled query example',
+                'summary' => 'The repository composes fluent constraints with typed column references, then materializes a filtered collection.',
+                'stats' => [
+                    ['value' => (string) $count, 'label' => 'Returned rows'],
+                    ['value' => (string) $payload->getLimit(), 'label' => 'Limit'],
+                ],
+                'codeSnippet' => $querySnippet,
+                'columns' => ['Name', 'Price', 'Status'],
+                'rows' => $rows,
+                'emptyMessage' => 'No results — seed the data first.',
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

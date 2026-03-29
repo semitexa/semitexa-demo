@@ -1,0 +1,36 @@
+<div class="preview-card">
+  <p class="preview-card__eyebrow">Response Canon</p>
+  <h3 class="preview-card__title">One object shapes the whole page</h3>
+  <p class="preview-card__summary">
+    The resource should be the canonical language of the view layer. Templates stay declarative because the response object
+    already did the hard work of choosing names, formatting fields, and defining the available structure.
+  </p>
+
+  <div class="preview-checklist">
+    {% for rule in rules %}
+      <div class="preview-checklist__item">
+        <span class="preview-checklist__icon" aria-hidden="true">+</span>
+        <p>{{ rule }}</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="preview-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Resource concern</th>
+          <th>What the DTO makes explicit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for check in checks %}
+          <tr>
+            <td><span class="preview-pill">{{ check.label }}</span></td>
+            <td>{{ check.detail }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

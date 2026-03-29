@@ -9,6 +9,7 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Auth\RbacPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -32,38 +33,21 @@ final class RbacHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(RbacPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $headerCells = '<th>Permission</th>'
-            . implode('', array_map(
-                static fn(string $role) => '<th>' . ucfirst($role) . '</th>',
-                array_keys(self::ROLE_MATRIX),
-            ));
-
-        $rows = '';
+        $columns = array_merge(['Permission'], array_map('ucfirst', array_keys(self::ROLE_MATRIX)));
+        $rows = [];
         foreach (self::ALL_PERMISSIONS as $perm) {
-            $cells = '<td><code>' . htmlspecialchars($perm) . '</code></td>';
+            $cells = [['text' => $perm, 'code' => true]];
             foreach (self::ROLE_MATRIX as $rolePerms) {
                 $has = in_array($perm, $rolePerms, true);
-                $cells .= '<td>' . ($has ? '✓' : '—') . '</td>';
+                $cells[] = ['text' => $has ? 'Granted' : 'Denied', 'variant' => $has ? 'success' : 'neutral'];
             }
-            $rows .= '<tr>' . $cells . '</tr>';
+            $rows[] = $cells;
         }
-
-        $resultPreview = '<div class="result-preview">'
-            . '<p>The demo has three roles. Each carries a set of permission slugs checked via <code>#[RequiresPermission]</code>.</p>'
-            . '<table class="data-table">'
-            . '<thead><tr>' . $headerCells . '</tr></thead>'
-            . '<tbody>' . $rows . '</tbody>'
-            . '</table>'
-            . '<pre class="code-inline">'
-            . htmlspecialchars(
-                "#[RequiresPermission('products.write')]\n"
-                . "#[AsPayload(path: '/admin/products/{id}', methods: ['PUT'])]\n"
-                . "class UpdateProductPayload { ... }"
-            )
-            . '</pre>'
-            . '</div>';
 
         $explanation = $this->explanationProvider->getExplanation('auth', 'rbac') ?? [];
 
@@ -73,6 +57,16 @@ final class RbacHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('RBAC — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'auth',
+                'currentSlug' => 'rbac',
+                'infoWhat' => $explanation['what'] ?? 'Role-based access control — assign permissions to roles, assign roles to users.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('auth')
             ->withSlug('rbac')
             ->withTitle('RBAC')
@@ -81,7 +75,14 @@ final class RbacHandler implements TypedHandlerInterface
             ->withHighlights(['#[RequiresPermission]', '#[RequiresCapability]', 'RoleInterface', 'permission slugs'])
             ->withLearnMoreLabel('See the permission model →')
             ->withDeepDiveLabel('How RBAC resolution works →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/permission-matrix.html.twig', [
+                'eyebrow' => 'RBAC',
+                'title' => 'Role-to-permission matrix',
+                'summary' => 'Each route attribute maps to a permission slug, and roles simply collect the slugs they are allowed to perform.',
+                'columns' => $columns,
+                'rows' => $rows,
+                'codeSnippet' => "#[RequiresPermission('products.write')]\n#[AsPayload(path: '/admin/products/{id}', methods: ['PUT'])]\nclass UpdateProductPayload { ... }",
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

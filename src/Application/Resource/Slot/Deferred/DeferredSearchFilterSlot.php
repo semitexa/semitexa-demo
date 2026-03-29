@@ -13,7 +13,7 @@ use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
     template: '@project-layouts-semitexa-demo/deferred/search-filter.html.twig',
     deferred: true,
     skeletonTemplate: '@project-layouts-semitexa-demo/deferred/search-filter.skeleton.html.twig',
-    clientModules: ['deferred/search-filter.js'],
+    clientModules: ['@project-static-semitexa-demo/deferred/search-filter.js'],
 )]
 final class DeferredSearchFilterSlot extends HtmlSlotResponse
 {

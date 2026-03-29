@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoHomeResource;
 #[PublicEndpoint]
 #[AsPayload(
     responseWith: DemoHomeResource::class,
+    produces: ['application/json', 'text/html'],
     path: '/demo',
     methods: ['GET'],
 )]

@@ -14,7 +14,7 @@ use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
     deferred: true,
     skeletonTemplate: '@project-layouts-semitexa-demo/reactive/report.skeleton.html.twig',
     refreshInterval: 3,
-    clientModules: ['reactive/report-chart.js'],
+    clientModules: ['@project-static-semitexa-demo/reactive/report-chart.js'],
 )]
 final class ReactiveReportSlot extends HtmlSlotResponse
 {

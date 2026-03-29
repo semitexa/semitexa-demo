@@ -6,6 +6,7 @@ namespace Semitexa\Demo\Application\Resource\Platform;
 
 use Semitexa\Core\Attributes\AsResource;
 use Semitexa\Core\Contract\ResourceInterface;
+use Semitexa\Demo\Application\Resource\Response\HasDemoShell;
 use Semitexa\Ssr\Http\Response\HtmlResponse;
 
 #[AsResource(
@@ -14,6 +15,8 @@ use Semitexa\Ssr\Http\Response\HtmlResponse;
 )]
 class DemoTenantResolutionResource extends HtmlResponse implements ResourceInterface
 {
+    use HasDemoShell;
+
     public function withStrategies(array $strategies): static { return $this->with('strategies', $strategies); }
     public function withResolvedTenant(string $tenant): static { return $this->with('resolvedTenant', $tenant); }
     public function withResolvedBy(string $strategyName): static { return $this->with('resolvedBy', $strategyName); }

@@ -10,6 +10,7 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Rendering\DeferredLiveWidgetsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Resource\Slot\Deferred\DeferredNotificationSlot;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -22,27 +23,11 @@ final class DeferredLiveWidgetsHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(DeferredLiveWidgetsPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $resultPreview = '<div class="result-preview">'
-            . '<p>The notification bell below has <code>refreshInterval: 5</code>. '
-            . 'Every 5 seconds it re-fetches its slot endpoint and swaps the HTML — '
-            . 'the counter updates without any custom JavaScript.</p>'
-            . '<pre class="code-inline">'
-            . htmlspecialchars(
-                "#[AsSlotResource(\n"
-                . "    handle: 'demo_deferred_live',\n"
-                . "    slot: 'deferred_notification',\n"
-                . "    deferred: true,\n"
-                . "    refreshInterval: 5,  // re-fetch every 5 seconds\n"
-                . "    clientModules: ['deferred/notification-bell.js'],\n"
-                . ")]"
-            )
-            . '</pre>'
-            . '<p class="note">If the SSE connection drops, the framework reconnects with exponential backoff — '
-            . 'the widget keeps updating automatically.</p>'
-            . '</div>';
-
         $explanation = $this->explanationProvider->getExplanation('rendering', 'deferred-live') ?? [];
 
         $sourceCode = [
@@ -52,15 +37,55 @@ final class DeferredLiveWidgetsHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Live Widgets — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'rendering',
+                'currentSlug' => 'deferred-live',
+                'infoWhat' => $explanation['what'] ?? 'Deferred slots can auto-refresh on a timer and recover SSE connections without custom polling code.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('rendering')
             ->withSlug('deferred-live')
             ->withTitle('Live Widgets')
-            ->withSummary('Set refreshInterval and the block re-fetches its slot on a timer — live UI with zero JS.')
-            ->withEntryLine('Set refreshInterval and the block re-fetches its slot on a timer — live UI with zero JS.')
-            ->withHighlights(['refreshInterval', 'auto-refresh', 'SSE reconnection', 'live counter'])
-            ->withLearnMoreLabel('See the refreshInterval config →')
+            ->withSummary('A live slot can refresh itself on a timer while the page stays SSR-first — no SPA runtime and no handwritten polling layer.')
+            ->withEntryLine('Set refreshInterval and the server keeps re-rendering the widget for you. Live UI without converting the page into an app shell.')
+            ->withHighlights(['refreshInterval', 'auto-refresh', 'SSE reconnection', 'SSR-first live UI'])
+            ->withLearnMoreLabel('See the live-slot contract →')
             ->withDeepDiveLabel('SSE reconnection strategy →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/ssr-live-ui-showcase.html.twig', [
+                'eyebrow' => 'Reactive Slot Refresh',
+                'title' => 'Live widgets without a client-side data loop',
+                'summary' => 'The server keeps re-rendering the slot as HTML, and the page swaps it in place. The widget feels live, but the UI model stays SSR-first.',
+                'painPoints' => [
+                    'Live UI often pushes teams toward a separate client-side state system for even simple status widgets.',
+                    'Polling code and reconnection logic usually leak into ad hoc JavaScript instead of staying part of the rendering model.',
+                    'The shell and the live widget can drift into two different architectures even though they belong to one page.',
+                ],
+                'signals' => [
+                    ['value' => '5s', 'label' => 'refresh interval declared on the slot'],
+                    ['value' => '1', 'label' => 'rendering model for static and live regions'],
+                    ['value' => '0', 'label' => 'custom polling loop to maintain'],
+                ],
+                'compare' => [
+                    [
+                        'variant' => 'warning',
+                        'eyebrow' => 'Client Loop Creep',
+                        'title' => 'Widget becomes a mini frontend app',
+                        'summary' => 'State fetches, retry logic, and rendering drift into custom client code for what should be one live region.',
+                        'note' => 'The page stops having one rendering story.',
+                    ],
+                    [
+                        'variant' => 'active',
+                        'eyebrow' => 'SSR-First Live Region',
+                        'title' => 'Slot keeps itself fresh',
+                        'summary' => 'refreshInterval stays on the slot contract, and the framework handles reconnection and HTML replacement.',
+                        'note' => 'Live behavior feels native without turning the page into a SPA shell.',
+                    ],
+                ],
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

@@ -14,13 +14,14 @@ use Semitexa\Demo\Attributes\DemoFeature;
     path: '/demo/data/pagination',
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
+    produces: ['application/json', 'text/html'],
 )]
 #[DemoFeature(
     section: 'data',
     title: 'Pagination',
     slug: 'pagination',
     summary: 'Offset and cursor pagination out of the box — switch modes with a single query parameter.',
-    order: 4,
+    order: 9,
     highlights: ['PaginatedResult', 'limit()', 'offset()', 'cursor pagination', 'total count'],
     entryLine: 'Offset and cursor pagination out of the box — switch modes with a single query parameter.',
     learnMoreLabel: 'See pagination in action →',

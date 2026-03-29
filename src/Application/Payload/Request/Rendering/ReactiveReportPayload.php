@@ -14,16 +14,17 @@ use Semitexa\Demo\Attributes\DemoFeature;
     path: '/demo/rendering/reactive-report',
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
+    produces: ['application/json', 'text/html'],
 )]
 #[DemoFeature(
     section: 'rendering',
     title: 'Reactive Report',
     slug: 'reactive-report',
-    summary: 'A cron job runs every 30s — the deferred block reflects live job state without page reload.',
-    order: 9,
+    summary: 'Background work updates an SSR-first slot in place, so the UI feels live without falling back to SPA state orchestration.',
+    order: 10,
     highlights: ['refreshInterval', '#[AsScheduledJob]', 'DemoJobRun', 'Pending → Running → chart'],
-    entryLine: 'A cron job runs every 30s — the deferred block reflects live job state without page reload.',
-    learnMoreLabel: 'See cron config →',
+    entryLine: 'A scheduled job changes server state, and the slot keeps reflecting that state live with no page reload and no client-side state machine.',
+    learnMoreLabel: 'See the live-report flow →',
     deepDiveLabel: 'LeaseHeartbeat & retry →',
 )]
 class ReactiveReportPayload

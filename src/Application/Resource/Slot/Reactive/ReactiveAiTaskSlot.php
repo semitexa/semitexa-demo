@@ -14,7 +14,7 @@ use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
     deferred: true,
     skeletonTemplate: '@project-layouts-semitexa-demo/reactive/ai-task.skeleton.html.twig',
     refreshInterval: 2,
-    clientModules: ['reactive/ai-task-pipeline.js'],
+    clientModules: ['@project-static-semitexa-demo/reactive/ai-task-pipeline.js'],
 )]
 final class ReactiveAiTaskSlot extends HtmlSlotResponse
 {

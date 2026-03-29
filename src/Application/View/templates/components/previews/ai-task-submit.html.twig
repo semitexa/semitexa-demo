@@ -1,0 +1,36 @@
+<div class="preview-card preview-card--{{ state|default('idle') }}">
+  <p class="preview-card__eyebrow">AI Pipeline Input</p>
+  <h3 class="preview-card__title">
+    {% if state == 'success' %}
+      Task submitted
+    {% elseif state == 'error' %}
+      Input needs adjustment
+    {% else %}
+      Submit text for processing
+    {% endif %}
+  </h3>
+
+  {% if message is defined and message %}
+    <p class="preview-card__summary">{{ message }}</p>
+  {% endif %}
+
+  {% if taskId is defined and taskId %}
+    <div class="preview-stats">
+      <div class="preview-stats__item">
+        <span class="preview-stats__value"><code>{{ taskId }}</code></span>
+        <span class="preview-stats__label">Task ID</span>
+      </div>
+    </div>
+    <div class="preview-actions">
+      <a href="/demo/rendering/reactive-ai" class="preview-button preview-button--secondary">Watch pipeline</a>
+    </div>
+  {% else %}
+    <form method="POST" action="/demo/rendering/reactive-ai/submit" class="preview-form preview-form--stacked">
+      <label class="preview-form__label" for="inputText">Text to process</label>
+      <textarea id="inputText" name="inputText" class="preview-form__textarea" rows="5" maxlength="2000" placeholder="Enter any text to run through the AI pipeline…">{{ inputText|default('') }}</textarea>
+      <div class="preview-actions">
+        <button type="submit" class="preview-button preview-button--primary">Submit task</button>
+      </div>
+    </form>
+  {% endif %}
+</div>

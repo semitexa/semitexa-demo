@@ -11,9 +11,10 @@ use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
-    responseWith: DemoFeatureResource::class,
     path: '/demo/auth/machine',
     methods: ['GET'],
+    responseWith: DemoFeatureResource::class,
+    produces: ['application/json', 'text/html'],
 )]
 #[DemoFeature(
     section: 'auth',

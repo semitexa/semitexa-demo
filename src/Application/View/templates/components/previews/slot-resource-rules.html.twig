@@ -1,0 +1,36 @@
+<div class="preview-card">
+  <p class="preview-card__eyebrow">Unified Template System</p>
+  <h3 class="preview-card__title">One rendering model for the whole shell</h3>
+  <p class="preview-card__summary">
+    The power here is not only composition. It is consistency. The same mental model drives the page resource,
+    the slot resources, deferred regions, and live updates. No extra fragment system, no special frontend dialect.
+  </p>
+
+  <div class="preview-checklist">
+    {% for rule in rules %}
+      <div class="preview-checklist__item">
+        <span class="preview-checklist__icon" aria-hidden="true">+</span>
+        <p>{{ rule }}</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="preview-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Slot concern</th>
+          <th>What Semitexa makes explicit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for check in checks %}
+          <tr>
+            <td><span class="preview-pill">{{ check.label }}</span></td>
+            <td>{{ check.detail }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

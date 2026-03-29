@@ -54,22 +54,19 @@ final class ReactiveAiTaskHandler implements TypedHandlerInterface
             }
         }
 
-        $stageNodes = '';
-        foreach ($stages as $i => $stageName) {
+        $stageRows = [];
+        foreach ($stages as $stageName) {
             $stageResult = is_array($stageResults[$stageName] ?? null) ? $stageResults[$stageName] : [];
             $isDone = ($stageResult['status'] ?? '') === 'done';
             $tokens = $isDone ? (int) ($stageResult['tokens'] ?? 0) : 0;
             $ms = $isDone ? (int) ($stageResult['ms'] ?? 0) : 0;
-            $stageNodes .= '<div class="pipeline-stage pipeline-stage--' . ($isDone ? 'done' : 'pending') . '" '
-                . 'data-pipeline-stage="' . htmlspecialchars($stageName) . '">'
-                . '<div class="pipeline-stage__name">' . htmlspecialchars(ucfirst($stageName)) . '</div>'
-                . '<div class="pipeline-stage__detail" data-stage-detail' . ($isDone ? '' : ' hidden') . '>'
-                . ($isDone ? $tokens . ' tokens · ' . $ms . 'ms' : '')
-                . '</div>'
-                . '</div>';
-            if ($i < count($stages) - 1) {
-                $stageNodes .= '<div class="pipeline-arrow">→</div>';
-            }
+            $stageRows[] = [
+                'key' => $stageName,
+                'label' => ucfirst($stageName),
+                'done' => $isDone,
+                'tokens' => $tokens,
+                'ms' => $ms,
+            ];
         }
 
         $status = $latestTask?->status ?? 'idle';
@@ -80,19 +77,7 @@ final class ReactiveAiTaskHandler implements TypedHandlerInterface
             default     => 'badge--neutral',
         };
 
-        $stageResultsJson = empty($stageResults) ? '{}' : json_encode($stageResults);
-
-        $resultPreview = '<div class="result-preview">'
-            . '<p>Submit a task and watch the AI pipeline stages reveal one by one as the cron job processes it.</p>'
-            . '<div class="pipeline-status-row">'
-            . '<span class="badge ' . $statusClass . '" data-pipeline-status>' . htmlspecialchars(ucfirst($status)) . '</span>'
-            . ($latestTask !== null ? ' <span class="muted">Task: ' . htmlspecialchars(substr($latestTask->id ?? '', 0, 8)) . '…</span>' : '')
-            . '</div>'
-            . '<div class="pipeline-stages" data-stage-results-json="' . htmlspecialchars($stageResultsJson) . '">'
-            . $stageNodes
-            . '</div>'
-            . '<p style="margin-top:1rem"><a href="/demo/rendering/reactive-ai/submit" class="btn btn--primary">Submit new task →</a></p>'
-            . '</div>';
+        $stageResultsJson = empty($stageResults) ? '{}' : (json_encode($stageResults) ?: '{}');
 
         $explanation = $this->explanationProvider->getExplanation('rendering', 'reactive-ai') ?? [];
 
@@ -112,7 +97,14 @@ final class ReactiveAiTaskHandler implements TypedHandlerInterface
             ->withHighlights(['DemoAiTask', 'stage-by-stage', 'refreshInterval: 2', 'user-triggered → cron pickup'])
             ->withLearnMoreLabel('See submit form →')
             ->withDeepDiveLabel('Processor architecture →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/ai-pipeline.html.twig', [
+                'summary' => 'Submit a task and watch each processing stage reveal itself as background work completes.',
+                'statusVariant' => str_replace('badge--', '', $statusClass),
+                'statusLabel' => ucfirst($status),
+                'taskLabel' => $latestTask !== null ? 'Task ' . substr((string) ($latestTask->id ?? ''), 0, 8) . '…' : null,
+                'stages' => $stageRows,
+                'stageResultsJson' => $stageResultsJson,
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

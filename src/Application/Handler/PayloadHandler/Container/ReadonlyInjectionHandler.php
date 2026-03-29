@@ -9,6 +9,7 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Container\ReadonlyInjectionPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoFeatureRegistry;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
@@ -25,21 +26,12 @@ final class ReadonlyInjectionHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(ReadonlyInjectionPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
         $registryId = spl_object_id($this->featureRegistry);
-
-        $resultPreview = '<div class="result-preview">'
-            . '<p>This handler has three <code>#[InjectAsReadonly]</code> services injected:</p>'
-            . '<table class="data-table">'
-            . '<thead><tr><th>Service</th><th>Scope</th><th>Object ID</th></tr></thead>'
-            . '<tbody>'
-            . sprintf('<tr><td>DemoFeatureRegistry</td><td>worker</td><td>#%d</td></tr>', $registryId)
-            . sprintf('<tr><td>DemoSourceCodeReader</td><td>worker</td><td>#%d</td></tr>', spl_object_id($this->sourceCodeReader))
-            . sprintf('<tr><td>DemoExplanationProvider</td><td>worker</td><td>#%d</td></tr>', spl_object_id($this->explanationProvider))
-            . '</tbody></table>'
-            . '<p class="note">Object IDs are stable across requests — the same instances are reused for the life of the worker.</p>'
-            . '</div>';
 
         $explanation = $this->explanationProvider->getExplanation('di', 'readonly') ?? [];
 
@@ -49,15 +41,48 @@ final class ReadonlyInjectionHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Readonly Injection — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'di',
+                'currentSlug' => 'readonly',
+                'infoWhat' => $explanation['what'] ?? 'Readonly injections are worker-scoped services resolved once and reused across executions.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('di')
             ->withSlug('readonly')
             ->withTitle('Readonly Injection')
-            ->withSummary('Stateless services share one instance per worker — zero-cost injection after boot.')
-            ->withEntryLine('Stateless services share one instance per worker — zero-cost injection after boot.')
-            ->withHighlights(['#[InjectAsReadonly]', 'worker-scoped', 'shared instance', 'zero allocation'])
+            ->withSummary('One explicit DI path, one shared worker instance — fast at runtime and stable under reload.')
+            ->withEntryLine('One explicit DI path, one shared worker instance — fast at runtime and stable under reload.')
+            ->withHighlights(['#[InjectAsReadonly]', 'worker-scoped', 'single-path DI', 'reload-stable'])
             ->withLearnMoreLabel('See the injection attribute →')
             ->withDeepDiveLabel('Container tiers explained →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
+                'eyebrow' => 'Worker Scope',
+                'title' => 'One boot, reused per request',
+                'summary' => 'This handler receives readonly services through visible property attributes only. Their object IDs stay stable for the life of the worker.',
+                'columns' => ['Service', 'Scope', 'Object ID'],
+                'rows' => [
+                    [
+                        ['text' => 'DemoFeatureRegistry'],
+                        ['text' => 'worker'],
+                        ['text' => sprintf('#%d', $registryId), 'code' => true],
+                    ],
+                    [
+                        ['text' => 'DemoSourceCodeReader'],
+                        ['text' => 'worker'],
+                        ['text' => sprintf('#%d', spl_object_id($this->sourceCodeReader)), 'code' => true],
+                    ],
+                    [
+                        ['text' => 'DemoExplanationProvider'],
+                        ['text' => 'worker'],
+                        ['text' => sprintf('#%d', spl_object_id($this->explanationProvider)), 'code' => true],
+                    ],
+                ],
+                'note' => 'Object IDs stay stable across executions, so readonly services avoid repeated allocation and do not depend on hidden constructor wiring.',
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

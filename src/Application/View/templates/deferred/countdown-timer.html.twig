@@ -1,4 +1,12 @@
 <div class="deferred-block deferred-block--countdown" data-block="countdown-timer" data-instance="{{ instanceId|default('timer-1') }}">
+    <div class="deferred-block__header">
+        <div>
+            <p class="deferred-block__eyebrow">Scoped island</p>
+            <h3 class="deferred-block__title">Countdown widget</h3>
+        </div>
+        <span class="deferred-block__badge">Starts after stream</span>
+    </div>
+    <p class="deferred-block__summary">The timer does nothing until the deferred HTML arrives. After that, the client module owns only this isolated widget.</p>
     <div class="countdown" data-countdown data-duration="{{ duration|default(60) }}">
         <span class="countdown__label">{{ label|default('Countdown') }}</span>
         <span class="countdown__display" data-countdown-display>{{ duration|default(60) }}s</span>
@@ -6,4 +14,5 @@
             <div class="countdown__progress" data-countdown-progress style="width:100%"></div>
         </div>
     </div>
+    <button type="button" class="btn btn--secondary countdown__restart" data-countdown-restart>Restart timer</button>
 </div>

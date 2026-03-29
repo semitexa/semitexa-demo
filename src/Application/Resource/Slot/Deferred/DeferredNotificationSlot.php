@@ -14,7 +14,7 @@ use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
     deferred: true,
     skeletonTemplate: '@project-layouts-semitexa-demo/deferred/notification-bell.skeleton.html.twig',
     refreshInterval: 5,
-    clientModules: ['deferred/notification-bell.js'],
+    clientModules: ['@project-static-semitexa-demo/deferred/notification-bell.js'],
 )]
 final class DeferredNotificationSlot extends HtmlSlotResponse
 {

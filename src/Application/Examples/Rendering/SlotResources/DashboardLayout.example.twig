@@ -1,0 +1,11 @@
+<aside class="dashboard-sidebar">
+  {{ layout_slot('sidebar') }}
+</aside>
+
+<main class="dashboard-main">
+  {{ page_content|raw }}
+</main>
+
+<aside class="dashboard-rail">
+  {{ layout_slot('activity_rail') }}
+</aside>

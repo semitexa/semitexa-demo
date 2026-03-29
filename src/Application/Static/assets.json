@@ -20,6 +20,11 @@
             "scope": "module",
             "priority": 30,
             "attributes": { "defer": true }
+        },
+        "js/api-explorer.js": {
+            "scope": "module",
+            "priority": 40,
+            "attributes": { "defer": true }
         }
     }
 }

@@ -9,6 +9,7 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Platform\TenantQueuePayload;
 use Semitexa\Demo\Application\Resource\Platform\DemoTenantQueueResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoTenantConfigProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -20,6 +21,9 @@ final class TenantQueueHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
+
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
 
     public function handle(TenantQueuePayload $payload, DemoTenantQueueResource $resource): DemoTenantQueueResource
     {
@@ -53,6 +57,15 @@ final class TenantQueueHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Queue Tenant Propagation — Semitexa Demo')
+            ->withNavSections($this->catalog->getSections())
+            ->withFeatureTree($this->catalog->getFeatureTree())
+            ->withCurrentSection('platform')
+            ->withCurrentSlug('tenancy-queue')
+            ->withInfoPanel(
+                'Queued jobs keep tenant context attached so background work stays scoped after the HTTP request is gone.',
+                'The serializer wraps the message with a tenant envelope, and the worker restores that context before executing the job.',
+                'Without this, multi-tenant background processing quietly becomes dangerous.',
+            )
             ->withSerializedPayload($serializedPayload)
             ->withTenantContext($tenantContext)
             ->withWorkerSteps($workerSteps);

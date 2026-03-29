@@ -6,6 +6,7 @@ namespace Semitexa\Demo\Application\Resource\Platform;
 
 use Semitexa\Core\Attributes\AsResource;
 use Semitexa\Core\Contract\ResourceInterface;
+use Semitexa\Demo\Application\Resource\Response\HasDemoShell;
 use Semitexa\Ssr\Http\Response\HtmlResponse;
 
 #[AsResource(
@@ -14,6 +15,8 @@ use Semitexa\Ssr\Http\Response\HtmlResponse;
 )]
 class DemoTenantQueueResource extends HtmlResponse implements ResourceInterface
 {
+    use HasDemoShell;
+
     public function withSerializedPayload(array $payload): static { return $this->with('serializedPayload', $payload); }
     public function withTenantContext(array $tenantContext): static { return $this->with('tenantContext', $tenantContext); }
     public function withWorkerSteps(array $steps): static { return $this->with('workerSteps', $steps); }

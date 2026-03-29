@@ -14,13 +14,14 @@ use Semitexa\Demo\Attributes\DemoFeature;
     path: '/demo/rendering/seo',
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
+    produces: ['application/json', 'text/html'],
 )]
 #[DemoFeature(
     section: 'rendering',
     title: 'SEO',
     slug: 'seo',
     summary: 'Set title, description, and Open Graph tags from your handler — no template hacks needed.',
-    order: 3,
+    order: 4,
     highlights: ['pageTitle()', 'withMeta()', 'Open Graph', 'canonical URL', 'structured data'],
     entryLine: 'Set title, description, and Open Graph tags from your handler — no template hacks needed.',
     learnMoreLabel: 'See SEO methods →',

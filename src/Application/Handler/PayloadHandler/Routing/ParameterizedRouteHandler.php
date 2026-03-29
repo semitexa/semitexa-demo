@@ -9,6 +9,7 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Routing\ParameterizedRoutePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -20,6 +21,9 @@ final class ParameterizedRouteHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
 
     private const PRODUCTS = [
         'headphones' => ['name' => 'Wireless Headphones', 'price' => '$79.99', 'category' => 'Audio'],
@@ -39,20 +43,18 @@ final class ParameterizedRouteHandler implements TypedHandlerInterface
             'Handler' => $this->sourceCodeReader->readClassSource(self::class),
         ];
 
-        $resultPreview = '<div class="result-preview">'
-            . '<p><strong>GET /demo/routing/product/' . htmlspecialchars($slug, ENT_QUOTES) . '</strong></p>'
-            . '<p>Product: <strong>' . htmlspecialchars($product['name'], ENT_QUOTES) . '</strong></p>'
-            . '<p>Price: ' . htmlspecialchars($product['price'], ENT_QUOTES) . '</p>'
-            . '<p>Category: ' . htmlspecialchars($product['category'], ENT_QUOTES) . '</p>'
-            . '<p class="result-preview__hint">Try: '
-            . '<a href="/demo/routing/product/keyboard">keyboard</a> · '
-            . '<a href="/demo/routing/product/monitor">monitor</a> · '
-            . '<a href="/demo/routing/product/mouse">mouse</a>'
-            . '</p>'
-            . '</div>';
-
         return $resource
             ->pageTitle('Parameterized Route — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'routing',
+                'currentSlug' => 'parameterized',
+                'infoWhat' => $explanation['what'] ?? 'Path parameters with regex constraints and typed injection.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('routing')
             ->withSlug('parameterized')
             ->withTitle('Parameterized Route')
@@ -63,6 +65,14 @@ final class ParameterizedRouteHandler implements TypedHandlerInterface
             ->withDeepDiveLabel('How regex compilation works →')
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation)
-            ->withResultPreview($resultPreview);
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/product-spotlight.html.twig', [
+                'slug' => $slug,
+                'product' => $product,
+                'examples' => [
+                    ['label' => 'keyboard', 'href' => '/demo/routing/product/keyboard'],
+                    ['label' => 'monitor', 'href' => '/demo/routing/product/monitor'],
+                    ['label' => 'mouse', 'href' => '/demo/routing/product/mouse'],
+                ],
+            ]);
     }
 }

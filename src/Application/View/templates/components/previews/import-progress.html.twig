@@ -1,0 +1,53 @@
+<div class="preview-card">
+  {% if eyebrow is defined and eyebrow %}
+    <p class="preview-card__eyebrow">{{ eyebrow }}</p>
+  {% endif %}
+  {% if title is defined and title %}
+    <h3 class="preview-card__title">{{ title }}</h3>
+  {% endif %}
+  {% if summary is defined and summary %}
+    <p class="preview-card__summary">{{ summary }}</p>
+  {% endif %}
+
+  {% if signals is defined and signals|length > 0 %}
+    <div class="preview-stats">
+      {% for signal in signals %}
+        <div class="preview-stats__item">
+          <span class="preview-stats__value">{{ signal.value }}</span>
+          <span class="preview-stats__label">{{ signal.label }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="preview-stats">
+    <div class="preview-stats__item">
+      <span class="preview-stats__value">{{ processed }}</span>
+      <span class="preview-stats__label">Rows processed</span>
+    </div>
+    <div class="preview-stats__item">
+      <span class="preview-stats__value">{{ total }}</span>
+      <span class="preview-stats__label">Total rows</span>
+    </div>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-bar__fill" style="width: {{ progress|default(0) }}%"></div>
+  </div>
+
+  {% if message is defined and message %}
+    <p class="preview-note">{{ message }}</p>
+  {% endif %}
+
+  {% if compare is defined and compare|length > 0 %}
+    <div class="preview-compare">
+      {% for card in compare %}
+        <article class="preview-compare__card preview-compare__card--{{ card.variant|default('active') }}">
+          <p class="preview-card__eyebrow">{{ card.eyebrow }}</p>
+          <h4 class="preview-card__title">{{ card.title }}</h4>
+          <p class="preview-card__summary">{{ card.summary }}</p>
+        </article>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>

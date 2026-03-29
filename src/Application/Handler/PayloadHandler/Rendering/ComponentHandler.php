@@ -16,6 +16,7 @@ use Semitexa\Demo\Application\Component\FeatureCardComponent;
 use Semitexa\Demo\Application\Component\LiveResultComponent;
 use Semitexa\Demo\Application\Payload\Request\Rendering\ComponentPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -38,27 +39,11 @@ final class ComponentHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(ComponentPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $rows = '';
-        foreach (self::DEMO_COMPONENTS as $comp) {
-            $rows .= sprintf(
-                '<tr><td><code>%s</code></td><td><code>%s</code></td><td>%s</td></tr>',
-                htmlspecialchars($comp['name']),
-                htmlspecialchars(basename(str_replace('\\', '/', $comp['class']))),
-                htmlspecialchars($comp['props']),
-            );
-        }
-
-        $resultPreview = '<div class="result-preview">'
-            . '<p>This demo package registers <strong>' . count(self::DEMO_COMPONENTS) . ' components</strong> '
-            . 'via <code>#[AsComponent]</code>. All are discovered at boot — no registration code required.</p>'
-            . '<table class="data-table">'
-            . '<thead><tr><th>Component name</th><th>Class</th><th>Props</th></tr></thead>'
-            . '<tbody>' . $rows . '</tbody>'
-            . '</table>'
-            . '</div>';
-
         $explanation = $this->explanationProvider->getExplanation('rendering', 'components') ?? [];
 
         $sourceCode = [
@@ -67,6 +52,16 @@ final class ComponentHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Components — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'rendering',
+                'currentSlug' => 'components',
+                'infoWhat' => $explanation['what'] ?? 'Attribute-registered components are discovered at boot and rendered as reusable UI primitives.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('rendering')
             ->withSlug('components')
             ->withTitle('Components')
@@ -75,7 +70,20 @@ final class ComponentHandler implements TypedHandlerInterface
             ->withHighlights(['#[AsComponent]', 'ComponentRegistry', 'props', 'Twig template', 'ClassDiscovery'])
             ->withLearnMoreLabel('See component registration →')
             ->withDeepDiveLabel('How Twig compilation works →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
+                'eyebrow' => 'Component Registry',
+                'title' => sprintf('%d reusable UI components discovered at boot', count(self::DEMO_COMPONENTS)),
+                'summary' => 'The demo package registers its UI primitives via #[AsComponent], so no manual registry wiring is needed.',
+                'columns' => ['Component name', 'Class', 'Props'],
+                'rows' => array_map(
+                    static fn (array $component): array => [
+                        ['text' => $component['name'], 'code' => true],
+                        ['text' => basename(str_replace('\\', '/', $component['class'])), 'code' => true],
+                        ['text' => $component['props']],
+                    ],
+                    self::DEMO_COMPONENTS,
+                ),
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

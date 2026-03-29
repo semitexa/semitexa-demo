@@ -9,6 +9,7 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Rendering\SeoPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -21,47 +22,57 @@ final class SeoHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(SeoPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $resultPreview = '<div class="result-preview">'
-            . '<p>This page\'s own <code>&lt;title&gt;</code> and meta tags are set by its handler. '
-            . 'No Twig blocks to override, no base template tricks.</p>'
-            . '<table class="data-table">'
-            . '<thead><tr><th>Tag</th><th>Source</th><th>Value on this page</th></tr></thead>'
-            . '<tbody>'
-            . '<tr><td><code>&lt;title&gt;</code></td><td><code>pageTitle()</code></td><td>SEO — Semitexa Demo</td></tr>'
-            . '<tr><td><code>og:title</code></td><td><code>withMeta()</code></td><td>SEO — Semitexa Demo</td></tr>'
-            . '<tr><td><code>og:description</code></td><td><code>withMeta()</code></td><td>Set title, description…</td></tr>'
-            . '<tr><td><code>og:type</code></td><td>framework default</td><td>website</td></tr>'
-            . '<tr><td><code>canonical</code></td><td>framework default</td><td>/demo/rendering/seo</td></tr>'
-            . '</tbody></table>'
-            . '<pre class="code-inline">'
-            . htmlspecialchars(
-                "return \$resource\n"
-                . "    ->pageTitle('SEO — Semitexa Demo')\n"
-                . "    ->withMeta('description', 'Set title, description, and Open Graph tags…')\n"
-                . "    ->withMeta('og:image', '/static/og-card.png');"
-            )
-            . '</pre>'
-            . '</div>';
-
         $explanation = $this->explanationProvider->getExplanation('rendering', 'seo') ?? [];
+        $description = 'Set title, description, and Open Graph tags from your handler without touching Twig templates.';
+        $title = 'SEO — Semitexa Demo';
 
         $sourceCode = [
             'Handler' => $this->sourceCodeReader->readClassSource(self::class),
         ];
 
         return $resource
-            ->pageTitle('SEO — Semitexa Demo')
+            ->pageTitle($title)
+            ->seoTag('description', $description)
+            ->seoTag('og:title', $title)
+            ->seoTag('og:description', $description)
+            ->seoTag('og:type', 'website')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'rendering',
+                'currentSlug' => 'seo',
+                'infoWhat' => $explanation['what'] ?? 'Handlers can set title, Open Graph, and canonical metadata directly without template overrides.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('rendering')
             ->withSlug('seo')
             ->withTitle('SEO')
-            ->withSummary('Set title, description, and Open Graph tags from your handler — no template hacks needed.')
-            ->withEntryLine('Set title, description, and Open Graph tags from your handler — no template hacks needed.')
-            ->withHighlights(['pageTitle()', 'withMeta()', 'Open Graph', 'canonical URL', 'structured data'])
+            ->withSummary($description)
+            ->withEntryLine($description)
+            ->withHighlights(['pageTitle()', 'seoTag()', 'Open Graph', 'description', 'structured data'])
             ->withLearnMoreLabel('See SEO methods →')
             ->withDeepDiveLabel('SEO pipeline internals →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
+                'eyebrow' => 'Metadata Control',
+                'title' => 'SEO tags come from the handler',
+                'summary' => 'This page sets its own title and social metadata directly in the response resource, not via template overrides.',
+                'columns' => ['Tag', 'Source', 'Value on this page'],
+                'rows' => [
+                    [['text' => '<title>', 'code' => true], ['text' => 'pageTitle()', 'code' => true], ['text' => 'SEO — Semitexa Demo']],
+                    [['text' => 'description', 'code' => true], ['text' => 'seoTag()', 'code' => true], ['text' => 'Set title, description…']],
+                    [['text' => 'og:title', 'code' => true], ['text' => 'seoTag()', 'code' => true], ['text' => 'SEO — Semitexa Demo']],
+                    [['text' => 'og:description', 'code' => true], ['text' => 'seoTag()', 'code' => true], ['text' => 'Set title, description…']],
+                    [['text' => 'og:type', 'code' => true], ['text' => 'seoTag()', 'code' => true], ['text' => 'website']],
+                ],
+                'codeSnippet' => "return \$resource\n    ->pageTitle('SEO — Semitexa Demo')\n    ->seoTag('description', 'Set title, description, and Open Graph tags…')\n    ->seoTag('og:title', 'SEO — Semitexa Demo');",
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

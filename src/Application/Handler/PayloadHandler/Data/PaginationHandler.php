@@ -10,6 +10,7 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
 use Semitexa\Demo\Application\Payload\Request\Data\PaginationPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -25,6 +26,9 @@ final class PaginationHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(PaginationPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
         $mode = $payload->getMode();
@@ -38,45 +42,13 @@ final class PaginationHandler implements TypedHandlerInterface
         $isCursorMode = $mode === 'cursor';
         $baseQuery = ['limit' => $limit, 'mode' => $mode];
 
-        $rows = '';
+        $rows = [];
         foreach ($items as $product) {
-            $rows .= sprintf(
-                '<tr><td>%s</td><td>$%.2f</td></tr>',
-                htmlspecialchars($product->name),
-                $product->price,
-            );
+            $rows[] = [
+                ['text' => $product->name],
+                ['text' => '$' . number_format((float) $product->price, 2)],
+            ];
         }
-
-        $resultPreview = '<div class="result-preview">'
-            . sprintf(
-                '<p><strong>%s mode</strong> — page <strong>%d</strong> of <strong>%d</strong>, %d total products, %d per page</p>',
-                ucfirst($mode),
-                $page,
-                $totalPages,
-                $total,
-                $limit,
-            )
-            . '<table class="data-table"><thead><tr><th>Name</th><th>Price</th></tr></thead>'
-            . '<tbody>' . ($rows ?: '<tr><td colspan="2">No results — seed data first.</td></tr>') . '</tbody>'
-            . '</table>'
-            . '<div class="pagination-nav">'
-            . ($page > 1
-                ? sprintf(
-                    '<a href="?%s" class="btn btn--secondary">%s</a>',
-                    http_build_query($baseQuery + ['page' => $page - 1]),
-                    $isCursorMode ? '← Newer' : '← Prev',
-                )
-                : '<span class="btn btn--disabled">' . ($isCursorMode ? '← Newer' : '← Prev') . '</span>')
-            . sprintf(' <span class="page-info">%d / %d</span> ', $page, $totalPages)
-            . ($page < $totalPages
-                ? sprintf(
-                    '<a href="?%s" class="btn btn--secondary">%s</a>',
-                    http_build_query($baseQuery + ['page' => $page + 1]),
-                    $isCursorMode ? 'Older →' : 'Next →',
-                )
-                : '<span class="btn btn--disabled">' . ($isCursorMode ? 'Older →' : 'Next →') . '</span>')
-            . '</div>'
-            . '</div>';
 
         $explanation = $this->explanationProvider->getExplanation('data', 'pagination') ?? [];
 
@@ -87,6 +59,16 @@ final class PaginationHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Pagination — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'data',
+                'currentSlug' => 'pagination',
+                'infoWhat' => $explanation['what'] ?? 'Offset and cursor pagination out of the box — switch modes with a single query parameter.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('data')
             ->withSlug('pagination')
             ->withTitle('Pagination')
@@ -95,7 +77,41 @@ final class PaginationHandler implements TypedHandlerInterface
             ->withHighlights(['PaginatedResult', 'limit()', 'offset()', 'cursor pagination', 'total count'])
             ->withLearnMoreLabel('See pagination in action →')
             ->withDeepDiveLabel('Offset vs cursor trade-offs →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/data-table.html.twig', [
+                'eyebrow' => ucfirst($mode) . ' pagination',
+                'title' => 'Current page window',
+                'summary' => sprintf(
+                    'Page %d of %d with %d total products and %d rows per page.',
+                    $page,
+                    $totalPages,
+                    $total,
+                    $limit,
+                ),
+                'stats' => [
+                    ['value' => (string) $page, 'label' => 'Current page'],
+                    ['value' => (string) $totalPages, 'label' => 'Total pages'],
+                    ['value' => (string) $total, 'label' => 'Total rows'],
+                ],
+                'columns' => ['Name', 'Price'],
+                'rows' => $rows,
+                'emptyMessage' => 'No results — seed data first.',
+                'actions' => [
+                    $page > 1 ? [
+                        'label' => $isCursorMode ? '← Newer' : '← Prev',
+                        'href' => '/demo/data/pagination?' . http_build_query($baseQuery + ['page' => $page - 1]),
+                        'variant' => 'secondary',
+                    ] : [
+                        'label' => $isCursorMode ? '← Newer' : '← Prev',
+                    ],
+                    $page < $totalPages ? [
+                        'label' => $isCursorMode ? 'Older →' : 'Next →',
+                        'href' => '/demo/data/pagination?' . http_build_query($baseQuery + ['page' => $page + 1]),
+                        'variant' => 'secondary',
+                    ] : [
+                        'label' => $isCursorMode ? 'Older →' : 'Next →',
+                    ],
+                ],
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

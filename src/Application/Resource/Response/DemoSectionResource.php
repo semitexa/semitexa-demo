@@ -14,6 +14,8 @@ use Semitexa\Ssr\Http\Response\HtmlResponse;
 )]
 class DemoSectionResource extends HtmlResponse implements ResourceInterface
 {
+    use HasDemoShell;
+
     public function withSection(string $section): self
     {
         return $this->with('section', $section);

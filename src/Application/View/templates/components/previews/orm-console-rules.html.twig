@@ -1,0 +1,12 @@
+<div class="preview-card preview-card--nested">
+  <p class="preview-card__eyebrow">Recommended Flow</p>
+  <h3 class="preview-card__title">How teams should use the CLI</h3>
+  <div class="preview-checklist">
+    {% for rule in rules %}
+      <div class="preview-checklist__item">
+        <span class="preview-checklist__mark" aria-hidden="true">+</span>
+        <p>{{ rule }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>

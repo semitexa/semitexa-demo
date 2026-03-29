@@ -1,0 +1,67 @@
+<div class="preview-card preview-card--layered">
+  <p class="preview-card__eyebrow">Composable Page Regions</p>
+  <h3 class="preview-card__title">Slot resources give every region a real pipeline</h3>
+  <p class="preview-card__summary">
+    This is one of the strongest Semitexa rendering ideas: the page is not one monolith and its regions are not string fragments.
+    Nav, sidebar, widgets, and live panels can all be first-class resources with the same template engine as the main page.
+  </p>
+
+  <div class="preview-callout">
+    <p class="preview-callout__eyebrow">Why this matters</p>
+    <ul class="preview-callout__list">
+      {% for painPoint in painPoints %}
+        <li>{{ painPoint }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="preview-stats">
+    {% for signal in signals %}
+      <div class="preview-stats__item">
+        <span class="preview-stats__value">{{ signal.value }}</span>
+        <span class="preview-stats__label">{{ signal.label }}</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="preview-compare">
+    {% for item in compare %}
+      <article class="preview-compare__card preview-compare__card--{{ item.variant }}">
+        <div class="preview-compare__meta">
+          <p class="preview-compare__eyebrow">{{ item.eyebrow }}</p>
+          <h4 class="preview-compare__title">{{ item.title }}</h4>
+        </div>
+        <p class="preview-compare__summary">{{ item.summary }}</p>
+        <p class="preview-note">{{ item.note }}</p>
+      </article>
+    {% endfor %}
+  </div>
+
+  <div class="preview-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Slot name</th>
+          <th>Resource class</th>
+          <th>Why it exists</th>
+          <th>Layout call</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            {% for cell in row %}
+              <td>
+                {% if cell.code is defined and cell.code %}
+                  <code>{{ cell.text }}</code>
+                {% else %}
+                  {{ cell.text }}
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

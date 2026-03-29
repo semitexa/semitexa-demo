@@ -14,17 +14,18 @@ use Semitexa\Demo\Attributes\DemoFeature;
     path: '/demo/rendering/reactive-import',
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
+    produces: ['application/json', 'text/html'],
 )]
 #[DemoFeature(
     section: 'rendering',
     title: 'Reactive Import',
     slug: 'reactive-import',
-    summary: 'A product import job ticks every minute — the row counter animates in real time.',
-    order: 10,
-    highlights: ['refreshInterval: 2', 'batch processing', 'progress_percent', 'heartbeat tick'],
-    entryLine: 'A product import job ticks every minute — the row counter animates in real time.',
-    learnMoreLabel: 'See batch config →',
-    deepDiveLabel: 'Heartbeat tick internals →',
+    summary: 'Background batches keep moving, and the page reflects server progress as live HTML instead of a client-managed progress app.',
+    order: 11,
+    highlights: ['refreshInterval: 2', 'server-owned progress', 'batch processing', 'SSR-first live UI'],
+    entryLine: 'The import keeps running on the server, and the page stays honest by streaming fresh HTML instead of faking progress in frontend state.',
+    learnMoreLabel: 'See the live import contract →',
+    deepDiveLabel: 'How server-owned progress stays live →',
 )]
 class ReactiveImportPayload
 {

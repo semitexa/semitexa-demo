@@ -84,8 +84,8 @@
       var section = link.closest('.feature-tree__section');
       if (!section) return;
 
-      var sectionToggle = section.querySelector('.feature-tree__toggle');
-      var sectionKey = sectionToggle ? sectionToggle.textContent.trim().toLowerCase().replace(/\s+/g, '-') : '';
+      var sectionKey = section.getAttribute('data-section-key') || '';
+      if (!sectionKey) return;
 
       // Check if this feature has been visited
       var expectedKey = sectionKey + '/' + slug;
@@ -98,6 +98,31 @@
     });
   }
 
+  function initNegotiationPreview() {
+    document.querySelectorAll('[data-negotiation-preview]').forEach(function (preview) {
+      var tabs = preview.querySelectorAll('[data-negotiation-tab]');
+      var panels = preview.querySelectorAll('[data-negotiation-panel]');
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          var target = tab.getAttribute('data-negotiation-tab');
+
+          tabs.forEach(function (item) {
+            var active = item === tab;
+            item.classList.toggle('preview-negotiation__tab--active', active);
+            item.setAttribute('aria-selected', active ? 'true' : 'false');
+          });
+
+          panels.forEach(function (panel) {
+            var active = panel.getAttribute('data-negotiation-panel') === target;
+            panel.classList.toggle('preview-negotiation__panel--active', active);
+            panel.hidden = !active;
+          });
+        });
+      });
+    });
+  }
+
   // --- Init ---
 
   function init() {
@@ -105,6 +130,7 @@
     updateReadyPrompt();
     initFeatureTree();
     updateVisitedIndicators();
+    initNegotiationPreview();
   }
 
   if (document.readyState === 'loading') {

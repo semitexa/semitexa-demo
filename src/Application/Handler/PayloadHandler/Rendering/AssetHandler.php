@@ -9,6 +9,7 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Rendering\AssetPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -33,18 +34,11 @@ final class AssetHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(AssetPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $rows = '';
-        foreach (self::DEMO_ASSETS as $asset) {
-            $rows .= sprintf(
-                '<tr><td><code>%s</code></td><td><code>%s</code></td><td>%s</td></tr>',
-                htmlspecialchars($asset['file']),
-                htmlspecialchars($asset['inject']),
-                htmlspecialchars($asset['purpose']),
-            );
-        }
-
         $manifestSnippet = <<<'JSON'
 {
   "$schema": "semitexa://asset-manifest/v2",
@@ -54,18 +48,6 @@ final class AssetHandler implements TypedHandlerInterface
   ]
 }
 JSON;
-
-        $resultPreview = '<div class="result-preview">'
-            . '<p>This package declares its assets with a two-line <code>assets.json</code> manifest. '
-            . 'The framework resolves the globs, versions the files, and injects them into the correct '
-            . '<code>&lt;head&gt;</code> or <code>&lt;body&gt;</code> position automatically.</p>'
-            . '<pre class="code-inline">' . htmlspecialchars($manifestSnippet) . '</pre>'
-            . '<p>' . count(self::DEMO_ASSETS) . ' assets registered in this demo package:</p>'
-            . '<table class="data-table">'
-            . '<thead><tr><th>File</th><th>Inject point</th><th>Purpose</th></tr></thead>'
-            . '<tbody>' . $rows . '</tbody>'
-            . '</table>'
-            . '</div>';
 
         $explanation = $this->explanationProvider->getExplanation('rendering', 'assets') ?? [];
 
@@ -78,6 +60,16 @@ JSON;
 
         return $resource
             ->pageTitle('Asset Pipeline — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'rendering',
+                'currentSlug' => 'assets',
+                'infoWhat' => $explanation['what'] ?? 'The asset pipeline expands manifest globs, versions files, and injects them into head or body automatically.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('rendering')
             ->withSlug('assets')
             ->withTitle('Asset Pipeline')
@@ -86,7 +78,21 @@ JSON;
             ->withHighlights(['assets.json', 'asset_head()', 'asset_body()', 'glob patterns', 'versioning'])
             ->withLearnMoreLabel('See the asset manifest →')
             ->withDeepDiveLabel('Asset pipeline internals →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
+                'eyebrow' => 'Asset Manifest',
+                'title' => sprintf('%d assets wired automatically', count(self::DEMO_ASSETS)),
+                'summary' => 'The framework resolves manifest globs, versions files, and injects them into the correct head or body slot.',
+                'codeSnippet' => $manifestSnippet,
+                'columns' => ['File', 'Inject point', 'Purpose'],
+                'rows' => array_map(
+                    static fn (array $asset): array => [
+                        ['text' => $asset['file'], 'code' => true],
+                        ['text' => $asset['inject'], 'code' => true],
+                        ['text' => $asset['purpose']],
+                    ],
+                    self::DEMO_ASSETS,
+                ),
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

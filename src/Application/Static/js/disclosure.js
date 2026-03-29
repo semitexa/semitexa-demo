@@ -34,7 +34,7 @@
 
   function toggleSection(targetId, forceOpen) {
     const target = document.getElementById(targetId);
-    if (!target) return;
+    if (!target) return false;
 
     const isExpanded = target.getAttribute('data-expanded') === 'true';
     const shouldOpen = forceOpen !== undefined ? forceOpen : !isExpanded;
@@ -56,6 +56,8 @@
         }
       });
     }
+
+    return shouldOpen;
   }
 
   function closeDrawer(targetId) {
@@ -118,13 +120,14 @@
     var trigger = e.target.closest('[data-disclosure-trigger]');
     if (trigger) {
       var targetId = trigger.getAttribute('data-disclosure-trigger');
-      toggleSection(targetId, true);
+      var expanded = toggleSection(targetId);
       trigger.removeAttribute('data-first-view');
-
-      // Dispatch custom event
-      document.dispatchEvent(new CustomEvent('disclosure:expand', {
-        detail: { targetId: targetId },
-      }));
+      if (expanded) {
+        trigger.dispatchEvent(new CustomEvent('disclosure:expand', {
+          bubbles: true,
+          detail: { targetId: targetId, source: 'user' }
+        }));
+      }
       return;
     }
 
@@ -183,7 +186,7 @@
 
   // Listen for programmatic disclosure:expand events
   document.addEventListener('disclosure:expand', function (e) {
-    if (e.detail && e.detail.targetId) {
+    if (e.detail && e.detail.targetId && e.detail.source !== 'user') {
       toggleSection(e.detail.targetId, true);
     }
   });

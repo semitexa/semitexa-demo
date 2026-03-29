@@ -11,18 +11,19 @@ use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
-    responseWith: DemoFeatureResource::class,
     path: '/demo/di/readonly',
     methods: ['GET'],
+    responseWith: DemoFeatureResource::class,
+    produces: ['application/json', 'text/html'],
 )]
 #[DemoFeature(
     section: 'di',
     title: 'Readonly Injection',
     slug: 'readonly',
-    summary: 'Stateless services share one instance per worker — zero-cost injection after boot.',
-    order: 1,
-    highlights: ['#[InjectAsReadonly]', 'worker-scoped', 'shared instance', 'zero allocation'],
-    entryLine: 'Stateless services share one instance per worker — zero-cost injection after boot.',
+    summary: 'One explicit DI path, one shared worker instance — fast at runtime and stable under reload.',
+    order: 2,
+    highlights: ['#[InjectAsReadonly]', 'worker-scoped', 'single-path DI', 'reload-stable'],
+    entryLine: 'One explicit DI path, one shared worker instance — fast at runtime and stable under reload.',
     learnMoreLabel: 'See the injection attribute →',
     deepDiveLabel: 'Container tiers explained →',
 )]

@@ -1,4 +1,12 @@
 <div class="deferred-block deferred-block--carousel" data-block="product-carousel">
+    <div class="deferred-block__header">
+        <div>
+            <p class="deferred-block__eyebrow">HTML + tiny client module</p>
+            <h3 class="deferred-block__title">Product rail</h3>
+        </div>
+        <span class="deferred-block__badge">Try Prev / Next</span>
+    </div>
+    <p class="deferred-block__summary">The server streams the finished card markup. After arrival, a tiny scoped module turns it into a carousel without taking over the page.</p>
     <div class="carousel" data-carousel>
         {% for product in products %}
         <div class="carousel__item">

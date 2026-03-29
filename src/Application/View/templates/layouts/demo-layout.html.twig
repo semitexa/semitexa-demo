@@ -4,8 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}{{ title|default('Semitexa Demo') }}{% endblock %}</title>
+    {{ meta('description') }}
+    {{ meta('keywords') }}
+    {{ meta('og:title') }}
+    {{ meta('og:description') }}
+    {{ meta('og:type') }}
+    {{ headExtraMarkup|default('')|raw }}
     {{ semantic_head() }}
     {{ asset_head() }}
+    {{ __ssr_preload_hints|default('')|raw }}
     {% block head_extra %}{{ layout_slot('head_extra') }}{% endblock %}
   </head>
   <body class="demo-layout" {{ __ssr_handle_attr|default('')|raw }}>
@@ -13,17 +20,24 @@
     {# --- Top navigation bar --- #}
     <header class="demo-header">
       {% block header %}
-        {{ layout_slot('demo_nav') }}
+        {% include '@project-layouts-semitexa-demo/partials/nav.html.twig' with {
+          sections: navSections|default(featureTree|default(sections|default([]))),
+          currentSection: currentSection|default(null),
+        } only %}
       {% endblock %}
     </header>
 
-    {# --- Three-zone layout: sidebar + main + info panel --- #}
+    {# --- Two-zone layout: sidebar + main document --- #}
     <div class="demo-layout__grid">
 
       {# Sidebar: feature tree navigation (240px) #}
       <aside class="demo-layout__sidebar" aria-label="Feature navigation">
         {% block sidebar %}
-          {{ layout_slot('demo_sidebar') }}
+          {% include '@project-layouts-semitexa-demo/partials/sidebar.html.twig' with {
+            featureTree: featureTree|default(navSections|default(sections|default([]))),
+            currentSection: currentSection|default(null),
+            currentSlug: currentSlug|default(null),
+          } only %}
         {% endblock %}
       </aside>
 
@@ -36,13 +50,6 @@
         {% endblock %}
       </main>
 
-      {# Info panel: What / How / Why (280px) #}
-      <aside class="demo-layout__info" aria-label="Feature information">
-        {% block info_panel %}
-          {{ layout_slot('demo_feature_info') }}
-        {% endblock %}
-      </aside>
-
     </div>
 
     <footer class="demo-footer">
@@ -51,6 +58,8 @@
       {% endblock %}
     </footer>
 
+    {{ __ssr_deferred_manifest|default('')|raw }}
+    {{ __ssr_runtime_script|default('')|raw }}
     {{ asset_body() }}
   </body>
 </html>

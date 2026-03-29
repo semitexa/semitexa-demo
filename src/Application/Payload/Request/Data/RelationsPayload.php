@@ -14,14 +14,15 @@ use Semitexa\Demo\Attributes\DemoFeature;
     path: '/demo/data/relations',
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
+    produces: ['application/json', 'text/html'],
 )]
 #[DemoFeature(
     section: 'data',
     title: 'Relations',
     slug: 'relations',
     summary: 'Declare associations with attributes — eager loading, N+1 prevention, and nested reads.',
-    order: 3,
-    highlights: ['#[HasMany]', '#[BelongsTo]', 'CascadeSaver', 'CascadeDeleter', 'eager loading'],
+    order: 8,
+    highlights: ['#[HasMany]', '#[BelongsTo]', 'RelationWritePolicy', 'AggregateWriteEngine', 'eager loading'],
     entryLine: 'Declare associations with attributes — eager loading, N+1 prevention, and nested reads.',
     learnMoreLabel: 'See the relation attributes →',
     deepDiveLabel: 'How eager loading works →',

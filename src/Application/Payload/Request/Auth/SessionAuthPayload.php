@@ -14,6 +14,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     path: '/demo/auth/session',
     methods: ['GET', 'POST'],
     responseWith: DemoFeatureResource::class,
+    produces: ['application/json', 'text/html'],
 )]
 #[DemoFeature(
     section: 'auth',

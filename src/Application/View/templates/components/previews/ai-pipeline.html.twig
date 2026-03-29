@@ -1,0 +1,30 @@
+<div class="preview-card">
+  <p class="preview-card__eyebrow">Reactive Pipeline</p>
+  <h3 class="preview-card__title">Stage-by-stage processing</h3>
+  <p class="preview-card__summary">{{ summary }}</p>
+
+  <div class="preview-actions preview-actions--tight">
+    <span class="preview-pill preview-pill--{{ statusVariant }}">{{ statusLabel }}</span>
+    {% if taskLabel is defined and taskLabel %}
+      <span class="preview-chip">{{ taskLabel }}</span>
+    {% endif %}
+  </div>
+
+  <div class="pipeline-stages" data-stage-results-json="{{ stageResultsJson }}">
+    {% for stage in stages %}
+      <div class="pipeline-stage pipeline-stage--{{ stage.done ? 'done' : 'pending' }}" data-pipeline-stage="{{ stage.key }}">
+        <div class="pipeline-stage__name">{{ stage.label }}</div>
+        <div class="pipeline-stage__detail" data-stage-detail{% if not stage.done %} hidden{% endif %}>
+          {% if stage.done %}{{ stage.tokens }} tokens · {{ stage.ms }}ms{% endif %}
+        </div>
+      </div>
+      {% if not loop.last %}
+        <div class="pipeline-arrow">→</div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="preview-actions">
+    <a href="/demo/rendering/reactive-ai/submit" class="preview-button preview-button--primary">Submit new task</a>
+  </div>
+</div>

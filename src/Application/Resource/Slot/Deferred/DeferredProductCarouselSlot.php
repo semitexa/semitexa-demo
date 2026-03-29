@@ -13,7 +13,7 @@ use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
     template: '@project-layouts-semitexa-demo/deferred/product-carousel.html.twig',
     deferred: true,
     skeletonTemplate: '@project-layouts-semitexa-demo/deferred/product-carousel.skeleton.html.twig',
-    clientModules: ['deferred/product-carousel.js'],
+    clientModules: ['@project-static-semitexa-demo/deferred/product-carousel.js'],
 )]
 final class DeferredProductCarouselSlot extends HtmlSlotResponse
 {

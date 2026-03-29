@@ -12,6 +12,7 @@ use Semitexa\Core\Session\SessionInterface;
 use Semitexa\Demo\Application\Payload\Request\Auth\SessionAuthPayload;
 use Semitexa\Demo\Application\Payload\Session\DemoSessionSegment;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -32,6 +33,9 @@ final class SessionAuthHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
 
     public function handle(SessionAuthPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
@@ -56,36 +60,13 @@ final class SessionAuthHandler implements TypedHandlerInterface
         $currentRole = $segment->getDemoRole();
         $currentUser = $segment->getDemoUsername();
         $loginCount = $segment->getLoginCount();
+        $permissions = [];
 
         if ($currentRole !== null && isset(self::DEMO_USERS[$currentRole])) {
             $permissions = self::DEMO_USERS[$currentRole]['permissions'];
-            $permList = implode('', array_map(
-                static fn(string $p) => '<li><code>' . htmlspecialchars($p) . '</code></li>',
-                $permissions,
-            ));
-            $statusHtml = '<div class="auth-status auth-status--active">'
-                . '<p>Logged in as <strong>' . htmlspecialchars($currentUser ?? '') . '</strong> '
-                . '(<code>' . htmlspecialchars($currentRole) . '</code>)</p>'
-                . '<p>Session logins: ' . $loginCount . '</p>'
-                . '<p>Permissions:</p><ul>' . $permList . '</ul>'
-                . '<form method="POST"><input type="hidden" name="action" value="logout">'
-                . '<button type="submit" class="btn btn--secondary">Logout</button></form>'
-                . '</div>';
         } else {
-            $roleOptions = implode('', array_map(
-                static fn(string $key, array $meta) =>
-                    '<button type="submit" name="role" value="' . htmlspecialchars($key) . '" class="btn btn--primary">'
-                    . 'Login as ' . htmlspecialchars($meta['label']) . '</button> ',
-                array_keys(self::DEMO_USERS),
-                array_values(self::DEMO_USERS),
-            ));
-            $statusHtml = '<div class="auth-status auth-status--guest">'
-                . '<p>Not authenticated. Choose a demo role to simulate login:</p>'
-                . '<form method="POST"><input type="hidden" name="action" value="login">'
-                . $roleOptions . '</form></div>';
+            $permissions = [];
         }
-
-        $resultPreview = '<div class="result-preview">' . $statusHtml . '</div>';
 
         $explanation = $this->explanationProvider->getExplanation('auth', 'session') ?? [];
 
@@ -96,6 +77,16 @@ final class SessionAuthHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Session Auth — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'auth',
+                'currentSlug' => 'session',
+                'infoWhat' => $explanation['what'] ?? 'Authenticate once per session — the framework stores identity and re-hydrates it on every request.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('auth')
             ->withSlug('session')
             ->withTitle('Session Auth')
@@ -104,7 +95,21 @@ final class SessionAuthHandler implements TypedHandlerInterface
             ->withHighlights(['SessionInterface', '#[SessionSegment]', 'AuthResult', '#[AsAuthHandler]'])
             ->withLearnMoreLabel('See the session lifecycle →')
             ->withDeepDiveLabel('How the auth pipeline works →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/session-auth.html.twig', [
+                'stateTitle' => $currentRole !== null ? 'Authenticated session' : 'Guest session',
+                'stateSummary' => $currentRole !== null
+                    ? 'The session segment preserves the chosen role and permissions across requests.'
+                    : 'Choose a demo role to simulate login and hydrate the request auth context.',
+                'currentUser' => $currentUser,
+                'currentRole' => $currentRole,
+                'loginCount' => $loginCount,
+                'permissions' => $permissions,
+                'roles' => array_map(
+                    static fn (string $key, array $meta): array => ['key' => $key, 'label' => $meta['label']],
+                    array_keys(self::DEMO_USERS),
+                    array_values(self::DEMO_USERS),
+                ),
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

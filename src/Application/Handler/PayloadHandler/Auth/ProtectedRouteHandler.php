@@ -9,6 +9,7 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Auth\ProtectedRoutePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -21,32 +22,11 @@ final class ProtectedRouteHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(ProtectedRoutePayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $resultPreview = '<div class="result-preview">'
-            . '<p>Add <code>#[RequiresPermission]</code> to any payload and the framework enforces it before your handler runs.</p>'
-            . '<table class="data-table">'
-            . '<thead><tr><th>Scenario</th><th>Result</th></tr></thead>'
-            . '<tbody>'
-            . '<tr><td>Authenticated + correct permission</td><td><span class="badge badge--active">200 OK</span></td></tr>'
-            . '<tr><td>Authenticated + missing permission</td><td><span class="badge badge--error">403 Forbidden</span></td></tr>'
-            . '<tr><td>Not authenticated</td><td><span class="badge badge--warning">401 Unauthorized</span></td></tr>'
-            . '<tr><td><code>#[PublicEndpoint]</code></td><td><span class="badge badge--active">200 OK (no auth check)</span></td></tr>'
-            . '</tbody></table>'
-            . '<pre class="code-inline">'
-            . htmlspecialchars(
-                "// Protected: only admin can access\n"
-                . "#[RequiresPermission('users.manage')]\n"
-                . "#[AsPayload(path: '/admin/users', methods: ['GET'])]\n"
-                . "class UserListPayload { ... }\n\n"
-                . "// Public: no auth required\n"
-                . "#[PublicEndpoint]\n"
-                . "#[AsPayload(path: '/demo/routing/basic', methods: ['GET'])]\n"
-                . "class BasicRoutePayload { ... }"
-            )
-            . '</pre>'
-            . '</div>';
-
         $explanation = $this->explanationProvider->getExplanation('auth', 'protected') ?? [];
 
         $sourceCode = [
@@ -55,6 +35,16 @@ final class ProtectedRouteHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Protected Route — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'auth',
+                'currentSlug' => 'protected',
+                'infoWhat' => $explanation['what'] ?? 'Add one attribute to any route and the framework enforces access — 403 returned automatically.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('auth')
             ->withSlug('protected')
             ->withTitle('Protected Route')
@@ -63,7 +53,19 @@ final class ProtectedRouteHandler implements TypedHandlerInterface
             ->withHighlights(['#[RequiresPermission]', '#[PublicEndpoint]', 'guard chain', '403 response'])
             ->withLearnMoreLabel('See the guard attributes →')
             ->withDeepDiveLabel('How the guard chain resolves →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/permission-matrix.html.twig', [
+                'eyebrow' => 'Route Guards',
+                'title' => 'Access is enforced before the handler runs',
+                'summary' => 'The guard chain decides whether the request should proceed, fail with 401/403, or bypass checks entirely for public endpoints.',
+                'columns' => ['Scenario', 'Result'],
+                'rows' => [
+                    [['text' => 'Authenticated + correct permission'], ['text' => '200 OK', 'variant' => 'success']],
+                    [['text' => 'Authenticated + missing permission'], ['text' => '403 Forbidden', 'variant' => 'error']],
+                    [['text' => 'Not authenticated'], ['text' => '401 Unauthorized', 'variant' => 'warning']],
+                    [['text' => '#[PublicEndpoint]', 'code' => true], ['text' => '200 OK (no auth check)', 'variant' => 'success']],
+                ],
+                'codeSnippet' => "// Protected: only admin can access\n#[RequiresPermission('users.manage')]\n#[AsPayload(path: '/admin/users', methods: ['GET'])]\nclass UserListPayload { ... }\n\n// Public: no auth required\n#[PublicEndpoint]\n#[AsPayload(path: '/demo/routing/basic', methods: ['GET'])]\nclass BasicRoutePayload { ... }",
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

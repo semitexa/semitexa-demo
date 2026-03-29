@@ -12,7 +12,8 @@ use Semitexa\Demo\Attributes\DemoFeature;
 #[PublicEndpoint]
 #[AsPayload(
     responseWith: DemoFeatureResource::class,
-    path: '/demo/routing/basic',
+    produces: ['application/json', 'text/html'],
+    path: 'env::DEMO_BASIC_ROUTE_PATH::/demo/routing/basic',
     methods: ['GET'],
 )]
 #[DemoFeature(
@@ -21,8 +22,8 @@ use Semitexa\Demo\Attributes\DemoFeature;
     slug: 'basic',
     summary: 'Define a route with one attribute — no XML, no YAML, no config files.',
     order: 1,
-    highlights: ['#[AsPayload]', 'responseWith', 'TypedHandlerInterface'],
-    entryLine: 'Define a route with one attribute — no XML, no YAML, no config files.',
+    highlights: ['#[AsPayload]', 'env::ROUTE_PATH', 'responseWith', 'TypedHandlerInterface'],
+    entryLine: 'Define a route with one attribute — and even the path can move through .env without touching PHP code.',
     learnMoreLabel: 'See the code →',
     deepDiveLabel: 'How route compilation works →',
 )]

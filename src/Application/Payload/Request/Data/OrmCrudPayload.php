@@ -8,24 +8,13 @@ use Semitexa\Authorization\Attributes\PublicEndpoint;
 use Semitexa\Core\Attributes\AsPayload;
 use Semitexa\Core\Request;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
     path: '/demo/data/products',
     methods: ['GET', 'POST'],
     responseWith: DemoFeatureResource::class,
-)]
-#[DemoFeature(
-    section: 'data',
-    title: 'ORM CRUD',
-    slug: 'products',
-    summary: 'Define your schema once with attributes — reads, writes, and soft-deletes are handled by the ORM.',
-    order: 1,
-    highlights: ['#[FromTable]', '#[Column]', 'HasUuidV7', 'HasTimestamps', 'SoftDeletes', 'AbstractRepository'],
-    entryLine: 'Define your schema once with attributes — reads, writes, and soft-deletes are handled by the ORM.',
-    learnMoreLabel: 'See the model & repository →',
-    deepDiveLabel: 'How the ORM maps resources →',
+    produces: ['application/json', 'text/html'],
 )]
 class OrmCrudPayload
 {

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Service;
 
-use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoAiTaskResource;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoAnalyticsSnapshotResource;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoCategoryResource;
@@ -19,6 +18,7 @@ use Semitexa\Demo\Application\Db\MySQL\Repository\DemoOrderRepository;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoReviewRepository;
 use Semitexa\Core\Attributes\AsService;
+use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Orm\Transaction\TransactionManager;
 
 #[AsService]
@@ -118,25 +118,25 @@ final class DemoDataSeeder
     private const ORDER_STATUSES = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
 
     #[InjectAsReadonly]
-    private ?DemoCategoryRepository $categoryRepository = null;
+    protected ?DemoCategoryRepository $categoryRepository = null;
 
     #[InjectAsReadonly]
-    private ?DemoProductRepository $productRepository = null;
+    protected ?DemoProductRepository $productRepository = null;
 
     #[InjectAsReadonly]
-    private ?DemoReviewRepository $reviewRepository = null;
+    protected ?DemoReviewRepository $reviewRepository = null;
 
     #[InjectAsReadonly]
-    private ?DemoOrderRepository $orderRepository = null;
+    protected ?DemoOrderRepository $orderRepository = null;
 
     #[InjectAsReadonly]
-    private ?DemoJobRunRepository $jobRunRepository = null;
+    protected ?DemoJobRunRepository $jobRunRepository = null;
 
     #[InjectAsReadonly]
-    private ?DemoAiTaskRepository $aiTaskRepository = null;
+    protected ?DemoAiTaskRepository $aiTaskRepository = null;
 
     #[InjectAsReadonly]
-    private ?TransactionManager $transactionManager = null;
+    protected ?TransactionManager $transactionManager = null;
 
     /**
      * Seed all demo data. Returns summary counts.

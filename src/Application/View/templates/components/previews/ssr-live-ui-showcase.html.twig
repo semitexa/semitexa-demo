@@ -1,0 +1,36 @@
+<div class="preview-card preview-card--layered">
+  <p class="preview-card__eyebrow">{{ eyebrow }}</p>
+  <h3 class="preview-card__title">{{ title }}</h3>
+  <p class="preview-card__summary">{{ summary }}</p>
+
+  <div class="preview-callout">
+    <p class="preview-callout__eyebrow">Why this matters</p>
+    <ul class="preview-callout__list">
+      {% for painPoint in painPoints %}
+        <li>{{ painPoint }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="preview-stats">
+    {% for signal in signals %}
+      <div class="preview-stats__item">
+        <span class="preview-stats__value">{{ signal.value }}</span>
+        <span class="preview-stats__label">{{ signal.label }}</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="preview-compare">
+    {% for item in compare %}
+      <article class="preview-compare__card preview-compare__card--{{ item.variant }}">
+        <div class="preview-compare__meta">
+          <p class="preview-compare__eyebrow">{{ item.eyebrow }}</p>
+          <h4 class="preview-compare__title">{{ item.title }}</h4>
+        </div>
+        <p class="preview-compare__summary">{{ item.summary }}</p>
+        <p class="preview-note">{{ item.note }}</p>
+      </article>
+    {% endfor %}
+  </div>
+</div>

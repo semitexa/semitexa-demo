@@ -1,0 +1,12 @@
+<div class="preview-card preview-card--nested">
+  <p class="preview-card__eyebrow">Repository Boundary</p>
+  <h3 class="preview-card__title">What should cross the boundary</h3>
+  <div class="preview-checklist">
+    {% for rule in rules %}
+      <div class="preview-checklist__item">
+        <span class="preview-checklist__mark" aria-hidden="true">+</span>
+        <p>{{ rule }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>

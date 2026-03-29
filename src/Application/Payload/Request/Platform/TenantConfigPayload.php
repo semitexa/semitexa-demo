@@ -14,6 +14,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     path: '/demo/platform/tenancy/config',
     methods: ['GET'],
     responseWith: DemoTenantConfigResource::class,
+    produces: ['application/json', 'text/html'],
 )]
 #[DemoFeature(
     section: 'platform',

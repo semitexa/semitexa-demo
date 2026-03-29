@@ -11,6 +11,7 @@ use Semitexa\Core\Event\EventDispatcherInterface;
 use Semitexa\Demo\Application\Payload\Event\DemoItemCreated;
 use Semitexa\Demo\Application\Payload\Request\Async\SyncEventPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -25,6 +26,9 @@ final class SyncEventHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
 
     public function handle(SyncEventPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
@@ -47,30 +51,6 @@ final class SyncEventHandler implements TypedHandlerInterface
             ];
         }
 
-        $logRows = '';
-        foreach ($eventLog as $entry) {
-            $logRows .= sprintf(
-                '<tr><td>%s</td><td>%s</td><td><code>%s</code></td><td><span class="badge badge--%s">%s</span></td></tr>',
-                htmlspecialchars($entry['event']),
-                htmlspecialchars($entry['listener']),
-                htmlspecialchars($entry['mode']),
-                $entry['status'] === 'fired' ? 'active' : 'warning',
-                htmlspecialchars($entry['status']),
-            );
-        }
-
-        $resultPreview = '<div class="result-preview">'
-            . ($fired
-                ? '<p>Event dispatched successfully. The sync listener ran <strong>inline</strong>, '
-                  . 'before this response was built. The async listener will run after it is sent.</p>'
-                : '<p>No event fired yet.</p>')
-            . '<form method="POST"><input type="hidden" name="trigger" value="fire">'
-            . '<button type="submit" class="btn btn--primary">Fire DemoItemCreated →</button></form>'
-            . ($logRows !== ''
-                ? '<table class="data-table" style="margin-top:1rem"><thead><tr><th>Event</th><th>Listener</th><th>Mode</th><th>Status</th></tr></thead><tbody>' . $logRows . '</tbody></table>'
-                : '')
-            . '</div>';
-
         $explanation = $this->explanationProvider->getExplanation('events', 'sync') ?? [];
 
         $sourceCode = [
@@ -81,6 +61,16 @@ final class SyncEventHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Sync Events — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'events',
+                'currentSlug' => 'sync',
+                'infoWhat' => $explanation['what'] ?? 'Synchronous listeners execute inline before the response is sent.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('events')
             ->withSlug('sync')
             ->withTitle('Sync Events')
@@ -89,7 +79,31 @@ final class SyncEventHandler implements TypedHandlerInterface
             ->withHighlights(['#[AsEvent]', '#[AsEventListener]', 'EventExecution::Sync', 'EventDispatcherInterface'])
             ->withLearnMoreLabel('See the event & listener code →')
             ->withDeepDiveLabel('Dispatcher execution modes →')
-            ->withResultPreview($resultPreview)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
+                'eyebrow' => 'Inline Dispatch',
+                'title' => 'Fire an event in the current request',
+                'summary' => $fired
+                    ? 'Event dispatched successfully. The sync listener ran inline before this response was built.'
+                    : 'No event fired yet. Submit the form to dispatch DemoItemCreated.',
+                'form' => [
+                    'label' => 'Fire DemoItemCreated →',
+                    'hidden' => [
+                        ['name' => 'trigger', 'value' => 'fire'],
+                    ],
+                ],
+                'columns' => $eventLog !== [] ? ['Event', 'Listener', 'Mode', 'Status'] : [],
+                'rows' => array_map(
+                    static fn (array $entry): array => [
+                        ['text' => $entry['event']],
+                        ['text' => $entry['listener']],
+                        ['text' => $entry['mode'], 'code' => true],
+                        ['text' => $entry['status'], 'variant' => $entry['status'] === 'fired' ? 'success' : 'warning'],
+                    ],
+                    $eventLog,
+                ),
+                'emptyMessage' => 'Trigger the event to see the dispatch log.',
+                'note' => $fired ? 'The async listener is queued after the response is flushed.' : null,
+            ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

@@ -1,0 +1,60 @@
+<div class="preview-card preview-card--layered">
+  <p class="preview-card__eyebrow">No Magic, No Problem</p>
+  <h3 class="preview-card__title">N+1 solved by shaping the model, not hiding the database</h3>
+  <p class="preview-card__summary">
+    Semitexa does not need lazy-loading theater to avoid N+1. A list page can define a small resource slice for one table,
+    then batch-load only the relations it really needs for that screen.
+  </p>
+
+  <div class="preview-callout">
+    <p class="preview-callout__eyebrow">The usual pain</p>
+    <ul class="preview-callout__list">
+      {% for painPoint in painPoints %}
+        <li>{{ painPoint }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="preview-stats">
+    {% for stat in stats %}
+      <div class="preview-stats__item">
+        <span class="preview-stats__value">{{ stat.value }}</span>
+        <span class="preview-stats__label">{{ stat.label }}</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="preview-compare">
+    {% for plan in plans %}
+      <article class="preview-compare__card preview-compare__card--{{ plan.variant }}">
+        <div class="preview-compare__meta">
+          <p class="preview-compare__eyebrow">{{ plan.style }}</p>
+          <h4 class="preview-compare__title">{{ plan.slice }}</h4>
+        </div>
+        <p class="preview-compare__summary">{{ plan.queryPlan }}</p>
+        <p class="preview-note">{{ plan.risk }}</p>
+      </article>
+    {% endfor %}
+  </div>
+
+  <div class="preview-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Selected column</th>
+          <th>Why it belongs in the slice</th>
+          <th>Ownership</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for column in columns %}
+          <tr>
+            <td><code>{{ column.name }}</code></td>
+            <td>{{ column.note }}</td>
+            <td><span class="preview-pill">{{ column.owner }}</span></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

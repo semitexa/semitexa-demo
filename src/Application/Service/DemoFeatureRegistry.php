@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Service;
 
+use Semitexa\Core\Attributes\AsPayload;
 use Semitexa\Core\Attributes\AsService;
 use Semitexa\Core\Discovery\ClassDiscovery;
 use Semitexa\Demo\Attributes\DemoFeature;
@@ -18,16 +19,16 @@ use Semitexa\Demo\Attributes\DemoFeature;
 #[AsService]
 final class DemoFeatureRegistry
 {
-    /** @var array<string, list<array{class: string, attribute: DemoFeature}>> keyed by section */
+    /** @var array<string, list<array{class: string, attribute: DemoFeature, path: ?string}>> keyed by section */
     private array $bySection = [];
 
-    /** @var array<string, array<string, array{class: string, attribute: DemoFeature}>> keyed by section then slug */
+    /** @var array<string, array<string, array{class: string, attribute: DemoFeature, path: ?string}>> keyed by section then slug */
     private array $bySectionAndSlug = [];
 
     private bool $initialized = false;
 
     /**
-     * @return list<array{class: string, attribute: DemoFeature}>
+     * @return list<array{class: string, attribute: DemoFeature, path: ?string}>
      */
     public function getAll(): array
     {
@@ -44,7 +45,7 @@ final class DemoFeatureRegistry
     }
 
     /**
-     * @return list<array{class: string, attribute: DemoFeature}>
+     * @return list<array{class: string, attribute: DemoFeature, path: ?string}>
      */
     public function getBySection(string $section): array
     {
@@ -58,6 +59,13 @@ final class DemoFeatureRegistry
         $this->initialize();
 
         return $this->bySectionAndSlug[$section][$slug]['attribute'] ?? null;
+    }
+
+    public function getPath(string $section, string $slug): ?string
+    {
+        $this->initialize();
+
+        return $this->bySectionAndSlug[$section][$slug]['path'] ?? null;
     }
 
     /**
@@ -88,7 +96,13 @@ final class DemoFeatureRegistry
 
             /** @var DemoFeature $attr */
             $attr = $attrs[0]->newInstance();
-            $entry = ['class' => $className, 'attribute' => $attr];
+            $payloadAttrs = $reflection->getAttributes(AsPayload::class);
+            $payload = $payloadAttrs === [] ? null : $payloadAttrs[0]->newInstance();
+            $entry = [
+                'class' => $className,
+                'attribute' => $attr,
+                'path' => $payload instanceof AsPayload ? $this->resolvePath($payload) : null,
+            ];
 
             $this->bySection[$attr->section][] = $entry;
             $this->bySectionAndSlug[$attr->section][$attr->slug] = $entry;
@@ -100,5 +114,51 @@ final class DemoFeatureRegistry
         }
 
         $this->initialized = true;
+    }
+
+    private function resolvePath(AsPayload $payload): ?string
+    {
+        $path = $this->resolveEnvPath($payload->path);
+        if ($path === null || $path === '') {
+            return null;
+        }
+
+        if ($payload->defaults === null || $payload->defaults === []) {
+            return $path;
+        }
+
+        return preg_replace_callback(
+            '/\{([a-zA-Z0-9_]+)\}/',
+            static function (array $matches) use ($payload): string {
+                $key = $matches[1];
+                $value = $payload->defaults[$key] ?? null;
+
+                return is_scalar($value) ? rawurlencode((string) $value) : $matches[0];
+            },
+            $path,
+        ) ?? $path;
+    }
+
+    private function resolveEnvPath(?string $path): ?string
+    {
+        if ($path === null || $path === '') {
+            return $path;
+        }
+
+        if (!str_starts_with($path, 'env::')) {
+            return $path;
+        }
+
+        $parts = explode('::', $path, 3);
+        if (count($parts) !== 3 || $parts[1] === '') {
+            return $path;
+        }
+
+        $value = getenv($parts[1]);
+        if (!is_string($value) || $value === '') {
+            return $parts[2];
+        }
+
+        return $value;
     }
 }
