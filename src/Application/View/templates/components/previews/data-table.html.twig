@@ -59,8 +59,9 @@
             </tr>
           {% endfor %}
         {% else %}
+          {% set columnCount = columns|default([])|length %}
           <tr>
-            <td colspan="{{ columns|default([])|length }}">{{ emptyMessage|default('No rows available.') }}</td>
+            <td colspan="{{ columnCount > 0 ? columnCount : 1 }}">{{ emptyMessage|default('No rows available.') }}</td>
           </tr>
         {% endif %}
       </tbody>

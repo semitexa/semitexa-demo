@@ -18,12 +18,22 @@ class DemoHomeResource extends HtmlResponse implements ResourceInterface
 
     public function withHomeCatalog(array $context): self
     {
-        return $this->setRenderContext(array_merge($this->getRenderContext(), [
-            'sections' => $context['sections'],
-            'starterSections' => $context['starterSections'],
-            'featuredFeatures' => $context['featuredFeatures'],
-            'totalFeatureCount' => $context['totalFeatureCount'],
-        ]));
+        $resource = $this;
+
+        if (array_key_exists('sections', $context)) {
+            $resource = $resource->withSections($context['sections']);
+        }
+        if (array_key_exists('starterSections', $context)) {
+            $resource = $resource->withStarterSections($context['starterSections']);
+        }
+        if (array_key_exists('featuredFeatures', $context)) {
+            $resource = $resource->withFeaturedFeatures($context['featuredFeatures']);
+        }
+        if (array_key_exists('totalFeatureCount', $context)) {
+            $resource = $resource->withTotalFeatureCount((int) $context['totalFeatureCount']);
+        }
+
+        return $resource;
     }
 
     public function withSections(array $sections): self

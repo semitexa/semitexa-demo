@@ -14,7 +14,7 @@
     </section>
 
     {% include '@project-layouts-semitexa-demo/components/disclosure-prompt.html.twig' with {
-      label: 'Try it yourself →',
+      label: learnMoreLabel|default('Try it yourself →'),
       variant: 'learnMore',
       target: 'l2-' ~ domKey,
     } only %}
@@ -25,7 +25,7 @@
           {% block feature_l2 %}{% endblock %}
 
           {% include '@project-layouts-semitexa-demo/components/disclosure-prompt.html.twig' with {
-            label: 'Under the hood →',
+            label: deepDiveLabel|default('Under the hood →'),
             variant: 'deepDive',
             target: 'l3-' ~ domKey,
           } only %}

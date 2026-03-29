@@ -21,7 +21,7 @@
   --demo-shadow-lg: 0 30px 70px rgba(64, 39, 21, 0.18);
   --demo-radius: 10px;
   --demo-radius-lg: 22px;
-  --demo-font: "Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --demo-font: "Fraunces", "Iowan Old Style", "Palatino Linotype", georgia, serif;
   --demo-font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
   --demo-drawer-bg: #f1e5d7;
   --demo-hover-bg: rgba(182, 58, 47, 0.08);

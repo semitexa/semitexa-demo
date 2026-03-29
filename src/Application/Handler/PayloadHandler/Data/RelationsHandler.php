@@ -11,7 +11,6 @@ use Semitexa\Demo\Application\Db\MySQL\Model\DemoCategoryResource;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoCategoryRepository;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoReviewRepository;
 use Semitexa\Demo\Application\Payload\Request\Data\RelationsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
@@ -27,9 +26,6 @@ final class RelationsHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoProductRepository $productRepository;
-
-    #[InjectAsReadonly]
-    protected DemoReviewRepository $reviewRepository;
 
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
@@ -48,10 +44,12 @@ final class RelationsHandler implements TypedHandlerInterface
         $categories = array_slice($this->categoryRepository->findAllOrdered(), 0, 3);
         $products = $this->productRepository->findPage(3);
         $categoryRows = [];
-        $categorySnapshots = [];
+        $categorySnapshots = $this->fetchCategorySnapshots($categories);
         foreach ($categories as $category) {
-            $snapshot = $this->fetchCategorySnapshot($category);
-            $categorySnapshots[$category->slug] = $snapshot;
+            $snapshot = $categorySnapshots[$category->slug] ?? [
+                'product_count' => 0,
+                'sample_products' => [],
+            ];
 
             $categoryRows[] = [
                 ['text' => (string) ($category->name ?? 'Unnamed category')],
@@ -60,15 +58,15 @@ final class RelationsHandler implements TypedHandlerInterface
             ];
         }
 
+        $productMeta = $this->fetchProductMeta($products);
         $productRows = [];
         foreach ($products as $product) {
-            $reviewCount = $this->fetchReviewCount($product->name);
-            $categoryName = $this->resolveCategoryName($product, $categories);
+            $meta = $productMeta[$product->id] ?? ['review_count' => 0, 'category_name' => 'Unassigned'];
 
             $productRows[] = [
                 ['text' => (string) ($product->name ?? 'Unnamed product')],
-                ['text' => $categoryName],
-                ['text' => sprintf('%d reviews', $reviewCount)],
+                ['text' => (string) $meta['category_name']],
+                ['text' => sprintf('%d reviews', $meta['review_count'])],
             ];
         }
 
@@ -130,82 +128,119 @@ final class RelationsHandler implements TypedHandlerInterface
     }
 
     /**
-     * @return array{product_count: int, sample_products: list<string>}
+     * @param list<DemoCategoryResource> $categories
+     *
+     * @return array<string, array{product_count: int, sample_products: list<string>}>
      */
-    private function fetchCategorySnapshot(DemoCategoryResource $category): array
+    private function fetchCategorySnapshots(array $categories): array
     {
-        $categorySlug = $category->slug;
+        if ($categories === []) {
+            return [];
+        }
 
-        $count = (int) ($this->db->execute(
-            'SELECT COUNT(*) AS aggregate_count
-             FROM demo_products products
-             INNER JOIN demo_categories categories ON categories.id = products.category_id
-             WHERE categories.slug = ?',
-            [$categorySlug],
-        )->fetchOne()['aggregate_count'] ?? 0);
+        $categoryIds = array_values(array_map(
+            static fn (DemoCategoryResource $category): string => $category->id,
+            $categories,
+        ));
+        $placeholders = implode(', ', array_fill(0, count($categoryIds), '?'));
+        $snapshots = [];
 
-        $rows = $this->db->execute(
-            'SELECT products.name
-             FROM demo_products products
-             INNER JOIN demo_categories categories ON categories.id = products.category_id
-             WHERE categories.slug = ?
-             ORDER BY products.name ASC
-             LIMIT 2',
-            [$categorySlug],
+        foreach ($categories as $category) {
+            $snapshots[$category->slug] = [
+                'product_count' => 0,
+                'sample_products' => [],
+            ];
+        }
+
+        $countRows = $this->db->execute(
+            "SELECT categories.slug, COUNT(products.id) AS product_count
+             FROM demo_categories categories
+             LEFT JOIN demo_products products ON products.category_id = categories.id
+             WHERE categories.id IN ({$placeholders})
+             GROUP BY categories.slug",
+            $categoryIds,
         )->fetchAll();
 
-        return [
-            'product_count' => $count,
-            'sample_products' => array_values(array_map(
-                static fn (array $row): string => (string) ($row['name'] ?? 'Unknown product'),
-                $rows,
-            )),
-        ];
-    }
+        foreach ($countRows as $row) {
+            $slug = (string) ($row['slug'] ?? '');
+            if ($slug === '' || !isset($snapshots[$slug])) {
+                continue;
+            }
 
-    private function fetchReviewCount(string $productName): int
-    {
-        return (int) ($this->db->execute(
-            'SELECT COUNT(*) AS aggregate_count
-             FROM demo_reviews reviews
-             INNER JOIN demo_products products ON products.id = reviews.product_id
-             WHERE products.name = ?',
-            [$productName],
-        )->fetchOne()['aggregate_count'] ?? 0);
-    }
+            $snapshots[$slug]['product_count'] = (int) ($row['product_count'] ?? 0);
+        }
 
-    /**
-     * @param list<DemoCategoryResource> $categories
-     */
-    private function resolveCategoryName(DemoProductResource $product, array $categories): string
-    {
-        foreach ($categories as $category) {
-            if ($category->name !== '' && $this->isProductInCategory($product->name, $category->slug)) {
-                return $category->name;
+        $sampleRows = $this->db->execute(
+            "SELECT categories.slug, products.name
+             FROM demo_categories categories
+             LEFT JOIN demo_products products ON products.category_id = categories.id
+             WHERE categories.id IN ({$placeholders})
+             ORDER BY categories.slug ASC, products.name ASC",
+            $categoryIds,
+        )->fetchAll();
+
+        foreach ($sampleRows as $row) {
+            $slug = (string) ($row['slug'] ?? '');
+            $name = (string) ($row['name'] ?? '');
+            if ($slug === '' || $name === '' || !isset($snapshots[$slug])) {
+                continue;
+            }
+
+            if (count($snapshots[$slug]['sample_products']) < 2) {
+                $snapshots[$slug]['sample_products'][] = $name;
             }
         }
 
-        $row = $this->db->execute(
-            'SELECT categories.name
-             FROM demo_products products
-             INNER JOIN demo_categories categories ON categories.id = products.category_id
-             WHERE products.name = ?
-             LIMIT 1',
-            [$product->name],
-        )->fetchOne();
-
-        return (string) ($row['name'] ?? 'Unassigned');
+        return $snapshots;
     }
 
-    private function isProductInCategory(string $productName, string $categorySlug): bool
+    /**
+     * @param list<DemoProductResource> $products
+     *
+     * @return array<string, array{review_count: int, category_name: string}>
+     */
+    private function fetchProductMeta(array $products): array
     {
-        return (bool) ($this->db->execute(
-            'SELECT 1
+        if ($products === []) {
+            return [];
+        }
+
+        $productIds = array_values(array_map(
+            static fn (DemoProductResource $product): string => $product->id,
+            $products,
+        ));
+        $placeholders = implode(', ', array_fill(0, count($productIds), '?'));
+        $meta = [];
+
+        foreach ($products as $product) {
+            $meta[$product->id] = [
+                'review_count' => 0,
+                'category_name' => 'Unassigned',
+            ];
+        }
+
+        $rows = $this->db->execute(
+            "SELECT products.id, categories.name AS category_name, COUNT(reviews.id) AS review_count
              FROM demo_products products
-             INNER JOIN demo_categories categories ON categories.id = products.category_id
-             WHERE products.name = ? AND categories.slug = ?
-             LIMIT 1',
-            [$productName, $categorySlug],
-        )->fetchOne() !== null);
+             LEFT JOIN demo_categories categories ON categories.id = products.category_id
+             LEFT JOIN demo_reviews reviews ON reviews.product_id = products.id
+             WHERE products.id IN ({$placeholders})
+             GROUP BY products.id, categories.name",
+            $productIds,
+        )->fetchAll();
+
+        foreach ($rows as $row) {
+            $productId = (string) ($row['id'] ?? '');
+            if ($productId === '' || !isset($meta[$productId])) {
+                continue;
+            }
+
+            $meta[$productId] = [
+                'review_count' => (int) ($row['review_count'] ?? 0),
+                'category_name' => (string) ($row['category_name'] ?? 'Unassigned'),
+            ];
+        }
+
+        return $meta;
     }
 }

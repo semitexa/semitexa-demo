@@ -51,10 +51,10 @@ final class QueryBuilderHandler implements TypedHandlerInterface
 
         $querySnippet = '$products = $orm->repository(DemoProductTableModel::class, DemoProductResource::class)' . "\n"
             . '    ->query()' . "\n"
-            . ($payload->getStatus() !== null ? sprintf("    ->where(DemoProductTableModel::column('status'), Operator::Equals, '%s')\n", htmlspecialchars($payload->getStatus())) : '')
+            . ($payload->getStatus() !== null ? sprintf("    ->where(DemoProductTableModel::column('status'), Operator::Equals, '%s')\n", $payload->getStatus()) : '')
             . ($payload->getMinPrice() !== null ? sprintf("    ->where(DemoProductTableModel::column('price'), Operator::GreaterThanOrEquals, %.2f)\n", $payload->getMinPrice()) : '')
             . ($payload->getMaxPrice() !== null ? sprintf("    ->where(DemoProductTableModel::column('price'), Operator::LessThanOrEquals, %.2f)\n", $payload->getMaxPrice()) : '')
-            . ($payload->getOrderBy() !== null ? sprintf("    ->orderBy(DemoProductTableModel::column('%s'), Direction::Asc)\n", htmlspecialchars($payload->getOrderBy())) : '')
+            . ($payload->getOrderBy() !== null ? sprintf("    ->orderBy(DemoProductTableModel::column('%s'), Direction::Asc)\n", $payload->getOrderBy()) : '')
             . sprintf("    ->limit(%d)\n", $payload->getLimit())
             . '    ->fetchAllAs(DemoProductResource::class, $orm->getMapperRegistry());';
 

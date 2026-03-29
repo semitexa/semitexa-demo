@@ -49,9 +49,16 @@ final class DemoSourceCodeReader
 
     public function readProjectRelativeSource(string $relativePath): string
     {
-        $path = ProjectRoot::get() . '/' . ltrim($relativePath, '/');
+        $root = rtrim(ProjectRoot::get(), '/');
+        $relativePath = ltrim($relativePath, '/');
 
-        if (!is_readable($path)) {
+        if ($relativePath === '' || str_contains($relativePath, '..')) {
+            return '';
+        }
+
+        $path = realpath($root . '/' . $relativePath);
+
+        if ($path === false || !str_starts_with($path, $root . '/') || !is_readable($path)) {
             return '';
         }
 

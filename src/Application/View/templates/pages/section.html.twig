@@ -31,7 +31,7 @@
         </div>
         <div class="demo-sections__grid">
           {% for feature in features %}
-            <a href="{{ feature.href|default('/demo/' ~ section ~ '/' ~ feature.slug) }}" class="feature-card feature-card--feature">
+            <a href="{{ feature.href|default('/demo/' ~ (section|url_encode) ~ '/' ~ (feature.slug|url_encode)) }}" class="feature-card feature-card--feature">
               <div class="feature-card__body">
                 <p class="feature-card__eyebrow">{{ sectionLabel|default(section|upper) }}</p>
                 <h3 class="feature-card__title">{{ feature.title }}</h3>
