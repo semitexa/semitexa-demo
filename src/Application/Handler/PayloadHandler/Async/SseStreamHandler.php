@@ -9,6 +9,7 @@ use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Async\SseStreamPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -21,6 +22,9 @@ final class SseStreamHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
+
     public function handle(SseStreamPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
         $explanation = $this->explanationProvider->getExplanation('events', 'sse') ?? [];
@@ -32,6 +36,16 @@ final class SseStreamHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('SSE Stream — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'events',
+                'currentSlug' => 'sse',
+                'infoWhat' => $explanation['what'] ?? 'Real-time server push without WebSockets — a persistent HTTP connection that streams events.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('events')
             ->withSlug('sse')
             ->withTitle('SSE Stream')

@@ -12,6 +12,7 @@ use Semitexa\Demo\Application\Db\MySQL\Repository\DemoAiTaskRepository;
 use Semitexa\Demo\Application\Payload\Request\Rendering\AiTaskSubmitPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoAiTextProcessor;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -29,6 +30,9 @@ final class AiTaskSubmitHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
 
     public function handle(AiTaskSubmitPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
@@ -62,6 +66,16 @@ final class AiTaskSubmitHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Submit AI Task — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'rendering',
+                'currentSlug' => 'reactive-ai',
+                'infoWhat' => $explanation['what'] ?? 'The submit screen uses the same demo shell as the live pipeline page, so navigation and contextual framing stay intact before and after task creation.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('rendering')
             ->withSlug('reactive-ai')
             ->withTitle('Submit AI Task')

@@ -17,6 +17,7 @@ class DemoTenantIsolationResource extends HtmlResponse implements ResourceInterf
 {
     use HasDemoShell;
 
+    public function withDataUnavailable(bool $state): static { return $this->with('dataUnavailable', $state); }
     public function withActiveTenant(string $tenant): static { return $this->with('activeTenant', $tenant); }
     public function withProducts(array $products): static { return $this->with('products', $products); }
     public function withProductCount(int $count): static { return $this->with('productCount', $count); }

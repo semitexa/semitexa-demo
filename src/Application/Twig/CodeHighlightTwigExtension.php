@@ -127,7 +127,13 @@ final class CodeHighlightTwigExtension
 
         $syntheticOpenTag = !str_contains($source, '<?');
         $html = '';
-        $tokens = token_get_all($syntheticOpenTag ? "<?php\n" . $source : $source, TOKEN_PARSE);
+
+        try {
+            $tokens = token_get_all($syntheticOpenTag ? "<?php\n" . $source : $source, TOKEN_PARSE);
+        } catch (\ParseError) {
+            // Source is not valid PHP — fall back to plain escaped output
+            return new Markup(htmlspecialchars($source, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'), 'UTF-8');
+        }
 
         foreach ($tokens as $index => $token) {
             if (is_string($token)) {
@@ -153,7 +159,22 @@ final class CodeHighlightTwigExtension
         }
 
         $syntheticOpenTag = !str_contains($source, '<?');
-        $tokens = token_get_all($syntheticOpenTag ? "<?php\n" . $source : $source, TOKEN_PARSE);
+
+        try {
+            $tokens = token_get_all($syntheticOpenTag ? "<?php\n" . $source : $source, TOKEN_PARSE);
+        } catch (\ParseError) {
+            $escaped = htmlspecialchars($source, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            $html = '';
+            foreach (preg_split("/(\r\n|\n|\r)/", $escaped) ?: [$escaped] as $index => $lineText) {
+                $html .= sprintf(
+                    '<span class="code-block__line"><span class="code-block__line-number" aria-hidden="true">%d</span><span class="code-block__line-code">%s</span></span>',
+                    $index + 1,
+                    $lineText,
+                );
+            }
+            return new Markup($html, 'UTF-8');
+        }
+
         $lines = [''];
 
         foreach ($tokens as $index => $token) {

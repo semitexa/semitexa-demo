@@ -32,19 +32,11 @@ final class FilteringHandler implements TypedHandlerInterface
 
     public function handle(FilteringPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $filter = new DemoProductResource();
-
-        if ($payload->getName() !== null) {
-            $filter->name = $payload->getName();
-        }
-        if ($payload->getStatus() !== null) {
-            $filter->status = $payload->getStatus();
-        }
-
         $hasFilters = $payload->getName() !== null || $payload->getStatus() !== null;
-        $products = $hasFilters
-            ? $this->productRepository->find($filter)
-            : $this->productRepository->findAll(10);
+        $products = $this->productRepository->findFiltered(
+            status: $payload->getStatus(),
+            limit: 10,
+        );
 
         $count = count($products);
         $rows = [];

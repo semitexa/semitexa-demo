@@ -4,7 +4,7 @@
 (function () {
     'use strict';
 
-    const SSE_ENDPOINT = '/demo/events/sse';
+    const SSE_ENDPOINT = '/sse';
 
     function init() {
         const connectBtn = document.getElementById('sse-connect');
@@ -17,19 +17,19 @@
         let source = null;
 
         function setStatus(text, variant) {
-            statusEl.innerHTML = '<span class="badge badge--' + variant + '">' + text + '</span>';
+            statusEl.innerHTML = '<span class="preview-pill preview-pill--' + variant + '">' + text + '</span>';
         }
 
         function appendEvent(name, data) {
-            const placeholder = logEl.querySelector('.sse-placeholder');
+            const placeholder = logEl.querySelector('.preview-sse-panel__placeholder');
             if (placeholder) placeholder.remove();
 
             const item = document.createElement('li');
-            item.className = 'sse-event-item';
+            item.className = 'preview-sse-panel__event';
             item.innerHTML =
-                '<span class="sse-event-name">' + escHtml(name) + '</span> ' +
-                '<span class="sse-event-data">' + escHtml(typeof data === 'string' ? data : JSON.stringify(data)) + '</span>' +
-                '<span class="sse-event-time">' + new Date().toLocaleTimeString() + '</span>';
+                '<span class="preview-sse-panel__event-name">' + escHtml(name) + '</span> ' +
+                '<span class="preview-sse-panel__event-data">' + escHtml(typeof data === 'string' ? data : JSON.stringify(data)) + '</span>' +
+                '<span class="preview-sse-panel__event-time">' + new Date().toLocaleTimeString() + '</span>';
 
             logEl.insertBefore(item, logEl.firstChild);
 
