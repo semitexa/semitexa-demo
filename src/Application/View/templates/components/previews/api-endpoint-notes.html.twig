@@ -1,0 +1,24 @@
+<div class="preview-card preview-card--nested">
+  <p class="preview-card__eyebrow">{{ eyebrow|default('Contract Notes') }}</p>
+  <h3 class="preview-card__title">{{ title|default('What this endpoint is proving') }}</h3>
+  <div class="preview-table-wrap">
+    <table class="preview-table">
+      <thead>
+        <tr>
+          <th>Concern</th>
+          <th>Behavior</th>
+          <th>Why it matters</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for note in notes %}
+          <tr>
+            <td>{{ note.concern }}</td>
+            <td>{{ note.behavior }}</td>
+            <td>{{ note.why }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

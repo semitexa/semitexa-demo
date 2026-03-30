@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Handler\PayloadHandler\Auth;
 
+use Semitexa\Authorization\Authorizer\Authorizer;
 use Semitexa\Core\Attributes\AsPayloadHandler;
 use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
@@ -12,6 +13,9 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
+use Semitexa\Rbac\Capability\CapabilityRegistry;
+use Semitexa\Rbac\Contract\PermissionProviderInterface;
+use Semitexa\Rbac\Resolver\SubjectGrantResolver;
 
 #[AsPayloadHandler(payload: RbacPayload::class, resource: DemoFeatureResource::class)]
 final class RbacHandler implements TypedHandlerInterface
@@ -52,7 +56,11 @@ final class RbacHandler implements TypedHandlerInterface
         $explanation = $this->explanationProvider->getExplanation('auth', 'rbac') ?? [];
 
         $sourceCode = [
-            'Handler' => $this->sourceCodeReader->readClassSource(self::class),
+            'RBAC Demo Handler' => $this->sourceCodeReader->readClassSource(self::class),
+            'Authorizer' => $this->sourceCodeReader->readClassSource(Authorizer::class),
+            'SubjectGrantResolver' => $this->sourceCodeReader->readClassSource(SubjectGrantResolver::class),
+            'CapabilityRegistry' => $this->sourceCodeReader->readClassSource(CapabilityRegistry::class),
+            'PermissionProviderInterface' => $this->sourceCodeReader->readClassSource(PermissionProviderInterface::class),
         ];
 
         return $resource
@@ -70,18 +78,18 @@ final class RbacHandler implements TypedHandlerInterface
             ->withSection('auth')
             ->withSlug('rbac')
             ->withTitle('RBAC')
-            ->withSummary('Role-based access control — assign permissions to roles, assign roles to users.')
-            ->withEntryLine('Role-based access control — assign permissions to roles, assign roles to users.')
-            ->withHighlights(['#[RequiresPermission]', '#[RequiresCapability]', 'RoleInterface', 'permission slugs'])
-            ->withLearnMoreLabel('See the permission model →')
-            ->withDeepDiveLabel('How RBAC resolution works →')
+            ->withSummary('Hybrid RBAC: bitmask-backed capabilities for broad checks, slug permissions for exact business rules, and module-owned catalogs behind one authorizer.')
+            ->withEntryLine('Semitexa separates coarse-grained capabilities from fine-grained permission slugs so modules can extend authorization without coupling themselves to one storage model.')
+            ->withHighlights(['#[RequiresCapability]', '#[RequiresPermission]', 'CapabilityRegistry', 'PermissionProviderInterface'])
+            ->withLearnMoreLabel('See the hybrid permission model →')
+            ->withDeepDiveLabel('How grant resolution and module extension work →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/permission-matrix.html.twig', [
                 'eyebrow' => 'RBAC',
-                'title' => 'Role-to-permission matrix',
-                'summary' => 'Each route attribute maps to a permission slug, and roles simply collect the slugs they are allowed to perform.',
+                'title' => 'Hybrid grant model',
+                'summary' => 'Capabilities cover broad platform rights, permission slugs cover exact business actions, and any module can add its own permission list by implementing the RBAC provider contract.',
                 'columns' => $columns,
                 'rows' => $rows,
-                'codeSnippet' => "#[RequiresPermission('products.write')]\n#[AsPayload(path: '/admin/products/{id}', methods: ['PUT'])]\nclass UpdateProductPayload { ... }",
+                'codeSnippet' => "#[RequiresCapability(AdminCapability::BackofficeAccess)]\n#[RequiresPermission('products.write')]\n#[AsPayload(path: '/admin/products/{id}', methods: ['PUT'])]\nclass UpdateProductPayload { ... }\n\n// A domain module supplies slug permissions through PermissionProviderInterface.",
             ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);

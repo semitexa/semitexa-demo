@@ -1,0 +1,52 @@
+<div class="preview-card preview-card--api-endpoint">
+  <div class="preview-card__header">
+    <p class="preview-card__eyebrow">{{ eyebrow|default('API Endpoint') }}</p>
+    <h3 class="preview-card__title">{{ title }}</h3>
+    <p class="preview-card__summary">{{ summary }}</p>
+  </div>
+
+  <div class="preview-stats preview-stats--stacked">
+    <div class="preview-stats__item">
+      <span class="preview-stats__label">Route</span>
+      <span class="preview-stats__value"><code>{{ method|default('GET') }} {{ url }}</code></span>
+    </div>
+    <div class="preview-stats__item">
+      <span class="preview-stats__label">Response</span>
+      <span class="preview-stats__value"><code>{{ statusCode }} {{ contentType }}</code></span>
+    </div>
+    {% if curlExample is defined and curlExample %}
+      <div class="preview-stats__item">
+        <span class="preview-stats__label">CLI</span>
+        <span class="preview-stats__value"><code>{{ curlExample }}</code></span>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if headers is defined and headers|length > 0 %}
+    <div class="preview-table-wrap">
+      <table class="preview-table">
+        <thead>
+          <tr>
+            <th>Header</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for name, value in headers %}
+            <tr>
+              <td><code>{{ name }}</code></td>
+              <td><code>{{ value }}</code></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  <div class="preview-code-stack">
+    <div class="preview-code-stack__item">
+      <p class="preview-code-stack__label">{{ bodyLabel|default('Example JSON') }}</p>
+      <pre class="preview-code"><code>{{ highlight_php(body) }}</code></pre>
+    </div>
+  </div>
+</div>

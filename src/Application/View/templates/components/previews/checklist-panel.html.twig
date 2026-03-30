@@ -1,0 +1,22 @@
+<div class="preview-card preview-card--nested">
+  {% if eyebrow is defined and eyebrow %}
+    <p class="preview-card__eyebrow">{{ eyebrow }}</p>
+  {% endif %}
+  {% if title is defined and title %}
+    <h3 class="preview-card__title">{{ title }}</h3>
+  {% endif %}
+  {% if summary is defined and summary %}
+    <p class="preview-card__summary">{{ summary }}</p>
+  {% endif %}
+
+  {% if rules is defined and rules|length > 0 %}
+    <div class="preview-checklist">
+      {% for rule in rules %}
+        <div class="preview-checklist__item">
+          <span class="preview-checklist__mark" aria-hidden="true">+</span>
+          <p>{{ rule }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>

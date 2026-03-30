@@ -18,14 +18,14 @@ use Semitexa\Demo\Attributes\DemoFeature;
 )]
 #[DemoFeature(
     section: 'platform',
-    title: 'Tenant Resolution Strategies',
+    title: 'Tenant Context Resolution',
     slug: 'tenancy-resolution',
-    summary: 'Interactive panel with 4 tabs — header, subdomain, path, and query param strategies.',
+    summary: 'See how Semitexa resolves the active tenant from subdomain, header, path, or query input before the rest of the platform runs.',
     order: 20,
     highlights: ['TenantResolverChain', 'HeaderStrategy', 'SubdomainStrategy', 'PathStrategy', 'QueryParamStrategy'],
-    entryLine: 'Same URL, different world — see which strategy resolved the tenant context.',
-    learnMoreLabel: 'See resolution chain →',
-    deepDiveLabel: 'TenantResolverChain internals →',
+    entryLine: 'The first correct tenant match decides which world the request belongs to.',
+    learnMoreLabel: 'See the resolution model →',
+    deepDiveLabel: 'Why the chain order matters →',
 )]
 class TenantResolutionPayload
 {

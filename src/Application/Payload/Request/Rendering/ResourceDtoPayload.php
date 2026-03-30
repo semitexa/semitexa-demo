@@ -21,7 +21,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     title: 'Resource DTOs',
     slug: 'resource-dtos',
     summary: 'A Resource DTO is the one typed source of presentation data: handlers shape it once, templates consume it everywhere, and no view has to dissect random arrays.',
-    order: 2,
+    order: 1,
     highlights: ['#[AsResource]', 'HtmlResponse', 'with*() methods', 'typed view data', 'auto render'],
     entryLine: 'Real separation means templates receive one explicit response object, not loose arrays and last-minute data surgery.',
     learnMoreLabel: 'See the response boundary →',

@@ -242,12 +242,16 @@ final class DemoExplanationProvider
             ],
         ],
         'auth/rbac' => [
-            'what' => 'Role-Based Access Control: users have roles, roles have permissions. #[RequiresPermission] enforces access at the route level.',
-            'how' => 'The authorization pipeline listener reads #[RequiresPermission] from the payload, checks the authenticated user\'s permissions via RbacService, and throws AccessDeniedException on failure.',
-            'why' => 'Declarative permissions on payloads make access control visible and auditable. A security review can scan payload attributes to understand the access model.',
+            'what' => 'Semitexa RBAC is intentionally hybrid: coarse-grained capabilities can be represented as internal bitmask grants for very fast broad checks, while business-facing permission slugs such as products.write or settings.smtp.update handle exact, human-readable authorization decisions.',
+            'how' => 'The payload access policy can declare both #[RequiresCapability] and #[RequiresPermission]. Authorizer evaluates them in order: authentication first, then capability checks, then slug checks. CapabilityRegistry maps Capability enum cases to bit positions inside integer segments, while SubjectGrantResolver builds the current subject grant set and asks a module-level PermissionProviderInterface for the user\'s slug permissions. That means the RBAC core owns the evaluation pipeline, but storage and permission catalogs stay owned by the modules that actually know the business domain.',
+            'why' => 'This split avoids two common failures. A pure slug model becomes noisy for broad platform-level rights, while a pure bitmask model becomes opaque for audits and product-specific rules. The hybrid model keeps the hot path compact and machine-friendly, but still gives reviewers and module authors explicit permission names and extension points.',
             'keywords' => [
-                ['term' => '#[RequiresPermission]', 'definition' => 'Requires the authenticated user to hold a specific permission slug.'],
-                ['term' => 'RbacService', 'definition' => 'Service that resolves user → roles → permissions for access control checks.'],
+                ['term' => '#[RequiresCapability]', 'definition' => 'Declares a coarse-grained code-level capability check that is evaluated before slug permissions.'],
+                ['term' => 'CapabilityRegistry', 'definition' => 'Maps Capability enum cases to bitmask segment and bit positions so capability checks can stay fast and internal.'],
+                ['term' => '#[RequiresPermission]', 'definition' => 'Declares an exact slug-based permission such as users.manage or settings.smtp.update.'],
+                ['term' => 'PermissionProviderInterface', 'definition' => 'Contract implemented by domain modules to supply the current user\'s permission slugs without coupling RBAC to a specific storage backend.'],
+                ['term' => 'SubjectGrantResolver', 'definition' => 'Builds the authenticated subject\'s combined grant set and caches it per request before Authorizer evaluates policy requirements.'],
+                ['term' => 'module-owned permission catalog', 'definition' => 'Each module can define and expose its own permission slugs, roles, and assignment rules while the shared authorization pipeline keeps one evaluation model.'],
             ],
         ],
         'auth/requires-permission' => [
@@ -444,6 +448,35 @@ final class DemoExplanationProvider
                 ['term' => 'Sparse fieldset', 'definition' => 'A client asks for only the fields it needs via `fields=...`.'],
             ],
         ],
+        'api/sunset-version' => [
+            'what' => 'The sunset-version page turns a deprecated API route into a documented lifecycle example instead of dropping users into raw JSON with no framing.',
+            'how' => 'The handler precomputes the same collection payload the API would emit and surfaces the version headers alongside the body inside a feature page. That keeps the live response visible while still explaining why Deprecation and Sunset are present.',
+            'why' => 'Versioning is not just a payload problem. Teams need to see the response contract, lifecycle headers, and migration signal together in one place.',
+            'keywords' => [
+                ['term' => 'Deprecation', 'definition' => 'HTTP response header advertising that a version is already on the retirement path.'],
+                ['term' => 'Sunset', 'definition' => 'HTTP response header announcing the target retirement date for an API version.'],
+                ['term' => 'X-Api-Version', 'definition' => 'Stable response header exposing the semantic version metadata for the current route.'],
+            ],
+        ],
+        'api/active-version' => [
+            'what' => 'The active-version page shows the steady-state contract for the current collection endpoint: stable payload, stable header, no retirement noise.',
+            'how' => 'Instead of rendering raw JSON directly, the feature page builds the live collection response server-side and presents the body with the key headers and operational notes around it.',
+            'why' => 'A healthy API version should be easy to reason about. Consumers should see what stays stable and which metadata they can safely integrate against.',
+            'keywords' => [
+                ['term' => 'Active lifecycle', 'definition' => 'The version is current, supported, and free from deprecation or sunset warnings.'],
+                ['term' => 'X-Api-Version', 'definition' => 'Response header that tells clients exactly which contract version answered the request.'],
+            ],
+        ],
+        'api/structured-errors' => [
+            'what' => 'Structured Errors demonstrates that Semitexa API failures stay machine-readable even when the route throws domain exceptions.',
+            'how' => 'The route throws typed domain exceptions, and ExternalApiExceptionMapper turns them into one JSON envelope with a stable `error.code`, human message, structured context, and optional retry metadata.',
+            'why' => 'API clients need more than a string message. A stable envelope lets SDKs, dashboards, and background jobs branch on error semantics without scraping text.',
+            'keywords' => [
+                ['term' => 'ExternalApiExceptionMapper', 'definition' => 'Maps domain exceptions on external API routes into stable JSON error envelopes.'],
+                ['term' => 'error.context', 'definition' => 'Structured machine-readable metadata that explains the failure without parsing the message.'],
+                ['term' => 'request_id', 'definition' => 'Correlation id slot for tracing a failing API request across logs and support channels.'],
+            ],
+        ],
         'api/machine-auth' => [
             'what' => 'Machine-to-machine authentication via Bearer tokens. API clients authenticate with {id}:{secret} credentials.',
             'how' => 'MachineAuthHandler reads the Authorization: Bearer header, splits {id}:{secret}, validates against MachineCredentialRepository, and sets a MachinePrincipal on AuthContext.',
@@ -464,7 +497,57 @@ final class DemoExplanationProvider
                 ['term' => 'MonkeyTestingStrategy', 'definition' => 'Sends random/malformed input to test endpoint robustness.'],
             ],
         ],
-        'testing/orm-console' => [
+        'cli/ai-tooling' => [
+            'what' => 'Semitexa treats AI operations as part of the CLI contract: capabilities, skills, logs, and assistant entrypoints are exposed deliberately.',
+            'how' => 'ai:capabilities publishes command metadata, ai:skills exports the executable skill registry, logs:app supports structured filtering, and the ai command opens the local assistant surface.',
+            'why' => 'AI-native workflow is not about sprinkling chat features onto the product. It is about giving agents stable, inspectable operational seams so they can act with less guesswork and less scraping.',
+            'keywords' => [
+                ['term' => 'ai:capabilities', 'definition' => 'Lists command capabilities with usage guidance, inputs, and output shape for AI tooling.'],
+                ['term' => 'ai:skills', 'definition' => 'Exports AI-executable skills with risk, confirmation, and dry-run metadata.'],
+                ['term' => 'logs:app', 'definition' => 'Structured application log reader designed to be usable by both humans and LLM agents.'],
+            ],
+        ],
+        'cli/describe-commands' => [
+            'what' => 'The CLI can describe the framework graph directly: routes, modules, bindings, and handler invariants are queryable artifacts.',
+            'how' => 'describe:route renders the payload-to-template chain, describe:project summarizes modules and listeners, routes:list inventories discovered endpoints, and contracts:list exposes DI bindings.',
+            'why' => 'This shortens debugging and onboarding dramatically. Instead of reconstructing framework state by reading scattered attributes and registrations, you ask the system to explain itself.',
+            'keywords' => [
+                ['term' => 'describe:route', 'definition' => 'Explains one route from payload through handlers, resource, template, and auth posture.'],
+                ['term' => 'describe:project', 'definition' => 'Summarizes modules, routes, listeners, and structural counts for the current project.'],
+                ['term' => 'contracts:list', 'definition' => 'Shows which implementation is active for each registered service contract.'],
+            ],
+        ],
+        'cli/scaffolding-generators' => [
+            'what' => 'Semitexa generators scaffold framework-native files and can also emit machine-readable planning hints for AI-assisted implementation.',
+            'how' => 'Commands like make:module, make:page, make:payload, make:service, and make:contract use builders and template resolvers to produce correctly placed files, with dry-run, JSON, and llm-hints modes where appropriate.',
+            'why' => 'Good scaffolding is not just about speed. It teaches the expected architecture by generating the right boundaries and naming conventions from the start.',
+            'keywords' => [
+                ['term' => 'make:page', 'definition' => 'Scaffolds a complete page boundary: payload, handler, resource, and template.'],
+                ['term' => '--llm-hints', 'definition' => 'Outputs a machine-readable envelope describing what files were created and what should be implemented next.'],
+                ['term' => 'dry-run', 'definition' => 'Lets the user inspect the generation plan before any files are written.'],
+            ],
+        ],
+        'cli/runtime-maintenance' => [
+            'what' => 'The framework exposes maintenance commands for code pickup, cache hygiene, generated metadata, linting, and DI probing.',
+            'how' => 'server:reload rebuilds autoload and sends a graceful Swoole reload signal, cache:clear removes compiled cache artifacts, registry:sync refreshes generated registry data, and lint/test commands validate architecture and instantiation assumptions.',
+            'why' => 'Without a disciplined maintenance surface, teams fall back to ad-hoc deletes, vague restarts, and guesswork. These commands make routine recovery and validation explicit.',
+            'keywords' => [
+                ['term' => 'server:reload', 'definition' => 'Gracefully reloads Swoole workers so code changes are picked up without a full container restart.'],
+                ['term' => 'cache:clear', 'definition' => 'Clears compiled cache artifacts such as Twig output when runtime state becomes stale.'],
+                ['term' => 'test:handler', 'definition' => 'Instantiates one handler and reports whether DI properties were wired successfully.'],
+            ],
+        ],
+        'cli/workers-scheduling' => [
+            'what' => 'Semitexa CLI also owns the long-running side of the platform: queues, schedules, webhook delivery, mail workers, and tenant-context execution.',
+            'how' => 'Dedicated commands expose each stage separately: inspect schedules, plan due runs, start workers, inspect webhook inbox/outbox state, replay deliveries, and run commands in tenant scope.',
+            'why' => 'This makes background systems operable. Operators can inspect, intervene, and replay explicitly instead of treating async infrastructure as invisible magic behind the web server.',
+            'keywords' => [
+                ['term' => 'queue:work', 'definition' => 'Runs the async events worker for queued handlers.'],
+                ['term' => 'scheduler:plan', 'definition' => 'Materializes due schedule occurrences into concrete run rows before workers execute them.'],
+                ['term' => 'tenant:run', 'definition' => 'Executes any command inside a specific tenant context.'],
+            ],
+        ],
+        'cli/orm-console' => [
             'what' => 'The ORM includes a practical console toolkit for schema inspection, diffing, syncing, and seeding with safe defaults.',
             'how' => 'orm:status reports server capabilities and sync state, orm:diff shows the delta, orm:sync can dry-run or export the SQL plan, and orm:seed applies defaults() upserts for seedable resources.',
             'why' => 'A framework should not stop at attributes and repositories. Real teams need an operational surface that explains what will happen before it changes production state.',

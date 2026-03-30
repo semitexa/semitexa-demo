@@ -31,21 +31,21 @@ final class OrmConsoleHandler implements TypedHandlerInterface
 
     public function handle(OrmConsolePayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $explanation = $this->explanationProvider->getExplanation('testing', 'orm-console') ?? [];
+        $explanation = $this->explanationProvider->getExplanation('cli', 'orm-console') ?? [];
 
         return $resource
             ->pageTitle('ORM Console Toolkit — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'testing',
+                'currentSection' => 'cli',
                 'currentSlug' => 'orm-console',
                 'infoWhat' => $explanation['what'] ?? 'The ORM ships with a command surface for inspecting, diffing, syncing, and seeding schema safely.',
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
-            ->withSection('testing')
+            ->withSection('cli')
             ->withSlug('orm-console')
             ->withTitle('ORM Console Toolkit')
             ->withSummary('The ORM ships with a practical CLI surface: status, diff, sync, and seed commands with dry-run safety and SQL plan export.')

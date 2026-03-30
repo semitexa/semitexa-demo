@@ -9,6 +9,19 @@
     {{ meta('og:title') }}
     {{ meta('og:description') }}
     {{ meta('og:type') }}
+    <script>
+      (function () {
+        try {
+          var theme = window.localStorage.getItem('semitexa_demo_theme');
+          if (theme !== 'light' && theme !== 'dark') {
+            theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          document.documentElement.setAttribute('data-demo-theme', theme);
+        } catch (error) {
+          document.documentElement.setAttribute('data-demo-theme', 'light');
+        }
+      })();
+    </script>
     {{ headExtraMarkup|default('')|raw }}
     {{ semantic_head() }}
     {{ asset_head() }}
@@ -27,11 +40,22 @@
       {% endblock %}
     </header>
 
+    <div class="demo-layout__sidebar-overlay" hidden data-demo-nav-overlay></div>
+
     {# --- Two-zone layout: sidebar + main document --- #}
     <div class="demo-layout__grid">
 
       {# Sidebar: feature tree navigation (240px) #}
-      <aside class="demo-layout__sidebar" aria-label="Feature navigation">
+      <aside id="demo-sidebar" class="demo-layout__sidebar" aria-label="Feature navigation" data-demo-sidebar>
+        <div class="demo-layout__sidebar-mobile-bar">
+          <p class="demo-layout__sidebar-mobile-title">Browse Demo Features</p>
+          <button
+            class="demo-layout__sidebar-close"
+            type="button"
+            aria-label="Close demo navigation"
+            data-demo-nav-close
+          >&times;</button>
+        </div>
         {% block sidebar %}
           {% include '@project-layouts-semitexa-demo/partials/sidebar.html.twig' with {
             featureTree: featureTree|default(navSections|default(sections|default([]))),

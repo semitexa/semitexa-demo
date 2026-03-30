@@ -108,6 +108,11 @@ final class CodeHighlightTwigExtension
     public function registerFunctions(): void
     {
         TwigExtensionRegistry::registerFunction(
+            'highlight_snippet',
+            [$this, 'highlightSnippet'],
+            ['is_safe' => ['html']],
+        );
+        TwigExtensionRegistry::registerFunction(
             'highlight_php',
             [$this, 'highlightPhp'],
             ['is_safe' => ['html']],
@@ -119,17 +124,31 @@ final class CodeHighlightTwigExtension
         );
     }
 
-    public function highlightPhp(string $source): Markup
+    public function highlightPhp(mixed $source): Markup
     {
+        $source = $this->normalizeSource($source);
+
         if (trim($source) === '') {
             return new Markup('', 'UTF-8');
+        }
+
+        if ($this->looksLikeMixedShellAndPhp($source)) {
+            return $this->highlightMixedShellAndPhp($source);
+        }
+
+        if ($this->looksLikeJson($source)) {
+            return $this->highlightJson($source);
+        }
+
+        if ($this->looksLikeShell($source) && !$this->looksLikePhp($source)) {
+            return $this->highlightShell($source);
         }
 
         $syntheticOpenTag = !str_contains($source, '<?');
         $html = '';
 
         try {
-            $tokens = token_get_all($syntheticOpenTag ? "<?php\n" . $source : $source, TOKEN_PARSE);
+            $tokens = token_get_all($syntheticOpenTag ? "<?php\n" . $source : $source);
         } catch (\ParseError) {
             // Source is not valid PHP — fall back to plain escaped output
             return new Markup(htmlspecialchars($source, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'), 'UTF-8');
@@ -152,8 +171,15 @@ final class CodeHighlightTwigExtension
         return new Markup($html, 'UTF-8');
     }
 
-    public function highlightPhpLines(string $source): Markup
+    public function highlightSnippet(mixed $source): Markup
     {
+        return $this->highlightPhp($source);
+    }
+
+    public function highlightPhpLines(mixed $source): Markup
+    {
+        $source = $this->normalizeSource($source);
+
         if ($source === '') {
             return new Markup('', 'UTF-8');
         }
@@ -161,7 +187,7 @@ final class CodeHighlightTwigExtension
         $syntheticOpenTag = !str_contains($source, '<?');
 
         try {
-            $tokens = token_get_all($syntheticOpenTag ? "<?php\n" . $source : $source, TOKEN_PARSE);
+            $tokens = token_get_all($syntheticOpenTag ? "<?php\n" . $source : $source);
         } catch (\ParseError) {
             $escaped = htmlspecialchars($source, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
             $html = '';
@@ -360,5 +386,184 @@ final class CodeHighlightTwigExtension
 
             $lines[array_key_last($lines)] .= $this->renderTextFragment($part, $class);
         }
+    }
+
+    private function normalizeSource(mixed $source): string
+    {
+        if ($source instanceof Markup) {
+            return (string) $source;
+        }
+
+        if (is_string($source)) {
+            return $source;
+        }
+
+        if (is_scalar($source) || $source instanceof \Stringable) {
+            return (string) $source;
+        }
+
+        return '';
+    }
+
+    private function looksLikeJson(string $source): bool
+    {
+        $trimmed = trim($source);
+        if ($trimmed === '' || !in_array($trimmed[0], ['{', '['], true)) {
+            return false;
+        }
+
+        json_decode($trimmed);
+
+        return json_last_error() === JSON_ERROR_NONE;
+    }
+
+    private function looksLikePhp(string $source): bool
+    {
+        return preg_match('/(^|\R)\s*(<\?php|#\[|final\s+class|class\s+\w+|interface\s+\w+|trait\s+\w+|enum\s+\w+|public\s+function|protected\s+\$|private\s+\$|return\s+\$|\$\w+)/m', $source) === 1;
+    }
+
+    private function looksLikeShell(string $source): bool
+    {
+        return preg_match('/(^|\R)\s*(curl\b|bin\/[A-Za-z0-9:_-]+|[A-Z][A-Z0-9_]*=|var\/[^\s]+|#\s)/m', $source) === 1;
+    }
+
+    private function looksLikeMixedShellAndPhp(string $source): bool
+    {
+        if (!$this->looksLikePhp($source)) {
+            return false;
+        }
+
+        return preg_match('/(^|\R)\s*[A-Z][A-Z0-9_]*=/', $source) === 1
+            || preg_match('/(^|\R)\s*(bin\/[A-Za-z0-9:_-]+|curl\b|var\/[^\s]+)/m', $source) === 1;
+    }
+
+    private function highlightMixedShellAndPhp(string $source): Markup
+    {
+        $normalized = str_replace(["\r\n", "\r"], "\n", $source);
+        $chunks = preg_split("/\n{2,}/", $normalized) ?: [$normalized];
+        $htmlChunks = [];
+
+        foreach ($chunks as $chunk) {
+            $trimmedChunk = trim($chunk);
+            if ($trimmedChunk === '') {
+                continue;
+            }
+
+            if ($this->looksLikeJson($trimmedChunk)) {
+                $htmlChunks[] = (string) $this->highlightJson($trimmedChunk);
+                continue;
+            }
+
+            if ($this->looksLikePhp($trimmedChunk) && !$this->looksLikeShell($trimmedChunk)) {
+                $htmlChunks[] = (string) $this->highlightPhp($trimmedChunk);
+                continue;
+            }
+
+            if ($this->looksLikeShell($trimmedChunk) && !$this->looksLikePhp($trimmedChunk)) {
+                $htmlChunks[] = (string) $this->highlightShell($trimmedChunk);
+                continue;
+            }
+
+            if ($this->looksLikePhp($trimmedChunk)) {
+                $htmlChunks[] = (string) $this->highlightPhp($trimmedChunk);
+                continue;
+            }
+
+            $htmlChunks[] = (string) $this->highlightShell($trimmedChunk);
+        }
+
+        return new Markup(implode("\n\n", $htmlChunks), 'UTF-8');
+    }
+
+    private function highlightShell(string $source): Markup
+    {
+        $lines = preg_split("/(\r\n|\n|\r)/", $source) ?: [$source];
+        $htmlLines = [];
+
+        foreach ($lines as $line) {
+            $htmlLines[] = $this->highlightShellLine($line);
+        }
+
+        return new Markup(implode("\n", $htmlLines), 'UTF-8');
+    }
+
+    private function highlightShellLine(string $line): string
+    {
+        if ($line === '') {
+            return '';
+        }
+
+        if (preg_match('/^\s*#/', $line) === 1) {
+            return $this->renderTextFragment($line, 'code-token code-token--comment');
+        }
+
+        if (preg_match('/^(\s*)([A-Z][A-Z0-9_]*)(=)(.*)$/', $line, $matches) === 1) {
+            return $this->renderTextFragment($matches[1], null)
+                . $this->renderTextFragment($matches[2], 'code-token code-token--variable')
+                . $this->renderTextFragment($matches[3], 'code-token code-token--operator')
+                . $this->renderTextFragment($matches[4], 'code-token code-token--string');
+        }
+
+        $parts = preg_split('/(\s+)/', $line, -1, PREG_SPLIT_DELIM_CAPTURE) ?: [$line];
+        $html = '';
+
+        foreach ($parts as $index => $part) {
+            if ($part === '') {
+                continue;
+            }
+
+            if (trim($part) === '') {
+                $html .= $this->renderTextFragment($part, null);
+                continue;
+            }
+
+            $class = match (true) {
+                $index === 0 => 'code-token code-token--function',
+                str_starts_with($part, '--') || str_starts_with($part, '-') => 'code-token code-token--keyword',
+                str_contains($part, '=') && preg_match('/^[A-Z][A-Z0-9_]*=/', $part) === 1 => 'code-token code-token--variable',
+                preg_match('/^["\'].*["\']$/', $part) === 1 => 'code-token code-token--string',
+                preg_match('/^\d+(\.\d+)?$/', $part) === 1 => 'code-token code-token--number',
+                str_starts_with($part, '/') || str_starts_with($part, 'var/') || str_starts_with($part, 'bin/') || str_contains($part, '.sql') || str_contains($part, '.json') => 'code-token code-token--string',
+                default => 'code-token code-token--identifier',
+            };
+
+            $html .= $this->renderTextFragment($part, $class);
+        }
+
+        return $html;
+    }
+
+    private function highlightJson(string $source): Markup
+    {
+        $pattern = '/("(?:\\\\.|[^"\\\\])*")|(-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?)|\\b(true|false|null)\\b|([{}\\[\\],:])/';
+        $parts = preg_split($pattern, $source, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) ?: [$source];
+        $html = '';
+        $expectingKey = false;
+
+        foreach ($parts as $part) {
+            $class = match (true) {
+                preg_match('/^\s+$/', $part) === 1 => null,
+                $part === '{' || $part === ',' => 'code-token code-token--punctuation',
+                $part === '}' || $part === '[' || $part === ']' => 'code-token code-token--punctuation',
+                $part === ':' => 'code-token code-token--punctuation',
+                $part !== '' && $part[0] === '"' => $expectingKey ? 'code-token code-token--identifier' : 'code-token code-token--string',
+                preg_match('/^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$/', $part) === 1 => 'code-token code-token--number',
+                in_array($part, ['true', 'false', 'null'], true) => 'code-token code-token--literal',
+                default => null,
+            };
+
+            $html .= $this->renderTextFragment($part, $class);
+
+            if ($part === '{' || $part === ',') {
+                $expectingKey = true;
+                continue;
+            }
+
+            if ($part === ':') {
+                $expectingKey = false;
+            }
+        }
+
+        return new Markup($html, 'UTF-8');
     }
 }

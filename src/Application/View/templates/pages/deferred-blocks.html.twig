@@ -9,6 +9,19 @@
     {{ meta('og:title') }}
     {{ meta('og:description') }}
     {{ meta('og:type') }}
+    <script>
+      (function () {
+        try {
+          var theme = window.localStorage.getItem('semitexa_demo_theme');
+          if (theme !== 'light' && theme !== 'dark') {
+            theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          document.documentElement.setAttribute('data-demo-theme', theme);
+        } catch (error) {
+          document.documentElement.setAttribute('data-demo-theme', 'light');
+        }
+      })();
+    </script>
     {{ semantic_head() }}
     {{ asset_head() }}
     {{ __ssr_preload_hints|default('')|raw }}
@@ -17,13 +30,38 @@
     <header class="demo-header">
       <nav class="demo-nav" aria-label="Demo navigation">
         <a class="demo-nav__brand" href="/demo">
-          <span class="demo-nav__logo">Sx</span>
-          <span class="demo-nav__title">Semitexa <strong>Demo</strong></span>
+          <span class="demo-nav__logo" aria-hidden="true">
+            <img
+              src="https://avatars.githubusercontent.com/u/261730150?s=400&u=ad20cd59c65b2600918639bd3771f7a435c589d0&v=4"
+              alt=""
+              loading="eager"
+              decoding="async"
+            >
+          </span>
+          <span class="demo-nav__title">
+            <span class="demo-nav__title-main">Semitexa</span>
+            <strong>Demo</strong>
+          </span>
         </a>
         <ul class="demo-nav__sections">
           <li class="demo-nav__item demo-nav__item--active"><a href="/demo/rendering">Rendering &amp; SSR</a></li>
         </ul>
         <div class="demo-nav__actions">
+          <div class="demo-nav__theme-control">
+            <span class="demo-nav__theme-text" aria-hidden="true" data-demo-theme-text>Dark mode</span>
+            <button
+              class="demo-nav__theme-toggle"
+              type="button"
+              aria-pressed="false"
+              aria-label="Switch to dark mode"
+              title="Toggle color theme"
+              data-demo-theme-toggle
+            >
+              <span class="demo-nav__theme-toggle-track" aria-hidden="true">
+                <span class="demo-nav__theme-toggle-thumb"></span>
+              </span>
+            </button>
+          </div>
           <a class="demo-nav__link" href="/demo/rendering">Back to Rendering</a>
           <a class="demo-nav__link" href="/demo">Home</a>
         </div>

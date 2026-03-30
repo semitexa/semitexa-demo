@@ -20,10 +20,10 @@ use Semitexa\Demo\Attributes\DemoFeature;
     section: 'events',
     title: 'SSE Stream',
     slug: 'sse',
-    summary: 'Real-time server push without WebSockets — a persistent HTTP connection that streams events.',
+    summary: 'Real-time server push without WebSockets — connect once and receive real backend events over plain HTTP.',
     order: 4,
     highlights: ['SseEndpointHandler', 'AsyncResourceSseServer', 'EventSource', 'text/event-stream'],
-    entryLine: 'Real-time server push without WebSockets — a persistent HTTP connection that streams events.',
+    entryLine: 'This demo connects to the backend SSE runtime and receives live named events without polling or a page reload.',
     learnMoreLabel: 'See the SSE handler →',
     deepDiveLabel: 'SSE connection lifecycle →',
 )]

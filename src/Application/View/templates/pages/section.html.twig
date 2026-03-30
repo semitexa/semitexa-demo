@@ -23,11 +23,51 @@
       <p class="demo-section-page__summary">{{ sectionSummary|default('') }}</p>
     </header>
 
+    {% if section|default('') == 'rendering' %}
+      <section class="demo-section-page__manifesto">
+        <div class="preview-card preview-card--layered rendering-manifesto">
+          <div class="rendering-manifesto__intro">
+            <p class="demo-block-heading__eyebrow">Core Idea</p>
+            <h2 class="preview-card__title">One rendering story, not two</h2>
+            <p class="preview-card__summary">Semitexa treats server rendering, page regions, and live updates as one coherent system. The goal is to stop splitting template logic into a backend version for first paint and a different frontend version for everything interactive.</p>
+          </div>
+          <div class="preview-stats">
+            <article class="preview-stats__item">
+              <strong class="preview-stats__value">1</strong>
+              <span class="preview-stats__label">template language from first render to live update</span>
+            </article>
+            <article class="preview-stats__item">
+              <strong class="preview-stats__value">0</strong>
+              <span class="preview-stats__label">forced SPA handoffs just to keep the UI reactive</span>
+            </article>
+            <article class="preview-stats__item">
+              <strong class="preview-stats__value">KISS</strong>
+              <span class="preview-stats__label">keep the page honest: server truth in, HTML out</span>
+            </article>
+          </div>
+          <div class="preview-checklist rendering-manifesto__points">
+            <article class="preview-checklist__item">
+              <span class="preview-checklist__mark" aria-hidden="true">1</span>
+              <p>Handlers shape explicit response data once, so templates stop reverse-engineering random arrays and view state.</p>
+            </article>
+            <article class="preview-checklist__item">
+              <span class="preview-checklist__mark" aria-hidden="true">2</span>
+              <p>Slots and deferred regions reuse the same rendering model as the page shell, so “dynamic UI” does not become a separate frontend architecture.</p>
+            </article>
+            <article class="preview-checklist__item">
+              <span class="preview-checklist__mark" aria-hidden="true">3</span>
+              <p>When the data changes, the server re-renders the truth as HTML. The interface stays simple because the rendering philosophy stays simple.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+    {% endif %}
+
     {% if features|default([])|length > 0 %}
       <section class="demo-section-page__features">
         <div class="demo-block-heading demo-block-heading--tight">
-          <p class="demo-block-heading__eyebrow">Feature List</p>
-          <p class="demo-block-heading__text">Each feature page pairs live output with the source that produced it.</p>
+          <p class="demo-block-heading__eyebrow">{{ section|default('') == 'rendering' ? 'Suggested Path' : 'Feature List' }}</p>
+          <p class="demo-block-heading__text">{{ section|default('') == 'rendering' ? 'Start with the first three pages. Together they explain the shared rendering model before the section branches into components, SEO, assets, and reactive patterns.' : 'Each feature page pairs live output with the source that produced it.' }}</p>
         </div>
         <div class="demo-sections__grid">
           {% for feature in features %}

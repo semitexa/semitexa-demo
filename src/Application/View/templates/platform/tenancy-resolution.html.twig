@@ -1,38 +1,63 @@
 {% extends '@project-layouts-semitexa-demo/layouts/demo-feature.html.twig' %}
 
-{% block feature_title %}Tenant Resolution Strategies{% endblock %}
-{% block feature_summary %}Interactive panel with 4 tabs — header, subdomain, path, and query param strategies.{% endblock %}
+{% block feature_title %}Tenant Context Resolution{% endblock %}
+{% block feature_summary %}See how Semitexa resolves the active tenant from subdomain, header, path, or query input before the rest of the platform runs.{% endblock %}
 
 {% block feature_l1 %}
 <div class="feature-l1">
-    <p class="feature-entry">Same URL, different world — see which strategy resolved the tenant context.</p>
+    <div class="preview-card preview-card--layered">
+        <p class="preview-card__eyebrow">Resolution Story</p>
+        <h3 class="preview-card__title">Resolve the tenant once, then the rest of the stack can trust it</h3>
+        <p class="preview-card__summary">
+            This is the moment where a request stops being generic traffic and becomes tenant-scoped execution. Once that choice is made,
+            configuration, data isolation, and background work can all stay deterministic.
+        </p>
 
-    <div class="tab-bar" data-tab-bar>
+        <div class="preview-stats">
+            <div class="preview-stats__item">
+                <span class="preview-stats__value">{{ resolvedBy }}</span>
+                <span class="preview-stats__label">Winning strategy in this example</span>
+            </div>
+            <div class="preview-stats__item">
+                <span class="preview-stats__value">{{ resolvedTenant|upper }}</span>
+                <span class="preview-stats__label">Resolved tenant context</span>
+            </div>
+            <div class="preview-stats__item">
+                <span class="preview-stats__value">{{ strategies|length }}</span>
+                <span class="preview-stats__label">Supported resolution paths</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="tenancy-resolution-grid">
         {% for strategy in strategies %}
-            <button class="tab-bar__tab{% if strategy.id == activeTab %} tab-bar__tab--active{% endif %}"
-                    data-tab="{{ strategy.id }}">
-                {{ strategy.name }}
-            </button>
+            <article class="preview-checklist__item tenancy-resolution-card{% if strategy.name == resolvedBy %} tenancy-resolution-card--active{% endif %}">
+                <span class="preview-checklist__mark" aria-hidden="true">{{ strategy.priority }}</span>
+                <div class="tenancy-resolution-card__body">
+                    <div class="tenancy-resolution-card__heading">
+                        <h4>{{ strategy.name }}</h4>
+                        {% if strategy.name == resolvedBy %}
+                            <span class="preview-pill preview-pill--success">Wins now</span>
+                        {% else %}
+                            <span class="preview-pill preview-pill--neutral">Fallback</span>
+                        {% endif %}
+                    </div>
+                    <p>{{ strategy.description }}</p>
+                    <p><strong>Best for:</strong> {{ strategy.bestFor }}</p>
+                    <p><strong>Tradeoff:</strong> {{ strategy.tradeoff }}</p>
+                    <pre class="preview-code"><code>{{ strategy.example }}</code></pre>
+                </div>
+            </article>
         {% endfor %}
     </div>
 
-    {% for strategy in strategies %}
-        <div class="tab-panel{% if strategy.id != activeTab %} hidden{% endif %}" data-tab-panel="{{ strategy.id }}">
-            <div class="strategy-card">
-                <div class="strategy-card__meta">
-                    <span class="badge badge--neutral">Priority {{ strategy.priority }}</span>
-                    <strong>{{ strategy.name }}</strong>
-                </div>
-                <p>{{ strategy.description }}</p>
-                <div class="code-block"><code>{{ strategy.example }}</code></div>
-                <div class="strategy-card__result">
-                    <span class="badge badge--success">Resolved: <strong>{{ resolvedTenant|default('unknown') }}</strong></span>
-                </div>
-            </div>
-        </div>
-    {% endfor %}
-
-    <div class="resolver-chain-container" style="margin-top: 1.5rem">
+    <div class="preview-card preview-card--nested tenancy-resolution-chain">
+        <p class="preview-card__eyebrow">Resolver Chain</p>
+        <h3 class="preview-card__title">Priority order stays explicit</h3>
+        <p class="preview-card__summary">
+            The first strategy that confidently resolves a tenant stops the chain. That keeps the behavior reviewable instead of scattering
+            tenant guessing across controllers or middleware fragments.
+        </p>
         {{ component('demo-resolver-chain-viz', {
             strategies: strategies|map(s => {name: s.name, input: s.example, priority: s.priority}),
             resolvedTenant: resolvedTenant,
@@ -44,21 +69,28 @@
 
 {% block feature_l2 %}
 <div class="feature-l2">
-    <h3>Resolver chain priority</h3>
-    <p>The <code>TenantResolverChain</code> tries strategies in priority order. The first match wins — fallback to default tenant if none resolve.</p>
-    <div class="code-block"><pre>$chain = new TenantResolverChain([
+    <div class="preview-card preview-card--nested">
+        <p class="preview-card__eyebrow">Priority Design</p>
+        <h3 class="preview-card__title">Why the order is opinionated</h3>
+        <div class="preview-copy">
+            <p>Higher-signal entrypoints should usually run first. In this demo, subdomain beats header, then path, then query param.</p>
+            <p>That means branded tenant hosts win over weaker, mostly diagnostic inputs like <code>?tenant=...</code>.</p>
+        </div>
+        <pre class="preview-code"><code>$chain = new TenantResolverChain([
     new SubdomainStrategy(baseDomain: 'demo.semitexa.dev'),
     new HeaderStrategy(header: 'X-Tenant-ID'),
     new PathStrategy(PathStrategy::allowlist(['acme', 'globex', 'initech'])),
     new QueryParamStrategy(param: 'tenant'),
-]);</pre></div>
+]);</code></pre>
+    </div>
 </div>
 {% endblock %}
 
 {% block feature_l3 %}
 <div class="feature-l3">
-    <h3>TenantResolverChain internals</h3>
-    <p>Each strategy implements <code>TenantResolverInterface::resolve(Request $request): ?TenantContext</code>. Returning <code>null</code> means "not matched — try next". The chain stops at the first non-null result.</p>
-    <p>The resulting <code>TenantContext</code> is coroutine-scoped via Swoole — concurrent workers in different tenants never bleed.</p>
+    <h3>What this boundary protects</h3>
+    <p>Each strategy implements <code>TenantResolverInterface::resolve(Request $request): ?TenantContext</code>. Returning <code>null</code> means "not matched, let the next strategy try".</p>
+    <p>Once the chain resolves a tenant, that <code>TenantContext</code> becomes the foundation for configuration, data isolation, and background propagation. In a Swoole runtime the context is coroutine-scoped, so concurrent executions in different tenants do not bleed into each other.</p>
+    <p>The real message is simple: multi-tenancy is not a decorative mode. It is an execution boundary.</p>
 </div>
 {% endblock %}

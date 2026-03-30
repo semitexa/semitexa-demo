@@ -8,14 +8,14 @@ use Semitexa\Api\Attributes\ApiVersion;
 use Semitexa\Api\Attributes\ExternalApi;
 use Semitexa\Authorization\Attributes\PublicEndpoint;
 use Semitexa\Core\Attributes\AsPayload;
-use Semitexa\Demo\Application\Resource\Response\DemoApiResponse;
+use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
     path: '/demo/api/errors/{type}',
     methods: ['GET', 'POST'],
-    responseWith: DemoApiResponse::class,
+    responseWith: DemoFeatureResource::class,
     requirements: ['type' => '[a-z-]+'],
     defaults: ['type' => 'not-found'],
 )]

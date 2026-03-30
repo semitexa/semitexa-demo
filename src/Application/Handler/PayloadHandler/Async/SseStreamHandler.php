@@ -31,7 +31,7 @@ final class SseStreamHandler implements TypedHandlerInterface
 
         $sourceCode = [
             'Handler' => $this->sourceCodeReader->readClassSource(self::class),
-            'Client JS' => '// See: js/sse-demo.js',
+            'Client JS' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Static/js/sse-demo.js'),
         ];
 
         return $resource
@@ -49,8 +49,8 @@ final class SseStreamHandler implements TypedHandlerInterface
             ->withSection('events')
             ->withSlug('sse')
             ->withTitle('SSE Stream')
-            ->withSummary('Real-time server push without WebSockets — a persistent HTTP connection that streams events.')
-            ->withEntryLine('Real-time server push without WebSockets — a persistent HTTP connection that streams events.')
+            ->withSummary('Real-time server push without WebSockets — connect once and let the backend stream named events into the page.')
+            ->withEntryLine('This demo now receives real backend-generated SSE messages over one long-lived HTTP connection, not client-side simulated updates.')
             ->withHighlights(['SseEndpointHandler', 'AsyncResourceSseServer', 'EventSource', 'text/event-stream'])
             ->withLearnMoreLabel('See the SSE handler →')
             ->withDeepDiveLabel('SSE connection lifecycle →')

@@ -9,14 +9,14 @@ use Semitexa\Api\Attributes\ExternalApi;
 use Semitexa\Authorization\Attributes\PublicEndpoint;
 use Semitexa\Core\Attributes\AsPayload;
 use Semitexa\Core\Request;
-use Semitexa\Demo\Application\Resource\Response\DemoApiResponse;
+use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
     path: '/demo/api/v0/products',
     methods: ['GET'],
-    responseWith: DemoApiResponse::class,
+    responseWith: DemoFeatureResource::class,
 )]
 #[ExternalApi(version: 'v0', description: 'Sunset demo product collection endpoint')]
 #[ApiVersion(version: '0.9.0', deprecatedSince: '2025-06-01', sunsetDate: '2026-06-01')]

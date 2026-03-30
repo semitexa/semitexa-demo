@@ -11,17 +11,17 @@ use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
-    path: '/demo/testing/orm-console',
+    path: '/demo/cli/orm-console',
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
     produces: ['application/json', 'text/html'],
 )]
 #[DemoFeature(
-    section: 'testing',
+    section: 'cli',
     title: 'ORM Console Toolkit',
     slug: 'orm-console',
     summary: 'The ORM ships with a practical CLI surface: status, diff, sync, and seed commands with dry-run safety and SQL plan export.',
-    order: 1,
+    order: 3,
     highlights: ['orm:status', 'orm:diff', 'orm:sync', 'orm:seed', '--output'],
     entryLine: 'Framework credibility also lives in operations. The ORM CLI should tell you what will change before it changes anything.',
     learnMoreLabel: 'See the command surface →',
