@@ -71,15 +71,20 @@ final class DemoSourceCodeReader
     private function resolveReadableCandidates(string $relativePath): array
     {
         $candidates = [];
+        $strippedDemoPath = null;
+
+        if (str_starts_with($relativePath, 'packages/semitexa-demo/')) {
+            $strippedDemoPath = substr($relativePath, strlen('packages/semitexa-demo/'));
+        }
 
         foreach ($this->candidateRoots() as $root) {
             $root = rtrim($root, '/');
             $candidates[] = $this->resolveCandidateWithinRoot($root, $relativePath);
 
-            if (str_starts_with($relativePath, 'packages/semitexa-demo/')) {
+            if ($strippedDemoPath !== null && str_ends_with($root, '/packages/semitexa-demo')) {
                 $candidates[] = $this->resolveCandidateWithinRoot(
                     $root,
-                    substr($relativePath, strlen('packages/semitexa-demo/')),
+                    $strippedDemoPath,
                 );
             }
         }
@@ -105,7 +110,7 @@ final class DemoSourceCodeReader
     private function resolveCandidateWithinRoot(string $root, string $relativePath): ?string
     {
         $path = realpath($root . '/' . $relativePath);
-        if ($path === false || !str_starts_with($path, $root . '/') || !is_readable($path)) {
+        if ($path === false || !is_file($path) || !str_starts_with($path, $root . '/') || !is_readable($path)) {
             return null;
         }
 
