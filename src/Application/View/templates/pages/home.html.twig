@@ -33,6 +33,35 @@
         <span class="demo-hero__badge">Swoole-native</span>
         <span class="demo-hero__badge">Zero Config</span>
       </div>
+      <div
+        class="demo-release-countdown"
+        data-countdown
+        data-countdown-target="{{ release.target }}"
+      >
+        <div class="demo-release-countdown__head">
+          <span>{{ release.label }}</span>
+          <strong>{{ release.date }}</strong>
+        </div>
+        <div class="demo-release-countdown__grid" aria-label="Countdown to first release">
+          <div class="demo-release-countdown__unit">
+            <strong data-countdown-days>--</strong>
+            <span>Days</span>
+          </div>
+          <div class="demo-release-countdown__unit">
+            <strong data-countdown-hours>--</strong>
+            <span>Hours</span>
+          </div>
+          <div class="demo-release-countdown__unit">
+            <strong data-countdown-minutes>--</strong>
+            <span>Minutes</span>
+          </div>
+          <div class="demo-release-countdown__unit">
+            <strong data-countdown-seconds>--</strong>
+            <span>Seconds</span>
+          </div>
+        </div>
+        <p class="demo-release-countdown__state" data-countdown-state>Until first release</p>
+      </div>
     </div>
 
     <div class="demo-hero__sidecar">

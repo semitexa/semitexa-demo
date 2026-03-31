@@ -41,6 +41,11 @@ final class DemoHomeHandler implements TypedHandlerInterface
                 'infoWhy' => 'A demo package should prove that the framework feels coherent before anyone reads the docs.',
                 'infoKeywords' => [],
             ])
+            ->withRelease([
+                'label' => 'First release',
+                'date' => '22 April 2026',
+                'target' => '2026-04-22T00:00:00+03:00',
+            ])
             ->withHomeCatalog($homeCatalog);
     }
 }

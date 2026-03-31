@@ -55,4 +55,9 @@ class DemoHomeResource extends HtmlResponse implements ResourceInterface
     {
         return $this->with('featuredFeatures', $features);
     }
+
+    public function withRelease(array $release): self
+    {
+        return $this->with('release', $release);
+    }
 }

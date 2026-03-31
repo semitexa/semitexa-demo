@@ -719,6 +719,74 @@ a:hover {
   border: 1px solid var(--demo-border-light);
 }
 
+.demo-release-countdown {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1.3rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  border: 1px solid rgba(89, 66, 45, 0.12);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.demo-release-countdown__head,
+.demo-release-countdown__grid {
+  display: grid;
+}
+
+.demo-release-countdown__head {
+  gap: 0.28rem;
+}
+
+.demo-release-countdown__head span,
+.demo-release-countdown__state,
+.demo-release-countdown__unit span {
+  font-family: var(--demo-font-ui);
+}
+
+.demo-release-countdown__head span,
+.demo-release-countdown__state {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--demo-accent);
+}
+
+.demo-release-countdown__head strong {
+  font-size: 1rem;
+}
+
+.demo-release-countdown__grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.demo-release-countdown__unit {
+  padding: 0.82rem 0.7rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(89, 66, 45, 0.08);
+  text-align: center;
+}
+
+.demo-release-countdown__unit strong {
+  display: block;
+  font-size: 1.45rem;
+  line-height: 1;
+  color: var(--demo-accent-dark);
+}
+
+.demo-release-countdown__unit span {
+  display: block;
+  margin-top: 0.32rem;
+  font-size: 0.7rem;
+  color: var(--demo-text-muted);
+}
+
+.demo-release-countdown__state {
+  margin: 0;
+}
+
 .demo-hero__sidecar {
   display: grid;
   gap: 1rem;
@@ -936,6 +1004,7 @@ a:hover {
 :root[data-demo-theme="dark"] .demo-hero__signal,
 :root[data-demo-theme="dark"] .demo-hero__terminal,
 :root[data-demo-theme="dark"] .demo-hero__ledger,
+:root[data-demo-theme="dark"] .demo-release-countdown,
 :root[data-demo-theme="dark"] .feature-card--starter,
 :root[data-demo-theme="dark"] .preview-card--nested,
 :root[data-demo-theme="dark"] .preview-form__textarea,
@@ -951,6 +1020,11 @@ a:hover {
 :root[data-demo-theme="dark"] .preview-pill,
 :root[data-demo-theme="dark"] .feature-tree__count {
   background: rgba(30, 45, 59, 0.78);
+}
+
+:root[data-demo-theme="dark"] .demo-release-countdown__unit {
+  background: rgba(30, 45, 59, 0.72);
+  border-color: var(--demo-glass-stroke);
 }
 
 :root[data-demo-theme="dark"] .preview-table th,
@@ -3330,6 +3404,10 @@ a:hover {
   .demo-hero__ledger,
   .preview-grid--two-up {
     grid-template-columns: 1fr;
+  }
+
+  .demo-release-countdown__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .demo-hero__tagline {

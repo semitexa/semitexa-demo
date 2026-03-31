@@ -219,6 +219,55 @@
     });
   }
 
+  function padCountdownUnit(value) {
+    return String(value).padStart(2, '0');
+  }
+
+  function initCountdowns() {
+    document.querySelectorAll('[data-countdown]').forEach(function (countdown) {
+      var target = countdown.getAttribute('data-countdown-target');
+      var targetTime = target ? Date.parse(target) : NaN;
+
+      if (Number.isNaN(targetTime)) {
+        return;
+      }
+
+      var days = countdown.querySelector('[data-countdown-days]');
+      var hours = countdown.querySelector('[data-countdown-hours]');
+      var minutes = countdown.querySelector('[data-countdown-minutes]');
+      var seconds = countdown.querySelector('[data-countdown-seconds]');
+      var state = countdown.querySelector('[data-countdown-state]');
+
+      function render() {
+        var diff = targetTime - Date.now();
+
+        if (diff <= 0) {
+          if (days) days.textContent = '00';
+          if (hours) hours.textContent = '00';
+          if (minutes) minutes.textContent = '00';
+          if (seconds) seconds.textContent = '00';
+          if (state) state.textContent = 'Released';
+          return;
+        }
+
+        var totalSeconds = Math.floor(diff / 1000);
+        var dayValue = Math.floor(totalSeconds / 86400);
+        var hourValue = Math.floor((totalSeconds % 86400) / 3600);
+        var minuteValue = Math.floor((totalSeconds % 3600) / 60);
+        var secondValue = totalSeconds % 60;
+
+        if (days) days.textContent = padCountdownUnit(dayValue);
+        if (hours) hours.textContent = padCountdownUnit(hourValue);
+        if (minutes) minutes.textContent = padCountdownUnit(minuteValue);
+        if (seconds) seconds.textContent = padCountdownUnit(secondValue);
+        if (state) state.textContent = 'Until first release';
+      }
+
+      render();
+      window.setInterval(render, 1000);
+    });
+  }
+
   function persistTheme(theme) {
     try {
       window.localStorage.setItem(THEME_STORAGE_KEY, theme);
@@ -271,6 +320,7 @@
     updateVisitedIndicators();
     initNegotiationPreview();
     initMobileNav();
+    initCountdowns();
   }
 
   if (document.readyState === 'loading') {
