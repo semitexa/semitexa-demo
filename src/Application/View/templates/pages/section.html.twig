@@ -74,6 +74,7 @@
             <a
               href="{{ feature.href|default('/demo/' ~ (section|url_encode) ~ '/' ~ (feature.slug|url_encode)) }}"
               class="feature-card feature-card--feature"
+              {% if feature.opensInNewTab|default(false) %}aria-label="{{ feature.title }} (opens in new tab)"{% endif %}
               {% if feature.opensInNewTab|default(false) %}target="_blank" rel="noopener"{% endif %}
             >
               <div class="feature-card__body">

@@ -1,9 +1,12 @@
 <?php
 
+use App\Events\DemoDisclosureExpanded;
+use Semitexa\Ssr\Attributes\AsComponent;
+
 #[AsComponent(
     name: 'disclosure-prompt',
     template: '@shop/components/disclosure-prompt.html.twig',
-    event: ProductDetailsExpanded::class,
+    event: DemoDisclosureExpanded::class,
     triggers: ['click'],
 )]
 final class DisclosurePromptComponent

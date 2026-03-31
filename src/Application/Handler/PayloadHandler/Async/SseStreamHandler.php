@@ -31,7 +31,7 @@ final class SseStreamHandler implements TypedHandlerInterface
 
         $sourceCode = [
             'Handler' => $this->sourceCodeReader->readClassSource(self::class),
-            'Client JS' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Static/js/sse-demo.js'),
+            'Client JS' => $this->sourceCodeReader->readProjectRelativeSource('src/Application/Static/js/sse-demo.js'),
         ];
 
         return $resource

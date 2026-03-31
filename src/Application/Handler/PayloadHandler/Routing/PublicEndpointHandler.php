@@ -30,8 +30,8 @@ final class PublicEndpointHandler implements TypedHandlerInterface
         $explanation = $this->explanationProvider->getExplanation('routing', 'public-endpoint') ?? [];
 
         $sourceCode = [
-            'Public Payload' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Routing/PublicEndpoint/PublicCatalogPayload.example.php'),
-            'Protected Payload' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Routing/PublicEndpoint/ProtectedDashboardPayload.example.php'),
+            'Public Payload' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Routing/PublicEndpoint/PublicCatalogPayload.example.php'),
+            'Protected Payload' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Routing/PublicEndpoint/ProtectedDashboardPayload.example.php'),
         ];
 
         return $resource

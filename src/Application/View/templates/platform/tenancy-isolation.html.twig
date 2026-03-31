@@ -17,11 +17,10 @@
     </div>
 
     <div class="isolation-result" style="margin-top: 1rem">
-        <p><strong>{{ productCount }} products</strong> for tenant <code>{{ activeTenant }}</code></p>
-
         {% if dataUnavailable|default(false) %}
             <p class="muted">Tenant-scoped demo data is not available yet. Run <code>bin/semitexa semitexa:demo:seed</code> after syncing the demo schema.</p>
         {% elseif products is not empty %}
+            <p><strong>{{ productCount }} products</strong> for tenant <code>{{ activeTenant }}</code></p>
             <table class="data-table">
                 <thead><tr><th>Product</th><th>Price</th><th>Status</th></tr></thead>
                 <tbody>
@@ -35,6 +34,7 @@
                 </tbody>
             </table>
         {% else %}
+            <p><strong>{{ productCount }} products</strong> for tenant <code>{{ activeTenant }}</code></p>
             <p class="muted">No products yet for this tenant. Run <code>semitexa:demo:seed</code>.</p>
         {% endif %}
     </div>

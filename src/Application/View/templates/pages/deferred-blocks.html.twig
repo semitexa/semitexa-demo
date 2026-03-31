@@ -20,8 +20,10 @@
             theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
           }
           document.documentElement.setAttribute('data-demo-theme', theme);
+          window.__resolvedDemoTheme = theme;
         } catch (error) {
           document.documentElement.setAttribute('data-demo-theme', 'light');
+          window.__resolvedDemoTheme = 'light';
         }
       })();
     </script>
@@ -30,6 +32,23 @@
     {{ __ssr_preload_hints|default('')|raw }}
   </head>
   <body class="demo-layout deferred-demo-page" {{ __ssr_handle_attr|default('')|raw }}>
+    <script>
+      (function () {
+        var theme = window.__resolvedDemoTheme || document.documentElement.getAttribute('data-demo-theme') || 'light';
+        var label = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+        var text = theme === 'dark' ? 'Light mode' : 'Dark mode';
+        var toggle = document.querySelector('[data-demo-theme-toggle]');
+        var textNode = document.querySelector('[data-demo-theme-text]');
+        if (toggle) {
+          toggle.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+          toggle.setAttribute('aria-label', label);
+          toggle.setAttribute('title', 'Toggle color theme');
+        }
+        if (textNode) {
+          textNode.textContent = text;
+        }
+      })();
+    </script>
     <header class="demo-header">
       <nav class="demo-nav" aria-label="Demo navigation">
         <a class="demo-nav__brand" href="/">

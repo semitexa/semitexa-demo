@@ -1,5 +1,10 @@
 <?php
 
+use App\Service\JobService;
+use Semitexa\Ssr\Attributes\AsSlotHandler;
+use Semitexa\Ssr\Attributes\AsSlotResource;
+use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
+
 #[AsSlotResource(
     handle: 'imports_dashboard',
     slot: 'job_status',
@@ -22,6 +27,10 @@ final class ImportJobStatusSlot extends HtmlSlotResponse
 #[AsSlotHandler(slot: ImportJobStatusSlot::class)]
 final class ImportJobStatusSlotHandler
 {
+    public function __construct(
+        private readonly JobService $jobs,
+    ) {}
+
     public function handle(ImportJobStatusSlot $slot): ImportJobStatusSlot
     {
         $run = $this->jobs->latestImportRun();

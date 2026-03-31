@@ -30,8 +30,8 @@ final class RequiresPermissionHandler implements TypedHandlerInterface
         $explanation = $this->explanationProvider->getExplanation('auth', 'requires-permission') ?? [];
 
         $sourceCode = [
-            'Guarded Payload' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Auth/RequiresPermission/ManageUsersPayload.example.php'),
-            'Guarded Handler' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Auth/RequiresPermission/ManageUsersHandler.example.php'),
+            'Guarded Payload' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/RequiresPermission/ManageUsersPayload.example.php'),
+            'Guarded Handler' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/RequiresPermission/ManageUsersHandler.example.php'),
         ];
 
         return $resource

@@ -66,11 +66,11 @@ final class ComponentScriptAssetHandler implements TypedHandlerInterface
                 ],
             ])
             ->withSourceCode([
-                'Component Contract' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Rendering/ComponentScripts/ScriptedComponent.example.php'),
-                'Twig Usage' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Rendering/ComponentScripts/ComponentUsage.example.twig'),
-                'Component Template' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Rendering/ComponentScripts/ComponentTemplate.example.twig'),
-                'Enhancement Script' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Rendering/ComponentScripts/ComponentScript.example.js'),
-                'Renderer Auto-Require' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Rendering/ComponentScripts/RendererAutoRequire.example.php'),
+                'Component Contract' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/ComponentScripts/ScriptedComponent.example.php'),
+                'Twig Usage' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/ComponentScripts/ComponentUsage.example.twig'),
+                'Component Template' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/ComponentScripts/ComponentTemplate.example.twig'),
+                'Enhancement Script' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/ComponentScripts/ComponentScript.example.js'),
+                'Renderer Auto-Require' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/ComponentScripts/RendererAutoRequire.example.php'),
             ])
             ->withExplanation($explanation);
     }

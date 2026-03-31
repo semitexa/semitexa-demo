@@ -91,8 +91,8 @@ final class SharedTableExtensionHandler implements TypedHandlerInterface
                 'mergedColumns' => $mergedColumns,
             ])
             ->withSourceCode([
-                'Catalog Module Resource' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Orm/SharedTable/CatalogProductResource.example.php'),
-                'Merchandising Module Extension' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Orm/SharedTable/MerchandisingProductExtension.example.php'),
+                'Catalog Module Resource' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Orm/SharedTable/CatalogProductResource.example.php'),
+                'Merchandising Module Extension' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Orm/SharedTable/MerchandisingProductExtension.example.php'),
                 'Schema Merge Logic' => $this->sourceCodeReader->readClassSource(SchemaCollector::class),
                 'Feature Handler' => $this->sourceCodeReader->readClassSource(self::class),
             ])

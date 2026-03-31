@@ -9,7 +9,9 @@
 
     if (button) {
       button.addEventListener('click', function () {
-        status.textContent = 'The component handled this interaction without page-level glue.';
+        if (status) {
+          status.textContent = 'The component handled this interaction without page-level glue.';
+        }
       });
     }
   }

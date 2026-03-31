@@ -75,10 +75,10 @@ final class SessionAuthHandler implements TypedHandlerInterface
         $explanation = $this->explanationProvider->getExplanation('auth', 'session') ?? [];
 
         $sourceCode = [
-            'Session Segment' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Auth/Session/BrowserSessionSegment.example.php'),
-            'Login Handler' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Auth/Session/LoginHandler.example.php'),
-            'Session Auth Handler' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Auth/Session/SessionAuthHandler.example.php'),
-            'Protected Handler' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Auth/Session/AccountDashboardHandler.example.php'),
+            'Session Segment' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/BrowserSessionSegment.example.php'),
+            'Login Handler' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/LoginHandler.example.php'),
+            'Session Auth Handler' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/SessionAuthHandler.example.php'),
+            'Protected Handler' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/AccountDashboardHandler.example.php'),
         ];
 
         return $resource

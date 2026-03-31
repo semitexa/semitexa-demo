@@ -124,11 +124,11 @@ final class SsrPhilosophyHandler implements TypedHandlerInterface
                 ],
             ])
             ->withSourceCode([
-                'Page Resource' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Rendering/Philosophy/PageResource.example.php'),
-                'Slot Resource' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Rendering/Philosophy/SlotResource.example.php'),
-                'Deferred Slot' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Rendering/Philosophy/DeferredSlot.example.php'),
-                'Reactive Slot' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Rendering/Philosophy/ReactiveSlot.example.php'),
-                'Interactive Component' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Rendering/Philosophy/EventComponent.example.php'),
+                'Page Resource' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/Philosophy/PageResource.example.php'),
+                'Slot Resource' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/Philosophy/SlotResource.example.php'),
+                'Deferred Slot' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/Philosophy/DeferredSlot.example.php'),
+                'Reactive Slot' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/Philosophy/ReactiveSlot.example.php'),
+                'Interactive Component' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/Philosophy/EventComponent.example.php'),
             ])
             ->withExplanation($explanation);
     }

@@ -93,9 +93,9 @@ final class NPlusOneHandler implements TypedHandlerInterface
                 ],
             ])
             ->withSourceCode([
-                'Fat Entity' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Orm/NPlusOne/FatProductEntity.example.php'),
-                'Card Slice' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Orm/NPlusOne/ProductCardResource.example.php'),
-                'Card + Reviews' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Orm/NPlusOne/ProductCardWithReviewsResource.example.php'),
+                'Fat Entity' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Orm/NPlusOne/FatProductEntity.example.php'),
+                'Card Slice' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Orm/NPlusOne/ProductCardResource.example.php'),
+                'Card + Reviews' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Orm/NPlusOne/ProductCardWithReviewsResource.example.php'),
                 'Relation Loader' => $this->sourceCodeReader->readClassSource(TableModelRelationLoader::class),
                 'Handler' => $this->sourceCodeReader->readClassSource(self::class),
             ])

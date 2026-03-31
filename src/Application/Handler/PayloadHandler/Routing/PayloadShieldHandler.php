@@ -97,9 +97,9 @@ final class PayloadShieldHandler implements TypedHandlerInterface
                 ],
             ])
             ->withSourceCode([
-                'Typical Controller' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Routing/PayloadShield/LegacyCheckoutController.example.php'),
-                'Shield Payload' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Routing/PayloadShield/CreateCheckoutPayload.example.php'),
-                'Shield Handler' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Routing/PayloadShield/CreateCheckoutHandler.example.php'),
+                'Typical Controller' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Routing/PayloadShield/LegacyCheckoutController.example.php'),
+                'Shield Payload' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Routing/PayloadShield/CreateCheckoutPayload.example.php'),
+                'Shield Handler' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Routing/PayloadShield/CreateCheckoutHandler.example.php'),
             ])
             ->withExplanation($explanation);
     }

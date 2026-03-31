@@ -63,9 +63,9 @@ final class GraphqlDerivedApiHandler implements TypedHandlerInterface
                 'schemaPreview' => $this->buildSchemaPreview($operations),
             ])
             ->withSourceCode([
-                'REST + GraphQL Payload' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Api/Graphql/ProductDetailPayload.example.php'),
-                'REST + GraphQL Output' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Api/Graphql/ProductGraphqlView.example.php'),
-                'POST /graphql Query' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Api/Graphql/ProductsQuery.example.graphql'),
+                'REST + GraphQL Payload' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Api/Graphql/ProductDetailPayload.example.php'),
+                'REST + GraphQL Output' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Api/Graphql/ProductGraphqlView.example.php'),
+                'POST /graphql Query' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Api/Graphql/ProductsQuery.example.graphql'),
             ])
             ->withExplanation($explanation)
             ->withL2ContentTemplate('@project-layouts-semitexa-demo/components/previews/graphql-derived-notes.html.twig', [

@@ -61,9 +61,9 @@ final class QueryBuilderHandler implements TypedHandlerInterface
         $explanation = $this->explanationProvider->getExplanation('data', 'query') ?? [];
 
         $sourceCode = [
-            'Catalog Repository' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Orm/QueryBuilder/ProductReadRepository.example.php'),
-            'Admin Repository' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Orm/QueryBuilder/ProductAdminRepository.example.php'),
-            'Injected Builder' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Orm/QueryBuilder/ProductQueryBuilder.example.php'),
+            'Catalog Repository' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Orm/QueryBuilder/ProductReadRepository.example.php'),
+            'Admin Repository' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Orm/QueryBuilder/ProductAdminRepository.example.php'),
+            'Injected Builder' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Orm/QueryBuilder/ProductQueryBuilder.example.php'),
             'Real Demo Repository' => $this->sourceCodeReader->readClassSource(DemoProductRepository::class),
         ];
 

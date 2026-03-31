@@ -148,7 +148,7 @@ final class CodeHighlightTwigExtension
         $html = '';
 
         try {
-            $tokens = token_get_all($syntheticOpenTag ? "<?php\n" . $source : $source);
+            $tokens = token_get_all($syntheticOpenTag ? "<?php\n" . $source : $source, TOKEN_PARSE);
         } catch (\ParseError) {
             // Source is not valid PHP — fall back to plain escaped output
             return new Markup(htmlspecialchars($source, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'), 'UTF-8');
@@ -187,7 +187,7 @@ final class CodeHighlightTwigExtension
         $syntheticOpenTag = !str_contains($source, '<?');
 
         try {
-            $tokens = token_get_all($syntheticOpenTag ? "<?php\n" . $source : $source);
+            $tokens = token_get_all($syntheticOpenTag ? "<?php\n" . $source : $source, TOKEN_PARSE);
         } catch (\ParseError) {
             $escaped = htmlspecialchars($source, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
             $html = '';
@@ -219,9 +219,10 @@ final class CodeHighlightTwigExtension
 
         $html = '';
         foreach ($lines as $index => $lineHtml) {
+            $lineNumber = is_int($index) ? $index + 1 : 1;
             $html .= sprintf(
                 '<span class="code-block__line"><span class="code-block__line-number" aria-hidden="true">%d</span><span class="code-block__line-code">%s</span></span>',
-                $index + 1,
+                $lineNumber,
                 $lineHtml,
             );
         }
@@ -372,7 +373,7 @@ final class CodeHighlightTwigExtension
     }
 
     /**
-     * @param array<int, string> $lines
+     * @param array<int|string, string> $lines
      */
     private function appendTextToLines(array &$lines, string $text, ?string $class): void
     {

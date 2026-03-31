@@ -11,6 +11,7 @@ use App\User\UserRepositoryInterface;
 use Semitexa\Authorization\Attributes\PublicEndpoint;
 use Semitexa\Core\Attributes\AsPayloadHandler;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Core\Exception\AuthenticationException;
 use Semitexa\Core\Session\SessionInterface;
 
 #[PublicEndpoint]
@@ -25,6 +26,10 @@ final class LoginHandler implements TypedHandlerInterface
     public function handle(LoginPayload $payload, LoginPageResource $resource): LoginPageResource
     {
         $user = $this->users->findByEmail($payload->getEmail());
+        if ($user === null) {
+            throw new AuthenticationException('Invalid credentials.');
+        }
+
         $user->assertPasswordMatches($payload->getPassword());
 
         $segment = $this->session->getPayload(BrowserSessionSegment::class);

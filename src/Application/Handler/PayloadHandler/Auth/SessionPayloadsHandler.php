@@ -84,10 +84,10 @@ final class SessionPayloadsHandler implements TypedHandlerInterface
                 ],
             ])
             ->withSourceCode([
-                'Legacy Session Access' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Auth/Session/LegacySessionAccess.example.php'),
-                'Session Payload' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Auth/Session/BrowserSessionSegment.example.php'),
-                'Typed Login Flow' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Auth/Session/LoginHandler.example.php'),
-                'Typed Restore Flow' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Auth/Session/SessionAuthHandler.example.php'),
+                'Legacy Session Access' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/LegacySessionAccess.example.php'),
+                'Session Payload' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/BrowserSessionSegment.example.php'),
+                'Typed Login Flow' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/LoginHandler.example.php'),
+                'Typed Restore Flow' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/SessionAuthHandler.example.php'),
             ])
             ->withExplanation($explanation);
     }

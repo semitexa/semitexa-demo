@@ -109,12 +109,12 @@ final class LayoutSlotHandler implements TypedHandlerInterface
                 ],
             ])
             ->withSourceCode([
-                'Fragment Sprawl Example' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Rendering/SlotResources/LegacyDashboardTemplate.example.twig'),
+                'Fragment Sprawl Example' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/SlotResources/LegacyDashboardTemplate.example.twig'),
                 'Slot Resource' => $this->sourceCodeReader->readClassSource(DemoNavSlot::class),
                 'Slot Renderer' => $this->sourceCodeReader->readClassSource(SlotRenderer::class),
                 'Slot Handler Pipeline' => $this->sourceCodeReader->readClassSource(SlotHandlerPipeline::class),
-                'Slot Resource Example' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Rendering/SlotResources/DashboardSidebarSlot.example.php'),
-                'Slot-Aware Layout' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Rendering/SlotResources/DashboardLayout.example.twig'),
+                'Slot Resource Example' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/SlotResources/DashboardSidebarSlot.example.php'),
+                'Slot-Aware Layout' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/SlotResources/DashboardLayout.example.twig'),
                 'Feature Handler' => $this->sourceCodeReader->readClassSource(self::class),
             ])
             ->withExplanation($explanation);

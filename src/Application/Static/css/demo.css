@@ -405,7 +405,7 @@ a:hover {
 
 .semitexa-logo {
   display: inline-block;
-  font-family: 'Syne', sans-serif;
+  font-family: Syne, sans-serif;
   font-size: clamp(1.72rem, 2vw, 2.08rem);
   font-weight: 800;
   letter-spacing: -0.03em;

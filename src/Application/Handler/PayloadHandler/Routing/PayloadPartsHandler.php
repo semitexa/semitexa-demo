@@ -30,10 +30,10 @@ final class PayloadPartsHandler implements TypedHandlerInterface
         $explanation = $this->explanationProvider->getExplanation('routing', 'payload-parts') ?? [];
 
         $sourceCode = [
-            'Base Payload' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Routing/PayloadParts/BaseSearchPayload.example.php'),
-            'Module A Handler' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Routing/PayloadParts/ModuleAHandler.example.php'),
-            'Module Trait' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Routing/PayloadParts/SearchTrackingPart.example.php'),
-            'Module B Handler' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Routing/PayloadParts/ModuleBHandler.example.php'),
+            'Base Payload' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Routing/PayloadParts/BaseSearchPayload.example.php'),
+            'Module A Handler' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Routing/PayloadParts/ModuleAHandler.example.php'),
+            'Module Trait' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Routing/PayloadParts/SearchTrackingPart.example.php'),
+            'Module B Handler' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Routing/PayloadParts/ModuleBHandler.example.php'),
         ];
 
         return $resource

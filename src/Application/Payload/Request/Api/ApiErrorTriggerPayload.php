@@ -8,6 +8,7 @@ use Semitexa\Api\Attributes\ApiVersion;
 use Semitexa\Api\Attributes\ExternalApi;
 use Semitexa\Authorization\Attributes\PublicEndpoint;
 use Semitexa\Core\Attributes\AsPayload;
+use Semitexa\Core\Request;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Attributes\DemoFeature;
 
@@ -18,6 +19,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     responseWith: DemoFeatureResource::class,
     requirements: ['type' => '[a-z-]+'],
     defaults: ['type' => 'not-found'],
+    produces: ['application/json', 'text/html'],
 )]
 #[ExternalApi(version: 'v1', description: 'Demo API error envelope trigger endpoint')]
 #[ApiVersion(version: '1.0.0')]
@@ -34,8 +36,14 @@ use Semitexa\Demo\Attributes\DemoFeature;
 )]
 final class ApiErrorTriggerPayload
 {
+    protected ?Request $httpRequest = null;
     protected string $type = 'not-found';
+    protected ?string $format = null;
 
+    public function getHttpRequest(): ?Request { return $this->httpRequest; }
+    public function setHttpRequest(Request $httpRequest): void { $this->httpRequest = $httpRequest; }
     public function getType(): string { return $this->type; }
     public function setType(string $type): void { $this->type = trim($type); }
+    public function getFormat(): ?string { return $this->format; }
+    public function setFormat(?string $format): void { $this->format = $format !== null ? trim($format) : null; }
 }

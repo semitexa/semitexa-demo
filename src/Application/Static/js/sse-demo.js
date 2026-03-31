@@ -4,7 +4,7 @@
 (function () {
     'use strict';
 
-    const SSE_ENDPOINT = '/sse';
+    const SSE_ENDPOINT = '/demo/events/sse';
     const DEMO_STREAM = 'showcase';
 
     function init() {

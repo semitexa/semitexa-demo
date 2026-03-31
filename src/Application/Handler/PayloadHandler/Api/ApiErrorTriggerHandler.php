@@ -4,16 +4,22 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Handler\PayloadHandler\Api;
 
+use Semitexa\Api\Pipeline\ExternalApiExceptionMapper;
 use Semitexa\Core\Attributes\AsPayloadHandler;
 use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Core\Exception\AccessDeniedException;
+use Semitexa\Core\Exception\ConflictException;
+use Semitexa\Core\Exception\DomainException;
+use Semitexa\Core\Exception\RateLimitException;
+use Semitexa\Core\Exception\ValidationException;
+use Semitexa\Core\Request;
 use Semitexa\Demo\Application\Exception\DemoApiNotFoundException;
 use Semitexa\Demo\Application\Payload\Request\Api\ApiErrorTriggerPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Api\Pipeline\ExternalApiExceptionMapper;
 
 #[AsPayloadHandler(payload: ApiErrorTriggerPayload::class, resource: DemoFeatureResource::class)]
 final class ApiErrorTriggerHandler implements TypedHandlerInterface
@@ -31,25 +37,15 @@ final class ApiErrorTriggerHandler implements TypedHandlerInterface
     {
         $type = strtolower($payload->getType());
         $explanation = $this->explanationProvider->getExplanation('api', 'structured-errors') ?? [];
+        $request = $payload->getHttpRequest() ?? new Request('GET', '/demo/api/errors/' . $type, [], [], [], [], []);
+        $exception = $this->buildException($type);
 
-        [$statusCode, $headers, $body, $title, $summary, $notes] = match ($type) {
+        if ($this->wantsJson($request, $payload->getFormat())) {
+            throw $exception;
+        }
+
+        [$title, $summary, $notes] = match ($type) {
             'validation' => [
-                422,
-                ['Content-Type' => 'application/json'],
-                [
-                    'error' => [
-                        'code' => 'validation_failed',
-                        'message' => 'Validation failed.',
-                        'context' => [
-                            'fields' => [
-                                'The requested sparse fieldset is invalid.',
-                                'Use only slug,name,price,description,status,category,rating,reviewCount.',
-                            ],
-                        ],
-                        'request_id' => null,
-                        'docs_url' => null,
-                    ],
-                ],
                 'Validation envelope',
                 'Field-level contract failures stay machine-readable instead of collapsing into one opaque message.',
                 [
@@ -61,17 +57,6 @@ final class ApiErrorTriggerHandler implements TypedHandlerInterface
                 ],
             ],
             'forbidden' => [
-                403,
-                ['Content-Type' => 'application/json'],
-                [
-                    'error' => [
-                        'code' => 'access_denied',
-                        'message' => 'The selected machine credential cannot access this resource.',
-                        'context' => new \stdClass(),
-                        'request_id' => null,
-                        'docs_url' => null,
-                    ],
-                ],
                 'Forbidden envelope',
                 'Authorization failures keep the same outer shape, so clients do not need a second parsing path.',
                 [
@@ -83,17 +68,6 @@ final class ApiErrorTriggerHandler implements TypedHandlerInterface
                 ],
             ],
             'conflict' => [
-                409,
-                ['Content-Type' => 'application/json'],
-                [
-                    'error' => [
-                        'code' => 'conflict',
-                        'message' => 'The requested representation profile conflicts with the current endpoint state.',
-                        'context' => new \stdClass(),
-                        'request_id' => null,
-                        'docs_url' => null,
-                    ],
-                ],
                 'Conflict envelope',
                 'State conflicts travel through the same error contract without leaking framework internals.',
                 [
@@ -105,17 +79,6 @@ final class ApiErrorTriggerHandler implements TypedHandlerInterface
                 ],
             ],
             'rate-limit' => [
-                429,
-                ['Content-Type' => 'application/json', 'Retry-After' => '45'],
-                [
-                    'error' => [
-                        'code' => 'rate_limited',
-                        'message' => 'Too many requests.',
-                        'context' => ['retry_after' => 45],
-                        'request_id' => null,
-                        'docs_url' => null,
-                    ],
-                ],
                 'Rate-limit envelope',
                 'Retry semantics stay visible in both the header and the machine-readable body context.',
                 [
@@ -127,20 +90,6 @@ final class ApiErrorTriggerHandler implements TypedHandlerInterface
                 ],
             ],
             default => [
-                404,
-                ['Content-Type' => 'application/json'],
-                [
-                    'error' => [
-                        'code' => 'not_found',
-                        'message' => 'Demo API product #missing-product not found.',
-                        'context' => [
-                            'resource' => 'Demo API product',
-                            'identifier' => 'missing-product',
-                        ],
-                        'request_id' => null,
-                        'docs_url' => null,
-                    ],
-                ],
                 'Not-found envelope',
                 'The route throws a domain exception, but the external API pipeline still returns one predictable error envelope.',
                 [
@@ -157,6 +106,22 @@ final class ApiErrorTriggerHandler implements TypedHandlerInterface
                 ],
             ],
         };
+
+        $headers = ['Content-Type' => 'application/json'];
+        if ($exception instanceof RateLimitException) {
+            $headers['Retry-After'] = (string) $exception->getRetryAfter();
+        }
+
+        $statusCode = $exception->getStatusCode()->value;
+        $body = [
+            'error' => [
+                'code' => $exception->getErrorCode(),
+                'message' => $exception->getMessage(),
+                'context' => $exception->getErrorContext() !== [] ? $exception->getErrorContext() : new \stdClass(),
+                'request_id' => null,
+                'docs_url' => null,
+            ],
+        ];
 
         return $resource
             ->pageTitle('Structured Errors — Semitexa Demo')
@@ -205,10 +170,35 @@ final class ApiErrorTriggerHandler implements TypedHandlerInterface
             ]);
     }
 
+    /**
+     * @param array<mixed> $payload
+     */
     private function encodeJson(array $payload): string
     {
         $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         return is_string($json) ? $json : "{}\n";
+    }
+
+    private function wantsJson(Request $request, ?string $format): bool
+    {
+        return strtolower((string) $format) === 'json'
+            || str_contains(strtolower($request->getHeader('Accept') ?? ''), 'application/json');
+    }
+
+    private function buildException(string $type): DomainException
+    {
+        return match ($type) {
+            'validation' => new ValidationException([
+                'fields' => [
+                    'The requested sparse fieldset is invalid.',
+                    'Use only slug,name,price,description,status,category,rating,reviewCount.',
+                ],
+            ]),
+            'forbidden' => new AccessDeniedException('The selected machine credential cannot access this resource.'),
+            'conflict' => new ConflictException('The requested representation profile conflicts with the current endpoint state.'),
+            'rate-limit' => new RateLimitException(45),
+            default => new DemoApiNotFoundException('Demo API product', 'missing-product'),
+        };
     }
 }

@@ -53,13 +53,13 @@ final class GraphqlApiHandler implements TypedHandlerInterface
                 'transport' => 'POST /graphql',
                 'field' => 'productMetrics',
                 'output' => 'ProductMetricsGraphqlView',
-                'query' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Api/Graphql/ProductMetricsQuery.example.graphql'),
+                'query' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Api/Graphql/ProductMetricsQuery.example.graphql'),
                 'response' => "{\n  \"data\": {\n    \"productMetrics\": {\n      \"total\": 128,\n      \"active\": 117,\n      \"archived\": 11,\n      \"averagePrice\": 189.4\n    }\n  }\n}",
             ])
             ->withSourceCode([
-                'GraphQL-Only Payload' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Api/Graphql/ProductMetricsPayload.example.php'),
-                'GraphQL-Only Output' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Api/Graphql/ProductMetricsGraphqlView.example.php'),
-                'POST /graphql Query' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Api/Graphql/ProductMetricsQuery.example.graphql'),
+                'GraphQL-Only Payload' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Api/Graphql/ProductMetricsPayload.example.php'),
+                'GraphQL-Only Output' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Api/Graphql/ProductMetricsGraphqlView.example.php'),
+                'POST /graphql Query' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Api/Graphql/ProductMetricsQuery.example.graphql'),
             ])
             ->withExplanation($explanation)
             ->withL2ContentTemplate('@project-layouts-semitexa-demo/components/previews/graphql-api-notes.html.twig');

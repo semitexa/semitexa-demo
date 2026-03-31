@@ -50,7 +50,14 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
             foreach ($tenantIds as $tenantId) {
                 $allCounts[$tenantId] = $this->tenantDataSeeder->getProductCount($tenantId);
             }
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
+            error_log((string) json_encode([
+                'demo_tenant_isolation' => 'data_unavailable',
+                'active_tenant' => $activeTenant,
+                'tenant_ids' => $tenantIds,
+                'error' => $exception->getMessage(),
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
             $dataUnavailable = true;
 
             foreach ($tenantIds as $tenantId) {

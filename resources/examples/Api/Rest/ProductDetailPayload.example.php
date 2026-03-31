@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Product;
 
+use App\Api\Product\ProductApiResponse;
 use Semitexa\Api\Attributes\ApiVersion;
 use Semitexa\Api\Attributes\ExternalApi;
 use Semitexa\Core\Attributes\AsPayload;

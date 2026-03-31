@@ -35,6 +35,14 @@ final class ProductListV2Handler implements TypedHandlerInterface
         $request = $payload->getHttpRequest() ?? new Request('GET', '/demo/api/v2/products', [], [], [], [], []);
         $body = $this->apiPresenter->buildCollection(request: $request, query: $payload->getQ());
         $explanation = $this->explanationProvider->getExplanation('api', 'active-version') ?? [];
+        $contentType = $this->apiPresenter->getContentType($request, $payload->getFormat());
+
+        if ($this->wantsJson($request, $payload->getFormat())) {
+            return $this->jsonResponse($resource, $body, [
+                'Content-Type' => $contentType,
+                'X-Api-Version' => '2.0.0',
+            ]);
+        }
 
         return $resource
             ->pageTitle('Active Version — Semitexa Demo')
@@ -65,10 +73,10 @@ final class ProductListV2Handler implements TypedHandlerInterface
                 'statusCode' => 200,
                 'contentType' => 'application/json',
                 'headers' => [
-                    'Content-Type' => 'application/json',
+                    'Content-Type' => $contentType,
                     'X-Api-Version' => '2.0.0',
                 ],
-                'curlExample' => 'curl -H "Accept: application/json" http://localhost:9502/demo/api/v2/products',
+                'curlExample' => 'curl -i -H "Accept: application/json" http://localhost:9502/demo/api/v2/products',
                 'bodyLabel' => 'Active version payload',
                 'body' => $this->encodeJson($body),
             ])
@@ -96,10 +104,35 @@ final class ProductListV2Handler implements TypedHandlerInterface
             ]);
     }
 
+    /**
+     * @param array<mixed> $payload
+     */
     private function encodeJson(array $payload): string
     {
         $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         return is_string($json) ? $json : "{}\n";
+    }
+
+    private function wantsJson(Request $request, ?string $format): bool
+    {
+        return strtolower((string) $format) === 'json'
+            || str_contains(strtolower($request->getHeader('Accept') ?? ''), 'application/json');
+    }
+
+    /**
+     * @param array<mixed> $payload
+     * @param array<string, string> $headers
+     */
+    private function jsonResponse(DemoFeatureResource $resource, array $payload, array $headers): DemoFeatureResource
+    {
+        $resource->disableAutoRender();
+        $resource->setContent($this->encodeJson($payload));
+
+        foreach ($headers as $name => $value) {
+            $resource->setHeader($name, $value);
+        }
+
+        return $resource;
     }
 }

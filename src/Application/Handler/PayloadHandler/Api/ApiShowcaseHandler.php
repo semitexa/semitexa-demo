@@ -60,9 +60,9 @@ final class ApiShowcaseHandler implements TypedHandlerInterface
                 'jsonLdHref' => '/demo/api/v1/products/wireless-headphones?format=ld',
             ])
             ->withSourceCode([
-                'List Payload' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Api/Rest/ProductListPayload.example.php'),
-                'Detail Payload' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Api/Rest/ProductDetailPayload.example.php'),
-                'REST Request' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Api/Rest/ProductListRequest.example.txt'),
+                'List Payload' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Api/Rest/ProductListPayload.example.php'),
+                'Detail Payload' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Api/Rest/ProductDetailPayload.example.php'),
+                'REST Request' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Api/Rest/ProductListRequest.example.txt'),
             ])
             ->withExplanation($explanation);
     }
