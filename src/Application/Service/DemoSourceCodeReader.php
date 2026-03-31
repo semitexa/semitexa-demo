@@ -49,26 +49,67 @@ final class DemoSourceCodeReader
 
     public function readProjectRelativeSource(string $relativePath): string
     {
-        $root = rtrim(ProjectRoot::get(), '/');
         $relativePath = ltrim($relativePath, '/');
 
         if ($relativePath === '' || str_contains($relativePath, '..')) {
             return '';
         }
 
+        foreach ($this->resolveReadableCandidates($relativePath) as $path) {
+            $contents = file_get_contents($path);
+            if ($contents !== false) {
+                return $this->sanitizeForDisplay($contents);
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function resolveReadableCandidates(string $relativePath): array
+    {
+        $candidates = [];
+
+        foreach ($this->candidateRoots() as $root) {
+            $root = rtrim($root, '/');
+            $candidates[] = $this->resolveCandidateWithinRoot($root, $relativePath);
+
+            if (str_starts_with($relativePath, 'packages/semitexa-demo/')) {
+                $candidates[] = $this->resolveCandidateWithinRoot(
+                    $root,
+                    substr($relativePath, strlen('packages/semitexa-demo/')),
+                );
+            }
+        }
+
+        return array_values(array_unique(array_filter($candidates)));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function candidateRoots(): array
+    {
+        $packageRoot = dirname(__DIR__, 3);
+        $monorepoRoot = dirname($packageRoot, 2);
+
+        return array_values(array_unique([
+            rtrim(ProjectRoot::get(), '/'),
+            rtrim($packageRoot, '/'),
+            rtrim($monorepoRoot, '/'),
+        ]));
+    }
+
+    private function resolveCandidateWithinRoot(string $root, string $relativePath): ?string
+    {
         $path = realpath($root . '/' . $relativePath);
-
-        if ($path === false && str_starts_with($relativePath, 'packages/semitexa-demo/')) {
-            $path = realpath($root . '/' . substr($relativePath, strlen('packages/semitexa-demo/')));
-        }
-
         if ($path === false || !str_starts_with($path, $root . '/') || !is_readable($path)) {
-            return '';
+            return null;
         }
 
-        $contents = file_get_contents($path);
-
-        return $contents !== false ? $this->sanitizeForDisplay($contents) : '';
+        return $path;
     }
 
     private function sanitizeForDisplay(string $contents): string
