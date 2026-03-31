@@ -21,11 +21,12 @@ use Semitexa\Demo\Attributes\DemoFeature;
     title: 'Deferred Blocks',
     slug: 'deferred',
     summary: 'SSR renders the shell first, then expensive regions stream in as real HTML over SSE — no SPA handoff and no client-side page rebuild.',
-    order: 6,
+    order: 3,
     highlights: ['#[AsSlotResource(deferred: true)]', 'skeletonTemplate', 'SSE push', 'skeleton → content'],
     entryLine: 'The page is usable immediately, and slow regions arrive later as server-rendered HTML instead of hydration-heavy client code.',
     learnMoreLabel: 'See the SSR-first flow →',
     deepDiveLabel: 'How deferred delivery works →',
+    opensInNewTab: true,
 )]
 class DeferredBlocksPayload
 {

@@ -20,12 +20,12 @@ use Semitexa\Demo\Attributes\DemoFeature;
     section: 'auth',
     title: 'RBAC',
     slug: 'rbac',
-    summary: 'Role-based access control — assign permissions to roles, assign roles to users.',
+    summary: 'Hybrid RBAC with coarse-grained capabilities, exact permission slugs, and module-owned permission catalogs.',
     order: 3,
-    highlights: ['#[RequiresPermission]', '#[RequiresCapability]', 'RoleInterface', 'permission slugs'],
-    entryLine: 'Role-based access control — assign permissions to roles, assign roles to users.',
-    learnMoreLabel: 'See the permission model →',
-    deepDiveLabel: 'How RBAC resolution works →',
+    highlights: ['#[RequiresCapability]', '#[RequiresPermission]', 'CapabilityRegistry', 'PermissionProviderInterface'],
+    entryLine: 'Semitexa uses a hybrid authorization model: bitmask-backed capabilities for broad checks and slug permissions for fine-grained business rules.',
+    learnMoreLabel: 'See the hybrid permission model →',
+    deepDiveLabel: 'How grant resolution and module extension work →',
 )]
 class RbacPayload
 {

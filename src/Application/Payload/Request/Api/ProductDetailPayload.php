@@ -9,7 +9,9 @@ use Semitexa\Api\Attributes\ExternalApi;
 use Semitexa\Authorization\Attributes\PublicEndpoint;
 use Semitexa\Core\Attributes\AsPayload;
 use Semitexa\Core\Request;
+use Semitexa\Demo\Application\Graphql\Output\ProductGraphqlView;
 use Semitexa\Demo\Application\Resource\Response\DemoApiResponse;
+use Semitexa\Graphql\Attributes\ExposeAsGraphql;
 
 #[PublicEndpoint]
 #[AsPayload(
@@ -21,6 +23,12 @@ use Semitexa\Demo\Application\Resource\Response\DemoApiResponse;
 )]
 #[ExternalApi(version: 'v1', description: 'Demo product detail endpoint')]
 #[ApiVersion(version: '1.0.0')]
+#[ExposeAsGraphql(
+    field: 'productBySlug',
+    rootType: 'query',
+    output: ProductGraphqlView::class,
+    description: 'Derived GraphQL field for loading one product by slug from the Semitexa demo catalog.',
+)]
 final class ProductDetailPayload
 {
     protected ?Request $httpRequest = null;

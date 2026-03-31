@@ -32,19 +32,41 @@ final class FilteringHandler implements TypedHandlerInterface
 
     public function handle(FilteringPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $filter = new DemoProductResource();
+        $hasFilters = $payload->getName() !== null
+            || $payload->getStatus() !== null
+            || $payload->getPriceMin() !== null
+            || $payload->getPriceMax() !== null
+            || $payload->getCategoryId() !== null;
 
-        if ($payload->getName() !== null) {
-            $filter->name = $payload->getName();
-        }
-        if ($payload->getStatus() !== null) {
-            $filter->status = $payload->getStatus();
-        }
+        $products = $this->productRepository->findFiltered(
+            status: $payload->getStatus(),
+            minPrice: $payload->getPriceMin(),
+            maxPrice: $payload->getPriceMax(),
+            limit: 50,
+        );
 
-        $hasFilters = $payload->getName() !== null || $payload->getStatus() !== null;
-        $products = $hasFilters
-            ? $this->productRepository->find($filter)
-            : $this->productRepository->findAll(10);
+        $products = array_values(array_filter(
+            $products,
+            function ($product) use ($payload): bool {
+                if (!$product instanceof DemoProductResource) {
+                    return false;
+                }
+
+                $name = $payload->getName();
+                if ($name !== null && $name !== '' && stripos($product->name, $name) === false) {
+                    return false;
+                }
+
+                $categoryId = $payload->getCategoryId();
+                if ($categoryId !== null && $categoryId !== '' && $product->category_id !== $categoryId) {
+                    return false;
+                }
+
+                return true;
+            },
+        ));
+
+        $products = array_slice($products, 0, 10);
 
         $count = count($products);
         $rows = [];
@@ -94,7 +116,9 @@ final class FilteringHandler implements TypedHandlerInterface
                 'title' => 'Live filtered result set',
                 'summary' => $activeFilters !== []
                     ? 'Applied filters narrow the dataset before repository fetch.'
-                    : 'No filters applied — showing the broad demo dataset.',
+                    : ($hasFilters
+                        ? 'The requested filters currently resolve to an empty demo subset.'
+                        : 'No filters applied — showing the broad demo dataset.'),
                 'activeFilters' => array_values($activeFilters),
                 'stats' => [
                     ['value' => (string) $count, 'label' => 'Matched products'],

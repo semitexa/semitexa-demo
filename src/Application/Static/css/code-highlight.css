@@ -13,12 +13,18 @@
   border: 1px solid rgba(78, 59, 43, 0.18);
   border-radius: 26px;
   overflow: hidden;
-  background:
-    radial-gradient(circle at top right, rgba(186, 68, 43, 0.12), transparent 24%),
-    linear-gradient(180deg, #171a24 0%, #10131b 100%);
+  background: var(--demo-code-bg);
   box-shadow:
     0 30px 60px rgba(28, 20, 14, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(18px) saturate(135%);
+}
+
+:root[data-demo-theme="dark"] .code-block__frame {
+  border-color: var(--demo-glass-stroke);
+  box-shadow:
+    0 34px 70px rgba(2, 8, 15, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .code-block__masthead {

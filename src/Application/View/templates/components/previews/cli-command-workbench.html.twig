@@ -1,0 +1,56 @@
+<div class="preview-card preview-card--layered">
+  {% if eyebrow is defined and eyebrow %}
+    <p class="preview-card__eyebrow">{{ eyebrow }}</p>
+  {% endif %}
+  {% if title is defined and title %}
+    <h3 class="preview-card__title">{{ title }}</h3>
+  {% endif %}
+  {% if summary is defined and summary %}
+    <p class="preview-card__summary">{{ summary }}</p>
+  {% endif %}
+
+  {% if pillars is defined and pillars|length > 0 %}
+    <div class="preview-checklist">
+      {% for pillar in pillars %}
+        <div class="preview-checklist__item">
+          <span class="preview-checklist__mark" aria-hidden="true">+</span>
+          <p><strong>{{ pillar.title }}</strong> {{ pillar.summary }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if commands is defined and commands|length > 0 %}
+    <div class="preview-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Command</th>
+            <th>Purpose</th>
+            <th>Why it matters</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for command in commands %}
+            <tr>
+              <td><code>{{ command.name }}</code></td>
+              <td>{{ command.purpose }}</td>
+              <td>{{ command.value }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  {% if snippets is defined and snippets|length > 0 %}
+    <div class="preview-code-stack">
+      {% for snippet in snippets %}
+        <div class="preview-code-stack__item">
+          <p class="preview-code-stack__label">{{ snippet.label }}</p>
+          <pre class="preview-code"><code>{{ highlight_php(snippet.code) }}</code></pre>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>

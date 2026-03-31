@@ -4,9 +4,9 @@
             <p class="deferred-block__eyebrow">Scoped island</p>
             <h3 class="deferred-block__title">Countdown widget</h3>
         </div>
-        <span class="deferred-block__badge">Starts after stream</span>
+        <span class="deferred-block__badge">{{ badgeText|default('Starts after stream') }}</span>
     </div>
-    <p class="deferred-block__summary">The timer does nothing until the deferred HTML arrives. After that, the client module owns only this isolated widget.</p>
+    <p class="deferred-block__summary">{{ summaryText|default('The timer does nothing until the deferred HTML arrives. After that, the client module owns only this isolated widget.') }}</p>
     <div class="countdown" data-countdown data-duration="{{ duration|default(60) }}">
         <span class="countdown__label">{{ label|default('Countdown') }}</span>
         <span class="countdown__display" data-countdown-display>{{ duration|default(60) }}s</span>

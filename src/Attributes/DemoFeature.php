@@ -51,5 +51,7 @@ final class DemoFeature
         public readonly string $learnMoreLabel = 'Try it yourself →',
         /** Custom label for the L2 → L3 disclosure prompt. */
         public readonly string $deepDiveLabel = 'Under the hood →',
+        /** Whether links to this feature should open in a new tab (used for standalone/full-page demos). */
+        public readonly bool $opensInNewTab = false,
     ) {}
 }

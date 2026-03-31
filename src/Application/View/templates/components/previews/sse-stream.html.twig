@@ -1,7 +1,9 @@
+{{ asset_require('semitexa-demo:js:sse-demo') }}
+
 <div class="preview-card" id="sse-demo">
   <p class="preview-card__eyebrow">Server Push</p>
   <h3 class="preview-card__title">Event stream over plain HTTP</h3>
-  <p class="preview-card__summary">Connect once, then let the server push named events into the page without WebSockets.</p>
+  <p class="preview-card__summary">Connect once, then watch the backend push named events from the server into this page without WebSockets or manual refresh.</p>
 
   <div class="preview-stats">
     <div class="preview-stats__item">
@@ -22,11 +24,21 @@
     <div class="preview-sse-panel__status" id="sse-status">
       <span class="preview-pill preview-pill--warning">Disconnected</span>
     </div>
+    <div class="preview-sse-sync" id="sse-minute-sync" aria-live="polite">
+      <span class="preview-sse-sync__eyebrow">Next backend minute tick</span>
+      <div class="preview-sse-sync__value-row">
+        <strong class="preview-sse-sync__value" id="sse-minute-value">--</strong>
+        <span class="preview-sse-sync__unit">sec</span>
+      </div>
+      <p class="preview-sse-sync__summary" id="sse-minute-summary">
+        Connect once. The backend will emit a fresh SSE message on every new minute.
+      </p>
+    </div>
     <ul class="preview-sse-panel__log" id="sse-event-log">
-      <li class="preview-sse-panel__placeholder">Events will appear here…</li>
+      <li class="preview-sse-panel__placeholder">Backend events will appear here…</li>
     </ul>
     <div class="preview-actions">
-      <button class="preview-button preview-button--primary" id="sse-connect" type="button">Connect to SSE stream</button>
+      <button class="preview-button preview-button--primary" id="sse-connect" type="button">Connect to backend stream</button>
       <button class="preview-button preview-button--secondary" id="sse-disconnect" type="button" style="display:none">Disconnect</button>
     </div>
   </div>

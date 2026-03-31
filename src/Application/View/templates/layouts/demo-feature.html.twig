@@ -13,22 +13,22 @@
       {% block feature_l1 %}{% endblock %}
     </section>
 
-    {% include '@project-layouts-semitexa-demo/components/disclosure-prompt.html.twig' with {
+    {{ component('demo-disclosure-prompt', {
       label: learnMoreLabel|default('Try it yourself →'),
       variant: 'learnMore',
       target: 'l2-' ~ domKey,
-    } only %}
+    }) }}
 
     <div id="l2-{{ domKey }}" class="expandable-section" data-expanded="false" data-expandable>
       <div class="expandable-section__inner">
         <div class="feature-detail__l2">
           {% block feature_l2 %}{% endblock %}
 
-          {% include '@project-layouts-semitexa-demo/components/disclosure-prompt.html.twig' with {
+          {{ component('demo-disclosure-prompt', {
             label: deepDiveLabel|default('Under the hood →'),
             variant: 'deepDive',
             target: 'l3-' ~ domKey,
-          } only %}
+          }) }}
         </div>
       </div>
     </div>

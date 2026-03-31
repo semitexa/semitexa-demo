@@ -21,7 +21,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     title: 'Slot Resources',
     slug: 'slots',
     summary: 'Each page region is its own resource pipeline with the same template system as the main page — no scattered partial glue, no mystery wiring.',
-    order: 3,
+    order: 2,
     highlights: ['#[AsSlotResource]', 'HtmlSlotResponse', 'layout_slot()', 'SlotHandlerPipeline', 'shared Twig'],
     entryLine: 'A slot is not a fragment hack. It is a real resource with its own handler pipeline, template, and lifecycle.',
     learnMoreLabel: 'See the slot pipeline →',

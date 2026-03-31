@@ -58,10 +58,10 @@ final class DeferredEncapsulationHandler implements TypedHandlerInterface
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/countdown-comparison.html.twig', [
                 'eyebrow' => 'Scoped Instances',
                 'title' => 'Same slot class, separate runtime state',
-                'summary' => 'Two countdown blocks render from the same slot resource, but each instance keeps its own timer and DOM scope.',
+                'summary' => 'Two countdown blocks reuse the same widget template and client module, but each instance keeps its own timer and DOM scope.',
                 'timers' => [
-                    ['label' => 'Timer A', 'display' => '30s', 'caption' => 'Duration', 'progress' => 100],
-                    ['label' => 'Timer B', 'display' => '60s', 'caption' => 'Duration', 'progress' => 100],
+                    ['label' => 'Timer A', 'duration' => 30, 'instanceId' => 'timer-a'],
+                    ['label' => 'Timer B', 'duration' => 60, 'instanceId' => 'timer-b'],
                 ],
             ])
             ->withSourceCode($sourceCode)

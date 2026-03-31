@@ -16,11 +16,36 @@ use Semitexa\Demo\Domain\Model\DemoTenantConfig;
 final class DemoTenantConfigProvider implements DemoTenantConfigProviderInterface
 {
     /** @var array<string, DemoTenantConfig> */
-    private array $configs;
+    private array $configs = [];
 
-    public function __construct()
+    public function getConfig(string $tenantId): ?DemoTenantConfig
     {
-        $this->configs = [
+        return $this->configs()[$tenantId] ?? null;
+    }
+
+    public function getAllConfigs(): array
+    {
+        return array_values($this->configs());
+    }
+
+    public function getTenantIds(): array
+    {
+        return array_keys($this->configs());
+    }
+
+    /**
+     * Some Semitexa services are instantiated without calling __construct(),
+     * so keep demo configs behind an idempotent lazy initializer.
+     *
+     * @return array<string, DemoTenantConfig>
+     */
+    private function configs(): array
+    {
+        if ($this->configs !== []) {
+            return $this->configs;
+        }
+
+        return $this->configs = [
             'acme' => new DemoTenantConfig(
                 tenantId: 'acme',
                 displayName: 'Acme Corp',
@@ -70,20 +95,5 @@ final class DemoTenantConfigProvider implements DemoTenantConfigProviderInterfac
                 defaultLocale: 'uk',
             ),
         ];
-    }
-
-    public function getConfig(string $tenantId): ?DemoTenantConfig
-    {
-        return $this->configs[$tenantId] ?? null;
-    }
-
-    public function getAllConfigs(): array
-    {
-        return array_values($this->configs);
-    }
-
-    public function getTenantIds(): array
-    {
-        return array_keys($this->configs);
     }
 }

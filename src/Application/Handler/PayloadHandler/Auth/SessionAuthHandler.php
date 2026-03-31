@@ -39,8 +39,12 @@ final class SessionAuthHandler implements TypedHandlerInterface
 
     public function handle(SessionAuthPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        if ($this->session === null) {
+            throw new \RuntimeException('Session service is required for SessionAuthHandler.');
+        }
+
         /** @var DemoSessionSegment $segment */
-        $segment = $this->session?->getPayload(DemoSessionSegment::class) ?? new DemoSessionSegment();
+        $segment = $this->session->getPayload(DemoSessionSegment::class);
 
         if ($payload->getAction() === 'login' && $payload->getRole() !== null) {
             $role = $payload->getRole();
@@ -71,8 +75,10 @@ final class SessionAuthHandler implements TypedHandlerInterface
         $explanation = $this->explanationProvider->getExplanation('auth', 'session') ?? [];
 
         $sourceCode = [
-            'Session Segment' => $this->sourceCodeReader->readClassSource(DemoSessionSegment::class),
-            'Handler' => $this->sourceCodeReader->readClassSource(self::class),
+            'Session Segment' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/BrowserSessionSegment.example.php'),
+            'Login Handler' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/LoginHandler.example.php'),
+            'Session Auth Handler' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/SessionAuthHandler.example.php'),
+            'Protected Handler' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/AccountDashboardHandler.example.php'),
         ];
 
         return $resource

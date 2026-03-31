@@ -11,21 +11,21 @@ use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
-    path: '/demo/api/showcase',
+    path: '/demo/api/rest-api',
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
     produces: ['application/json', 'text/html'],
 )]
 #[DemoFeature(
     section: 'api',
-    title: 'Consumer Profiles Showcase',
-    slug: 'showcase',
-    summary: 'One product API, multiple consumers: frontend JSON, JSON-LD crawlers, expanded admin views, and search-oriented collections.',
-    order: 1,
+    title: 'REST API',
+    slug: 'rest-api',
+    summary: 'Classic Semitexa REST endpoints with typed payloads, versioning, and consumer-friendly response shaping.',
+    order: 2,
     highlights: ['#[ExternalApi]', '#[ApiVersion]', 'application/ld+json', 'fields', 'expand', 'X-Response-Profile'],
-    entryLine: 'The same Semitexa product endpoint shifts shape depending on who asks and how they ask.',
-    learnMoreLabel: 'See live endpoint contracts →',
-    deepDiveLabel: 'API presenter internals →',
+    entryLine: 'If you want clean REST, Semitexa already gives you a strong machine-facing contract without extra ceremony.',
+    learnMoreLabel: 'See simple REST payloads →',
+    deepDiveLabel: 'Why Semitexa REST stays clean →',
 )]
 final class ApiShowcasePayload
 {

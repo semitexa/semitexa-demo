@@ -1,0 +1,45 @@
+{{ asset_require('semitexa-demo:js:component-event-bridge-demo') }}
+
+<div class="preview-card component-bridge-preview">
+  <p class="preview-card__eyebrow">Component Event Bridge</p>
+  <h3 class="preview-card__title">One click, one SSR component contract, one backend event bus.</h3>
+  <p class="preview-card__summary">This button still opens the disclosure layer locally, but it now also dispatches a signed backend event through the generic SSR bridge endpoint.</p>
+
+  <div class="component-bridge-preview__surface">
+    <div class="component-bridge-preview__action">
+      {{ component('demo-disclosure-prompt', {
+        label: 'Dispatch backend event →',
+        variant: 'learnMore',
+        target: 'component-bridge-details',
+      }) }}
+    </div>
+
+    <div id="component-bridge-details" class="expandable-section component-bridge-preview__details" data-expanded="false" data-expandable>
+      <div class="expandable-section__inner">
+        <div class="preview-callout">
+          <p class="preview-card__summary">Local disclosure still works immediately. The component bridge runs in parallel and acknowledges the backend dispatch below.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-stats">
+      <div class="preview-stats__item">
+        <span class="preview-stats__value"><code>DemoDisclosureExpanded</code></span>
+        <span class="preview-stats__label">Declared backend event</span>
+      </div>
+      <div class="preview-stats__item">
+        <span class="preview-stats__value"><code>click</code></span>
+        <span class="preview-stats__label">Public trigger contract</span>
+      </div>
+      <div class="preview-stats__item">
+        <span class="preview-stats__value"><code>/__semitexa_component_event</code></span>
+        <span class="preview-stats__label">Generic bridge endpoint</span>
+      </div>
+    </div>
+
+    <div class="component-bridge-preview__console" data-component-bridge-console>
+      <p class="component-bridge-preview__console-label">Backend acknowledgment</p>
+      <pre class="component-bridge-preview__console-body">Waiting for the first dispatch…</pre>
+    </div>
+  </div>
+</div>

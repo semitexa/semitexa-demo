@@ -58,6 +58,10 @@ final class DemoSourceCodeReader
 
         $path = realpath($root . '/' . $relativePath);
 
+        if ($path === false && str_starts_with($relativePath, 'packages/semitexa-demo/')) {
+            $path = realpath($root . '/' . substr($relativePath, strlen('packages/semitexa-demo/')));
+        }
+
         if ($path === false || !str_starts_with($path, $root . '/') || !is_readable($path)) {
             return '';
         }

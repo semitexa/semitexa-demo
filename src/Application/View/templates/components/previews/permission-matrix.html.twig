@@ -4,7 +4,7 @@
   <p class="preview-card__summary">{{ summary }}</p>
 
   {% if codeSnippet is defined and codeSnippet %}
-    <pre class="preview-code"><code>{{ codeSnippet }}</code></pre>
+    <pre class="preview-code"><code>{{ highlight_php(codeSnippet)|raw }}</code></pre>
   {% endif %}
 
   <div class="preview-table-wrap">

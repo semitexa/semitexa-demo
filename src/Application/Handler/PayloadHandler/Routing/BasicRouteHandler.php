@@ -31,7 +31,6 @@ final class BasicRouteHandler implements TypedHandlerInterface
 
         $sourceCode = [
             'Payload' => $this->sourceCodeReader->readClassSource(BasicRoutePayload::class),
-            'Handler' => $this->sourceCodeReader->readClassSource(self::class),
         ];
 
         return $resource
@@ -50,20 +49,20 @@ final class BasicRouteHandler implements TypedHandlerInterface
             ->withSlug('basic')
             ->withTitle('Basic Route')
             ->withSummary('Define a route with one attribute — no XML, no YAML, no config files.')
-            ->withEntryLine('Define a route with one attribute — and even the path can move through .env without touching PHP code.')
-            ->withHighlights(['#[AsPayload]', 'env::ROUTE_PATH', 'responseWith', 'TypedHandlerInterface'])
-            ->withLearnMoreLabel('See the code →')
+            ->withEntryLine('One small payload class defines the endpoint. One small handler fills the response resource.')
+            ->withHighlights(['#[AsPayload]', 'path', 'methods', 'responseWith'])
+            ->withLearnMoreLabel('See the minimal code →')
             ->withDeepDiveLabel('How route compilation works →')
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation)
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/route-snapshot.html.twig', [
                 'eyebrow' => 'Route Discovery',
                 'title' => 'Single attribute, live endpoint',
-                'summary' => 'This page is reachable because the payload declared its route metadata directly in PHP, and that path can still be overridden from .env.',
+                'summary' => 'This page exists because the payload declared the route directly in PHP and the handler only had to return the response resource.',
                 'method' => 'GET',
                 'path' => '/demo/routing/basic',
                 'status' => '200 OK',
-                'facts' => ['#[AsPayload]', 'env:: path override', 'Typed handler', 'No central routes file'],
+                'facts' => ['Payload owns route', 'One handler method', 'Typed response', 'No central routes file'],
             ]);
     }
 }

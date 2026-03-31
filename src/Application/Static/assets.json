@@ -17,8 +17,11 @@
             "attributes": { "defer": true }
         },
         "js/code-tabs.js": {
-            "scope": "module",
             "priority": 30,
+            "attributes": { "defer": true }
+        },
+        "js/script-signal-card.js": {
+            "priority": 31,
             "attributes": { "defer": true }
         },
         "js/api-explorer.js": {

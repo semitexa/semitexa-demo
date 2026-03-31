@@ -1,16 +1,24 @@
 <nav class="feature-tree" aria-label="Feature navigation tree" data-feature-tree>
   {% for section in sections|default([]) %}
-    <div class="feature-tree__section{{ currentSection == section.key ? ' feature-tree__section--active' : '' }}" data-section-key="{{ section.key }}">
-      <button
-        class="feature-tree__toggle"
-        type="button"
-        aria-expanded="{{ currentSection == section.key ? 'true' : 'false' }}"
-        aria-controls="tree-{{ section.key }}"
-      >
-        <span class="feature-tree__icon" aria-hidden="true">{{ section.icon }}</span>
-        <span class="feature-tree__label">{{ section.label }}</span>
-        <span class="feature-tree__count">{{ section.featureCount }}</span>
-      </button>
+    <div class="feature-tree__section{{ currentSection == section.key ? ' feature-tree__section--active feature-tree__section--open' : '' }}" data-section-key="{{ section.key }}">
+      <div class="feature-tree__header">
+        <a
+          href="{{ section.href|default('/demo/' ~ section.key) }}"
+          class="feature-tree__overview-link{{ currentSection == section.key and (currentSlug|default('')) == '' ? ' feature-tree__overview-link--active' : '' }}"
+        >
+          <span class="feature-tree__icon" aria-hidden="true">{{ section.icon }}</span>
+          <span class="feature-tree__label">{{ section.label }}</span>
+        </a>
+        <button
+          class="feature-tree__toggle"
+          type="button"
+          aria-expanded="{{ currentSection == section.key ? 'true' : 'false' }}"
+          aria-controls="tree-{{ section.key }}"
+          aria-label="Toggle {{ section.label }} section"
+        >
+          <span class="feature-tree__toggle-glyph" aria-hidden="true">⌄</span>
+        </button>
+      </div>
       <ul
         id="tree-{{ section.key }}"
         class="feature-tree__list"
@@ -18,11 +26,14 @@
       >
         {% for feature in section.features|default([]) %}
           <li class="feature-tree__item{{ (currentSection == section.key and currentSlug == feature.slug) ? ' feature-tree__item--active' : '' }}">
+            {% set opensInNewTab = feature.opensInNewTab|default(false) %}
             <a
               href="{{ feature.href|default('/demo/' ~ section.key ~ '/' ~ feature.slug) }}"
               class="feature-tree__link"
               data-feature-slug="{{ feature.slug }}"
-            >{{ feature.title }}</a>
+              {% if opensInNewTab %}target="_blank" rel="noopener noreferrer"{% endif %}
+              {% if opensInNewTab %}aria-label="{{ feature.title }} (opens in new tab)"{% endif %}
+            >{{ feature.title }}{% if opensInNewTab %}<span class="demo-link-external-indicator" aria-hidden="true">↗</span>{% endif %}</a>
           </li>
         {% endfor %}
       </ul>

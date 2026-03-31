@@ -1,0 +1,43 @@
+<div class="preview-card component-script-preview">
+  <p class="preview-card__eyebrow">Component Script Assets</p>
+  <h3 class="preview-card__title">The SSR component owns its optional enhancement asset.</h3>
+  <p class="preview-card__summary">These cards are plain SSR markup on first paint. Their behavior appears only because the component contract itself declares a script asset, and the runtime mounts that script per rendered root.</p>
+
+  <div class="component-script-preview__grid">
+    {{ component('demo-script-signal-card', {
+      eyebrow: 'Shell',
+      title: 'Server HTML first',
+      summary: 'The initial markup is already meaningful before any client enhancement runs.',
+      buttonLabel: 'Wake this card up',
+    }) }}
+
+    {{ component('demo-script-signal-card', {
+      eyebrow: 'Ownership',
+      title: 'Behavior travels',
+      summary: 'The page did not manually remember this asset. The component contract did.',
+      buttonLabel: 'Prove the mount',
+    }) }}
+
+    {{ component('demo-script-signal-card', {
+      eyebrow: 'Scale',
+      title: 'One asset, many roots',
+      summary: 'The same script loads once, then mounts each rendered component instance independently.',
+      buttonLabel: 'Trigger interaction',
+    }) }}
+  </div>
+
+  <div class="preview-stats">
+    <div class="preview-stats__item">
+      <span class="preview-stats__value"><code>script:</code></span>
+      <span class="preview-stats__label">Declared on <code>#[AsComponent]</code></span>
+    </div>
+    <div class="preview-stats__item">
+      <span class="preview-stats__value"><code>1x</code></span>
+      <span class="preview-stats__label">Asset load per page</span>
+    </div>
+    <div class="preview-stats__item">
+      <span class="preview-stats__value"><code>n</code></span>
+      <span class="preview-stats__label">Root mounts per rendered instance</span>
+    </div>
+  </div>
+</div>

@@ -1,3 +1,5 @@
+{{ asset_require('semitexa-demo:js:deferred/countdown-timer') }}
+
 <div class="preview-card">
   {% if eyebrow is defined and eyebrow %}
     <p class="preview-card__eyebrow">{{ eyebrow }}</p>
@@ -11,16 +13,13 @@
 
   <div class="preview-grid preview-grid--two-up">
     {% for timer in timers|default([]) %}
-      <div class="preview-card preview-card--nested">
-        <p class="preview-card__eyebrow">{{ timer.label }}</p>
-        <div class="preview-metric">
-          <span class="preview-metric__value">{{ timer.display }}</span>
-          <span class="preview-metric__label">{{ timer.caption }}</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-bar__fill" style="width: {{ timer.progress }}%"></div>
-        </div>
-      </div>
+      {% include '@project-layouts-semitexa-demo/deferred/countdown-timer.html.twig' with {
+        label: timer.label,
+        duration: timer.duration,
+        instanceId: timer.instanceId,
+        badgeText: 'Isolated runtime',
+        summaryText: 'This widget runs its own timer state and restart flow without touching the other instance.',
+      } only %}
     {% endfor %}
   </div>
 </div>

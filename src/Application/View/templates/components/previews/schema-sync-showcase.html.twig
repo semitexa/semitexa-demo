@@ -45,7 +45,7 @@
     {% for snippet in snippets %}
       <div class="preview-code-stack__item">
         <p class="preview-code-stack__label">{{ snippet.label }}</p>
-        <pre class="preview-code"><code>{{ snippet.code }}</code></pre>
+        <pre class="preview-code"><code>{{ highlight_php(snippet.code)|raw }}</code></pre>
       </div>
     {% endfor %}
   </div>

@@ -1,0 +1,36 @@
+<div class="preview-card">
+  <p class="preview-card__eyebrow">Semitexa SSR Axioms</p>
+  <h3 class="preview-card__title">One model should survive first paint, late HTML, live refresh, and interaction without a framework handoff.</h3>
+  <p class="preview-card__summary">
+    If a rendering approach collapses the moment the page becomes dynamic, it was never a complete rendering model.
+    Semitexa SSR is opinionated precisely because it tries to keep that model intact instead of outsourcing interaction to a second UI runtime.
+  </p>
+
+  <div class="preview-checklist">
+    {% for rule in rules %}
+      <div class="preview-checklist__item">
+        <span class="preview-checklist__icon" aria-hidden="true">+</span>
+        <p>{{ rule }}</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="preview-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Primitive</th>
+          <th>Why it exists</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for check in checks %}
+          <tr>
+            <td><span class="preview-pill">{{ check.label }}</span></td>
+            <td>{{ check.detail }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

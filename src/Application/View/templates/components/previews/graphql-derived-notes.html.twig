@@ -1,0 +1,24 @@
+<div class="preview-card preview-card--nested graphql-derived-notes">
+  <p class="preview-card__eyebrow">REST + GraphQL</p>
+  <h3 class="preview-card__title">What this combined mode is proving</h3>
+  <div class="preview-table">
+    <table>
+      <thead>
+        <tr>
+          <th>What already exists</th>
+          <th>What you add</th>
+          <th>What you avoid</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for operation in operations %}
+          <tr>
+            <td>A live REST contract: <code>{{ operation.httpMethods }} {{ operation.path }}</code></td>
+            <td>One GraphQL declaration for <code>{{ operation.rootType }}.{{ operation.field }}</code></td>
+            <td>Duplicating the same use case in separate resolver logic.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

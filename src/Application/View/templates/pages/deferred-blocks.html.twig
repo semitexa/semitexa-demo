@@ -4,28 +4,78 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ featureTitle|default('Deferred Blocks') }} — Semitexa Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
     {{ meta('description') }}
     {{ meta('keywords') }}
     {{ meta('og:title') }}
     {{ meta('og:description') }}
     {{ meta('og:type') }}
+    <script>
+      (function () {
+        try {
+          var theme = window.localStorage.getItem('semitexa_demo_theme');
+          if (theme !== 'light' && theme !== 'dark') {
+            theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          document.documentElement.setAttribute('data-demo-theme', theme);
+          window.__resolvedDemoTheme = theme;
+        } catch (error) {
+          document.documentElement.setAttribute('data-demo-theme', 'light');
+          window.__resolvedDemoTheme = 'light';
+        }
+      })();
+    </script>
     {{ semantic_head() }}
     {{ asset_head() }}
     {{ __ssr_preload_hints|default('')|raw }}
   </head>
   <body class="demo-layout deferred-demo-page" {{ __ssr_handle_attr|default('')|raw }}>
+    <script>
+      (function () {
+        var theme = window.__resolvedDemoTheme || document.documentElement.getAttribute('data-demo-theme') || 'light';
+        var label = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+        var text = theme === 'dark' ? 'Light mode' : 'Dark mode';
+        var toggle = document.querySelector('[data-demo-theme-toggle]');
+        var textNode = document.querySelector('[data-demo-theme-text]');
+        if (toggle) {
+          toggle.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+          toggle.setAttribute('aria-label', label);
+          toggle.setAttribute('title', 'Toggle color theme');
+        }
+        if (textNode) {
+          textNode.textContent = text;
+        }
+      })();
+    </script>
     <header class="demo-header">
       <nav class="demo-nav" aria-label="Demo navigation">
-        <a class="demo-nav__brand" href="/demo">
-          <span class="demo-nav__logo">Sx</span>
-          <span class="demo-nav__title">Semitexa <strong>Demo</strong></span>
+        <a class="demo-nav__brand" href="/">
+          <span class="demo-nav__title">
+            <span class="semitexa-logo" aria-label="Semitexa">Semite<span>xa</span></span>
+          </span>
         </a>
         <ul class="demo-nav__sections">
           <li class="demo-nav__item demo-nav__item--active"><a href="/demo/rendering">Rendering &amp; SSR</a></li>
         </ul>
         <div class="demo-nav__actions">
+          <div class="demo-nav__theme-control">
+            <span class="demo-nav__theme-text" aria-hidden="true" data-demo-theme-text>Dark mode</span>
+            <button
+              class="demo-nav__theme-toggle"
+              type="button"
+              aria-pressed="false"
+              aria-label="Switch to dark mode"
+              title="Toggle color theme"
+              data-demo-theme-toggle
+            >
+              <span class="demo-nav__theme-toggle-track" aria-hidden="true">
+                <span class="demo-nav__theme-toggle-thumb"></span>
+              </span>
+            </button>
+          </div>
           <a class="demo-nav__link" href="/demo/rendering">Back to Rendering</a>
-          <a class="demo-nav__link" href="/demo">Home</a>
         </div>
       </nav>
     </header>
@@ -169,7 +219,7 @@
     </main>
 
     <footer class="demo-footer">
-      <p>Semitexa Framework Demo &middot; Deferred slots streaming server-rendered HTML</p>
+      <p>© 2026 Semitexa</p>
     </footer>
 
     {{ __ssr_deferred_manifest|default('')|raw }}

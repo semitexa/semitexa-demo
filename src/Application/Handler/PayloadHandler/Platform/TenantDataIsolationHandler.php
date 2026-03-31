@@ -13,6 +13,7 @@ use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoTenantConfigProvider;
 use Semitexa\Demo\Application\Service\DemoTenantDataSeeder;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
+use Throwable;
 
 #[AsPayloadHandler(payload: TenantDataIsolationPayload::class, resource: DemoTenantIsolationResource::class)]
 final class TenantDataIsolationHandler implements TypedHandlerInterface
@@ -36,13 +37,32 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
             ? $payload->getTenant()
             : 'acme';
 
-        $products = $this->tenantDataSeeder->getProducts($activeTenant, 5);
-        $count = $this->tenantDataSeeder->getProductCount($activeTenant);
+        $dataUnavailable = false;
+        $products = [];
+        $count = 0;
         $sql = $this->tenantDataSeeder->getIllustrationSql($activeTenant);
-
         $allCounts = [];
-        foreach ($tenantIds as $tenantId) {
-            $allCounts[$tenantId] = $this->tenantDataSeeder->getProductCount($tenantId);
+
+        try {
+            $products = $this->tenantDataSeeder->getProducts($activeTenant, 5);
+            $count = $this->tenantDataSeeder->getProductCount($activeTenant);
+
+            foreach ($tenantIds as $tenantId) {
+                $allCounts[$tenantId] = $this->tenantDataSeeder->getProductCount($tenantId);
+            }
+        } catch (Throwable $exception) {
+            error_log((string) json_encode([
+                'demo_tenant_isolation' => 'data_unavailable',
+                'active_tenant' => $activeTenant,
+                'tenant_ids' => $tenantIds,
+                'error' => $exception->getMessage(),
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
+            $dataUnavailable = true;
+
+            foreach ($tenantIds as $tenantId) {
+                $allCounts[$tenantId] = 0;
+            }
         }
 
         return $resource
@@ -56,6 +76,7 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
                 'Tenant-scoped resources inject tenant filters automatically, so repository code stays focused on business queries.',
                 'This is the kind of platform guarantee that should be obvious in a demo, not hidden in docs.',
             )
+            ->withDataUnavailable($dataUnavailable)
             ->withActiveTenant($activeTenant)
             ->withProducts(array_map(fn ($p) => [
                 'name'   => $p->name ?? '—',

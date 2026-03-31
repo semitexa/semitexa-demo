@@ -1,0 +1,33 @@
+<div class="preview-card preview-card--layered graphql-api-preview">
+  <div class="preview-card__header">
+    <p class="preview-card__eyebrow">GraphQL API</p>
+    <h3 class="preview-card__title">GraphQL-first without resolver sprawl</h3>
+    <p class="preview-card__summary">The public entrypoint is <code>{{ transport }}</code>. The important part is that Semitexa still keeps the use case explicit: one payload, one output contract, one graph field.</p>
+  </div>
+
+  <div class="graphql-api-preview__stats">
+    <div class="preview-stats__item">
+      <span class="preview-stats__label">Transport</span>
+      <span class="preview-stats__value"><code>{{ transport }}</code></span>
+    </div>
+    <div class="preview-stats__item">
+      <span class="preview-stats__label">GraphQL field</span>
+      <span class="preview-stats__value"><code>query.{{ field }}</code></span>
+    </div>
+    <div class="preview-stats__item">
+      <span class="preview-stats__label">Returns</span>
+      <span class="preview-stats__value"><code>{{ output }}</code></span>
+    </div>
+  </div>
+
+  <div class="graphql-api-preview__grid">
+    <div class="graphql-api-preview__block">
+      <p class="graphql-api-preview__label">Example query</p>
+      <pre class="graphql-api-preview__code">{{ query }}</pre>
+    </div>
+    <div class="graphql-api-preview__block">
+      <p class="graphql-api-preview__label">Example response</p>
+      <pre class="graphql-api-preview__code">{{ response }}</pre>
+    </div>
+  </div>
+</div>

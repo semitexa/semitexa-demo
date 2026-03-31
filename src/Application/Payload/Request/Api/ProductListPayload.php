@@ -9,7 +9,9 @@ use Semitexa\Api\Attributes\ExternalApi;
 use Semitexa\Authorization\Attributes\PublicEndpoint;
 use Semitexa\Core\Attributes\AsPayload;
 use Semitexa\Core\Request;
+use Semitexa\Demo\Application\Graphql\Output\ProductListGraphqlView;
 use Semitexa\Demo\Application\Resource\Response\DemoApiResponse;
+use Semitexa\Graphql\Attributes\ExposeAsGraphql;
 
 #[PublicEndpoint]
 #[AsPayload(
@@ -19,6 +21,12 @@ use Semitexa\Demo\Application\Resource\Response\DemoApiResponse;
 )]
 #[ExternalApi(version: 'v1', description: 'Demo product collection endpoint')]
 #[ApiVersion(version: '1.0.0')]
+#[ExposeAsGraphql(
+    field: 'products',
+    rootType: 'query',
+    output: ProductListGraphqlView::class,
+    description: 'Derived GraphQL field for paginated product collection reads from the Semitexa demo catalog.',
+)]
 final class ProductListPayload
 {
     protected ?Request $httpRequest = null;

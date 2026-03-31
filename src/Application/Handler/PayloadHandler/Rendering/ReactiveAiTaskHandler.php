@@ -12,6 +12,7 @@ use Semitexa\Demo\Application\Payload\Request\Rendering\ReactiveAiTaskPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Resource\Slot\Reactive\ReactiveAiTaskSlot;
 use Semitexa\Demo\Application\Service\DemoAiTextProcessor;
+use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -29,6 +30,9 @@ final class ReactiveAiTaskHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoCatalogService $catalog;
 
     public function handle(ReactiveAiTaskPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
@@ -89,6 +93,16 @@ final class ReactiveAiTaskHandler implements TypedHandlerInterface
 
         return $resource
             ->pageTitle('Reactive AI Task — Semitexa Demo')
+            ->withDemoShellContext([
+                'navSections' => $this->catalog->getSections(),
+                'featureTree' => $this->catalog->getFeatureTree(),
+                'currentSection' => 'rendering',
+                'currentSlug' => 'reactive-ai',
+                'infoWhat' => $explanation['what'] ?? 'The page stays SSR-first while background AI stages keep advancing on the server, so the sidebar and the live pipeline share one consistent page shell.',
+                'infoHow' => $explanation['how'] ?? null,
+                'infoWhy' => $explanation['why'] ?? null,
+                'infoKeywords' => $explanation['keywords'] ?? [],
+            ])
             ->withSection('rendering')
             ->withSlug('reactive-ai')
             ->withTitle('Reactive AI Task')

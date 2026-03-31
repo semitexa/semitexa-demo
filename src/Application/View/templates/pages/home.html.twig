@@ -26,12 +26,41 @@
       <div class="demo-hero__ctas">
         <a href="#sections" class="demo-hero__cta demo-hero__cta--primary">Explore Features</a>
         <a href="https://github.com/semitexa" class="demo-hero__cta demo-hero__cta--secondary" target="_blank" rel="noopener">View Source</a>
-        <a href="https://semitexa.com/docs" class="demo-hero__cta demo-hero__cta--secondary" target="_blank" rel="noopener">Get Started</a>
+        <a href="#get-started" class="demo-hero__cta demo-hero__cta--secondary">Get Started</a>
       </div>
       <div class="demo-hero__badges">
         <span class="demo-hero__badge">PHP 8.4 Attributes</span>
         <span class="demo-hero__badge">Swoole-native</span>
         <span class="demo-hero__badge">Zero Config</span>
+      </div>
+      <div
+        class="demo-release-countdown"
+        data-countdown
+        data-countdown-target="{{ release.target }}"
+      >
+        <div class="demo-release-countdown__head">
+          <span>{{ release.label }}</span>
+          <strong>{{ release.date }}</strong>
+        </div>
+        <div class="demo-release-countdown__grid" aria-label="Countdown to first release">
+          <div class="demo-release-countdown__unit">
+            <strong data-countdown-days>--</strong>
+            <span>Days</span>
+          </div>
+          <div class="demo-release-countdown__unit">
+            <strong data-countdown-hours>--</strong>
+            <span>Hours</span>
+          </div>
+          <div class="demo-release-countdown__unit">
+            <strong data-countdown-minutes>--</strong>
+            <span>Minutes</span>
+          </div>
+          <div class="demo-release-countdown__unit">
+            <strong data-countdown-seconds>--</strong>
+            <span>Seconds</span>
+          </div>
+        </div>
+        <p class="demo-release-countdown__state" data-countdown-state>Until first release</p>
       </div>
     </div>
 
@@ -64,6 +93,111 @@
           <li><span>$</span> inspect source beside runtime output</li>
           <li><span>$</span> move from docs to behavior in one shell</li>
         </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="get-started" class="demo-get-started">
+    <div class="demo-block-heading">
+      <p class="demo-block-heading__eyebrow">Get Started</p>
+      <h2 class="demo-get-started__heading">Install Semitexa the canonical way and get to a running app fast.</h2>
+      <p class="demo-block-heading__text">The supported local install flow is the one-line installer. It scaffolds a project, keeps Docker as the runtime boundary, and gets you to a working app without requiring PHP or Composer on the host.</p>
+    </div>
+
+    <div class="demo-get-started__layout">
+      <aside class="demo-get-started__primer">
+        <div class="demo-get-started__callout">
+          <p class="demo-get-started__callout-eyebrow">Canonical Install</p>
+          <pre class="demo-get-started__command"><code>curl -fsSL https://semitexa.com/install.sh | bash</code></pre>
+          <p class="demo-get-started__callout-text">Use this as the default local entry path unless you explicitly need a named directory or non-interactive auto-start.</p>
+        </div>
+
+        <div class="demo-get-started__requirements">
+          <article class="demo-get-started__requirement">
+            <h3>Docker with Compose v2</h3>
+            <p>Run <code>docker info</code> and <code>docker compose version</code> before installing. Semitexa uses Docker as the standard local runtime path.</p>
+          </article>
+          <article class="demo-get-started__requirement">
+            <h3>No host PHP required</h3>
+            <p>The installer and generated project bootstrap dependencies in containers, so the normal local flow does not depend on a host PHP or Composer setup.</p>
+          </article>
+          <article class="demo-get-started__requirement">
+            <h3>Default local port 9502</h3>
+            <p>After startup the app is available on <code>http://localhost:9502</code>. Change <code>SWOOLE_PORT</code> in <code>.env</code> if that port is already taken.</p>
+          </article>
+        </div>
+
+        <div class="demo-get-started__rules">
+          <p class="demo-get-started__rules-eyebrow">Operating Rules</p>
+          <ul class="demo-get-started__rules-list">
+            <li>Treat <code>curl -fsSL https://semitexa.com/install.sh | bash</code> as the canonical local install path.</li>
+            <li>Run Semitexa through Docker, not <code>php server.php</code> on the host.</li>
+            <li>Use <code>bin/semitexa</code> as the operator entry point for starting, stopping, and inspecting the app.</li>
+          </ul>
+        </div>
+      </aside>
+
+      <div class="demo-get-started__content">
+        <div class="demo-get-started__steps">
+          <article class="demo-get-started__step">
+            <p class="demo-get-started__step-eyebrow">Step 1</p>
+            <h3>Create a new project</h3>
+            <p>Run the official installer from the parent directory where you want the project folder to be created.</p>
+            <div class="demo-get-started__command-stack">
+              <pre class="demo-get-started__command"><code>curl -fsSL https://semitexa.com/install.sh | bash</code></pre>
+              <pre class="demo-get-started__command"><code>curl -fsSL https://semitexa.com/install.sh | bash -s my-project</code></pre>
+              <pre class="demo-get-started__command"><code>curl -fsSL https://semitexa.com/install.sh | bash -s my-project --start</code></pre>
+            </div>
+          </article>
+
+          <article class="demo-get-started__step">
+            <p class="demo-get-started__step-eyebrow">Step 2</p>
+            <h3>Enter the project and prepare the environment</h3>
+            <p>Move into the generated directory, copy the example environment file, and adjust values only if your machine needs different ports or service settings.</p>
+            <div class="demo-get-started__command-stack">
+              <pre class="demo-get-started__command"><code>cd my-project</code></pre>
+              <pre class="demo-get-started__command"><code>cp .env.example .env</code></pre>
+            </div>
+          </article>
+
+          <article class="demo-get-started__step">
+            <p class="demo-get-started__step-eyebrow">Step 3</p>
+            <h3>Start the application</h3>
+            <p>Use the Semitexa CLI wrapper. This is the canonical way to boot the local runtime and its Docker services.</p>
+            <div class="demo-get-started__command-stack">
+              <pre class="demo-get-started__command"><code>bin/semitexa server:start</code></pre>
+              <pre class="demo-get-started__command"><code>bin/semitexa server:stop</code></pre>
+            </div>
+          </article>
+
+          <article class="demo-get-started__step">
+            <p class="demo-get-started__step-eyebrow">Step 4</p>
+            <h3>Open the app and keep moving</h3>
+            <p>Once the runtime is up, open the default local URL and move straight into the first real framework tasks instead of staying in setup mode.</p>
+            <div class="demo-get-started__command-stack">
+              <pre class="demo-get-started__command"><code>http://localhost:9502</code></pre>
+              <pre class="demo-get-started__command"><code>bin/semitexa list</code></pre>
+            </div>
+          </article>
+        </div>
+
+        <div class="demo-get-started__next">
+          <p class="demo-get-started__next-eyebrow">What To Read Next</p>
+          <div class="demo-get-started__next-grid">
+            <a class="demo-get-started__next-card" href="https://semitexa.com/docs/MINIMAL_PAGE" target="_blank" rel="noopener">
+              <strong>Build the first page</strong>
+              <span>Move from install into the first Twig page and see the request-to-response path working end to end.</span>
+            </a>
+            <a class="demo-get-started__next-card" href="/demo/cli/runtime-maintenance">
+              <strong>Understand runtime controls</strong>
+              <span>See how cache clear, reload, and registry maintenance look from the framework shell.</span>
+            </a>
+            <a class="demo-get-started__next-card" href="#sections">
+              <strong>Inspect the live feature map</strong>
+              <span>Browse the working <code>/demo/...</code> routes and move from setup into real framework surfaces.</span>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -119,7 +253,7 @@
     <p class="demo-ready-prompt__text">These working walkthroughs are the best current entry points into the richer parts of the demo:</p>
     <div class="demo-ready-prompt__suggestions">
       {% for feature in readyFeatures %}
-        <a href="{{ feature.href }}" class="demo-ready-prompt__link">{{ feature.title }}</a>
+        <a href="{{ feature.href }}" class="demo-ready-prompt__link" {% if feature.opensInNewTab|default(false) %}target="_blank" rel="noopener"{% endif %}>{{ feature.title }}{% if feature.opensInNewTab|default(false) %}<span class="demo-link-external-indicator" aria-hidden="true">↗</span>{% endif %}</a>
       {% endfor %}
     </div>
   </section>

@@ -32,10 +32,21 @@ final class DemoSectionHandler implements TypedHandlerInterface
                 'slug' => $feature['slug'],
                 'title' => $feature['title'],
                 'summary' => $feature['summary'],
+                'opensInNewTab' => $feature['opensInNewTab'] ?? false,
                 'href' => $feature['href'],
             ],
             $meta['features'],
         );
+
+        $infoWhat = $meta['summary'];
+        $infoHow = 'Each section groups working payloads that demonstrate one subsystem from entry-level view to implementation details.';
+        $infoWhy = 'This page should act as a reliable launchpad, not a dump of disconnected examples.';
+
+        if ($section === 'auth') {
+            $infoWhat = 'Semitexa treats browser auth as a typed contract. We do not allow session state to dissolve into $this->session->get(\'current_user\') and other string-key guessing games.';
+            $infoHow = 'If you want to persist auth state in the session, you declare a dedicated Session Payload and access it as a typed object. No magic array keys, no duplicated has/get checks, no hidden coupling between unrelated handlers.';
+            $infoWhy = 'This closes one of the most common sources of legacy auth mess. Session state stays explicit, reviewable, and refactor-safe instead of turning into a bag of fragile string conventions.';
+        }
 
         return $resource
             ->pageTitle($meta['label'] . ' — Semitexa Demo')
@@ -44,9 +55,9 @@ final class DemoSectionHandler implements TypedHandlerInterface
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => $section,
                 'currentSlug' => null,
-                'infoWhat' => $meta['summary'],
-                'infoHow' => 'Each section groups working payloads that demonstrate one subsystem from entry-level view to implementation details.',
-                'infoWhy' => 'This page should act as a reliable launchpad, not a dump of disconnected examples.',
+                'infoWhat' => $infoWhat,
+                'infoHow' => $infoHow,
+                'infoWhy' => $infoWhy,
                 'infoKeywords' => [],
             ])
             ->withSection($section)

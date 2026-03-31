@@ -22,6 +22,9 @@ final class TenantResolutionHandler implements TypedHandlerInterface
             'description' => 'Reads X-Tenant-ID request header.',
             'example'     => 'X-Tenant-ID: acme',
             'priority'    => 2,
+            'bestFor'     => 'API gateways and internal service calls',
+            'tradeoff'    => 'Only works when upstream systems reliably forward the tenant header.',
+            'tenant'      => 'acme',
         ],
         [
             'id'          => 'subdomain',
@@ -29,6 +32,9 @@ final class TenantResolutionHandler implements TypedHandlerInterface
             'description' => 'Extracts tenant from the subdomain.',
             'example'     => 'acme.demo.semitexa.dev',
             'priority'    => 1,
+            'bestFor'     => 'White-label apps and branded customer entrypoints',
+            'tradeoff'    => 'Requires DNS and routing setup for each tenant-facing host.',
+            'tenant'      => 'acme',
         ],
         [
             'id'          => 'path',
@@ -36,6 +42,9 @@ final class TenantResolutionHandler implements TypedHandlerInterface
             'description' => 'Reads the first path segment as tenant ID.',
             'example'     => '/acme/products',
             'priority'    => 3,
+            'bestFor'     => 'Admin consoles and shared hosts where subdomains are not practical',
+            'tradeoff'    => 'URLs stay explicit, but tenant identity becomes part of every visible path.',
+            'tenant'      => 'globex',
         ],
         [
             'id'          => 'query',
@@ -43,6 +52,9 @@ final class TenantResolutionHandler implements TypedHandlerInterface
             'description' => 'Reads the ?tenant= query parameter.',
             'example'     => '?tenant=acme',
             'priority'    => 4,
+            'bestFor'     => 'Testing, debugging, and temporary operator tools',
+            'tradeoff'    => 'Useful for diagnostics, but usually too weak as the primary production entrypoint.',
+            'tenant'      => 'initech',
         ],
     ];
 
@@ -59,20 +71,31 @@ final class TenantResolutionHandler implements TypedHandlerInterface
 
         usort($strategies, fn ($a, $b) => $a['priority'] <=> $b['priority']);
 
+        $selected = null;
+        foreach ($strategies as $strategy) {
+            if ($strategy['id'] === $activeTab) {
+                $selected = $strategy;
+                break;
+            }
+        }
+
+        $selected ??= $strategies[0];
+        $activeTab = $selected['id'];
+
         return $resource
-            ->pageTitle('Tenant Resolution Strategies — Semitexa Demo')
+            ->pageTitle('Tenant Context Resolution — Semitexa Demo')
             ->withNavSections($this->catalog->getSections())
             ->withFeatureTree($this->catalog->getFeatureTree())
             ->withCurrentSection('platform')
             ->withCurrentSlug('tenancy-resolution')
             ->withInfoPanel(
-                'See which strategy resolved the active tenant and why that resolution order matters.',
-                'The resolver chain tries subdomain, header, path, and query strategies in priority order until one returns a tenant.',
-                'Tenant identity is the root of platform isolation. If this layer is vague, everything above it becomes unsafe.',
+                'Semitexa decides the active tenant before configuration, data access, queues, and rendering continue downstream.',
+                'The resolver chain tries the configured strategies in priority order. The first match wins and becomes the tenant context for the rest of the execution.',
+                'If tenant resolution is ambiguous, every “isolated” layer above it becomes unreliable. That is why this boundary deserves explicit design.',
             )
             ->withStrategies($strategies)
             ->withActiveTab($activeTab)
-            ->withResolvedTenant('acme')
-            ->withResolvedBy('HeaderStrategy');
+            ->withResolvedTenant($selected['tenant'])
+            ->withResolvedBy($selected['name']);
     }
 }
