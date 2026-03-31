@@ -32,6 +32,9 @@ class DemoHomeResource extends HtmlResponse implements ResourceInterface
         if (array_key_exists('totalFeatureCount', $context)) {
             $resource = $resource->withTotalFeatureCount((int) $context['totalFeatureCount']);
         }
+        if (array_key_exists('getStartedGuide', $context)) {
+            $resource = $resource->withGetStartedGuide($context['getStartedGuide']);
+        }
 
         return $resource;
     }
@@ -59,5 +62,10 @@ class DemoHomeResource extends HtmlResponse implements ResourceInterface
     public function withRelease(array $release): self
     {
         return $this->with('release', $release);
+    }
+
+    public function withGetStartedGuide(array $guide): self
+    {
+        return $this->with('getStartedGuide', $guide);
     }
 }

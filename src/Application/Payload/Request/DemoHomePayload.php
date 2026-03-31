@@ -12,7 +12,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoHomeResource;
 #[AsPayload(
     responseWith: DemoHomeResource::class,
     produces: ['application/json', 'text/html'],
-    path: '/',
+    path: '/demo',
     methods: ['GET'],
 )]
 class DemoHomePayload

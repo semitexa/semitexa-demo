@@ -891,6 +891,149 @@ a:hover {
 
 /* --- Starter cards --- */
 
+.demo-get-started {
+  margin-bottom: 3rem;
+}
+
+.demo-get-started__heading {
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  line-height: 1.05;
+  color: var(--demo-text);
+}
+
+.demo-get-started__layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.92fr) minmax(0, 1.45fr);
+  gap: 1.25rem;
+}
+
+.demo-get-started__primer,
+.demo-get-started__step,
+.demo-get-started__next-card {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 251, 246, 0.42), rgba(249, 240, 229, 0.3));
+  box-shadow: var(--demo-shadow-sm);
+  backdrop-filter: blur(16px) saturate(135%);
+}
+
+.demo-get-started__primer {
+  display: grid;
+  gap: 1rem;
+  padding: 1.2rem;
+}
+
+.demo-get-started__callout {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(139, 90, 43, 0.16);
+  background:
+    radial-gradient(circle at top right, rgba(182, 58, 47, 0.08), transparent 34%),
+    linear-gradient(180deg, rgba(255, 249, 241, 0.98), rgba(249, 238, 226, 0.94));
+}
+
+.demo-get-started__callout-eyebrow,
+.demo-get-started__rules-eyebrow,
+.demo-get-started__step-eyebrow,
+.demo-get-started__next-eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--demo-accent-dark);
+}
+
+.demo-get-started__callout-text,
+.demo-get-started__requirement p,
+.demo-get-started__step p,
+.demo-get-started__next-card span {
+  margin: 0;
+  color: var(--demo-text-muted);
+}
+
+.demo-get-started__requirements,
+.demo-get-started__steps,
+.demo-get-started__content,
+.demo-get-started__command-stack,
+.demo-get-started__next {
+  display: grid;
+  gap: 1rem;
+}
+
+.demo-get-started__requirement {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.95rem 1rem;
+  border-radius: 18px;
+  background: rgba(255, 250, 244, 0.78);
+  border: 1px solid rgba(139, 90, 43, 0.12);
+}
+
+.demo-get-started__requirement h3,
+.demo-get-started__step h3,
+.demo-get-started__next-card strong {
+  margin: 0;
+  color: var(--demo-text);
+}
+
+.demo-get-started__rules {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.demo-get-started__rules-list {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: grid;
+  gap: 0.55rem;
+  color: var(--demo-text-muted);
+}
+
+.demo-get-started__rules-list li::marker {
+  color: var(--demo-accent);
+}
+
+.demo-get-started__step {
+  display: grid;
+  gap: 0.8rem;
+  padding: 1.15rem 1.2rem;
+}
+
+.demo-get-started__command {
+  margin: 0;
+  padding: 0.85rem 0.95rem;
+  overflow-x: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(94, 74, 56, 0.12);
+  background: rgba(255, 249, 241, 0.92);
+}
+
+.demo-get-started__command code {
+  font-family: var(--demo-font-mono);
+  font-size: 0.82rem;
+  color: var(--demo-ink-blue);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.demo-get-started__next-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.demo-get-started__next-card {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1rem 1.05rem;
+  text-decoration: none;
+  color: inherit;
+}
+
 .demo-starters {
   margin-bottom: 3rem;
 }
@@ -963,6 +1106,9 @@ a:hover {
 :root[data-demo-theme="dark"] .feature-detail__preview,
 :root[data-demo-theme="dark"] .demo-feature-info,
 :root[data-demo-theme="dark"] .demo-feature-info__section,
+:root[data-demo-theme="dark"] .demo-get-started__primer,
+:root[data-demo-theme="dark"] .demo-get-started__step,
+:root[data-demo-theme="dark"] .demo-get-started__next-card,
 :root[data-demo-theme="dark"] .demo-ready-prompt,
 :root[data-demo-theme="dark"] .preview-card,
 :root[data-demo-theme="dark"] .preview-stats__item,
@@ -1004,6 +1150,8 @@ a:hover {
 :root[data-demo-theme="dark"] .demo-hero__signal,
 :root[data-demo-theme="dark"] .demo-hero__terminal,
 :root[data-demo-theme="dark"] .demo-hero__ledger,
+:root[data-demo-theme="dark"] .demo-get-started__requirement,
+:root[data-demo-theme="dark"] .demo-get-started__command,
 :root[data-demo-theme="dark"] .demo-release-countdown,
 :root[data-demo-theme="dark"] .feature-card--starter,
 :root[data-demo-theme="dark"] .preview-card--nested,
@@ -1025,6 +1173,24 @@ a:hover {
 :root[data-demo-theme="dark"] .demo-release-countdown__unit {
   background: rgba(30, 45, 59, 0.72);
   border-color: var(--demo-glass-stroke);
+}
+
+:root[data-demo-theme="dark"] .demo-get-started__callout {
+  border-color: rgba(239, 140, 104, 0.24);
+  background:
+    radial-gradient(circle at top right, rgba(239, 140, 104, 0.14), transparent 42%),
+    linear-gradient(135deg, rgba(25, 38, 50, 0.88), rgba(18, 28, 38, 0.94));
+}
+
+:root[data-demo-theme="dark"] .demo-get-started__callout-eyebrow,
+:root[data-demo-theme="dark"] .demo-get-started__rules-eyebrow,
+:root[data-demo-theme="dark"] .demo-get-started__step-eyebrow,
+:root[data-demo-theme="dark"] .demo-get-started__next-eyebrow {
+  color: var(--demo-accent-light);
+}
+
+:root[data-demo-theme="dark"] .demo-get-started__command code {
+  color: #f2d1bc;
 }
 
 :root[data-demo-theme="dark"] .preview-table th,
@@ -3323,8 +3489,13 @@ a:hover {
     grid-template-columns: 1fr;
   }
 
+  .demo-get-started__layout {
+    grid-template-columns: 1fr;
+  }
+
   .demo-starters__grid,
-  .demo-sections__grid {
+  .demo-sections__grid,
+  .demo-get-started__next-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -3393,7 +3564,8 @@ a:hover {
   }
 
   .demo-starters__grid,
-  .demo-sections__grid {
+  .demo-sections__grid,
+  .demo-get-started__next-grid {
     grid-template-columns: 1fr;
   }
 
