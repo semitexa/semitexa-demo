@@ -30,7 +30,8 @@
               href="{{ feature.href|default('/demo/' ~ section.key ~ '/' ~ feature.slug) }}"
               class="feature-tree__link"
               data-feature-slug="{{ feature.slug }}"
-            >{{ feature.title }}</a>
+              {% if feature.opensInNewTab|default(false) %}target="_blank" rel="noopener"{% endif %}
+            >{{ feature.title }}{% if feature.opensInNewTab|default(false) %}<span class="demo-link-external-indicator" aria-hidden="true">↗</span>{% endif %}</a>
           </li>
         {% endfor %}
       </ul>

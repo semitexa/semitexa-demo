@@ -26,6 +26,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     entryLine: 'The page is usable immediately, and slow regions arrive later as server-rendered HTML instead of hydration-heavy client code.',
     learnMoreLabel: 'See the SSR-first flow →',
     deepDiveLabel: 'How deferred delivery works →',
+    opensInNewTab: true,
 )]
 class DeferredBlocksPayload
 {

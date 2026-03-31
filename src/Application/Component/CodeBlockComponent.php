@@ -17,6 +17,7 @@ use Semitexa\Ssr\Attributes\AsComponent;
     name: 'demo-code-block',
     template: '@project-layouts-semitexa-demo/components/code-block.html.twig',
     cacheable: false,
+    script: 'semitexa-demo:js:code-tabs',
 )]
 final class CodeBlockComponent
 {

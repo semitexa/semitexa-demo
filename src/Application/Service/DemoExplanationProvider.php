@@ -241,6 +241,17 @@ final class DemoExplanationProvider
                 ['term' => '#[PublicEndpoint]', 'definition' => 'Marks a payload as accessible without authentication.'],
             ],
         ],
+        'auth/session-payloads' => [
+            'what' => 'Semitexa treats session state as a typed contract. We do not allow auth state to spread through $this->session->get(\'current_user\') and other string-key guesses.',
+            'how' => 'A dedicated class marked with #[SessionSegment] owns the session shape. Handlers read and write that payload through SessionInterface::getPayload() and SessionInterface::setPayload(), while semantic methods such as requireUserId() or clear() live on the payload itself.',
+            'why' => 'This kills one of the most persistent sources of auth drift in PHP apps: invisible session conventions. The contract becomes explicit, reviewable, and refactor-safe instead of hiding behind magic key names and duplicated null checks.',
+            'keywords' => [
+                ['term' => '#[SessionSegment]', 'definition' => 'Declares a typed session payload and binds it to one named session segment.'],
+                ['term' => 'Session Payload', 'definition' => 'The explicit DTO-like class that owns one session concern instead of scattering string keys across handlers.'],
+                ['term' => 'SessionInterface::getPayload()', 'definition' => 'Typed session access API that hydrates the declared payload instead of returning loose values by string key.'],
+                ['term' => 'string-key session chaos', 'definition' => 'The legacy pattern where session contracts exist only as ad hoc names like current_user, auth_user, or user_id.'],
+            ],
+        ],
         'auth/rbac' => [
             'what' => 'Semitexa RBAC is intentionally hybrid: coarse-grained capabilities can be represented as internal bitmask grants for very fast broad checks, while business-facing permission slugs such as products.write or settings.smtp.update handle exact, human-readable authorization decisions.',
             'how' => 'The payload access policy can declare both #[RequiresCapability] and #[RequiresPermission]. Authorizer evaluates them in order: authentication first, then capability checks, then slug checks. CapabilityRegistry maps Capability enum cases to bit positions inside integer segments, while SubjectGrantResolver builds the current subject grant set and asks a module-level PermissionProviderInterface for the user\'s slug permissions. That means the RBAC core owns the evaluation pipeline, but storage and permission catalogs stay owned by the modules that actually know the business domain.',
@@ -294,6 +305,31 @@ final class DemoExplanationProvider
             'keywords' => [
                 ['term' => '#[AsResource]', 'definition' => 'Declares the render handle and template for a resource DTO.'],
                 ['term' => 'renderTemplate()', 'definition' => 'Renders a Twig template with the resource\'s accumulated context.'],
+            ],
+        ],
+        'rendering/philosophy' => [
+            'what' => 'Semitexa SSR is not a thin “server pre-render” layer. It is a rendering architecture where the page contract, page regions, deferred delivery, live refresh, and component interaction all stay inside one coherent server-owned model.',
+            'how' => 'Resource DTOs define the page boundary before Twig renders a single field, slot resources give regions their own response pipeline, deferred blocks stream later HTML instead of triggering client takeover, reactive slots keep re-rendering server truth, and interactive components stay scoped through tiny component-owned JavaScript instead of a page-level UI framework dependency.',
+            'why' => 'Most stacks keep the phrase SSR but abandon the idea the moment the page becomes dynamic. Templates start reshaping data, partials start guessing context, and eventually view files begin pulling from storage or external APIs directly. Semitexa treats that drift as a framework problem, not a code review suggestion. It is opinionated because it is trying to preserve one rendering story, one presentation boundary, and one source of truth even when the page becomes late, live, or interactive.',
+            'keywords' => [
+                ['term' => 'one rendering story', 'definition' => 'The same conceptual model survives first paint, deferred delivery, live refresh, and component interaction.'],
+                ['term' => 'server-owned truth', 'definition' => 'The browser displays HTML, but the authoritative rendering contract and state interpretation stay on the server side.'],
+                ['term' => 'presentation boundary', 'definition' => 'Templates consume already-shaped response data instead of fetching, reshaping, or interpreting domain data on their own.'],
+                ['term' => 'late HTML', 'definition' => 'Deferred content arrives after the shell, but it still arrives as server-rendered HTML rather than a client-side redraw.'],
+                ['term' => 'reactive SSR', 'definition' => 'A live region can keep refreshing from server truth while remaining part of the SSR page model.'],
+                ['term' => 'interactive SSR component', 'definition' => 'A server-rendered component can declare backend event contracts without turning into a mini SPA island.'],
+                ['term' => 'framework-free enhancement', 'definition' => 'Client behavior may exist, but it remains small, scoped, and component-owned instead of becoming a second UI framework layer.'],
+            ],
+        ],
+        'rendering/component-scripts' => [
+            'what' => 'A Semitexa SSR component can declare its own optional enhancement asset, so the client behavior belongs to the component contract instead of being manually remembered by the page.',
+            'how' => 'Add script to #[AsComponent], let ComponentRenderer auto-require the runtime and the declared asset when that component actually renders, and register the client behavior through SemitexaComponent.register() so the runtime can mount each rendered root.',
+            'why' => 'This closes one of the oldest sources of frontend drift: the HTML lives in the component, but the behavior is hidden in page-level includes and boot glue. Semitexa keeps markup and optional enhancement under the same component ownership model.',
+            'keywords' => [
+                ['term' => 'script', 'definition' => 'Optional AsComponent field that declares the canonical enhancement asset key.'],
+                ['term' => 'auto-require', 'definition' => 'The renderer pulls in the runtime and the component asset only when the component is present on the page.'],
+                ['term' => 'SemitexaComponent.register()', 'definition' => 'Frontend runtime API that registers one mount function for a named SSR component.'],
+                ['term' => 'component root', 'definition' => 'The rendered root element annotated so the runtime can mount behavior per instance.'],
             ],
         ],
         'rendering/resource-dtos' => [
@@ -446,6 +482,17 @@ final class DemoExplanationProvider
                 ['term' => '_schema', 'definition' => 'Machine-facing schema endpoint returning JSON Schema for the product contract.'],
                 ['term' => 'application/schema+json', 'definition' => 'Explicit media type for tooling that consumes JSON Schema documents.'],
                 ['term' => 'Sparse fieldset', 'definition' => 'A client asks for only the fields it needs via `fields=...`.'],
+            ],
+        ],
+        'api/graphql-derived' => [
+            'what' => 'Semitexa can derive GraphQL-ready operations from the same Payload DTOs that already own REST routes. GraphQL becomes another transport over the same use-case contract instead of a parallel resolver world.',
+            'how' => 'A payload opts in with #[ExposeAsGraphql(field: ..., rootType: ..., output: ...)]. The semitexa-graphql package reads discovered Semitexa routes through RouteInspectionRegistryInterface and builds a typed GraphqlOperationRegistry from those declarations. Output contracts stay explicit, so schema generation never has to reverse-engineer presenter arrays or guess field graphs from loose runtime data.',
+            'why' => 'This is where the Semitexa shape becomes unusually strong. The framework already has typed request DTOs, handler execution units, and presentation boundaries. GraphQL can therefore be layered on top as a transport concern instead of forcing teams to duplicate business logic in ad-hoc resolver classes.',
+            'keywords' => [
+                ['term' => '#[ExposeAsGraphql]', 'definition' => 'Explicit opt-in attribute that marks a Payload DTO as safe for GraphQL discovery and declares field name, root type, and output contract.'],
+                ['term' => 'GraphqlOperationRegistry', 'definition' => 'Read-only registry of GraphQL-ready Semitexa operations derived from discovered routes.'],
+                ['term' => 'typed output contract', 'definition' => 'A dedicated DTO or view class that declares what GraphQL may safely expose.'],
+                ['term' => 'resolver drift', 'definition' => 'The common failure mode where GraphQL resolvers quietly become a second application layer with duplicated business logic.'],
             ],
         ],
         'api/sunset-version' => [

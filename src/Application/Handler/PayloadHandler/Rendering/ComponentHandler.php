@@ -7,13 +7,9 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Rendering;
 use Semitexa\Core\Attributes\AsPayloadHandler;
 use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
-use Semitexa\Demo\Application\Component\CodeBlockComponent;
-use Semitexa\Demo\Application\Component\DeepDiveDrawerComponent;
 use Semitexa\Demo\Application\Component\DisclosurePromptComponent;
-use Semitexa\Demo\Application\Component\ExpandableSectionComponent;
-use Semitexa\Demo\Application\Component\ExplanationTooltipComponent;
-use Semitexa\Demo\Application\Component\FeatureCardComponent;
-use Semitexa\Demo\Application\Component\LiveResultComponent;
+use Semitexa\Demo\Application\Handler\DomainListener\DemoDisclosureExpandedListener;
+use Semitexa\Demo\Application\Payload\Event\DemoDisclosureExpanded;
 use Semitexa\Demo\Application\Payload\Request\Rendering\ComponentPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
@@ -23,16 +19,6 @@ use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 #[AsPayloadHandler(payload: ComponentPayload::class, resource: DemoFeatureResource::class)]
 final class ComponentHandler implements TypedHandlerInterface
 {
-    private const DEMO_COMPONENTS = [
-        ['name' => 'demo-expandable-section', 'class' => ExpandableSectionComponent::class, 'props' => 'targetId, initiallyOpen'],
-        ['name' => 'demo-deep-dive-drawer',   'class' => DeepDiveDrawerComponent::class,   'props' => 'targetId'],
-        ['name' => 'demo-disclosure-prompt',   'class' => DisclosurePromptComponent::class,  'props' => 'label, variant, target'],
-        ['name' => 'demo-explanation-tooltip', 'class' => ExplanationTooltipComponent::class, 'props' => 'term, definition'],
-        ['name' => 'demo-feature-card',        'class' => FeatureCardComponent::class,       'props' => 'title, summary, slug, section'],
-        ['name' => 'demo-code-block',          'class' => CodeBlockComponent::class,         'props' => 'tabs, featureSlug'],
-        ['name' => 'demo-live-result',         'class' => LiveResultComponent::class,        'props' => 'endpoint, method, label, resultId'],
-    ];
-
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
@@ -47,7 +33,12 @@ final class ComponentHandler implements TypedHandlerInterface
         $explanation = $this->explanationProvider->getExplanation('rendering', 'components') ?? [];
 
         $sourceCode = [
-            'Example Component' => $this->sourceCodeReader->readClassSource(ExpandableSectionComponent::class),
+            'Component Class' => $this->sourceCodeReader->readClassSource(DisclosurePromptComponent::class),
+            'Component Template' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/View/templates/components/disclosure-prompt.html.twig'),
+            'Backend Event' => $this->sourceCodeReader->readClassSource(DemoDisclosureExpanded::class),
+            'Event Listener' => $this->sourceCodeReader->readClassSource(DemoDisclosureExpandedListener::class),
+            'SSR Bridge Handler' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-ssr/src/Application/Handler/PayloadHandler/ComponentEventDispatchHandler.php'),
+            'Frontend Runtime' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-ssr/src/Application/Static/js/component-events.js'),
         ];
 
         return $resource
@@ -65,25 +56,12 @@ final class ComponentHandler implements TypedHandlerInterface
             ->withSection('rendering')
             ->withSlug('components')
             ->withTitle('Components')
-            ->withSummary('Reusable, attribute-registered UI components — discovered automatically from the classmap.')
-            ->withEntryLine('Reusable, attribute-registered UI components — discovered automatically from the classmap.')
-            ->withHighlights(['#[AsComponent]', 'ComponentRegistry', 'props', 'Twig template', 'ClassDiscovery'])
-            ->withLearnMoreLabel('See component registration →')
-            ->withDeepDiveLabel('How Twig compilation works →')
-            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
-                'eyebrow' => 'Component Registry',
-                'title' => sprintf('%d reusable UI components discovered at boot', count(self::DEMO_COMPONENTS)),
-                'summary' => 'The demo package registers its UI primitives via #[AsComponent], so no manual registry wiring is needed.',
-                'columns' => ['Component name', 'Class', 'Props'],
-                'rows' => array_map(
-                    static fn (array $component): array => [
-                        ['text' => $component['name'], 'code' => true],
-                        ['text' => basename(str_replace('\\', '/', $component['class'])), 'code' => true],
-                        ['text' => $component['props']],
-                    ],
-                    self::DEMO_COMPONENTS,
-                ),
-            ])
+            ->withSummary('Attribute-registered SSR components with an explicit backend event contract, signed manifest, and one generic dispatch endpoint.')
+            ->withEntryLine('Open the component class and you can now see both the rendered UI primitive and the backend event contract it is allowed to trigger.')
+            ->withHighlights(['#[AsComponent]', 'event', 'triggers', 'component_event_attrs()', 'EventDispatcherInterface'])
+            ->withLearnMoreLabel('See the event bridge in action →')
+            ->withDeepDiveLabel('Inspect the signed manifest flow →')
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/component-event-bridge.html.twig', [])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
     }

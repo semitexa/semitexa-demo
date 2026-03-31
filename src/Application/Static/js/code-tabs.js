@@ -7,18 +7,28 @@
 (function () {
   'use strict';
 
-  // --- Tab switching ---
+  function mount(block) {
+    if (!(block instanceof Element)) {
+      return;
+    }
 
-  document.addEventListener('click', function (e) {
-    var tab = e.target.closest('[data-code-tab]');
-    if (!tab) return;
+    block.addEventListener('click', function (e) {
+      var tab = e.target.closest('[data-code-tab]');
+      if (tab && block.contains(tab)) {
+        activateTab(block, tab);
+        return;
+      }
 
-    var block = tab.closest('[data-code-block]');
-    if (!block) return;
+      var copyBtn = e.target.closest('[data-copy-source]');
+      if (copyBtn && block.contains(copyBtn)) {
+        copySource(copyBtn);
+      }
+    });
+  }
 
-    var tabIndex = tab.getAttribute('data-code-tab');
+  function activateTab(block, tab) {
+    if (!block || !tab) return;
 
-    // Deactivate all tabs and panels in this block
     block.querySelectorAll('.code-block__tab').forEach(function (t) {
       t.classList.remove('code-block__tab--active');
       t.setAttribute('aria-selected', 'false');
@@ -38,14 +48,9 @@
       panel.classList.add('code-block__panel--active');
       panel.removeAttribute('hidden');
     }
-  });
+  }
 
-  // --- Copy to clipboard ---
-
-  document.addEventListener('click', function (e) {
-    var copyBtn = e.target.closest('[data-copy-source]');
-    if (!copyBtn) return;
-
+  function copySource(copyBtn) {
     var rawSourceId = copyBtn.getAttribute('data-copy-raw-source');
     var sourceId = rawSourceId || copyBtn.getAttribute('data-copy-source');
     var sourceEl = document.getElementById(sourceId);
@@ -75,7 +80,7 @@
       }
       document.body.removeChild(textarea);
     }
-  });
+  }
 
   function showCopyFeedback(btn, message) {
     var original = btn.textContent;
@@ -84,4 +89,11 @@
       btn.textContent = original;
     }, 1500);
   }
+
+  if (window.SemitexaComponent && typeof window.SemitexaComponent.register === 'function') {
+    window.SemitexaComponent.register('demo-code-block', mount);
+    return;
+  }
+
+  document.querySelectorAll('[data-code-block]').forEach(mount);
 })();

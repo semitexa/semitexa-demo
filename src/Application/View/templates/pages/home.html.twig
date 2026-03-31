@@ -119,7 +119,7 @@
     <p class="demo-ready-prompt__text">These working walkthroughs are the best current entry points into the richer parts of the demo:</p>
     <div class="demo-ready-prompt__suggestions">
       {% for feature in readyFeatures %}
-        <a href="{{ feature.href }}" class="demo-ready-prompt__link">{{ feature.title }}</a>
+        <a href="{{ feature.href }}" class="demo-ready-prompt__link" {% if feature.opensInNewTab|default(false) %}target="_blank" rel="noopener"{% endif %}>{{ feature.title }}{% if feature.opensInNewTab|default(false) %}<span class="demo-link-external-indicator" aria-hidden="true">↗</span>{% endif %}</a>
       {% endfor %}
     </div>
   </section>

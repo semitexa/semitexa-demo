@@ -45,7 +45,7 @@ final class DemoCatalogService
         'auth' => [
             'key' => 'auth',
             'label' => 'Auth & Security',
-            'summary' => 'Session auth, machine credentials, RBAC, and route protection with visible outcomes.',
+            'summary' => 'Typed session payloads, machine credentials, RBAC, and route protection without string-key auth chaos.',
             'icon' => 'AU',
             'eyebrow' => 'Security',
             'starter' => false,
@@ -133,6 +133,7 @@ final class DemoCatalogService
                         'title' => $entry['attribute']->title,
                         'slug' => $entry['attribute']->slug,
                         'summary' => $entry['attribute']->summary,
+                        'opensInNewTab' => $entry['attribute']->opensInNewTab,
                         'href' => $entry['path'] ?? '/demo/' . $entry['attribute']->section . '/' . $entry['attribute']->slug,
                     ],
                     $features,
@@ -252,6 +253,7 @@ final class DemoCatalogService
                 'label' => self::SECTION_META[$section]['label'] ?? ucfirst($section),
                 'title' => $feature->title,
                 'summary' => $feature->entryLine !== '' ? $feature->entryLine : $feature->summary,
+                'opensInNewTab' => $feature->opensInNewTab,
                 'href' => $this->featureRegistry->getPath($section, $slug) ?? '/demo/' . $section . '/' . $feature->slug,
             ];
         }

@@ -5,6 +5,10 @@
   aria-controls="{{ target }}"
   aria-expanded="false"
   data-disclosure-trigger="{{ target }}"
+  {{ component_event_attrs('click', {
+    targetId: target,
+    source: variant,
+  }) }}
 >
   <span class="disclosure-prompt__label">{{ normalizedLabel }}</span>
   <span class="disclosure-prompt__arrow" aria-hidden="true">→</span>

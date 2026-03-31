@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Component;
 
+use Semitexa\Demo\Application\Payload\Event\DemoDisclosureExpanded;
 use Semitexa\Ssr\Attributes\AsComponent;
 
 /**
@@ -19,6 +20,8 @@ use Semitexa\Ssr\Attributes\AsComponent;
     name: 'demo-disclosure-prompt',
     template: '@project-layouts-semitexa-demo/components/disclosure-prompt.html.twig',
     cacheable: false,
+    event: DemoDisclosureExpanded::class,
+    triggers: ['click'],
 )]
 final class DisclosurePromptComponent
 {

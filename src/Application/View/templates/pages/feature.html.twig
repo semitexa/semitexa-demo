@@ -79,10 +79,10 @@
     {% if (sourceCode is defined and sourceCode|length > 0) or (l2ContentTemplate is defined and l2ContentTemplate) or (l2Content is defined and l2Content) or (relatedPayloads is defined and relatedPayloads|length > 0) %}
       <section class="feature-detail__l2">
         {% if sourceCode is defined and sourceCode|length > 0 %}
-          {% include '@project-layouts-semitexa-demo/components/code-block.html.twig' with {
+          {{ component('demo-code-block', {
             tabs: sourceCode,
             featureSlug: slug,
-          } only %}
+          }) }}
         {% endif %}
 
         {% if l2ContentTemplate is defined and l2ContentTemplate %}
@@ -106,11 +106,11 @@
           </div>
         {% endif %}
 
-        {% include '@project-layouts-semitexa-demo/components/disclosure-prompt.html.twig' with {
+        {{ component('demo-disclosure-prompt', {
           label: deepDiveLabel|default('Under the hood →'),
           variant: 'deepDive',
           target: 'l3-' ~ domKey,
-        } only %}
+        }) }}
       </section>
     {% endif %}
 

@@ -71,10 +71,14 @@
         </div>
         <div class="demo-sections__grid">
           {% for feature in features %}
-            <a href="{{ feature.href|default('/demo/' ~ (section|url_encode) ~ '/' ~ (feature.slug|url_encode)) }}" class="feature-card feature-card--feature">
+            <a
+              href="{{ feature.href|default('/demo/' ~ (section|url_encode) ~ '/' ~ (feature.slug|url_encode)) }}"
+              class="feature-card feature-card--feature"
+              {% if feature.opensInNewTab|default(false) %}target="_blank" rel="noopener"{% endif %}
+            >
               <div class="feature-card__body">
                 <p class="feature-card__eyebrow">{{ sectionLabel|default(section|upper) }}</p>
-                <h3 class="feature-card__title">{{ feature.title }}</h3>
+                <h3 class="feature-card__title">{{ feature.title }}{% if feature.opensInNewTab|default(false) %}<span class="demo-link-external-indicator" aria-hidden="true">↗</span>{% endif %}</h3>
                 <p class="feature-card__summary">{{ feature.summary }}</p>
                 <div class="feature-card__meta">
                   <span class="feature-card__count">Open feature</span>

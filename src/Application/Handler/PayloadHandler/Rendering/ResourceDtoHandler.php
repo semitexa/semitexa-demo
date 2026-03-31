@@ -98,9 +98,9 @@ final class ResourceDtoHandler implements TypedHandlerInterface
                 ],
             ])
             ->withSourceCode([
-                'Array Drift Example' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Examples/Rendering/ResourceDto/LegacyProductPageHandler.example.php'),
-                'Resource DTO' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Examples/Rendering/ResourceDto/ProductShowcaseResource.example.php'),
-                'Resource Handler' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/src/Application/Examples/Rendering/ResourceDto/ProductShowcaseHandler.example.php'),
+                'Array Drift Example' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Rendering/ResourceDto/LegacyProductPageHandler.example.php'),
+                'Resource DTO' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Rendering/ResourceDto/ProductShowcaseResource.example.php'),
+                'Resource Handler' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Rendering/ResourceDto/ProductShowcaseHandler.example.php'),
                 'HtmlResponse' => $this->sourceCodeReader->readClassSource(HtmlResponse::class),
                 'DemoFeatureResource' => $this->sourceCodeReader->readClassSource(DemoFeatureResource::class),
                 'Feature Handler' => $this->sourceCodeReader->readClassSource(self::class),

@@ -21,7 +21,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     title: 'Session Auth',
     slug: 'session',
     summary: 'Authenticate once per session — the framework stores identity and re-hydrates it on every request.',
-    order: 1,
+    order: 2,
     highlights: ['SessionInterface', '#[SessionSegment]', 'AuthResult', '#[AsAuthHandler]'],
     entryLine: 'Authenticate once per session — the framework stores identity and re-hydrates it on every request.',
     learnMoreLabel: 'See the session lifecycle →',
