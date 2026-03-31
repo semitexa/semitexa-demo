@@ -521,7 +521,7 @@ a:hover {
   width: 1.15rem;
   height: 2px;
   border-radius: 999px;
-  background: currentColor;
+  background: currentcolor;
   transition: transform 140ms ease, opacity 140ms ease;
 }
 

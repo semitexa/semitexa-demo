@@ -26,12 +26,14 @@
       >
         {% for feature in section.features|default([]) %}
           <li class="feature-tree__item{{ (currentSection == section.key and currentSlug == feature.slug) ? ' feature-tree__item--active' : '' }}">
+            {% set opensInNewTab = feature.opensInNewTab|default(false) %}
             <a
               href="{{ feature.href|default('/demo/' ~ section.key ~ '/' ~ feature.slug) }}"
               class="feature-tree__link"
               data-feature-slug="{{ feature.slug }}"
-              {% if feature.opensInNewTab|default(false) %}target="_blank" rel="noopener"{% endif %}
-            >{{ feature.title }}{% if feature.opensInNewTab|default(false) %}<span class="demo-link-external-indicator" aria-hidden="true">↗</span>{% endif %}</a>
+              {% if opensInNewTab %}target="_blank" rel="noopener noreferrer"{% endif %}
+              {% if opensInNewTab %}aria-label="{{ feature.title }} (opens in new tab)"{% endif %}
+            >{{ feature.title }}{% if opensInNewTab %}<span class="demo-link-external-indicator" aria-hidden="true">↗</span>{% endif %}</a>
           </li>
         {% endfor %}
       </ul>

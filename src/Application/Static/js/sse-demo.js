@@ -145,14 +145,8 @@
             });
 
             source.addEventListener('error', function () {
-                setStatus('Disconnected', 'error');
-                minuteSummaryEl.textContent = 'The backend stream closed. Reconnect to resume minute-based backend events.';
-                if (source) {
-                    source.close();
-                    source = null;
-                }
-                connectBtn.style.display = '';
-                disconnectBtn.style.display = 'none';
+                setStatus('Reconnecting…', 'warning');
+                minuteSummaryEl.textContent = 'The connection dropped. EventSource is retrying automatically.';
             });
         }
 

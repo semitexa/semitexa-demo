@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Api\Product;
 
+use App\Api\Product\ProductApiResponse;
+use App\Api\Product\ProductGraphqlView;
 use Semitexa\Api\Attributes\ExternalApi;
 use Semitexa\Core\Attributes\AsPayload;
 use Semitexa\Graphql\Attributes\ExposeAsGraphql;

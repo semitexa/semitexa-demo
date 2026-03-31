@@ -80,6 +80,7 @@ final class TenantResolutionHandler implements TypedHandlerInterface
         }
 
         $selected ??= $strategies[0];
+        $activeTab = $selected['id'];
 
         return $resource
             ->pageTitle('Tenant Context Resolution — Semitexa Demo')

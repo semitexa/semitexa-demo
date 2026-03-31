@@ -124,7 +124,7 @@ final class CodeHighlightTwigExtension
         );
     }
 
-    public function highlightPhp(mixed $source): Markup
+    public function highlightPhp(mixed $source, int $mixedDepth = 0): Markup
     {
         $source = $this->normalizeSource($source);
 
@@ -132,8 +132,8 @@ final class CodeHighlightTwigExtension
             return new Markup('', 'UTF-8');
         }
 
-        if ($this->looksLikeMixedShellAndPhp($source)) {
-            return $this->highlightMixedShellAndPhp($source);
+        if ($mixedDepth === 0 && $this->looksLikeMixedShellAndPhp($source)) {
+            return $this->highlightMixedShellAndPhp($source, $mixedDepth + 1);
         }
 
         if ($this->looksLikeJson($source)) {
@@ -141,7 +141,7 @@ final class CodeHighlightTwigExtension
         }
 
         if ($this->looksLikeShell($source) && !$this->looksLikePhp($source)) {
-            return $this->highlightShell($source);
+            return $this->highlightShell($source, $mixedDepth);
         }
 
         $syntheticOpenTag = !str_contains($source, '<?');
@@ -438,7 +438,7 @@ final class CodeHighlightTwigExtension
             || preg_match('/(^|\R)\s*(bin\/[A-Za-z0-9:_-]+|curl\b|var\/[^\s]+)/m', $source) === 1;
     }
 
-    private function highlightMixedShellAndPhp(string $source): Markup
+    private function highlightMixedShellAndPhp(string $source, int $mixedDepth = 0): Markup
     {
         $normalized = str_replace(["\r\n", "\r"], "\n", $source);
         $chunks = preg_split("/\n{2,}/", $normalized) ?: [$normalized];
@@ -456,28 +456,32 @@ final class CodeHighlightTwigExtension
             }
 
             if ($this->looksLikePhp($trimmedChunk) && !$this->looksLikeShell($trimmedChunk)) {
-                $htmlChunks[] = (string) $this->highlightPhp($trimmedChunk);
+                $htmlChunks[] = (string) $this->highlightPhp($trimmedChunk, $mixedDepth);
                 continue;
             }
 
             if ($this->looksLikeShell($trimmedChunk) && !$this->looksLikePhp($trimmedChunk)) {
-                $htmlChunks[] = (string) $this->highlightShell($trimmedChunk);
+                $htmlChunks[] = (string) $this->highlightShell($trimmedChunk, $mixedDepth);
                 continue;
             }
 
             if ($this->looksLikePhp($trimmedChunk)) {
-                $htmlChunks[] = (string) $this->highlightPhp($trimmedChunk);
+                $htmlChunks[] = (string) $this->highlightPhp($trimmedChunk, $mixedDepth);
                 continue;
             }
 
-            $htmlChunks[] = (string) $this->highlightShell($trimmedChunk);
+            $htmlChunks[] = (string) $this->highlightShell($trimmedChunk, $mixedDepth);
         }
 
         return new Markup(implode("\n\n", $htmlChunks), 'UTF-8');
     }
 
-    private function highlightShell(string $source): Markup
+    private function highlightShell(string $source, int $mixedDepth = 0): Markup
     {
+        if ($mixedDepth === 0 && $this->looksLikeMixedShellAndPhp($source)) {
+            return $this->highlightMixedShellAndPhp($source, $mixedDepth + 1);
+        }
+
         $lines = preg_split("/(\r\n|\n|\r)/", $source) ?: [$source];
         $htmlLines = [];
 
@@ -507,8 +511,9 @@ final class CodeHighlightTwigExtension
 
         $parts = preg_split('/(\s+)/', $line, -1, PREG_SPLIT_DELIM_CAPTURE) ?: [$line];
         $html = '';
+        $tokenIndex = 0;
 
-        foreach ($parts as $index => $part) {
+        foreach ($parts as $part) {
             if ($part === '') {
                 continue;
             }
@@ -519,7 +524,7 @@ final class CodeHighlightTwigExtension
             }
 
             $class = match (true) {
-                $index === 0 => 'code-token code-token--function',
+                $tokenIndex === 0 => 'code-token code-token--function',
                 str_starts_with($part, '--') || str_starts_with($part, '-') => 'code-token code-token--keyword',
                 str_contains($part, '=') && preg_match('/^[A-Z][A-Z0-9_]*=/', $part) === 1 => 'code-token code-token--variable',
                 preg_match('/^["\'].*["\']$/', $part) === 1 => 'code-token code-token--string',
@@ -529,6 +534,7 @@ final class CodeHighlightTwigExtension
             };
 
             $html .= $this->renderTextFragment($part, $class);
+            $tokenIndex++;
         }
 
         return $html;
