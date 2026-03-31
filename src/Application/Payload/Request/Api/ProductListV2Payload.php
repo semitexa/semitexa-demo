@@ -25,7 +25,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     title: 'Active Version',
     slug: 'active-version',
     summary: 'The current collection endpoint with a clean X-Api-Version header and no deprecation noise.',
-    order: 4,
+    order: 6,
     highlights: ['#[ApiVersion]', 'X-Api-Version', 'active lifecycle'],
     entryLine: 'The healthy path is boring on purpose: one stable version header, no sunset or migration warnings.',
     learnMoreLabel: 'See active version output →',

@@ -1,0 +1,24 @@
+<div class="preview-card">
+  <p class="preview-card__eyebrow">Enhancement Contract</p>
+  <h3 class="preview-card__title">Optional JavaScript belongs to the component, not to page memory.</h3>
+
+  <div class="concept-preview__grid">
+    <div class="concept-preview__column">
+      <p class="concept-preview__column-title">What this fixes</p>
+      <ul class="concept-preview__list">
+        {% for rule in rules %}
+          <li>{{ rule }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="concept-preview__column">
+      <p class="concept-preview__column-title">What the framework guarantees</p>
+      <ul class="concept-preview__list">
+        {% for check in checks %}
+          <li><strong>{{ check.label }}</strong>: {{ check.detail }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>

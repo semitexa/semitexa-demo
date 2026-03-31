@@ -1,0 +1,46 @@
+<div class="preview-card preview-card--layered graphql-derived">
+  <div class="preview-card__header">
+    <p class="preview-card__eyebrow">REST + GraphQL</p>
+    <h3 class="preview-card__title">One Semitexa use case, two transports</h3>
+    <p class="preview-card__summary">These fields come from real REST payloads that also opt into GraphQL. REST clients keep their normal HTTP routes, GraphQL clients call <code>POST /graphql</code>, and the use case stays in one place.</p>
+  </div>
+
+  <div class="graphql-derived__layout">
+    <div class="graphql-derived__operations">
+      <div class="graphql-derived__subhead">
+        <p class="graphql-derived__schema-eyebrow">Shared contract</p>
+        <h4 class="graphql-derived__schema-title">Real GraphQL fields derived from the current REST API</h4>
+      </div>
+      {% for operation in operations %}
+        <article class="graphql-derived__operation">
+          <div class="graphql-derived__operation-head">
+            <span class="graphql-derived__root">{{ operation.rootType }}</span>
+            <code class="graphql-derived__field">{{ operation.field }}</code>
+          </div>
+          <p class="graphql-derived__description">{{ operation.description }}</p>
+          <dl class="graphql-derived__facts">
+            <div>
+              <dt>Already have</dt>
+              <dd><code>{{ operation.httpMethods }} {{ operation.path }}</code></dd>
+            </div>
+            <div>
+              <dt>GraphQL result</dt>
+              <dd><code>{{ operation.rootType }}.{{ operation.field }}</code></dd>
+            </div>
+            <div>
+              <dt>Returns</dt>
+              <dd><code>{{ operation.outputLabel }}</code></dd>
+            </div>
+          </dl>
+          <pre class="graphql-derived__query">{{ operation.queryPreview }}</pre>
+        </article>
+      {% endfor %}
+    </div>
+
+    <div class="graphql-derived__schema">
+      <p class="graphql-derived__schema-eyebrow">Pseudo SDL</p>
+      <h4 class="graphql-derived__schema-title">What GraphQL can expose from the same use case</h4>
+      <pre class="graphql-derived__schema-code">{{ schemaPreview }}</pre>
+    </div>
+  </div>
+</div>

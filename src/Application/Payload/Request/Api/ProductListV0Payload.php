@@ -25,7 +25,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     title: 'Sunset Version',
     slug: 'sunset-version',
     summary: 'A deprecated product endpoint that emits both Deprecation and Sunset headers.',
-    order: 3,
+    order: 5,
     highlights: ['#[ApiVersion]', 'Deprecation', 'Sunset', 'lifecycle headers'],
     entryLine: 'Version lifecycle in Semitexa lives in metadata headers, not route forks and tribal knowledge.',
     learnMoreLabel: 'See sunset headers →',

@@ -21,7 +21,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     title: 'Schema Discovery',
     slug: 'schema-discovery',
     summary: 'A mini Swagger-style explorer for the live product API contract, schema endpoint, and response shapes.',
-    order: 2,
+    order: 1,
     highlights: ['#[ExternalApi]', 'application/schema+json', 'JSON Schema', 'live explorer'],
     entryLine: 'A machine-facing API should explain its own shape and let you exercise the contract without leaving the demo.',
     learnMoreLabel: 'Inspect the live contract →',

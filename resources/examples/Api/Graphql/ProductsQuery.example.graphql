@@ -1,0 +1,12 @@
+query {
+  products {
+    items {
+      slug
+      name
+      price
+    }
+    total
+    page
+    limit
+  }
+}

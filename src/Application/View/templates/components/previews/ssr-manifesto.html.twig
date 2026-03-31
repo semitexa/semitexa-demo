@@ -1,0 +1,61 @@
+<div class="preview-card preview-card--layered">
+  <p class="preview-card__eyebrow">Rendering Manifesto</p>
+  <h3 class="preview-card__title">Semitexa SSR keeps the page whole and refuses a hidden client framework layer.</h3>
+  <p class="preview-card__summary">
+    The page, its regions, its late content, its live refresh cycle, and even its interactive component events all stay
+    inside one rendering architecture. That architecture may use JavaScript, but it does not surrender the page to React,
+    Alpine, or another UI framework the moment interactivity appears. If your product decision is to make a client UI
+    framework the primary rendering runtime, the cleaner path is to stop using Semitexa SSR for that surface and consume
+    Semitexa through its REST or GraphQL API instead.
+  </p>
+
+  <div class="preview-callout">
+    <p class="preview-callout__eyebrow">Why most SSR stacks stop too early</p>
+    <ul class="preview-callout__list">
+      {% for painPoint in painPoints %}
+        <li>{{ painPoint }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="preview-stats">
+    {% for signal in signals %}
+      <div class="preview-stats__item">
+        <span class="preview-stats__value">{{ signal.value }}</span>
+        <span class="preview-stats__label">{{ signal.label }}</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="preview-compare">
+    {% for item in compare %}
+      <article class="preview-compare__card preview-compare__card--{{ item.variant }}">
+        <div class="preview-compare__meta">
+          <p class="preview-compare__eyebrow">{{ item.eyebrow }}</p>
+          <h4 class="preview-compare__title">{{ item.title }}</h4>
+        </div>
+        <p class="preview-compare__summary">{{ item.summary }}</p>
+        <p class="preview-note">{{ item.note }}</p>
+      </article>
+    {% endfor %}
+  </div>
+
+  <div class="preview-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Semitexa SSR pillar</th>
+          <th>What it protects</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pillar in pillars %}
+          <tr>
+            <td><span class="preview-pill">{{ pillar.title }}</span></td>
+            <td>{{ pillar.detail }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

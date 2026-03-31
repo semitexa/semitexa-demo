@@ -1,0 +1,8 @@
+query {
+  productMetrics {
+    total
+    active
+    archived
+    averagePrice
+  }
+}

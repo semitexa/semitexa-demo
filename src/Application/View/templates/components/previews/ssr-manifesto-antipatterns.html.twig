@@ -1,0 +1,27 @@
+<div class="preview-card">
+  <p class="preview-card__eyebrow">What We Reject</p>
+  <h3 class="preview-card__title">Semitexa SSR is explicitly designed against rendering drift and framework dependency drift.</h3>
+  <p class="preview-card__summary">
+    These are not random implementation details. They are the specific splits Semitexa tries to prevent before they
+    turn an SSR app into a pile of “just one more client-side exception” and “just one more required frontend library”.
+  </p>
+
+  <div class="preview-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Common drift</th>
+          <th>Semitexa answer</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in mapping %}
+          <tr>
+            <td>{{ item.anti }}</td>
+            <td>{{ item.answer }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

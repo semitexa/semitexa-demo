@@ -8,8 +8,6 @@ use Semitexa\Core\Attributes\AsPayloadHandler;
 use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Api\ApiShowcasePayload;
-use Semitexa\Demo\Application\Payload\Request\Api\ProductDetailPayload;
-use Semitexa\Demo\Application\Payload\Request\Api\ProductListPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoApiPresenter;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
@@ -33,28 +31,28 @@ final class ApiShowcaseHandler implements TypedHandlerInterface
 
     public function handle(ApiShowcasePayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $explanation = $this->explanationProvider->getExplanation('api', 'external-endpoints') ?? [];
+        $explanation = $this->explanationProvider->getExplanation('api', 'rest-api') ?? [];
 
         return $resource
-            ->pageTitle('Consumer Profiles Showcase — Semitexa Demo')
+            ->pageTitle('REST API — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'api',
-                'currentSlug' => 'showcase',
+                'currentSlug' => 'rest-api',
                 'infoWhat' => $explanation['what'] ?? 'One endpoint can serve multiple API consumers without branching into separate handler trees.',
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('api')
-            ->withSlug('showcase')
-            ->withTitle('Consumer Profiles Showcase')
-            ->withSummary('One product API, multiple consumers: frontend JSON, JSON-LD crawlers, expanded admin views, and search-oriented collections.')
-            ->withEntryLine('The same Semitexa product endpoint shifts shape depending on who asks and how they ask.')
+            ->withSlug('rest-api')
+            ->withTitle('REST API')
+            ->withSummary('Classic Semitexa REST endpoints with typed payloads, versioning, and consumer-friendly response shaping.')
+            ->withEntryLine('If you want clean REST, Semitexa already gives you a strong machine-facing contract without extra ceremony.')
             ->withHighlights(['#[ExternalApi]', '#[ApiVersion]', 'application/ld+json', 'fields', 'expand', 'X-Response-Profile'])
-            ->withLearnMoreLabel('See live endpoint contracts →')
-            ->withDeepDiveLabel('API presenter internals →')
+            ->withLearnMoreLabel('See simple REST payloads →')
+            ->withDeepDiveLabel('Why Semitexa REST stays clean →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/api-showcase.html.twig', [
                 'profiles' => $this->apiPresenter->getShowcaseProfiles(),
                 'collectionHref' => '/demo/api/v1/products?q=headphones',
@@ -62,10 +60,9 @@ final class ApiShowcaseHandler implements TypedHandlerInterface
                 'jsonLdHref' => '/demo/api/v1/products/wireless-headphones?format=ld',
             ])
             ->withSourceCode([
-                'Showcase Handler' => $this->sourceCodeReader->readClassSource(self::class),
-                'Product List Payload' => $this->sourceCodeReader->readClassSource(ProductListPayload::class),
-                'Product Detail Payload' => $this->sourceCodeReader->readClassSource(ProductDetailPayload::class),
-                'DemoApiPresenter' => $this->sourceCodeReader->readClassSource(DemoApiPresenter::class),
+                'List Payload' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Api/Rest/ProductListPayload.example.php'),
+                'Detail Payload' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Api/Rest/ProductDetailPayload.example.php'),
+                'REST Request' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Api/Rest/ProductListRequest.example.txt'),
             ])
             ->withExplanation($explanation);
     }

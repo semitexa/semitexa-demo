@@ -394,32 +394,6 @@ a:hover {
   text-decoration: none;
 }
 
-.demo-nav__logo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.7rem;
-  height: 2.7rem;
-  flex: 0 0 2.7rem;
-  border-radius: 0.9rem;
-  padding: 0.14rem;
-  background:
-    linear-gradient(160deg, rgba(255, 249, 241, 0.96), rgba(239, 225, 207, 0.9));
-  border: 1px solid rgba(127, 39, 31, 0.12);
-  box-shadow:
-    0 10px 24px rgba(64, 39, 21, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7);
-  overflow: hidden;
-}
-
-.demo-nav__logo img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: 0.72rem;
-  object-fit: cover;
-}
-
 .demo-nav__title {
   display: inline-flex;
   align-items: baseline;
@@ -429,8 +403,22 @@ a:hover {
   letter-spacing: 0.01em;
 }
 
-.demo-nav__title-main {
+.semitexa-logo {
+  display: inline-block;
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.72rem, 2vw, 2.08rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
   color: var(--demo-ink-blue);
+}
+
+.semitexa-logo span {
+  color: var(--demo-accent);
+}
+
+:root[data-demo-theme="dark"] .semitexa-logo {
+  color: var(--demo-text);
 }
 
 .demo-nav__title strong {
@@ -953,16 +941,9 @@ a:hover {
 :root[data-demo-theme="dark"] .preview-form__textarea,
 :root[data-demo-theme="dark"] .preview-button--secondary,
 :root[data-demo-theme="dark"] .demo-nav__menu-toggle,
-:root[data-demo-theme="dark"] .demo-nav__social,
-:root[data-demo-theme="dark"] .demo-nav__logo {
+:root[data-demo-theme="dark"] .demo-nav__social {
   background: var(--demo-elevated-bg);
   border-color: var(--demo-glass-stroke);
-}
-
-:root[data-demo-theme="dark"] .demo-nav__logo {
-  box-shadow:
-    0 14px 30px rgba(2, 8, 15, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 :root[data-demo-theme="dark"] .demo-hero__badge,
@@ -2190,6 +2171,46 @@ a:hover {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
+.graphql-api-preview__stats {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin: 1.25rem 0;
+}
+
+.graphql-api-preview__grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.graphql-api-preview__block {
+  padding: 1rem 1.05rem;
+  border-radius: 18px;
+  border: 1px solid var(--demo-border);
+  background: var(--demo-surface-soft);
+  box-shadow: var(--demo-shadow-sm);
+}
+
+.graphql-api-preview__label {
+  margin: 0 0 0.75rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--demo-text-light);
+}
+
+.graphql-api-preview__code {
+  margin: 0;
+  padding: 0.95rem 1rem;
+  border-radius: 16px;
+  background: var(--demo-code-bg);
+  color: #f5ede3;
+  overflow-x: auto;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
 :root[data-demo-theme="dark"] .graphql-derived__operation,
 :root[data-demo-theme="dark"] .graphql-derived__schema,
 :root[data-demo-theme="dark"] .graphql-derived__approach {
@@ -3259,17 +3280,6 @@ a:hover {
 
   .demo-nav__brand {
     gap: 0.65rem;
-  }
-
-  .demo-nav__logo {
-    width: 2.35rem;
-    height: 2.35rem;
-    flex-basis: 2.35rem;
-    border-radius: 0.8rem;
-  }
-
-  .demo-nav__logo img {
-    border-radius: 0.64rem;
   }
 
   .demo-nav__title {

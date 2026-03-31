@@ -26,7 +26,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     title: 'Structured Errors',
     slug: 'structured-errors',
     summary: 'Throw domain exceptions and let semitexa-api map them into stable machine-readable error envelopes.',
-    order: 5,
+    order: 7,
     highlights: ['ExternalApiExceptionMapper', 'DomainException', 'error.context', 'request_id'],
     entryLine: 'The error response should be more useful than the stack trace. This route proves the envelope stays structured across failure types.',
     learnMoreLabel: 'Trigger error envelopes →',

@@ -1,0 +1,28 @@
+<article class="script-signal-card" data-script-signal-card>
+  <p class="script-signal-card__eyebrow">{{ eyebrow }}</p>
+  <h3 class="script-signal-card__title">{{ title }}</h3>
+  <p class="script-signal-card__summary">{{ summary }}</p>
+
+  <div class="script-signal-card__grid" aria-label="Enhancement diagnostics">
+    <div class="script-signal-card__metric">
+      <span class="script-signal-card__metric-label">Asset boots</span>
+      <strong class="script-signal-card__metric-value" data-script-signal-boot>SSR only</strong>
+    </div>
+    <div class="script-signal-card__metric">
+      <span class="script-signal-card__metric-label">Mount order</span>
+      <strong class="script-signal-card__metric-value" data-script-signal-mount>Waiting</strong>
+    </div>
+    <div class="script-signal-card__metric">
+      <span class="script-signal-card__metric-label">Interactions</span>
+      <strong class="script-signal-card__metric-value" data-script-signal-clicks>0</strong>
+    </div>
+  </div>
+
+  <button class="script-signal-card__button" type="button" data-script-signal-action>
+    {{ buttonLabel }}
+  </button>
+
+  <p class="script-signal-card__status" data-script-signal-status>
+    Server rendered shell. Waiting for optional client enhancement…
+  </p>
+</article>

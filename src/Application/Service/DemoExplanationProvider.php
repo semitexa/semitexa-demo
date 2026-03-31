@@ -474,6 +474,16 @@ final class DemoExplanationProvider
                 ['term' => 'MachineCredential', 'definition' => 'API key entity with scopes, revocation, and audit trail.'],
             ],
         ],
+        'api/rest-api' => [
+            'what' => 'Semitexa REST is explicit and typed. Payload DTOs own the route contract, version markers stay visible, and the response shape remains reviewable instead of drifting into improvised controller code.',
+            'how' => 'A REST endpoint is declared on a payload with #[AsPayload], then marked as machine-facing with #[ExternalApi]. Optional concerns such as versioning, sparse fieldsets, expand parameters, and alternative representations stay attached to that same contract instead of being scattered through middleware and controllers.',
+            'why' => 'REST should not mean accidental complexity. Semitexa keeps the HTTP surface boring in the best way: one clear route contract, one clear execution path, and machine-facing behavior that is explicit in code review.',
+            'keywords' => [
+                ['term' => '#[AsPayload]', 'definition' => 'The typed request contract that owns the REST route.'],
+                ['term' => '#[ExternalApi]', 'definition' => 'Marks the payload as a public machine-facing REST endpoint.'],
+                ['term' => '#[ApiVersion]', 'definition' => 'Attaches explicit lifecycle metadata to a REST contract.'],
+            ],
+        ],
         'api/schema-discovery' => [
             'what' => 'Schema Discovery turns the raw `_schema` endpoint into a small interactive API console. The page still talks to the real live Semitexa routes.',
             'how' => 'The human-facing demo page is a normal DemoFeatureResource, but each operation button issues a fetch() call against the external API endpoints under `/demo/api/...`. The schema contract and example responses are preloaded server-side so the page reads like documentation before you click anything.',
@@ -493,6 +503,26 @@ final class DemoExplanationProvider
                 ['term' => 'GraphqlOperationRegistry', 'definition' => 'Read-only registry of GraphQL-ready Semitexa operations derived from discovered routes.'],
                 ['term' => 'typed output contract', 'definition' => 'A dedicated DTO or view class that declares what GraphQL may safely expose.'],
                 ['term' => 'resolver drift', 'definition' => 'The common failure mode where GraphQL resolvers quietly become a second application layer with duplicated business logic.'],
+            ],
+        ],
+        'api/graphql' => [
+            'what' => 'Semitexa can also serve GraphQL-first APIs. The public entrypoint is still POST /graphql, but the use case behind each field remains explicit through payload and output contracts.',
+            'how' => 'A GraphQL-first operation declares #[ExposeAsGraphql(...)] on a dedicated payload and returns a typed output DTO. The transport may be GraphQL-only, but the application structure still avoids the usual resolver sprawl of ad-hoc field classes and improvised arrays.',
+            'why' => 'This keeps GraphQL honest. Teams get the graph they want without paying for a second hidden application layer made of resolver glue.',
+            'keywords' => [
+                ['term' => 'POST /graphql', 'definition' => 'The public transport endpoint used by GraphQL clients.'],
+                ['term' => 'GraphQL-first', 'definition' => 'A use case that is exposed only through the graph and does not need a public REST route.'],
+                ['term' => 'typed output DTO', 'definition' => 'A concrete class that owns the public GraphQL response shape.'],
+            ],
+        ],
+        'api/rest-graphql' => [
+            'what' => 'A single Semitexa use case can answer both REST and GraphQL. The public transports differ, but the business flow stays in one place.',
+            'how' => 'An existing REST payload opts into GraphQL with #[ExposeAsGraphql(...)]. REST clients keep calling the normal HTTP route, GraphQL clients call POST /graphql, and both transports reuse the same application contract.',
+            'why' => 'This matters when products are not ready to choose one public style forever. Semitexa lets teams support both without forking their use case into two implementations that drift apart over time.',
+            'keywords' => [
+                ['term' => 'REST + GraphQL', 'definition' => 'One use case exposed through two transports without duplicated handler logic.'],
+                ['term' => 'shared contract', 'definition' => 'The same payload and output boundary stays authoritative across both transports.'],
+                ['term' => 'transport split', 'definition' => 'REST and GraphQL can differ at the edge while still sharing the same application execution path.'],
             ],
         ],
         'api/sunset-version' => [
