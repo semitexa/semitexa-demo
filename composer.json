@@ -2,7 +2,7 @@
     "name": "semitexa/demo",
     "description": "Official Semitexa Framework showcase",
     "type": "semitexa-module",
-    "version": "0.1.0",
+    "version": "v0.1.2",
     "license": "MIT",
     "authors": [
         {
