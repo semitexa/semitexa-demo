@@ -1,0 +1,64 @@
+<div class="preview-card" data-code-block>
+  {% if eyebrow is defined and eyebrow %}
+    <p class="preview-card__eyebrow">{{ eyebrow }}</p>
+  {% endif %}
+  {% if title is defined and title %}
+    <h3 class="preview-card__title">{{ title }}</h3>
+  {% endif %}
+  {% if summary is defined and summary %}
+    <p class="preview-card__summary">{{ summary }}</p>
+  {% endif %}
+
+  {% if steps is defined and steps|length > 0 %}
+    <div class="preview-flow preview-flow--stack">
+      {% for step in steps %}
+        <article class="preview-flow__step">
+          {% if step.eyebrow is defined and step.eyebrow %}
+            <p class="preview-flow__eyebrow">{{ step.eyebrow }}</p>
+          {% endif %}
+          <h4 class="preview-flow__title">{{ step.title }}</h4>
+          <p class="preview-flow__summary">{{ step.summary }}</p>
+          {% if step.commands is defined and step.commands|length > 0 %}
+            <div class="preview-code-stack">
+              {% for command in step.commands %}
+                <div class="preview-code-stack__item">
+                  <div class="get-started-playbook__command-shell">
+                    <button
+                      class="code-block__copy"
+                      type="button"
+                      title="Copy to clipboard"
+                      data-copy-source="get-started-command-{{ loop.parent.loop.index }}-{{ loop.index }}"
+                      data-copy-raw-source="get-started-command-raw-{{ loop.parent.loop.index }}-{{ loop.index }}"
+                    >Copy</button>
+                  </div>
+                  <pre class="demo-get-started__command"><code id="get-started-command-{{ loop.parent.loop.index }}-{{ loop.index }}">{{ command }}</code></pre>
+                  <textarea
+                    id="get-started-command-raw-{{ loop.parent.loop.index }}-{{ loop.index }}"
+                    class="code-block__raw-source"
+                    tabindex="-1"
+                    aria-hidden="true"
+                  >{{ command }}</textarea>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if callout is defined and callout %}
+    <div class="preview-callout">
+      {% if callout.eyebrow is defined and callout.eyebrow %}
+        <p class="preview-callout__eyebrow">{{ callout.eyebrow }}</p>
+      {% endif %}
+      {% if callout.rules is defined and callout.rules|length > 0 %}
+        <ul class="preview-callout__list">
+          {% for rule in callout.rules %}
+            <li>{{ rule }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>

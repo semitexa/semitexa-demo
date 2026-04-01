@@ -32,6 +32,11 @@ class DemoFeatureResource extends HtmlResponse implements ResourceInterface
         return $this->with('slug', $slug);
     }
 
+    public function withSectionLabel(string $label): self
+    {
+        return $this->with('sectionLabel', $label);
+    }
+
     public function withTitle(string $title): self
     {
         return $this->with('featureTitle', $title);

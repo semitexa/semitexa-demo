@@ -15,6 +15,15 @@ final class DemoCatalogService
     protected DemoFeatureRegistry $featureRegistry;
 
     private const SECTION_META = [
+        'get-started' => [
+            'key' => 'get-started',
+            'label' => 'Get Started',
+            'summary' => 'Canonical install, first boot, local domain setup, and the first tenant path gathered in one onboarding section.',
+            'icon' => 'GO',
+            'eyebrow' => 'Onboarding',
+            'starter' => true,
+            'prerequisites' => [],
+        ],
         'routing' => [
             'key' => 'routing',
             'label' => 'Routing & Handlers',

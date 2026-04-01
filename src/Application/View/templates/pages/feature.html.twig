@@ -4,6 +4,7 @@
 
 {% block main %}
   {% set domKey = (section ~ '-' ~ slug)|lower|replace({' ': '-', '/': '-', '\\': '-', '_': '-'}) %}
+  {% set resolvedSectionLabel = sectionLabel|default(section|title) %}
   {% set keywordDefinitions = {} %}
   {% if explanation is defined and explanation.keywords is defined %}
     {% for keyword in explanation.keywords %}
@@ -15,8 +16,8 @@
     <section class="feature-detail__l1">
       <header class="feature-detail__header">
         <div class="feature-detail__header-copy">
-          <a href="/demo/{{ section }}" class="feature-detail__back">← {{ section|title }}</a>
-          <p class="feature-detail__eyebrow">{{ section|upper }} FEATURE</p>
+          <a href="/demo/{{ section }}" class="feature-detail__back">← {{ resolvedSectionLabel }}</a>
+          <p class="feature-detail__eyebrow">{{ resolvedSectionLabel|upper }} FEATURE</p>
           <h1 class="feature-detail__title">
             {{ demo_title_icon(featureTitle, section, slug) }}
             <span>{{ featureTitle }}</span>
