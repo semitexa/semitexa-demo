@@ -49,7 +49,7 @@ final class InstallationHandler implements TypedHandlerInterface
             ->withTitle('Installation')
             ->withSummary('Create the project, prepare `.env`, and bring up the Semitexa runtime the supported way.')
             ->withEntryLine('The first useful Semitexa experience should end with a running app and an operator shell you can trust, not with a half-finished checklist.')
-            ->withHighlights(['install.sh', 'bin/semitexa server:start', 'self-test', 'routes:list'])
+            ->withHighlights(['install.sh', 'bin/semitexa', 'self-test', 'routes:list'])
             ->withLearnMoreLabel('See the installation flow →')
             ->withDeepDiveLabel('What to verify after boot →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/get-started-playbook.html.twig', [

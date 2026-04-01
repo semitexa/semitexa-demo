@@ -27,13 +27,13 @@
                       class="code-block__copy"
                       type="button"
                       title="Copy to clipboard"
-                      data-copy-source="get-started-command-{{ loop.parent.loop.index }}-{{ loop.index }}"
-                      data-copy-raw-source="get-started-command-raw-{{ loop.parent.loop.index }}-{{ loop.index }}"
+                      data-copy-source="get-started-command-{{ loop.parent.index }}-{{ loop.index }}"
+                      data-copy-raw-source="get-started-command-raw-{{ loop.parent.index }}-{{ loop.index }}"
                     >Copy</button>
                   </div>
-                  <pre class="demo-get-started__command"><code id="get-started-command-{{ loop.parent.loop.index }}-{{ loop.index }}">{{ command }}</code></pre>
+                  <pre class="demo-get-started__command"><code id="get-started-command-{{ loop.parent.index }}-{{ loop.index }}">{{ command }}</code></pre>
                   <textarea
-                    id="get-started-command-raw-{{ loop.parent.loop.index }}-{{ loop.index }}"
+                    id="get-started-command-raw-{{ loop.parent.index }}-{{ loop.index }}"
                     class="code-block__raw-source"
                     tabindex="-1"
                     aria-hidden="true"

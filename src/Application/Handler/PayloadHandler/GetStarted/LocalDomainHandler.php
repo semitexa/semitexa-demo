@@ -49,7 +49,7 @@ final class LocalDomainHandler implements TypedHandlerInterface
             ->withTitle('Local Domain')
             ->withSummary('Register `.test` domains through the built-in DNS helper instead of relying on ad-hoc host setup.')
             ->withEntryLine('A framework with tenancy should not be introduced through localhost forever. Register a stable local domain early and let the runtime behave like a product host.')
-            ->withHighlights(['TENANCY_BASE_DOMAIN', 'bin/semitexa dns:add', 'bin/semitexa dns:list', 'server:restart'])
+            ->withHighlights(['TENANCY_BASE_DOMAIN', 'bin/semitexa dns:add', 'dns:list', 'server:restart'])
             ->withLearnMoreLabel('See the local domain flow →')
             ->withDeepDiveLabel('Why domain-first local work matters →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/get-started-playbook.html.twig', [
