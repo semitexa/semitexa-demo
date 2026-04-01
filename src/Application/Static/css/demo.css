@@ -959,9 +959,17 @@ a:hover {
 .demo-get-started__steps,
 .demo-get-started__content,
 .demo-get-started__command-stack,
-.demo-get-started__next {
+.demo-get-started__next,
+.demo-get-started__subgrid,
+.demo-get-started__action-grid,
+.demo-get-started__domain-steps,
+.demo-get-started__tenant-grid {
   display: grid;
   gap: 1rem;
+}
+
+.demo-get-started__subgrid {
+  gap: 1.15rem;
 }
 
 .demo-get-started__requirement {
@@ -1001,6 +1009,59 @@ a:hover {
   display: grid;
   gap: 0.8rem;
   padding: 1.15rem 1.2rem;
+}
+
+.demo-get-started__panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.15rem 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 251, 246, 0.36), rgba(249, 240, 229, 0.28));
+  box-shadow: var(--demo-shadow-sm);
+  backdrop-filter: blur(16px) saturate(135%);
+}
+
+.demo-get-started__subheading {
+  margin: 0;
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  line-height: 1.15;
+  color: var(--demo-text);
+}
+
+.demo-get-started__action {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 250, 244, 0.78);
+  border: 1px solid rgba(139, 90, 43, 0.12);
+}
+
+.demo-get-started__action strong {
+  color: var(--demo-text);
+}
+
+.demo-get-started__action p {
+  margin: 0;
+  color: var(--demo-text-muted);
+}
+
+.demo-get-started__tenant-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.demo-get-started__notes {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: grid;
+  gap: 0.55rem;
+  color: var(--demo-text-muted);
+}
+
+.demo-get-started__notes li::marker {
+  color: var(--demo-accent);
 }
 
 .demo-get-started__command {
@@ -1150,7 +1211,9 @@ a:hover {
 :root[data-demo-theme="dark"] .demo-hero__signal,
 :root[data-demo-theme="dark"] .demo-hero__terminal,
 :root[data-demo-theme="dark"] .demo-hero__ledger,
+:root[data-demo-theme="dark"] .demo-get-started__panel,
 :root[data-demo-theme="dark"] .demo-get-started__requirement,
+:root[data-demo-theme="dark"] .demo-get-started__action,
 :root[data-demo-theme="dark"] .demo-get-started__command,
 :root[data-demo-theme="dark"] .demo-release-countdown,
 :root[data-demo-theme="dark"] .feature-card--starter,
@@ -2023,6 +2086,10 @@ a:hover {
   grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
 }
 
+.preview-flow--stack {
+  grid-template-columns: 1fr;
+}
+
 .preview-flow__step {
   border: 1px solid rgba(23, 34, 63, 0.1);
   border-radius: 1rem;
@@ -2116,6 +2183,11 @@ a:hover {
 .preview-code-stack__item {
   display: grid;
   gap: 0.45rem;
+}
+
+.get-started-playbook__command-shell {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .preview-code-stack__label {
@@ -3493,6 +3565,10 @@ a:hover {
     grid-template-columns: 1fr;
   }
 
+  .demo-get-started__tenant-grid {
+    grid-template-columns: 1fr;
+  }
+
   .demo-starters__grid,
   .demo-sections__grid,
   .demo-get-started__next-grid {
@@ -3567,6 +3643,12 @@ a:hover {
   .demo-sections__grid,
   .demo-get-started__next-grid {
     grid-template-columns: 1fr;
+  }
+
+  .demo-get-started__panel,
+  .demo-get-started__step,
+  .demo-get-started__primer {
+    padding: 1rem;
   }
 
   .demo-hero {
