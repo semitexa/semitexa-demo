@@ -12,6 +12,11 @@ final class BrowserSessionSegment
     private ?string $userId = null;
     private ?string $displayName = null;
 
+    public function isGuest(): bool
+    {
+        return $this->userId === null;
+    }
+
     public function getUserId(): ?string
     {
         return $this->userId;

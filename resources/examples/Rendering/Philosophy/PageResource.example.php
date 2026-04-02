@@ -1,28 +1,56 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Domain\Catalog\CatalogInterface;
 use App\Domain\Product;
 use Semitexa\Core\Attributes\AsPayload;
 use Semitexa\Core\Attributes\AsPayloadHandler;
+use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Attributes\AsResource;
+use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Core\Contract\ValidatablePayload;
 use Semitexa\Core\Exception\NotFoundException;
+use Semitexa\Core\Http\PayloadValidationResult;
 use Semitexa\Ssr\Http\Response\HtmlResponse;
 
-#[AsPayload(path: '/products/{slug}', methods: ['GET'], responseWith: ProductPageResource::class)]
-final class ProductPagePayload
+#[AsPayload(
+    path: '/products/{slug}',
+    methods: ['GET'],
+    responseWith: ProductPageResource::class,
+    requirements: ['slug' => '[a-z0-9-]+'],
+)]
+final class ProductPagePayload implements ValidatablePayload
 {
     protected string $slug = '';
 
-    public function getSlug(): string { return $this->slug; }
-    public function setSlug(string $slug): void { $this->slug = $slug; }
+    public function getSlug(): string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): void
+    {
+        $this->slug = strtolower(trim($slug));
+    }
+
+    public function validate(): PayloadValidationResult
+    {
+        $errors = [];
+
+        if ($this->slug === '') {
+            $errors['slug'][] = 'Product slug is required.';
+        }
+
+        return new PayloadValidationResult($errors === [], $errors);
+    }
 }
 
 #[AsPayloadHandler(payload: ProductPagePayload::class, resource: ProductPageResource::class)]
-final class ProductPageHandler
+final class ProductPageHandler implements TypedHandlerInterface
 {
-    public function __construct(
-        private readonly CatalogInterface $catalog,
-    ) {}
+    #[InjectAsReadonly]
+    private CatalogInterface $catalog;
 
     public function handle(ProductPagePayload $payload, ProductPageResource $resource): ProductPageResource
     {
@@ -49,5 +77,10 @@ final class ProductPageResource extends HtmlResponse
     public function withInventoryState(string $state): self
     {
         return $this->with('inventoryState', $state);
+    }
+
+    public function withHeroActions(array $actions): self
+    {
+        return $this->with('heroActions', $actions);
     }
 }
