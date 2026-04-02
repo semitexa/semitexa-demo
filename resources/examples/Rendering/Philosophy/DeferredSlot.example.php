@@ -1,6 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Service\AnalyticsService;
+use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Ssr\Attributes\AsSlotHandler;
 use Semitexa\Ssr\Attributes\AsSlotResource;
 use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
@@ -22,9 +25,8 @@ final class ProductAnalyticsSlot extends HtmlSlotResponse
 #[AsSlotHandler(slot: ProductAnalyticsSlot::class)]
 final class ProductAnalyticsSlotHandler
 {
-    public function __construct(
-        private readonly AnalyticsService $analytics,
-    ) {}
+    #[InjectAsReadonly]
+    protected AnalyticsService $analytics;
 
     public function handle(ProductAnalyticsSlot $slot): ProductAnalyticsSlot
     {

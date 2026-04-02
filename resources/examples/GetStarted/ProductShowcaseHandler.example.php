@@ -2,18 +2,16 @@
 
 declare(strict_types=1);
 
-use Semitexa\Core\Attributes\AsPayloadHandler;
 use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Exception\NotFoundException;
 
-#[AsPayloadHandler(payload: ProductPagePayload::class, resource: ProductShowcaseResource::class)]
 final class ProductShowcaseHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
     protected CatalogReadRepositoryInterface $catalog;
 
-    public function handle(ProductPagePayload $payload, ProductShowcaseResource $resource): ProductShowcaseResource
+    public function handle(ProductShowcasePayload $payload, ProductShowcaseResource $resource): ProductShowcaseResource
     {
         $product = $this->catalog->findBySlug($payload->getSlug());
 

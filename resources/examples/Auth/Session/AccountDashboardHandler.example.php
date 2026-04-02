@@ -8,14 +8,14 @@ use App\Payload\Account\DashboardPayload;
 use App\Resource\Account\DashboardResource;
 use Semitexa\Core\Auth\AuthContextInterface;
 use Semitexa\Core\Attributes\AsPayloadHandler;
+use Semitexa\Core\Attributes\InjectAsMutable;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: DashboardPayload::class, resource: DashboardResource::class)]
 final class AccountDashboardHandler implements TypedHandlerInterface
 {
-    public function __construct(
-        private readonly AuthContextInterface $auth,
-    ) {}
+    #[InjectAsMutable]
+    protected AuthContextInterface $auth;
 
     public function handle(DashboardPayload $payload, DashboardResource $resource): DashboardResource
     {

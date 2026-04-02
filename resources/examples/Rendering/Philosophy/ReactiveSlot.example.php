@@ -1,6 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Service\JobService;
+use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Ssr\Attributes\AsSlotHandler;
 use Semitexa\Ssr\Attributes\AsSlotResource;
 use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
@@ -27,9 +30,8 @@ final class ImportJobStatusSlot extends HtmlSlotResponse
 #[AsSlotHandler(slot: ImportJobStatusSlot::class)]
 final class ImportJobStatusSlotHandler
 {
-    public function __construct(
-        private readonly JobService $jobs,
-    ) {}
+    #[InjectAsReadonly]
+    protected JobService $jobs;
 
     public function handle(ImportJobStatusSlot $slot): ImportJobStatusSlot
     {

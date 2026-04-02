@@ -10,6 +10,8 @@ use App\Resource\Auth\LoginPageResource;
 use App\User\UserRepositoryInterface;
 use Semitexa\Authorization\Attributes\PublicEndpoint;
 use Semitexa\Core\Attributes\AsPayloadHandler;
+use Semitexa\Core\Attributes\InjectAsMutable;
+use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Exception\AuthenticationException;
 use Semitexa\Core\Session\SessionInterface;
@@ -18,10 +20,11 @@ use Semitexa\Core\Session\SessionInterface;
 #[AsPayloadHandler(payload: LoginPayload::class, resource: LoginPageResource::class)]
 final class LoginHandler implements TypedHandlerInterface
 {
-    public function __construct(
-        private readonly UserRepositoryInterface $users,
-        private readonly SessionInterface $session,
-    ) {}
+    #[InjectAsReadonly]
+    protected UserRepositoryInterface $users;
+
+    #[InjectAsMutable]
+    protected SessionInterface $session;
 
     public function handle(LoginPayload $payload, LoginPageResource $resource): LoginPageResource
     {

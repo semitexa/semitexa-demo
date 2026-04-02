@@ -1,6 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Service\RecommendationService;
+use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Ssr\Attributes\AsSlotHandler;
 use Semitexa\Ssr\Attributes\AsSlotResource;
 use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
@@ -17,9 +20,8 @@ final class ProductSidebarSlot extends HtmlSlotResponse
 #[AsSlotHandler(slot: ProductSidebarSlot::class)]
 final class ProductSidebarSlotHandler
 {
-    public function __construct(
-        private readonly RecommendationService $recommendations,
-    ) {}
+    #[InjectAsReadonly]
+    protected RecommendationService $recommendations;
 
     public function handle(ProductSidebarSlot $slot): ProductSidebarSlot
     {

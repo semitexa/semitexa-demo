@@ -7,7 +7,7 @@ use Semitexa\Ssr\Http\Response\HtmlResponse;
 
 #[AsResource(
     handle: 'product_showcase',
-    template: '@project/product/showcase.html.twig',
+    template: '@project/catalog/pages/product-show.html.twig',
 )]
 final class ProductShowcaseResource extends HtmlResponse
 {
