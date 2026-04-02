@@ -28,7 +28,7 @@ final class ProductShowcasePayload implements ValidatablePayload
         $normalized = preg_replace('/[^a-z0-9-]+/', '-', $normalized) ?? '';
         $normalized = trim($normalized, '-');
 
-        $this->slug = $normalized !== '' ? $normalized : 'wireless-headphones';
+        $this->slug = $normalized;
     }
 
     public function validate(): PayloadValidationResult

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Service\JobService;
+use Examples\Rendering\Philosophy\Support\JobService;
 use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Ssr\Attributes\AsSlotHandler;
 use Semitexa\Ssr\Attributes\AsSlotResource;

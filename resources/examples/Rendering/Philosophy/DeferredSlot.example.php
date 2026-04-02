@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Service\AnalyticsService;
+use Examples\Rendering\Philosophy\Support\AnalyticsService;
 use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Ssr\Attributes\AsSlotHandler;
 use Semitexa\Ssr\Attributes\AsSlotResource;

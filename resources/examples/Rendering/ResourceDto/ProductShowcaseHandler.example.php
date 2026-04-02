@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Examples\Shared\CatalogReadRepositoryInterface;
 use Semitexa\Core\Attributes\AsPayloadHandler;
 use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;

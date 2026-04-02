@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Service\RecommendationService;
+use Examples\Rendering\Philosophy\Support\RecommendationService;
 use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Ssr\Attributes\AsSlotHandler;
 use Semitexa\Ssr\Attributes\AsSlotResource;

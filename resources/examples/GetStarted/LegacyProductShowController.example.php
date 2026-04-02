@@ -29,7 +29,11 @@ final class ProductShowController
         $product = $this->products->findBySlug($slug);
 
         if ($product === null) {
-            return new Response('Not found', 404);
+            return new Response(
+                body: json_encode(['error' => 'Not found']),
+                status: 404,
+                headers: ['Content-Type' => 'application/json'],
+            );
         }
 
         return new Response(

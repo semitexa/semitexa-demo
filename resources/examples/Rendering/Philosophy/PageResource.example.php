@@ -50,7 +50,7 @@ final class ProductPagePayload implements ValidatablePayload
 final class ProductPageHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected CatalogInterface $catalog;
+    private CatalogInterface $catalog;
 
     public function handle(ProductPagePayload $payload, ProductPageResource $resource): ProductPageResource
     {
