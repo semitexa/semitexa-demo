@@ -1,4 +1,4 @@
-# semitexa/demo
+# Semitexa Demo
 
 Official showcase module demonstrating Semitexa framework capabilities.
 
