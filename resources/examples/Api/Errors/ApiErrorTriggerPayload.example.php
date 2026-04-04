@@ -18,4 +18,9 @@ use Semitexa\Core\Attributes\AsPayload;
 final class ApiErrorTriggerPayload
 {
     protected string $scenario = 'not-found';
+
+    public function setScenario(string $scenario): void
+    {
+        $this->scenario = $scenario;
+    }
 }

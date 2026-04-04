@@ -161,7 +161,7 @@ final class DemoSourceCodeReader
     private function readExampleSourceForClass(string $className): string
     {
         $relativePath = self::EXAMPLE_SOURCE_MAP[$className] ?? null;
-        if (!is_string($relativePath) || $relativePath === '') {
+        if ($relativePath === null) {
             return '';
         }
 
@@ -172,7 +172,9 @@ final class DemoSourceCodeReader
     {
         return match (true) {
             str_starts_with($className, 'Semitexa\\Demo\\Application\\Handler\\PayloadHandler\\') => $this->renderPayloadHandlerExample($className),
-            str_starts_with($className, 'Semitexa\\Demo\\Application\\Payload\\') => $this->renderPayloadExample($className),
+            str_starts_with($className, 'Semitexa\\Demo\\Application\\Payload\\Request\\') => $this->renderRequestPayloadExample($className),
+            str_starts_with($className, 'Semitexa\\Demo\\Application\\Payload\\Event\\') => $this->renderEventPayloadExample($className),
+            str_starts_with($className, 'Semitexa\\Demo\\Application\\Payload\\') => $this->renderRequestPayloadExample($className),
             str_starts_with($className, 'Semitexa\\Demo\\Application\\Resource\\') => $this->renderResourceExample($className),
             str_starts_with($className, 'Semitexa\\Demo\\Application\\Handler\\DomainListener\\') => $this->renderDomainListenerExample($className),
             str_starts_with($className, 'Semitexa\\Demo\\Application\\Component\\') => $this->renderComponentExample($className),
@@ -217,7 +219,7 @@ final class {$ref->getShortName()} implements TypedHandlerInterface
 PHP);
     }
 
-    private function renderPayloadExample(string $className): string
+    private function renderRequestPayloadExample(string $className): string
     {
         if (!class_exists($className)) {
             return '';
@@ -243,6 +245,31 @@ final class {$ref->getShortName()} extends BasePayload
     {
         return (string) \$this->getQueryValue('search', '');
     }
+}
+PHP);
+    }
+
+    private function renderEventPayloadExample(string $className): string
+    {
+        if (!class_exists($className)) {
+            return '';
+        }
+
+        $ref = new \ReflectionClass($className);
+
+        return $this->sanitizeForDisplay(<<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace App\Application\Payload\Event\Example;
+
+final readonly class {$ref->getShortName()}
+{
+    public function __construct(
+        public string \$aggregateId,
+        public string \$actorId,
+    ) {}
 }
 PHP);
     }

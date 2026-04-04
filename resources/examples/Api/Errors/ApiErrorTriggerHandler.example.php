@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Handler\Api;
 
-use App\Application\Exception\Api\ProductNotFoundException;
+use App\Application\Exception\Api\DemoApiNotFoundException;
 use App\Application\Payload\Api\ApiErrorTriggerPayload;
 use App\Application\Resource\Api\ErrorEnvelopeResource;
 use Semitexa\Core\Attributes\AsPayloadHandler;
@@ -15,6 +15,6 @@ final class ApiErrorTriggerHandler implements TypedHandlerInterface
 {
     public function handle(ApiErrorTriggerPayload $payload, ErrorEnvelopeResource $resource): ErrorEnvelopeResource
     {
-        throw new ProductNotFoundException('demo-product');
+        throw new DemoApiNotFoundException('Product', 'demo-product');
     }
 }

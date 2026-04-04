@@ -21,8 +21,11 @@ final class SyncEventHandler implements TypedHandlerInterface
     public function handle(CreateDemoItemPayload $payload, DemoItemResource $resource): DemoItemResource
     {
         $event = new DemoItemCreated($payload->getId(), $payload->getName(), 'catalog');
-        $this->eventDispatcher?->dispatch($event);
+        if ($this->eventDispatcher === null) {
+            return $resource->withStatus('not_dispatched');
+        }
 
+        $this->eventDispatcher->dispatch($event);
         return $resource->withStatus('dispatched');
     }
 }

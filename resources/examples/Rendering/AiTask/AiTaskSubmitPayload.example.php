@@ -16,5 +16,5 @@ use Semitexa\Core\Attributes\AsPayload;
 )]
 final class AiTaskSubmitPayload
 {
-    protected string $prompt = '';
+    public string $prompt = '';
 }

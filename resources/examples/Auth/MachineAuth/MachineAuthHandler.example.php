@@ -7,12 +7,10 @@ namespace App\Application\Handler\Auth;
 use App\Application\Payload\Api\ProductListPayload;
 use App\Application\Resource\Api\ProductListResource;
 use App\Domain\Api\ProductApiReaderInterface;
-use Semitexa\Api\Auth\Attributes\MachineProtected;
 use Semitexa\Core\Attributes\AsPayloadHandler;
 use Semitexa\Core\Attributes\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
-#[MachineProtected(scopes: ['catalog.read'])]
 #[AsPayloadHandler(payload: ProductListPayload::class, resource: ProductListResource::class)]
 final class MachineAuthHandler implements TypedHandlerInterface
 {
