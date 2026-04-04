@@ -3714,3 +3714,87 @@ a:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* Donate button styles */
+.demo-donate-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.4rem;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #003087, #0070ba);
+  color: #ffffff;
+  font-family: var(--demo-font-ui, sans-serif);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 12px 24px rgba(0, 48, 135, 0.18);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  width: 100%;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.demo-donate-btn--compact {
+  width: fit-content;
+  min-width: 240px;
+}
+
+.demo-donate-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(0, 48, 135, 0.26);
+  filter: brightness(1.1);
+  text-decoration: none;
+}
+
+.demo-donate-btn svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+:root[data-demo-theme="dark"] .demo-donate-btn {
+  background: linear-gradient(135deg, #0070ba, #1546a0);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.36);
+}
+
+.demo-hero__links {
+  display: flex;
+  width: 100%;
+  margin-bottom: 0.25rem;
+  box-sizing: border-box;
+}
+
+/* Donate callout styles */
+.demo-donate-callout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  padding: 1.35rem;
+  border-radius: 22px;
+  background: linear-gradient(180deg, var(--demo-bg-card), var(--demo-bg-alt));
+  border: 1px solid var(--demo-border);
+  box-shadow: var(--demo-shadow-sm);
+  margin: 1.5rem 0 2rem;
+}
+
+:root[data-demo-theme="dark"] .demo-donate-callout {
+  background: linear-gradient(180deg, var(--demo-elevated-bg), var(--demo-bg-alt));
+  border-color: var(--demo-glass-stroke);
+}
+
+.demo-donate-callout p {
+  margin: 0;
+  font-family: var(--demo-font-ui, sans-serif);
+  font-size: 0.92rem;
+  color: var(--demo-text-muted);
+  line-height: 1.6;
+}
+
+.demo-donate-callout p strong {
+  color: var(--demo-text);
+  font-weight: 700;
+}

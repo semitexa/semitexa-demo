@@ -86,6 +86,14 @@
         </div>
       </div>
 
+      <div class="demo-hero__links">
+        {% include '@project-layouts-semitexa-demo/partials/donate-button.html.twig' with {
+          class: 'demo-donate-btn',
+          label: 'Support Semitexa',
+          title: 'Support Semitexa development with PayPal',
+        } only %}
+      </div>
+
       <div class="demo-hero__terminal">
         <p class="demo-hero__terminal-title">System framing</p>
         <ul class="demo-hero__terminal-lines">

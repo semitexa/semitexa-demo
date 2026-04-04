@@ -23,6 +23,7 @@
             <span>{{ featureTitle }}</span>
           </h1>
           <p class="feature-detail__entry-line">{{ entryLine }}</p>
+          {% include '@project-layouts-semitexa-demo/partials/donate-block.html.twig' only %}
         </div>
 
         {% if highlights is defined and highlights|length > 0 %}
