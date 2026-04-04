@@ -3724,7 +3724,7 @@ a:hover {
   padding: 0.85rem 1.4rem;
   border-radius: 18px;
   background: linear-gradient(135deg, #003087, #0070ba);
-  color: #ffffff !important;
+  color: #ffffff;
   font-family: var(--demo-font-ui, sans-serif);
   font-size: 0.95rem;
   font-weight: 700;
@@ -3735,6 +3735,11 @@ a:hover {
   width: 100%;
   box-sizing: border-box;
   max-width: 100%;
+}
+
+.demo-donate-btn--compact {
+  width: fit-content;
+  min-width: 240px;
 }
 
 .demo-donate-btn:hover {
@@ -3757,10 +3762,10 @@ a:hover {
 }
 
 .demo-hero__links {
-    display: flex;
-    width: 100%;
-    margin-bottom: 0.25rem;
-    box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  margin-bottom: 0.25rem;
+  box-sizing: border-box;
 }
 
 /* Donate callout styles */
