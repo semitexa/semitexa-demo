@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Examples\Routing\PayloadShield\CheckoutServiceInterface;
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: CreateCheckoutPayload::class, resource: CheckoutResultResource::class)]

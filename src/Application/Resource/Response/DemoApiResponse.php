@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Resource\Response;
 
 use Semitexa\Core\Contract\ResourceInterface;
-use Semitexa\Core\Http\Response\GenericResponse;
+use Semitexa\Core\Http\Response\ResourceResponse;
 
-final class DemoApiResponse extends GenericResponse implements ResourceInterface
+final class DemoApiResponse extends ResourceResponse implements ResourceInterface
 {
     public function withJsonPayload(array $payload, string $contentType = 'application/json'): self
     {

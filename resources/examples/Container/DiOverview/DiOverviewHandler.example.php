@@ -6,7 +6,7 @@ namespace App\Application\Handler\Container;
 
 use App\Application\Payload\Container\DiOverviewPayload;
 use App\Application\Resource\Page\DiOverviewResource;
-use Semitexa\Core\Attributes\AsPayloadHandler;
+use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: DiOverviewPayload::class, resource: DiOverviewResource::class)]

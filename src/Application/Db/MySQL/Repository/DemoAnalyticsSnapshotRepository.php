@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Db\MySQL\Repository;
 
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoAnalyticsSnapshotResource;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoAnalyticsSnapshotTableModel;
 use Semitexa\Orm\Attribute\AsRepository;

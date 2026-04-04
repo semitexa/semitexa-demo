@@ -6,7 +6,7 @@ namespace App\Application\Payload\Routing;
 
 use App\Application\Resource\Page\BasicPageResource;
 use Semitexa\Authorization\Attributes\PublicEndpoint;
-use Semitexa\Core\Attributes\AsPayload;
+use Semitexa\Core\Attribute\AsPayload;
 
 #[PublicEndpoint]
 #[AsPayload(

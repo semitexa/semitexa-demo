@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Payload\Request\Routing;
 
 use Semitexa\Authorization\Attributes\PublicEndpoint;
-use Semitexa\Core\Attributes\AsPayload;
+use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Attributes\DemoFeature;
 
@@ -24,7 +24,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     slug: 'parameterized',
     summary: 'Path parameters with regex constraints and typed injection.',
     order: 5,
-    highlights: ['requirements', 'defaults', 'RequestDtoHydrator', 'setter injection'],
+    highlights: ['requirements', 'defaults', 'PayloadHydrator', 'setter injection'],
     entryLine: 'Path parameters like {slug} are extracted and injected via setters — with regex validation at the router level.',
     learnMoreLabel: 'Try different slugs →',
     deepDiveLabel: 'How regex compilation works →',

@@ -7,7 +7,7 @@ namespace App\Application\Handler\Auth;
 use App\Application\Payload\Admin\UserListPayload;
 use App\Application\Resource\Admin\UserListResource;
 use Semitexa\Authorization\Attributes\RequiresPermission;
-use Semitexa\Core\Attributes\AsPayloadHandler;
+use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[RequiresPermission('users.manage')]

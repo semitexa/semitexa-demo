@@ -6,8 +6,8 @@ namespace Semitexa\Demo\Application\Service;
 
 use JsonException;
 use Random\RandomException;
-use Semitexa\Core\Attributes\AsService;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsService;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoAiTaskRepository;
 
 #[AsService]

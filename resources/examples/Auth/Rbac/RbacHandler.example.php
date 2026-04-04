@@ -9,8 +9,8 @@ use App\Application\Resource\Admin\ProductWriteResource;
 use App\Domain\Catalog\ProductWriterInterface;
 use Semitexa\Authorization\Attributes\RequiresCapability;
 use Semitexa\Authorization\Attributes\RequiresPermission;
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[RequiresCapability('backoffice.access')]

@@ -7,8 +7,8 @@ namespace App\Application\Handler\Container;
 use App\Application\Payload\Container\MutableInjectionPayload;
 use App\Application\Resource\Page\ExecutionBagResource;
 use App\Domain\Execution\ExecutionBag;
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsMutable;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsMutable;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: MutableInjectionPayload::class, resource: ExecutionBagResource::class)]

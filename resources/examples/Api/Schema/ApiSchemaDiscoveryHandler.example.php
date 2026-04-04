@@ -7,8 +7,8 @@ namespace App\Application\Handler\Api;
 use App\Application\Payload\Api\ApiSchemaDiscoveryPayload;
 use App\Application\Resource\Page\ApiSchemaPageResource;
 use App\Domain\Api\SchemaRegistryInterface;
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: ApiSchemaDiscoveryPayload::class, resource: ApiSchemaPageResource::class)]

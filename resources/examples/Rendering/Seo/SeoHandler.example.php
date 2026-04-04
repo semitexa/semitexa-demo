@@ -6,7 +6,7 @@ namespace App\Application\Handler\Rendering;
 
 use App\Application\Payload\Page\SeoPayload;
 use App\Application\Resource\Page\SeoPageResource;
-use Semitexa\Core\Attributes\AsPayloadHandler;
+use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: SeoPayload::class, resource: SeoPageResource::class)]

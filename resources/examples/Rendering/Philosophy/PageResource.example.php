@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use App\Domain\Catalog\CatalogInterface;
 use App\Domain\Product;
-use Semitexa\Core\Attributes\AsPayload;
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsReadonly;
-use Semitexa\Core\Attributes\AsResource;
+use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsResource;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Contract\ValidatablePayload;
 use Semitexa\Core\Exception\NotFoundException;

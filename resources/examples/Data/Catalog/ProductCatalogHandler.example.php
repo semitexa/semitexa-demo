@@ -7,8 +7,8 @@ namespace App\Application\Handler\Data;
 use App\Application\Payload\Data\ProductCatalogPayload;
 use App\Application\Resource\Page\ProductCatalogResource;
 use App\Domain\Catalog\ProductReadRepositoryInterface;
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: ProductCatalogPayload::class, resource: ProductCatalogResource::class)]

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Payload\Event;
 
-use Semitexa\Core\Attributes\AsEvent;
+use Semitexa\Core\Attribute\AsEvent;
 
 #[AsEvent]
 final class DemoItemCreated

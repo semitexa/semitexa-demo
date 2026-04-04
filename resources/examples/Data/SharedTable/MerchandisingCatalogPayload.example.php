@@ -6,7 +6,7 @@ namespace App\Application\Payload\Data;
 
 use App\Application\Resource\Page\MerchandisingCatalogResource;
 use Semitexa\Authorization\Attributes\PublicEndpoint;
-use Semitexa\Core\Attributes\AsPayload;
+use Semitexa\Core\Attribute\AsPayload;
 
 #[PublicEndpoint]
 #[AsPayload(

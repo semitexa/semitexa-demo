@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Handler\PayloadHandler\Routing;
 
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Routing\ParameterizedRoutePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
@@ -60,7 +60,7 @@ final class ParameterizedRouteHandler implements TypedHandlerInterface
             ->withTitle('Parameterized Route')
             ->withSummary('Path parameters with regex constraints and typed injection.')
             ->withEntryLine('Path parameters like {slug} are extracted and injected via setters — with regex validation at the router level.')
-            ->withHighlights(['requirements', 'defaults', 'RequestDtoHydrator', 'setter injection'])
+            ->withHighlights(['requirements', 'defaults', 'PayloadHydrator', 'setter injection'])
             ->withLearnMoreLabel('Try different slugs →')
             ->withDeepDiveLabel('How regex compilation works →')
             ->withSourceCode($sourceCode)

@@ -7,8 +7,8 @@ namespace App\Application\Handler\Container;
 use App\Application\Payload\Container\ServiceContractPayload;
 use App\Application\Resource\Page\MailerStatusResource;
 use App\Domain\Mail\MailerInterface;
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: ServiceContractPayload::class, resource: MailerStatusResource::class)]

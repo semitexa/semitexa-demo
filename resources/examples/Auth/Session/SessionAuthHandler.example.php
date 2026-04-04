@@ -8,8 +8,8 @@ use App\Auth\Session\BrowserSessionSegment;
 use App\User\UserRepositoryInterface;
 use Semitexa\Auth\Attribute\AsAuthHandler;
 use Semitexa\Auth\Handler\AuthHandlerInterface;
-use Semitexa\Core\Attributes\InjectAsMutable;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\InjectAsMutable;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Auth\AuthResult;
 use Semitexa\Core\Session\SessionInterface;
 

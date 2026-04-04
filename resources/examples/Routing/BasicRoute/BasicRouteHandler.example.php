@@ -6,7 +6,7 @@ namespace App\Application\Handler\Routing;
 
 use App\Application\Payload\Routing\BasicRoutePayload;
 use App\Application\Resource\Page\BasicPageResource;
-use Semitexa\Core\Attributes\AsPayloadHandler;
+use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: BasicRoutePayload::class, resource: BasicPageResource::class)]

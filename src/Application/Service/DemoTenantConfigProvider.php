@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Service;
 
-use Semitexa\Core\Attributes\AsService;
+use Semitexa\Core\Attribute\AsService;
 use Semitexa\Demo\Domain\Contract\DemoTenantConfigProviderInterface;
 use Semitexa\Demo\Domain\Model\DemoTenantConfig;
 

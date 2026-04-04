@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Service;
 
-use Semitexa\Core\Attributes\AsService;
+use Semitexa\Core\Attribute\AsService;
 
 /**
  * Provides structured explanation data for each demo feature.
@@ -61,21 +61,21 @@ final class DemoExplanationProvider
         ],
         'routing/payload-shield' => [
             'what' => 'Payloads are the shield from external data: hydration, type casting, and validation happen before the handler, so application code works with one trusted object.',
-            'how' => 'RequestDtoHydrator maps request input into the payload via typed setters, PayloadValidator calls validate() when the payload implements ValidatablePayload, and invalid input returns 422 before the handler is executed.',
+            'how' => 'PayloadHydrator maps request input into the payload via typed setters, PayloadValidator calls validate() when the payload implements ValidatablePayload, and invalid input returns 422 before the handler is executed.',
             'why' => 'This makes single responsibility obvious. The payload owns the transport boundary and input truth. The handler owns the use case. Validation stops being scattered controller glue and becomes one explicit contract.',
             'keywords' => [
                 ['term' => 'ValidatablePayload', 'definition' => 'Payload contract that lets the framework validate incoming data before the handler runs.'],
-                ['term' => 'RequestDtoHydrator', 'definition' => 'Hydrates payload DTOs from HTTP input by calling typed setters.'],
+                ['term' => 'PayloadHydrator', 'definition' => 'Hydrates payload DTOs from HTTP input by calling typed setters.'],
                 ['term' => 'PayloadValidator', 'definition' => 'Runs payload validation and short-circuits invalid requests with a consistent error response.'],
             ],
         ],
         'routing/payload-parts' => [
             'what' => 'A payload can be extended by another module without reopening the original route class, so one transport boundary can stay singular while modules stay additive.',
-            'how' => 'A base module declares the payload with #[AsPayload]. Another module contributes a trait marked with #[AsPayloadPart(base: ...)]. At runtime PayloadDtoFactory composes a wrapper class that extends the base payload and uses all matching traits.',
+            'how' => 'A base module declares the payload with #[AsPayload]. Another module contributes a trait marked with #[AsPayloadPart(base: ...)]. At runtime PayloadFactory composes a wrapper class that extends the base payload and uses all matching traits.',
             'why' => 'This solves a painful modularity problem: extra request concerns do not force a fork of the original payload and do not leak into untyped arrays. The handler still receives one trusted DTO.',
             'keywords' => [
                 ['term' => '#[AsPayloadPart]', 'definition' => 'Marks a trait as an additive extension of an existing payload class.'],
-                ['term' => 'PayloadDtoFactory', 'definition' => 'Builds the runtime wrapper class that extends the base payload and mixes in discovered payload-part traits.'],
+                ['term' => 'PayloadFactory', 'definition' => 'Builds the runtime wrapper class that extends the base payload and mixes in discovered payload-part traits.'],
                 ['term' => 'trait composition', 'definition' => 'Lets separate modules add typed setters and getters to the same request boundary without modifying the base payload source.'],
             ],
         ],
@@ -92,11 +92,11 @@ final class DemoExplanationProvider
         ],
         'routing/parameterized' => [
             'what' => 'Path parameters like {slug} are extracted from the URL and injected into the payload DTO via setter methods.',
-            'how' => 'The router uses regex requirements to constrain what each parameter matches. The RequestDtoHydrator calls setters on the payload DTO with the extracted values. Default values are used when a parameter is not present.',
+            'how' => 'The router uses regex requirements to constrain what each parameter matches. The PayloadHydrator calls setters on the payload DTO with the extracted values. Default values are used when a parameter is not present.',
             'why' => 'Typed path parameters with regex constraints prevent invalid data from reaching handler code. The handler can trust that $payload->slug is always a valid, matched value.',
             'keywords' => [
                 ['term' => 'requirements', 'definition' => 'Regex patterns that constrain path parameter values at the routing level.'],
-                ['term' => 'RequestDtoHydrator', 'definition' => 'Populates payload DTO properties by calling setter methods with request data.'],
+                ['term' => 'PayloadHydrator', 'definition' => 'Populates payload DTO properties by calling setter methods with request data.'],
             ],
         ],
         'routing/content-negotiation' => [

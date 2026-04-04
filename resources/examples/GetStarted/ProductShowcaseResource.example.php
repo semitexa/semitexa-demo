@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Semitexa\Core\Attributes\AsResource;
+use Semitexa\Core\Attribute\AsResource;
 use Semitexa\Ssr\Http\Response\HtmlResponse;
 
 #[AsResource(
