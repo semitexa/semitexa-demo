@@ -38,8 +38,12 @@ final class EnvRouteOverrideHandler implements TypedHandlerInterface
         }
 
         $sourceCode = [
-            'Payload' => $this->sourceCodeReader->readClassSource(EnvRouteOverridePayload::class),
-            'Handler' => $this->sourceCodeReader->readClassSource(self::class),
+            'Payload Example' => $this->sourceCodeReader->readProjectRelativeSource(
+                'resources/examples/Routing/EnvRouteOverride/EnvRouteOverridePayload.example.php',
+            ),
+            'Handler Example' => $this->sourceCodeReader->readProjectRelativeSource(
+                'resources/examples/Routing/EnvRouteOverride/EnvRouteOverrideHandler.example.php',
+            ),
             'Docs' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-core/docs/PAYLOAD_ENV_ROUTE_OVERRIDES.md'),
         ];
 

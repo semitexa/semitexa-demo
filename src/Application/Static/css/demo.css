@@ -3608,8 +3608,8 @@ a:hover {
   }
 
   .demo-nav__theme-toggle {
-    width: 2.6rem;
-    height: 1.6rem;
+    width: 2.85rem;
+    height: 1.8rem;
   }
 
   .demo-nav__theme-control {
@@ -3618,11 +3618,12 @@ a:hover {
 
   .demo-nav__theme-text {
     font-size: 0.74rem;
+    white-space: nowrap;
   }
 
   .demo-nav__actions {
-    gap: 0.5rem;
-    flex-wrap: wrap;
+    gap: 0.38rem;
+    flex-wrap: nowrap;
   }
 
   .demo-nav__link {
@@ -3637,6 +3638,30 @@ a:hover {
 
   .demo-nav__socials {
     margin-left: 0;
+    gap: 0.32rem;
+  }
+
+  .demo-nav__social,
+  .demo-nav__theme-toggle {
+    box-shadow: none;
+  }
+
+  .demo-nav__social {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .demo-nav__theme-toggle-track {
+    padding: 0.16rem;
+  }
+
+  .demo-nav__theme-toggle-thumb {
+    width: 1.12rem;
+    height: 1.12rem;
+  }
+
+  :root[data-demo-theme="dark"] .demo-nav__theme-toggle-thumb {
+    transform: translateX(0.92rem);
   }
 
   .demo-starters__grid,

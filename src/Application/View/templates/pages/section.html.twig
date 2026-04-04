@@ -63,11 +63,51 @@
       </section>
     {% endif %}
 
+    {% if section|default('') == 'get-started' %}
+      <section class="demo-section-page__manifesto">
+        <div class="preview-card preview-card--layered">
+          <div class="rendering-manifesto__intro">
+            <p class="demo-block-heading__eyebrow">Recommended Path</p>
+            <h2 class="preview-card__title">Start with first boot, then make the app behave like a real product host</h2>
+            <p class="preview-card__summary">This section is strongest when read as a sequence. Installation gets the runtime up. Local Domain removes the "localhost forever" mindset. Base Tenant turns that host into an actual tenant boundary you can inspect.</p>
+          </div>
+          <div class="preview-stats">
+            <article class="preview-stats__item">
+              <strong class="preview-stats__value">1</strong>
+              <span class="preview-stats__label">canonical install path before any customization</span>
+            </article>
+            <article class="preview-stats__item">
+              <strong class="preview-stats__value">2</strong>
+              <span class="preview-stats__label">host upgrades after boot: real local domain, then real tenant host</span>
+            </article>
+            <article class="preview-stats__item">
+              <strong class="preview-stats__value">0</strong>
+              <span class="preview-stats__label">reliance on undocumented first-run guesswork</span>
+            </article>
+          </div>
+          <div class="preview-checklist">
+            <article class="preview-checklist__item">
+              <span class="preview-checklist__mark" aria-hidden="true">1</span>
+              <p><a href="/demo/get-started/installation">Installation</a> gets you from fresh scaffold to a running local app with CLI verification commands you can trust.</p>
+            </article>
+            <article class="preview-checklist__item">
+              <span class="preview-checklist__mark" aria-hidden="true">2</span>
+              <p><a href="/demo/get-started/local-domain">Local Domain</a> replaces generic localhost with a stable `.test` host, which matters once features depend on real hostnames.</p>
+            </article>
+            <article class="preview-checklist__item">
+              <span class="preview-checklist__mark" aria-hidden="true">3</span>
+              <p><a href="/demo/get-started/base-tenant">Base Tenant</a> shows how the first tenant is configured and resolved through that host instead of being treated as a late-stage concern.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+    {% endif %}
+
     {% if features|default([])|length > 0 %}
       <section class="demo-section-page__features">
         <div class="demo-block-heading demo-block-heading--tight">
-          <p class="demo-block-heading__eyebrow">{{ section|default('') == 'rendering' ? 'Suggested Path' : 'Feature List' }}</p>
-          <p class="demo-block-heading__text">{{ section|default('') == 'rendering' ? 'Start with the first three pages. Together they explain the shared rendering model before the section branches into components, SEO, assets, and reactive patterns.' : 'Each feature page pairs live output with the source that produced it.' }}</p>
+          <p class="demo-block-heading__eyebrow">{{ section|default('') == 'rendering' ? 'Suggested Path' : (section|default('') == 'get-started' ? 'Onboarding Pages' : 'Feature List') }}</p>
+          <p class="demo-block-heading__text">{{ section|default('') == 'rendering' ? 'Start with the first three pages. Together they explain the shared rendering model before the section branches into components, SEO, assets, and reactive patterns.' : (section|default('') == 'get-started' ? 'Open these pages in order if you want the shortest path from a fresh install to a realistic Semitexa local setup.' : 'Each feature page pairs live output with the source that produced it.') }}</p>
         </div>
         <div class="demo-sections__grid">
           {% for feature in features %}

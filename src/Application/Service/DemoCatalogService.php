@@ -18,7 +18,7 @@ final class DemoCatalogService
         'get-started' => [
             'key' => 'get-started',
             'label' => 'Get Started',
-            'summary' => 'Canonical install, first boot, local domain setup, and the first tenant path gathered in one onboarding section.',
+            'summary' => 'The shortest path from fresh scaffold to a trustworthy local Semitexa runtime: install, boot, bind a real host, and understand the first tenant boundary.',
             'icon' => 'GO',
             'eyebrow' => 'Onboarding',
             'starter' => true,
