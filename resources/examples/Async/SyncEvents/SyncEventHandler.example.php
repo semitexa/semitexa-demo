@@ -7,8 +7,8 @@ namespace App\Application\Handler\Events;
 use App\Application\Event\DemoItemCreated;
 use App\Application\Payload\Events\CreateDemoItemPayload;
 use App\Application\Resource\Page\DemoItemResource;
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Event\EventDispatcherInterface;
 

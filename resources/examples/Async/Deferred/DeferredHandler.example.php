@@ -7,8 +7,8 @@ namespace App\Application\Handler\Events;
 use App\Application\Payload\Events\NotifyAfterResponsePayload;
 use App\Application\Resource\Page\AsyncStatusResource;
 use App\Domain\Notifications\NotificationSchedulerInterface;
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: NotifyAfterResponsePayload::class, resource: AsyncStatusResource::class)]

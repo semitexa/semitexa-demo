@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Handler\PayloadHandler\Routing;
 
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Routing\PayloadShieldPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
@@ -46,7 +46,7 @@ final class PayloadShieldHandler implements TypedHandlerInterface
             ->withTitle('Payload As A Shield')
             ->withSummary('Hydration, type casting, and validation happen before the handler, so business code receives one trusted object instead of raw external input.')
             ->withEntryLine('A payload is the one trusted boundary: external data is normalized and validated before application code runs.')
-            ->withHighlights(['ValidatablePayload', 'RequestDtoHydrator', 'PayloadValidator', '422 before handler'])
+            ->withHighlights(['ValidatablePayload', 'PayloadHydrator', 'PayloadValidator', '422 before handler'])
             ->withLearnMoreLabel('See the boundary in code →')
             ->withDeepDiveLabel('How the shield works →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/payload-shield-showcase.html.twig', [
@@ -56,7 +56,7 @@ final class PayloadShieldHandler implements TypedHandlerInterface
                     'When invalid data slips through, the handler must keep defending itself instead of focusing on the business action.',
                 ],
                 'pipeline' => [
-                    ['stage' => 'Hydrate', 'detail' => 'RequestDtoHydrator maps request input into one payload object via typed setters.'],
+                    ['stage' => 'Hydrate', 'detail' => 'PayloadHydrator maps request input into one payload object via typed setters.'],
                     ['stage' => 'Cast', 'detail' => 'Setter parameter types normalize external strings into the shapes the app expects.'],
                     ['stage' => 'Validate', 'detail' => 'PayloadValidator runs validate() and returns 422 before the handler on invalid input.'],
                     ['stage' => 'Handle', 'detail' => 'Business code receives a trusted DTO and can focus on intent, not defensive parsing.'],
@@ -91,7 +91,7 @@ final class PayloadShieldHandler implements TypedHandlerInterface
                     'Handlers should read like use cases, not like defensive transport parsers.',
                 ],
                 'checks' => [
-                    ['label' => 'Hydration', 'detail' => 'RequestDtoHydrator calls typed setters on the payload DTO.'],
+                    ['label' => 'Hydration', 'detail' => 'PayloadHydrator calls typed setters on the payload DTO.'],
                     ['label' => 'Validation', 'detail' => 'ValidatablePayload::validate() returns field errors in one consistent format.'],
                     ['label' => 'Trust boundary', 'detail' => 'Once the handler runs, the payload should already be safe to consume.'],
                 ],

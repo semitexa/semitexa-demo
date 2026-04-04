@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Scheduler;
 
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoAiTaskRepository;
 use Semitexa\Demo\Application\Service\DemoAiTextProcessor;
 use Semitexa\Scheduler\Attribute\AsScheduledJob;

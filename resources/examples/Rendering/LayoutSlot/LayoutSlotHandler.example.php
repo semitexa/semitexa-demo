@@ -8,8 +8,8 @@ use App\Application\Payload\Page\DashboardPayload;
 use App\Application\Resource\Layout\DashboardLayoutResource;
 use App\Application\Resource\Slot\DashboardSidebarSlot;
 use App\Domain\Navigation\DashboardNavigationBuilderInterface;
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: DashboardPayload::class, resource: DashboardLayoutResource::class)]

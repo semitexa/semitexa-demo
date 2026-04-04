@@ -7,8 +7,8 @@ namespace App\Handler\Account;
 use App\Payload\Account\DashboardPayload;
 use App\Resource\Account\DashboardResource;
 use Semitexa\Core\Auth\AuthContextInterface;
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsMutable;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsMutable;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: DashboardPayload::class, resource: DashboardResource::class)]

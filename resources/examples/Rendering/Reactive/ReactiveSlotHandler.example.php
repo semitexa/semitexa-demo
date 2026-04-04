@@ -8,8 +8,8 @@ use App\Application\Payload\Page\ReactivePanelPayload;
 use App\Application\Resource\Page\ReactivePanelResource;
 use App\Application\Resource\Slot\ReactivePanelSlot;
 use App\Domain\Reports\RealtimeReportBuilderInterface;
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: ReactivePanelPayload::class, resource: ReactivePanelResource::class)]

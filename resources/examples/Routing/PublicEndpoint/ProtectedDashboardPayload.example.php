@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Payload\Routing;
 
-use Semitexa\Core\Attributes\AsPayload;
+use Semitexa\Core\Attribute\AsPayload;
 use App\Resource\DashboardPageResource;
 
 #[AsPayload(

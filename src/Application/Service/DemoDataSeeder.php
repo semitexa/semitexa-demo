@@ -17,8 +17,8 @@ use Semitexa\Demo\Application\Db\MySQL\Repository\DemoJobRunRepository;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoOrderRepository;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoReviewRepository;
-use Semitexa\Core\Attributes\AsService;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsService;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Orm\Transaction\TransactionManager;
 
 #[AsService]

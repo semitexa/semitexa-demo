@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Resource\Platform;
 
-use Semitexa\Core\Attributes\AsResource;
+use Semitexa\Core\Attribute\AsResource;
 use Semitexa\Core\Contract\ResourceInterface;
 use Semitexa\Demo\Application\Resource\Response\HasDemoShell;
 use Semitexa\Ssr\Http\Response\HtmlResponse;

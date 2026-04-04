@@ -7,7 +7,7 @@ namespace App\Api\Product;
 use App\Api\Product\ProductApiResponse;
 use Semitexa\Api\Attributes\ApiVersion;
 use Semitexa\Api\Attributes\ExternalApi;
-use Semitexa\Core\Attributes\AsPayload;
+use Semitexa\Core\Attribute\AsPayload;
 
 #[AsPayload(path: '/api/v1/products/{slug}', methods: ['GET'], responseWith: ProductApiResponse::class)]
 #[ExternalApi(version: 'v1')]

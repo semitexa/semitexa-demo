@@ -6,7 +6,7 @@ namespace App\Application\Payload\Admin;
 
 use App\Application\Resource\Admin\UserListResource;
 use Semitexa\Authorization\Attributes\RequiresPermission;
-use Semitexa\Core\Attributes\AsPayload;
+use Semitexa\Core\Attribute\AsPayload;
 
 #[RequiresPermission('users.manage')]
 #[AsPayload(

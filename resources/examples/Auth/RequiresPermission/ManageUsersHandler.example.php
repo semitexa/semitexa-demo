@@ -6,7 +6,7 @@ namespace App\Handler\Admin;
 
 use App\Payload\Admin\ManageUsersPayload;
 use App\Resource\AdminPageResource;
-use Semitexa\Core\Attributes\AsPayloadHandler;
+use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: ManageUsersPayload::class, resource: AdminPageResource::class)]

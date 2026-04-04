@@ -6,7 +6,7 @@ namespace App\Application\Payload\Api;
 
 use App\Application\Resource\Api\ProductListResource;
 use Semitexa\Api\Attributes\ExternalApi;
-use Semitexa\Core\Attributes\AsPayload;
+use Semitexa\Core\Attribute\AsPayload;
 
 #[ExternalApi(version: 'v1')]
 #[AsPayload(

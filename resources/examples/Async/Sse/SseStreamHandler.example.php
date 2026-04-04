@@ -6,7 +6,7 @@ namespace App\Application\Handler\Events;
 
 use App\Application\Payload\Events\ActivityStreamPayload;
 use App\Application\Resource\Sse\ActivityStreamResource;
-use Semitexa\Core\Attributes\AsPayloadHandler;
+use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: ActivityStreamPayload::class, resource: ActivityStreamResource::class)]

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Examples\Orm\QueryBuilder;
 
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductTableModel;
 use Semitexa\Orm\Attribute\AsRepository;

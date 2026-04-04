@@ -7,8 +7,8 @@ namespace App\Application\Handler\Routing;
 use App\Application\Payload\Routing\ContentNegotiationPayload;
 use App\Application\Resource\Page\ProductCollectionPageResource;
 use App\Domain\Catalog\ProductCatalogReaderInterface;
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: ContentNegotiationPayload::class, resource: ProductCollectionPageResource::class)]

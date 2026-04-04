@@ -7,8 +7,8 @@ namespace App\Application\Handler\Routing;
 use App\Application\Payload\Routing\EnvRouteOverridePayload;
 use App\Application\Resource\Page\CatalogLandingResource;
 use App\Domain\Catalog\CatalogRouteInspectorInterface;
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: EnvRouteOverridePayload::class, resource: CatalogLandingResource::class)]

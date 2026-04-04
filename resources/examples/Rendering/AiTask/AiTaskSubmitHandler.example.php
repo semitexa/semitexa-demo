@@ -7,8 +7,8 @@ namespace App\Application\Handler\Rendering;
 use App\Application\Payload\Rendering\AiTaskSubmitPayload;
 use App\Application\Resource\Page\AiTaskPageResource;
 use App\Domain\Ai\AiTaskRunnerInterface;
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: AiTaskSubmitPayload::class, resource: AiTaskPageResource::class)]

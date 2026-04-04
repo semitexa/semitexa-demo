@@ -7,8 +7,8 @@ namespace App\Application\Handler\Container;
 use App\Application\Payload\Container\FactoryInjectionPayload;
 use App\Application\Resource\Page\FactoryProbeResource;
 use App\Domain\Mail\TransactionalMailer;
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsFactory;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsFactory;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: FactoryInjectionPayload::class, resource: FactoryProbeResource::class)]

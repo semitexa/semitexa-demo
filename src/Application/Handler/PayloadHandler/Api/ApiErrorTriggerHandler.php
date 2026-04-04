@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Handler\PayloadHandler\Api;
 
 use Semitexa\Api\Pipeline\ExternalApiExceptionMapper;
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Exception\AccessDeniedException;
 use Semitexa\Core\Exception\ConflictException;

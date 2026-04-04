@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Service;
 
-use Semitexa\Core\Attributes\AsPayload;
-use Semitexa\Core\Attributes\AsService;
+use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsService;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Discovery\ClassDiscovery;
 use Semitexa\Demo\Attributes\DemoFeature;
 
@@ -19,6 +20,9 @@ use Semitexa\Demo\Attributes\DemoFeature;
 #[AsService]
 final class DemoFeatureRegistry
 {
+    #[InjectAsReadonly]
+    protected ClassDiscovery $classDiscovery;
+
     /** @var array<string, list<array{class: string, attribute: DemoFeature, path: ?string}>> keyed by section */
     private array $bySection = [];
 
@@ -84,7 +88,7 @@ final class DemoFeatureRegistry
             return;
         }
 
-        $classes = ClassDiscovery::findClassesWithAttribute(DemoFeature::class);
+        $classes = $this->classDiscovery->findClassesWithAttribute(DemoFeature::class);
 
         foreach ($classes as $className) {
             $reflection = new \ReflectionClass($className);

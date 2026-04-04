@@ -7,7 +7,7 @@ namespace App\Application\Payload\Api;
 use App\Application\Resource\Api\ProductListV0Resource;
 use Semitexa\Api\Attributes\ApiVersion;
 use Semitexa\Api\Attributes\ExternalApi;
-use Semitexa\Core\Attributes\AsPayload;
+use Semitexa\Core\Attribute\AsPayload;
 
 #[ExternalApi]
 #[ApiVersion('0.9', deprecatedSince: '2026-01-01', sunsetDate: '2026-12-01')]

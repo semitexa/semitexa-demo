@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Service;
 
-use Semitexa\Core\Attributes\AsService;
-use Semitexa\Core\Util\ProjectRoot;
+use Semitexa\Core\Attribute\AsService;
+use Semitexa\Core\Support\ProjectRoot;
 
 /**
  * Reads source files and extracts attribute metadata for display in the demo UI.
@@ -219,7 +219,7 @@ declare(strict_types=1);
 
 namespace App\Application\Handler\PayloadHandler\Example;
 
-use Semitexa\Core\Attributes\AsPayloadHandler;
+use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: {$payloadClass}::class, resource: {$resourceClass}::class)]
@@ -251,7 +251,7 @@ declare(strict_types=1);
 
 namespace App\Application\Payload\Request\Example;
 
-use Semitexa\Core\Attributes\AsPayload;
+use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Core\Base\BasePayload;
 
 #[AsPayload(methods: ['GET'], path: '/demo/example/{$slug}')]

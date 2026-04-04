@@ -6,7 +6,7 @@ namespace App\Payload\Admin;
 
 use App\Resource\AdminPageResource;
 use Semitexa\Authorization\Attributes\RequiresPermission;
-use Semitexa\Core\Attributes\AsPayload;
+use Semitexa\Core\Attribute\AsPayload;
 
 #[RequiresPermission('users.manage')]
 #[AsPayload(

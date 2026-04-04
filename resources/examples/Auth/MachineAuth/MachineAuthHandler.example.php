@@ -7,8 +7,8 @@ namespace App\Application\Handler\Auth;
 use App\Application\Payload\Api\ProductListPayload;
 use App\Application\Resource\Api\ProductListResource;
 use App\Domain\Api\ProductApiReaderInterface;
-use Semitexa\Core\Attributes\AsPayloadHandler;
-use Semitexa\Core\Attributes\InjectAsReadonly;
+use Semitexa\Core\Attribute\AsPayloadHandler;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
 #[AsPayloadHandler(payload: ProductListPayload::class, resource: ProductListResource::class)]

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Insights\Application\Payload\Part;
 
 use App\Catalog\Application\Payload\Request\SearchPayload;
-use Semitexa\Core\Attributes\AsPayloadPart;
+use Semitexa\Core\Attribute\AsPayloadPart;
 
 #[AsPayloadPart(base: SearchPayload::class)]
 trait SearchTrackingPart

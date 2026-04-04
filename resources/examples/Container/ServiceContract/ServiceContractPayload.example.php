@@ -6,7 +6,7 @@ namespace App\Application\Payload\Container;
 
 use App\Application\Resource\Page\MailerStatusResource;
 use Semitexa\Authorization\Attributes\PublicEndpoint;
-use Semitexa\Core\Attributes\AsPayload;
+use Semitexa\Core\Attribute\AsPayload;
 
 #[PublicEndpoint]
 #[AsPayload(
