@@ -21,6 +21,7 @@
         </div>
       </div>
       <p class="demo-section-page__summary">{{ sectionSummary|default('') }}</p>
+      {% include '@project-layouts-semitexa-demo/partials/donate-block.html.twig' %}
     </header>
 
     {% if section|default('') == 'rendering' %}
