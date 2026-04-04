@@ -101,7 +101,7 @@ final class DemoSourceCodeReader
     public function readClassSource(string $className): string
     {
         $exampleSource = $this->readExampleSourceForClass($className);
-        if ($exampleSource !== '') {
+        if ($exampleSource !== null) {
             return $exampleSource;
         }
 
@@ -158,14 +158,30 @@ final class DemoSourceCodeReader
         return '';
     }
 
-    private function readExampleSourceForClass(string $className): string
+    private function readExampleSourceForClass(string $className): ?string
     {
         $relativePath = self::EXAMPLE_SOURCE_MAP[$className] ?? null;
         if ($relativePath === null) {
-            return '';
+            return null;
         }
 
-        return $this->readProjectRelativeSource($relativePath);
+        $relativePath = ltrim($relativePath, '/');
+        foreach ($this->resolveReadableCandidates($relativePath) as $path) {
+            if (!is_readable($path)) {
+                continue;
+            }
+
+            $contents = file_get_contents($path);
+            if ($contents !== false) {
+                return $this->sanitizeForDisplay($contents);
+            }
+        }
+
+        throw new \RuntimeException(sprintf(
+            'Mapped curated example for %s is missing or unreadable: %s',
+            $className,
+            $relativePath,
+        ));
     }
 
     private function generateDemoTeachingExample(string $className): string
