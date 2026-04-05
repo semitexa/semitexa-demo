@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Semitexa\Ssr\Attributes\AsComponent;
+use Semitexa\Ssr\Attribute\AsComponent;
 
 #[AsComponent(
     name: 'product-spotlight-card',

@@ -6,7 +6,7 @@ namespace App\Api\Product;
 
 use App\Api\Product\ProductApiResponse;
 use App\Api\Product\ProductGraphqlView;
-use Semitexa\Api\Attributes\ExternalApi;
+use Semitexa\Api\Attribute\ExternalApi;
 use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Graphql\Attributes\ExposeAsGraphql;
 

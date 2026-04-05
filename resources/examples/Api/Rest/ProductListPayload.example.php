@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Api\Product;
 
-use Semitexa\Api\Attributes\ApiVersion;
-use Semitexa\Api\Attributes\ExternalApi;
+use Semitexa\Api\Attribute\ApiVersion;
+use Semitexa\Api\Attribute\ExternalApi;
 use Semitexa\Core\Attribute\AsPayload;
 
 #[AsPayload(path: '/api/v1/products', methods: ['GET'], responseWith: ProductApiResponse::class)]
