@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Handler\SlotHandler\Deferred;
 
 use Semitexa\Demo\Application\Resource\Slot\Deferred\DeferredReviewFeedSlot;
-use Semitexa\Ssr\Attributes\AsSlotHandler;
+use Semitexa\Ssr\Attribute\AsSlotHandler;
 use Semitexa\Ssr\Contract\TypedSlotHandlerInterface;
 
 #[AsSlotHandler(slot: DeferredReviewFeedSlot::class)]

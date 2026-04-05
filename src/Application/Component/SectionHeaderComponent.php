@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Component;
 
-use Semitexa\Ssr\Attributes\AsComponent;
+use Semitexa\Ssr\Attribute\AsComponent;
 
 /**
  * Section heading with title, description, and feature count badge.

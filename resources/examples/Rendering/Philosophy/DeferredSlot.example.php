@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Examples\Rendering\Philosophy\Support\AnalyticsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
-use Semitexa\Ssr\Attributes\AsSlotHandler;
-use Semitexa\Ssr\Attributes\AsSlotResource;
+use Semitexa\Ssr\Attribute\AsSlotHandler;
+use Semitexa\Ssr\Attribute\AsSlotResource;
 use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
 
 #[AsSlotResource(

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Component;
 
 use Semitexa\Demo\Application\Payload\Event\DemoDisclosureExpanded;
-use Semitexa\Ssr\Attributes\AsComponent;
+use Semitexa\Ssr\Attribute\AsComponent;
 
 /**
  * Trigger button for layer transitions (L1→L2 or L2→L3).

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Semitexa\Ssr\Attributes\AsSlotResource;
+use Semitexa\Ssr\Attribute\AsSlotResource;
 use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
 
 #[AsSlotResource(

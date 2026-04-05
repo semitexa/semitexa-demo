@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Component;
 
-use Semitexa\Ssr\Attributes\AsComponent;
+use Semitexa\Ssr\Attribute\AsComponent;
 
 #[AsComponent(
     name: 'demo-resolver-chain-viz',
