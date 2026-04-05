@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Application\Payload\Api;
 
 use App\Application\Resource\Api\ProductListV2Resource;
-use Semitexa\Api\Attributes\ApiVersion;
-use Semitexa\Api\Attributes\ExternalApi;
+use Semitexa\Api\Attribute\ApiVersion;
+use Semitexa\Api\Attribute\ExternalApi;
 use Semitexa\Core\Attribute\AsPayload;
 
 #[ExternalApi]

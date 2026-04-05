@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Product;
 
-use Semitexa\Api\Attributes\ExternalApi;
+use Semitexa\Api\Attribute\ExternalApi;
 use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Graphql\Attributes\ExposeAsGraphql;
 
