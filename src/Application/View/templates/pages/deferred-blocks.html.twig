@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+    {{ asset_require('semitexa-demo:js:deferred-timeline') }}
     {{ meta('description') }}
     {{ meta('keywords') }}
     {{ meta('og:title') }}
@@ -89,10 +90,6 @@
               <p class="feature-detail__eyebrow">SSR-FIRST LIVE UI</p>
               <h1 class="feature-detail__title">{{ demo_title_icon(featureTitle, section, slug) }}{{ featureTitle }}</h1>
               <p class="feature-detail__entry-line">{{ entryLine }}</p>
-            </div>
-            <div class="feature-detail__summary-card">
-              <p class="feature-detail__summary-label">Deferred contract</p>
-              <p class="feature-detail__summary-text">{{ summary }}</p>
             </div>
           </header>
 
@@ -208,11 +205,31 @@
             </div>
           </div>
 
-          <div class="deferred-blocks-grid">
-            {{ layout_slot_deferred('deferred_product_carousel') }}
-            {{ layout_slot_deferred('deferred_chart_widget') }}
-            {{ layout_slot_deferred('deferred_search_filter') }}
-            {{ layout_slot_deferred('deferred_countdown') }}
+          <div class="deferred-demo-page__live-grid" data-timeline data-total-blocks="4">
+            <div class="deferred-demo-page__transport">
+              <div class="deferred-demo-page__transport-card deferred-demo-page__transport-card--stream">
+                {% include '@project-layouts-semitexa-demo/components/previews/sse-stream.html.twig' %}
+              </div>
+
+              <div class="preview-card deferred-demo-page__transport-card deferred-demo-page__transport-card--timeline">
+                <p class="preview-card__eyebrow">Arrival meter</p>
+                <h3 class="preview-card__title">Watch the deferred slots land in sequence.</h3>
+                <p class="preview-card__summary">Each `layout_slot_deferred()` region dispatches `semitexa:block:rendered` when its HTML arrives. The meter below turns that runtime signal into visible progress.</p>
+                <div class="deferred-timeline">
+                  <div class="deferred-timeline__track" aria-hidden="true">
+                    <div class="deferred-timeline__fill" style="width:0%"></div>
+                  </div>
+                  <p class="deferred-timeline__label">0 / 4 blocks loaded</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="deferred-blocks-grid">
+              {{ layout_slot_deferred('deferred_product_carousel') }}
+              {{ layout_slot_deferred('deferred_chart_widget') }}
+              {{ layout_slot_deferred('deferred_search_filter') }}
+              {{ layout_slot_deferred('deferred_countdown') }}
+            </div>
           </div>
         </section>
       </article>

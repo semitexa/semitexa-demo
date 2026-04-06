@@ -204,6 +204,8 @@ body.demo-layout--nav-open {
   border-radius: 14px;
   color: var(--demo-text, #1e293b);
   text-decoration: none;
+  font-size: 0.98rem;
+  line-height: 1.38;
   transition: color 100ms ease;
 }
 
@@ -238,7 +240,7 @@ body.demo-layout--nav-open {
   text-align: center;
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: 0.98rem;
   font-weight: 700;
   color: var(--demo-text-muted, #64748b);
   transition: color 100ms ease, transform 100ms ease;
@@ -290,7 +292,8 @@ body.demo-layout--nav-open {
   overflow: visible;
   text-overflow: clip;
   white-space: normal;
-  line-height: 1.3;
+  line-height: 1.38;
+  font-size: 0.98rem;
   overflow-wrap: break-word;
   word-break: normal;
 }
@@ -313,11 +316,11 @@ body.demo-layout--nav-open {
 .feature-tree__link {
   display: block;
   padding: 0.5rem 0.85rem 0.5rem 2.7rem;
-  font-size: 0.83rem;
+  font-size: 0.94rem;
   color: var(--demo-text-muted, #64748b);
   text-decoration: none;
   transition: background 100ms ease, color 100ms ease;
-  line-height: 1.35;
+  line-height: 1.45;
   overflow-wrap: break-word;
   word-break: normal;
   border-radius: 14px;
