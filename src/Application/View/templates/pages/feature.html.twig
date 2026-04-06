@@ -25,13 +25,6 @@
           <p class="feature-detail__entry-line">{{ entryLine }}</p>
           {% include '@project-layouts-semitexa-demo/partials/donate-block.html.twig' only %}
         </div>
-
-        {% if highlights is defined and highlights|length > 0 %}
-          <div class="feature-detail__summary-card">
-            <p class="feature-detail__summary-label">Working surface</p>
-            <p class="feature-detail__summary-text">This page shows live behavior first, then source and deeper internals one layer below.</p>
-          </div>
-        {% endif %}
       </header>
 
       {% if resultPreviewTemplate is defined and resultPreviewTemplate %}
