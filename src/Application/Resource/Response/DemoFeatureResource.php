@@ -85,7 +85,9 @@ class DemoFeatureResource extends HtmlResponse implements ResourceInterface
         }
 
         if (isset($explanation['keywords']) && is_array($explanation['keywords']) && $explanation['keywords'] !== []) {
-            $this->seoKeywords($explanation['keywords']);
+            /** @var array<int, string|array{term?: string, title?: string, label?: string, name?: string}> $keywords */
+            $keywords = $explanation['keywords'];
+            $this->seoKeywords($this->normalizeSeoKeywordTerms($keywords));
         }
 
         return $this->with('explanation', $explanation);
@@ -130,5 +132,34 @@ class DemoFeatureResource extends HtmlResponse implements ResourceInterface
         return $this
             ->with('l3ContentTemplate', $template)
             ->with('l3ContentData', $data);
+    }
+
+    /**
+     * @param array<int, string|array{term?: string, title?: string, label?: string, name?: string}> $keywords
+     * @return list<string>
+     */
+    private function normalizeSeoKeywordTerms(array $keywords): array
+    {
+        $terms = [];
+
+        foreach ($keywords as $keyword) {
+            if (is_string($keyword) && $keyword !== '') {
+                $terms[] = $keyword;
+                continue;
+            }
+
+            if (!is_array($keyword)) {
+                continue;
+            }
+
+            foreach (['term', 'title', 'label', 'name'] as $key) {
+                if (isset($keyword[$key]) && is_string($keyword[$key]) && $keyword[$key] !== '') {
+                    $terms[] = $keyword[$key];
+                    break;
+                }
+            }
+        }
+
+        return array_values(array_unique($terms));
     }
 }

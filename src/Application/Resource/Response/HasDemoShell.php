@@ -30,7 +30,9 @@ trait HasDemoShell
         }
 
         if (array_key_exists('infoKeywords', $context) && is_array($context['infoKeywords']) && $context['infoKeywords'] !== []) {
-            $this->seoKeywords($context['infoKeywords']);
+            /** @var array<int, string|array{term?: string, title?: string, label?: string, name?: string}> $infoKeywords */
+            $infoKeywords = $context['infoKeywords'];
+            $this->seoKeywords($this->normalizeSeoKeywordTerms($infoKeywords));
         }
 
         return $this->setRenderContext(array_merge($this->getRenderContext(), $shellContext));
@@ -63,5 +65,34 @@ trait HasDemoShell
             ->with('infoHow', $how)
             ->with('infoWhy', $why)
             ->with('infoKeywords', $keywords);
+    }
+
+    /**
+     * @param array<int, string|array{term?: string, title?: string, label?: string, name?: string}> $keywords
+     * @return list<string>
+     */
+    private function normalizeSeoKeywordTerms(array $keywords): array
+    {
+        $terms = [];
+
+        foreach ($keywords as $keyword) {
+            if (is_string($keyword) && $keyword !== '') {
+                $terms[] = $keyword;
+                continue;
+            }
+
+            if (!is_array($keyword)) {
+                continue;
+            }
+
+            foreach (['term', 'title', 'label', 'name'] as $key) {
+                if (isset($keyword[$key]) && is_string($keyword[$key]) && $keyword[$key] !== '') {
+                    $terms[] = $keyword[$key];
+                    break;
+                }
+            }
+        }
+
+        return array_values(array_unique($terms));
     }
 }
