@@ -6,6 +6,7 @@ namespace App\Insights\Application\Payload\Part;
 
 use App\Catalog\Application\Payload\Request\SearchPayload;
 use Semitexa\Core\Attribute\AsPayloadPart;
+use Semitexa\Core\Exception\ValidationException;
 
 #[AsPayloadPart(base: SearchPayload::class)]
 trait SearchTrackingPart
@@ -21,6 +22,11 @@ trait SearchTrackingPart
     public function setCampaign(?string $campaign): void
     {
         $campaign = $campaign !== null ? trim($campaign) : null;
+
+        if ($campaign !== null && strlen($campaign) > 64) {
+            throw new ValidationException(['campaign' => ['Campaign code must stay below 64 characters.']]);
+        }
+
         $this->campaign = $campaign !== '' ? $campaign : null;
     }
 

@@ -25,6 +25,14 @@ trait HasDemoShell
             }
         }
 
+        if (array_key_exists('infoWhat', $context) && is_string($context['infoWhat']) && $context['infoWhat'] !== '') {
+            $this->seoTagDefault('description', $context['infoWhat']);
+        }
+
+        if (array_key_exists('infoKeywords', $context) && is_array($context['infoKeywords']) && $context['infoKeywords'] !== []) {
+            $this->seoKeywords($context['infoKeywords']);
+        }
+
         return $this->setRenderContext(array_merge($this->getRenderContext(), $shellContext));
     }
 

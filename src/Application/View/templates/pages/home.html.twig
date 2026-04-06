@@ -1,6 +1,6 @@
 {% extends '@project-layouts-semitexa-demo/layouts/demo-layout.html.twig' %}
 
-{% block title %}Semitexa Demo — Framework Showcase{% endblock %}
+{% block title %}{{ page_title()|default('Semitexa Demo — Framework Showcase') }}{% endblock %}
 
 {% set readyFeatures = featuredFeatures|default([]) %}
 {% if readyFeatures is empty %}

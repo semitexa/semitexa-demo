@@ -33,11 +33,21 @@ class DemoSectionResource extends HtmlResponse implements ResourceInterface
 
     public function withSectionSummary(string $summary): self
     {
+        $this->seoTag('description', $summary);
+
         return $this->with('sectionSummary', $summary);
     }
 
     public function withFeatures(array $features): self
     {
+        $keywords = [$this->getRenderContext()['sectionLabel'] ?? null];
+        foreach ($features as $feature) {
+            if (is_array($feature) && isset($feature['title']) && is_string($feature['title'])) {
+                $keywords[] = $feature['title'];
+            }
+        }
+        $this->seoKeywords(array_values(array_filter($keywords, static fn ($value): bool => is_string($value) && $value !== '')));
+
         return $this->with('features', $features);
     }
 }

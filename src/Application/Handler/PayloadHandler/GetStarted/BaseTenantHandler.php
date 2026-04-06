@@ -73,7 +73,7 @@ final class BaseTenantHandler implements TypedHandlerInterface
                         'title' => 'Register the tenant host',
                         'summary' => 'The domain must exist in the local DNS helper as well as in the tenancy configuration.',
                         'commands' => [
-                            'bin/semitexa dns:add acme.semitexa.test',
+                            'bin/semitexa local-domain:add acme.semitexa.test',
                             'bin/semitexa server:restart',
                         ],
                     ],
@@ -102,7 +102,7 @@ final class BaseTenantHandler implements TypedHandlerInterface
                 'rules' => [
                     'Keep tenant ids stable and human-readable because they become part of local and operational reasoning.',
                     'Prefer one clear primary `TENANT_<ID>_DOMAIN` before introducing additional aliases.',
-                    'When tenant resolution looks wrong, check `.env`, then `dns:list`, then the actual browser host in that order.',
+                    'When tenant resolution looks wrong, check `.env`, then `local-domain:list`, then the actual browser host in that order.',
                     'Use the Tenancy & Isolation pages after this setup if you want to inspect how Semitexa resolves and propagates tenant context internally.',
                 ],
             ])

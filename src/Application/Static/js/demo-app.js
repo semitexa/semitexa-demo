@@ -134,6 +134,7 @@
 
   function initMobileNav() {
     var body = document.body;
+    var root = document.documentElement;
     var toggle = document.querySelector('[data-demo-nav-toggle]');
     var close = document.querySelector('[data-demo-nav-close]');
     var overlay = document.querySelector('[data-demo-nav-overlay]');
@@ -143,6 +144,7 @@
 
     function setOpen(nextOpen) {
       body.classList.toggle('demo-layout--nav-open', nextOpen);
+      root.classList.toggle('demo-layout--nav-open', nextOpen);
       toggle.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
       overlay.hidden = !nextOpen;
     }

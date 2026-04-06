@@ -20,10 +20,10 @@ use Semitexa\Demo\Attributes\DemoFeature;
     section: 'routing',
     title: 'Payload As A Shield',
     slug: 'payload-shield',
-    summary: 'Hydration, type casting, and validation happen before the handler, so business code receives one trusted object instead of raw external input.',
+    summary: 'Hydration happens before the handler, and each setter owns the normalization and guard logic for its own field.',
     order: 3,
-    highlights: ['ValidatablePayload', 'PayloadHydrator', 'PayloadValidator', '422 before handler'],
-    entryLine: 'A payload is the one trusted boundary: external data is normalized and validated before application code runs.',
+    highlights: ['PayloadHydrator', 'ValidationException', 'setter guards', '422 before handler'],
+    entryLine: 'A payload is the one trusted boundary: external data is normalized inside setters before application code runs.',
     learnMoreLabel: 'See the boundary in code →',
     deepDiveLabel: 'How the shield works →',
 )]

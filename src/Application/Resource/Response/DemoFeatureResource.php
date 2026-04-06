@@ -44,16 +44,22 @@ class DemoFeatureResource extends HtmlResponse implements ResourceInterface
 
     public function withSummary(string $summary): self
     {
+        $this->seoTag('description', $summary);
+
         return $this->with('summary', $summary);
     }
 
     public function withEntryLine(string $entryLine): self
     {
+        $this->seoTagDefault('description', $entryLine);
+
         return $this->with('entryLine', $entryLine);
     }
 
     public function withHighlights(array $highlights): self
     {
+        $this->seoKeywords($highlights);
+
         return $this->with('highlights', $highlights);
     }
 
@@ -74,6 +80,14 @@ class DemoFeatureResource extends HtmlResponse implements ResourceInterface
 
     public function withExplanation(array $explanation): self
     {
+        if (isset($explanation['what']) && is_string($explanation['what']) && $explanation['what'] !== '') {
+            $this->seoTagDefault('description', $explanation['what']);
+        }
+
+        if (isset($explanation['keywords']) && is_array($explanation['keywords']) && $explanation['keywords'] !== []) {
+            $this->seoKeywords($explanation['keywords']);
+        }
+
         return $this->with('explanation', $explanation);
     }
 

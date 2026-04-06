@@ -3,8 +3,7 @@
 declare(strict_types=1);
 
 use Semitexa\Core\Attribute\AsPayload;
-use Semitexa\Core\Contract\ValidatablePayload;
-use Semitexa\Core\Http\PayloadValidationResult;
+use Semitexa\Core\Exception\ValidationException;
 
 #[AsPayload(
     path: '/products/{slug}',
@@ -13,7 +12,7 @@ use Semitexa\Core\Http\PayloadValidationResult;
     requirements: ['slug' => '[a-z0-9-]+'],
     defaults: ['slug' => 'wireless-headphones'],
 )]
-final class ProductShowcasePayload implements ValidatablePayload
+final class ProductShowcasePayload
 {
     protected string $slug = 'wireless-headphones';
 
@@ -28,25 +27,18 @@ final class ProductShowcasePayload implements ValidatablePayload
         $normalized = preg_replace('/[^a-z0-9-]+/', '-', $normalized) ?? '';
         $normalized = trim($normalized, '-');
 
+        if ($normalized === '') {
+            throw new ValidationException(['slug' => ['Product slug is required.']]);
+        }
+
+        if (strlen($normalized) > 120) {
+            throw new ValidationException(['slug' => ['Product slug must stay below 120 characters.']]);
+        }
+
+        if (preg_match('/^[a-z0-9-]+$/', $normalized) !== 1) {
+            throw new ValidationException(['slug' => ['Product slug may only contain lowercase letters, numbers, and dashes.']]);
+        }
+
         $this->slug = $normalized;
-    }
-
-    public function validate(): PayloadValidationResult
-    {
-        $errors = [];
-
-        if ($this->slug === '') {
-            $errors['slug'][] = 'Product slug is required.';
-        }
-
-        if (strlen($this->slug) > 120) {
-            $errors['slug'][] = 'Product slug must stay below 120 characters.';
-        }
-
-        if (preg_match('/^[a-z0-9-]+$/', $this->slug) !== 1) {
-            $errors['slug'][] = 'Product slug may only contain lowercase letters, numbers, and dashes.';
-        }
-
-        return new PayloadValidationResult($errors === [], $errors);
     }
 }

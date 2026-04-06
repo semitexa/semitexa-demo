@@ -60,23 +60,23 @@ final class DemoExplanationProvider
             ],
         ],
         'routing/payload-shield' => [
-            'what' => 'Payloads are the shield from external data: hydration, type casting, and validation happen before the handler, so application code works with one trusted object.',
-            'how' => 'PayloadHydrator maps request input into the payload via typed setters, PayloadValidator calls validate() when the payload implements ValidatablePayload, and invalid input returns 422 before the handler is executed.',
-            'why' => 'This makes single responsibility obvious. The payload owns the transport boundary and input truth. The handler owns the use case. Validation stops being scattered controller glue and becomes one explicit contract.',
+            'what' => 'Payloads are the shield from external data: hydration happens first, and each setter owns the normalization and guard logic for its own field before the handler runs.',
+            'how' => 'PayloadHydrator maps request input into the payload via typed setters. Each setter can normalize its value and throw a field-aware ValidationException when the input is invalid, which keeps the boundary close to the field itself.',
+            'why' => 'This keeps the transport boundary explicit without forcing one DTO-wide validation method to know every field. The payload owns the input truth, the handler owns the use case, and additional fields can be added by payload parts without reopening a central validate() method.',
             'keywords' => [
-                ['term' => 'ValidatablePayload', 'definition' => 'Payload contract that lets the framework validate incoming data before the handler runs.'],
                 ['term' => 'PayloadHydrator', 'definition' => 'Hydrates payload DTOs from HTTP input by calling typed setters.'],
-                ['term' => 'PayloadValidator', 'definition' => 'Runs payload validation and short-circuits invalid requests with a consistent error response.'],
+                ['term' => 'ValidationException', 'definition' => 'Field-aware exception that a setter can throw when the incoming value is not acceptable.'],
+                ['term' => 'setter-owned validation', 'definition' => 'The field that owns the data also owns its normalization and guard logic.'],
             ],
         ],
         'routing/payload-parts' => [
             'what' => 'A payload can be extended by another module without reopening the original route class, so one transport boundary can stay singular while modules stay additive.',
-            'how' => 'A base module declares the payload with #[AsPayload]. Another module contributes a trait marked with #[AsPayloadPart(base: ...)]. At runtime PayloadFactory composes a wrapper class that extends the base payload and uses all matching traits.',
-            'why' => 'This solves a painful modularity problem: extra request concerns do not force a fork of the original payload and do not leak into untyped arrays. The handler still receives one trusted DTO.',
+            'how' => 'A base module declares the payload with #[AsPayload]. Another module contributes a trait marked with #[AsPayloadPart(base: ...)]. At runtime PayloadFactory composes a wrapper class that extends the base payload and uses all matching traits, so the added trait can own setters and guards for its own extra fields.',
+            'why' => 'This solves a painful modularity problem: extra request concerns do not force a fork of the original payload and do not leak into untyped arrays. The handler still receives one trusted DTO, and each added concern can validate its own field without a central validate() choke point.',
             'keywords' => [
                 ['term' => '#[AsPayloadPart]', 'definition' => 'Marks a trait as an additive extension of an existing payload class.'],
                 ['term' => 'PayloadFactory', 'definition' => 'Builds the runtime wrapper class that extends the base payload and mixes in discovered payload-part traits.'],
-                ['term' => 'trait composition', 'definition' => 'Lets separate modules add typed setters and getters to the same request boundary without modifying the base payload source.'],
+                ['term' => 'trait composition', 'definition' => 'Lets separate modules add typed setters, getters, and local guards to the same request boundary without modifying the base payload source.'],
             ],
         ],
         'routing/public-endpoint' => [
