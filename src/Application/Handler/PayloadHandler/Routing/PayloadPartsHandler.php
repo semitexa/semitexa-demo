@@ -52,8 +52,8 @@ final class PayloadPartsHandler implements TypedHandlerInterface
             ->withSlug('payload-parts')
             ->withTitle('Payload Parts')
             ->withSummary('One module owns the route, another module can extend the same payload contract without forking or reopening the base class.')
-            ->withEntryLine('A payload can stay the single trusted boundary even when multiple modules need to extend it.')
-            ->withHighlights(['#[AsPayloadPart]', 'trait composition', 'module extension', 'one payload boundary'])
+            ->withEntryLine('A payload can stay the single trusted boundary even when multiple modules need to extend it and guard their own fields.')
+            ->withHighlights(['#[AsPayloadPart]', 'trait composition', 'module extension', 'field-level guards'])
             ->withLearnMoreLabel('See modular composition →')
             ->withDeepDiveLabel('How wrapper composition works →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
@@ -62,7 +62,7 @@ final class PayloadPartsHandler implements TypedHandlerInterface
                 'summary' => 'The route stays declared once, but extra request fields can be composed in by another module through a typed trait instead of a fork.',
                 'paragraphs' => [
                     'The base module owns the route path and the main transport contract.',
-                    'A second module adds its own request concerns, such as tracking or preview flags, with #[AsPayloadPart] on a trait.',
+                    'A second module adds its own request concerns, such as tracking or preview flags, with #[AsPayloadPart] on a trait, and the trait can own the setter-level guards for those fields.',
                     'Module A and Module B handlers now receive the same composed payload instance, so both can read the mixed contract without a payload fork.',
                 ],
                 'columns' => ['Concern', 'Without payload parts', 'With #[AsPayloadPart]'],
@@ -83,7 +83,7 @@ final class PayloadPartsHandler implements TypedHandlerInterface
                         ['text' => 'One composed payload DTO', 'variant' => 'success'],
                     ],
                 ],
-                'note' => 'The important part is not the trait itself. The important part is that both modules still work with one payload boundary after composition.',
+                'note' => 'The important part is not the trait itself. The important part is that both modules still work with one payload boundary after composition, while each added field keeps its own normalization and guard logic.',
             ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);

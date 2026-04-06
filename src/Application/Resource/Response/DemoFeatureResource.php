@@ -44,16 +44,22 @@ class DemoFeatureResource extends HtmlResponse implements ResourceInterface
 
     public function withSummary(string $summary): self
     {
+        $this->seoTag('description', $summary);
+
         return $this->with('summary', $summary);
     }
 
     public function withEntryLine(string $entryLine): self
     {
+        $this->seoTagDefault('description', $entryLine);
+
         return $this->with('entryLine', $entryLine);
     }
 
     public function withHighlights(array $highlights): self
     {
+        $this->seoKeywords($highlights);
+
         return $this->with('highlights', $highlights);
     }
 
@@ -74,6 +80,16 @@ class DemoFeatureResource extends HtmlResponse implements ResourceInterface
 
     public function withExplanation(array $explanation): self
     {
+        if (isset($explanation['what']) && is_string($explanation['what']) && $explanation['what'] !== '') {
+            $this->seoTagDefault('description', $explanation['what']);
+        }
+
+        if (isset($explanation['keywords']) && is_array($explanation['keywords']) && $explanation['keywords'] !== []) {
+            /** @var array<int, string|array{term?: string, title?: string, label?: string, name?: string}> $keywords */
+            $keywords = $explanation['keywords'];
+            $this->seoKeywords($this->normalizeSeoKeywordTerms($keywords));
+        }
+
         return $this->with('explanation', $explanation);
     }
 
@@ -116,5 +132,34 @@ class DemoFeatureResource extends HtmlResponse implements ResourceInterface
         return $this
             ->with('l3ContentTemplate', $template)
             ->with('l3ContentData', $data);
+    }
+
+    /**
+     * @param array<int, string|array{term?: string, title?: string, label?: string, name?: string}> $keywords
+     * @return list<string>
+     */
+    private function normalizeSeoKeywordTerms(array $keywords): array
+    {
+        $terms = [];
+
+        foreach ($keywords as $keyword) {
+            if (is_string($keyword) && $keyword !== '') {
+                $terms[] = $keyword;
+                continue;
+            }
+
+            if (!is_array($keyword)) {
+                continue;
+            }
+
+            foreach (['term', 'title', 'label', 'name'] as $key) {
+                if (isset($keyword[$key]) && is_string($keyword[$key]) && $keyword[$key] !== '') {
+                    $terms[] = $keyword[$key];
+                    break;
+                }
+            }
+        }
+
+        return array_values(array_unique($terms));
     }
 }

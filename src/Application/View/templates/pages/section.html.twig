@@ -1,6 +1,6 @@
 {% extends '@project-layouts-semitexa-demo/layouts/demo-layout.html.twig' %}
 
-{% block title %}{{ sectionLabel|default('Section') }} — Semitexa Demo{% endblock %}
+{% block title %}{{ page_title()|default((sectionLabel|default('Section')) ~ ' — Semitexa Demo') }}{% endblock %}
 
 {% block main %}
   <div class="demo-section-page">

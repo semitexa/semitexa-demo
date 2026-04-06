@@ -52,8 +52,15 @@ final class DemoSectionHandler implements TypedHandlerInterface
             $infoWhy = 'If the first pages do not form a coherent path, the demo reads like a catalogue instead of an onboarding story. This section should reduce ambiguity in the first hour.';
         }
 
+        $keywords = [$meta['label'], $meta['summary'], 'Semitexa Demo'];
+        foreach ($features as $feature) {
+            $keywords[] = $feature['title'];
+        }
+
         return $resource
             ->pageTitle($meta['label'] . ' — Semitexa Demo')
+            ->seoTagDefault('description', $meta['summary'])
+            ->seoKeywords($keywords)
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),

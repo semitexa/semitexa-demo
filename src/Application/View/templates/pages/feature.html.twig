@@ -1,6 +1,6 @@
 {% extends '@project-layouts-semitexa-demo/layouts/demo-layout.html.twig' %}
 
-{% block title %}{{ featureTitle|default('Feature') }} — Semitexa Demo{% endblock %}
+{% block title %}{{ page_title()|default((featureTitle|default('Feature')) ~ ' — Semitexa Demo') }}{% endblock %}
 
 {% block main %}
   {% set domKey = (section ~ '-' ~ slug)|lower|replace({' ': '-', '/': '-', '\\': '-', '_': '-'}) %}

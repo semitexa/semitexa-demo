@@ -44,9 +44,9 @@ final class PayloadShieldHandler implements TypedHandlerInterface
             ->withSection('routing')
             ->withSlug('payload-shield')
             ->withTitle('Payload As A Shield')
-            ->withSummary('Hydration, type casting, and validation happen before the handler, so business code receives one trusted object instead of raw external input.')
-            ->withEntryLine('A payload is the one trusted boundary: external data is normalized and validated before application code runs.')
-            ->withHighlights(['ValidatablePayload', 'PayloadHydrator', 'PayloadValidator', '422 before handler'])
+            ->withSummary('Hydration happens before the handler, and each setter owns the normalization and guard logic for its own field.')
+            ->withEntryLine('A payload is the one trusted boundary: external data is normalized inside setters before application code runs.')
+            ->withHighlights(['PayloadHydrator', 'ValidationException', 'setter guards', '422 before handler'])
             ->withLearnMoreLabel('See the boundary in code →')
             ->withDeepDiveLabel('How the shield works →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/payload-shield-showcase.html.twig', [
@@ -57,8 +57,8 @@ final class PayloadShieldHandler implements TypedHandlerInterface
                 ],
                 'pipeline' => [
                     ['stage' => 'Hydrate', 'detail' => 'PayloadHydrator maps request input into one payload object via typed setters.'],
-                    ['stage' => 'Cast', 'detail' => 'Setter parameter types normalize external strings into the shapes the app expects.'],
-                    ['stage' => 'Validate', 'detail' => 'PayloadValidator runs validate() and returns 422 before the handler on invalid input.'],
+                    ['stage' => 'Normalize', 'detail' => 'Setter code trims, casts, and shapes the input for the field it owns.'],
+                    ['stage' => 'Guard', 'detail' => 'Setter-level checks throw a field-aware ValidationException before invalid data can reach the handler.'],
                     ['stage' => 'Handle', 'detail' => 'Business code receives a trusted DTO and can focus on intent, not defensive parsing.'],
                 ],
                 'compare' => [
@@ -73,8 +73,8 @@ final class PayloadShieldHandler implements TypedHandlerInterface
                         'variant' => 'active',
                         'eyebrow' => 'Single Source Of Truth',
                         'title' => 'Payload as the shield',
-                        'summary' => 'The payload owns hydration and validation, so the handler receives clean data it can trust.',
-                        'note' => 'Single responsibility becomes obvious: payload guards input, handler executes the use case.',
+                        'summary' => 'The payload owns hydration and field guards, so the handler receives clean data it can trust.',
+                        'note' => 'Single responsibility becomes obvious: setters guard input, handler executes the use case.',
                     ],
                 ],
                 'signals' => [
@@ -86,13 +86,13 @@ final class PayloadShieldHandler implements TypedHandlerInterface
             ->withL2ContentTemplate('@project-layouts-semitexa-demo/components/previews/payload-shield-rules.html.twig', [
                 'rules' => [
                     'The payload is the single place where external data becomes internal application data.',
-                    'Setter signatures define the accepted shape, and validate() defines the accepted business constraints.',
+                    'Setter signatures define the accepted shape, and setter code defines the accepted business constraints.',
                     'If the payload is invalid, the request ends before the handler is called.',
                     'Handlers should read like use cases, not like defensive transport parsers.',
                 ],
                 'checks' => [
                     ['label' => 'Hydration', 'detail' => 'PayloadHydrator calls typed setters on the payload DTO.'],
-                    ['label' => 'Validation', 'detail' => 'ValidatablePayload::validate() returns field errors in one consistent format.'],
+                    ['label' => 'Field guards', 'detail' => 'Setters throw field-aware exceptions when incoming values are not acceptable.'],
                     ['label' => 'Trust boundary', 'detail' => 'Once the handler runs, the payload should already be safe to consume.'],
                 ],
             ])

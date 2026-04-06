@@ -9,9 +9,8 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Attribute\AsResource;
 use Semitexa\Core\Contract\TypedHandlerInterface;
-use Semitexa\Core\Contract\ValidatablePayload;
 use Semitexa\Core\Exception\NotFoundException;
-use Semitexa\Core\Http\PayloadValidationResult;
+use Semitexa\Core\Exception\ValidationException;
 use Semitexa\Ssr\Http\Response\HtmlResponse;
 
 #[AsPayload(
@@ -20,7 +19,7 @@ use Semitexa\Ssr\Http\Response\HtmlResponse;
     responseWith: ProductPageResource::class,
     requirements: ['slug' => '[a-z0-9-]+'],
 )]
-final class ProductPagePayload implements ValidatablePayload
+final class ProductPagePayload
 {
     protected string $slug = '';
 
@@ -31,18 +30,17 @@ final class ProductPagePayload implements ValidatablePayload
 
     public function setSlug(string $slug): void
     {
-        $this->slug = strtolower(trim($slug));
-    }
+        $slug = strtolower(trim($slug));
 
-    public function validate(): PayloadValidationResult
-    {
-        $errors = [];
-
-        if ($this->slug === '') {
-            $errors['slug'][] = 'Product slug is required.';
+        if ($slug === '') {
+            throw new ValidationException(['slug' => ['Product slug is required.']]);
         }
 
-        return new PayloadValidationResult($errors === [], $errors);
+        if (preg_match('/^[a-z0-9-]+$/', $slug) !== 1) {
+            throw new ValidationException(['slug' => ['Product slug may only contain lowercase letters, numbers, and dashes.']]);
+        }
+
+        $this->slug = $slug;
     }
 }
 

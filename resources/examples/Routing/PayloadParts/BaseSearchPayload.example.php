@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Catalog\Application\Payload\Request;
 
 use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Exception\ValidationException;
 
 #[AsPayload(
     path: '/search',
@@ -22,6 +23,16 @@ final class SearchPayload
 
     public function setQuery(string $query): void
     {
-        $this->query = trim($query);
+        $query = trim($query);
+
+        if ($query === '') {
+            throw new ValidationException(['query' => ['Search query is required.']]);
+        }
+
+        if (strlen($query) > 120) {
+            throw new ValidationException(['query' => ['Search query must stay below 120 characters.']]);
+        }
+
+        $this->query = $query;
     }
 }

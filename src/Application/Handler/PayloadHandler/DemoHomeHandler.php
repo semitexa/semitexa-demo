@@ -29,8 +29,20 @@ final class DemoHomeHandler implements TypedHandlerInterface
             'totalFeatureCount' => $this->catalog->getTotalFeatureCount(),
         ];
 
+        $keywords = ['Semitexa Demo', 'Semitexa Framework', 'SSR', 'routing', 'async', 'tenancy'];
+        foreach ($sections as $section) {
+            $keywords[] = $section['label'];
+        }
+        foreach ($featuredFeatures as $feature) {
+            if (is_array($feature) && isset($feature['title']) && is_string($feature['title'])) {
+                $keywords[] = $feature['title'];
+            }
+        }
+
         return $resource
             ->pageTitle('Semitexa Demo — Build faster. Ship safer. Scale effortlessly.')
+            ->seoTagDefault('description', 'Production-like walkthroughs for the Semitexa runtime, from installation and routing to SSR, async, and tenancy.')
+            ->seoKeywords($keywords)
             ->withDemoShellContext([
                 'navSections' => $sections,
                 'featureTree' => $sections,

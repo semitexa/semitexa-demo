@@ -32,6 +32,12 @@
   backdrop-filter: var(--demo-glass-blur);
 }
 
+html.demo-layout--nav-open,
+body.demo-layout--nav-open {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 .demo-layout__sidebar-mobile-bar {
   display: none;
 }
@@ -445,8 +451,9 @@
     z-index: 220;
     width: min(22rem, calc(100vw - 1.4rem));
     overflow-y: auto;
-    height: 100vh;
-    max-height: 100vh;
+    -webkit-overflow-scrolling: touch;
+    height: auto;
+    max-height: calc(100dvh - 1.4rem);
     margin: 0.7rem;
     padding: 0.85rem 0.7rem 1rem;
     transform: translateX(calc(-100% - 1.2rem));
@@ -500,6 +507,8 @@
   .demo-layout__sidebar {
     width: min(20rem, calc(100vw - 1rem));
     margin: 0.5rem;
+    top: 0.5rem;
+    bottom: 0.5rem;
     border-radius: 20px;
   }
 
