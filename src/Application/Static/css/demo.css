@@ -3373,6 +3373,8 @@ a:hover {
 :root[data-demo-theme="dark"] .deferred-demo-page__transport-card--timeline,
 :root[data-demo-theme="dark"] .deferred-demo-page__flow-step,
 :root[data-demo-theme="dark"] .deferred-block,
+:root[data-demo-theme="dark"] .deferred-block--notification,
+:root[data-demo-theme="dark"] .deferred-block--feed,
 :root[data-demo-theme="dark"] .product-card,
 :root[data-demo-theme="dark"] .countdown,
 :root[data-demo-theme="dark"] .btn--secondary {
@@ -3410,6 +3412,40 @@ a:hover {
 :root[data-demo-theme="dark"] .badge--sale {
   background: rgba(59, 35, 46, 0.8);
   color: #ffd4c8;
+}
+
+:root[data-demo-theme="dark"] .notification-bell,
+:root[data-demo-theme="dark"] .notification-list,
+:root[data-demo-theme="dark"] .review-feed {
+  background: var(--demo-surface-soft);
+  border-color: var(--demo-glass-stroke);
+}
+
+:root[data-demo-theme="dark"] .notification-bell__badge {
+  background: rgba(30, 45, 59, 0.78);
+  color: var(--demo-text);
+}
+
+:root[data-demo-theme="dark"] .notification-list__item {
+  color: var(--demo-text);
+  border-color: var(--demo-border-light);
+}
+
+:root[data-demo-theme="dark"] .review-feed__item {
+  background: var(--demo-surface-soft);
+  border-color: var(--demo-glass-stroke);
+}
+
+:root[data-demo-theme="dark"] .review-feed__body {
+  color: var(--demo-text-muted);
+}
+
+:root[data-demo-theme="dark"] .star {
+  color: var(--demo-text-light);
+}
+
+:root[data-demo-theme="dark"] .star--filled {
+  color: var(--demo-accent-light);
 }
 
 .demo-ready-prompt__suggestions {
