@@ -3373,8 +3373,6 @@ a:hover {
 :root[data-demo-theme="dark"] .deferred-demo-page__transport-card--timeline,
 :root[data-demo-theme="dark"] .deferred-demo-page__flow-step,
 :root[data-demo-theme="dark"] .deferred-block,
-:root[data-demo-theme="dark"] .deferred-block--notification,
-:root[data-demo-theme="dark"] .deferred-block--feed,
 :root[data-demo-theme="dark"] .product-card,
 :root[data-demo-theme="dark"] .countdown,
 :root[data-demo-theme="dark"] .btn--secondary {
@@ -3440,11 +3438,11 @@ a:hover {
   color: var(--demo-text-muted);
 }
 
-:root[data-demo-theme="dark"] .star {
+:root[data-demo-theme="dark"] .review-feed .star {
   color: var(--demo-text-light);
 }
 
-:root[data-demo-theme="dark"] .star--filled {
+:root[data-demo-theme="dark"] .review-feed .star--filled {
   color: var(--demo-accent-light);
 }
 
