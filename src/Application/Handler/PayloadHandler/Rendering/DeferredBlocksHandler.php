@@ -7,6 +7,7 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Rendering;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Auth\Context\AuthManager;
+use Semitexa\Core\Environment;
 use Semitexa\Demo\Application\Auth\GooglePrincipal;
 use Semitexa\Demo\Application\Payload\Request\Rendering\DeferredBlocksPayload;
 use Semitexa\Demo\Application\Resource\Response\DeferredBlocksDemoResource;
@@ -48,6 +49,7 @@ final class DeferredBlocksHandler implements TypedHandlerInterface
                 'authPageUrl' => '/demo/auth/google?return_to=' . rawurlencode($returnTo),
                 'startUrl' => '/demo/auth/google/start?return_to=' . rawurlencode($returnTo),
                 'logoutUrl' => '/demo/auth/google/logout?return_to=' . rawurlencode($returnTo),
+                'sseEndpoint' => Environment::getEnvValue('SSE_ENDPOINT', '/sse'),
                 'authRequiredMessage' => 'Authorization is required to open the long-lived SSE stream used by the deferred blocks demo.',
             ]);
     }

@@ -48,7 +48,7 @@ final class GoogleAuthHandler implements TypedHandlerInterface
         $user = $auth->getUser();
         $isAuthenticated = !$auth->isGuest();
         $googleUser = $user instanceof GooglePrincipal ? $user : null;
-        $returnTo = $this->sanitizeReturnTo($payload->getReturnTo() ?? '/demo/rendering/deferred');
+        $returnTo = $this->oauthClient->sanitizeReturnTo($payload->getReturnTo() ?? '/demo/rendering/deferred');
         $isConfigured = $this->oauthClient->isConfigured();
         $isLocalTestBypass = $this->isLocalTestHost();
         $googleError = $this->resolveGoogleError($payload->getGoogleError());
@@ -107,16 +107,6 @@ final class GoogleAuthHandler implements TypedHandlerInterface
             ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
-    }
-
-    private function sanitizeReturnTo(string $returnTo): string
-    {
-        $returnTo = trim($returnTo);
-        if ($returnTo === '' || !str_starts_with($returnTo, '/') || str_starts_with($returnTo, '//')) {
-            return '/demo/rendering/deferred';
-        }
-
-        return $returnTo;
     }
 
     private function resolveGoogleError(?string $payloadError): ?string

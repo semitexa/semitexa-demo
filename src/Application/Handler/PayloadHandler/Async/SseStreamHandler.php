@@ -8,6 +8,7 @@ use Semitexa\Auth\Context\AuthManager;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Core\Environment;
 use Semitexa\Demo\Application\Auth\GooglePrincipal;
 use Semitexa\Demo\Application\Payload\Request\Async\SseStreamPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
@@ -72,6 +73,7 @@ final class SseStreamHandler implements TypedHandlerInterface
                 'authPageUrl' => '/demo/auth/google?return_to=' . rawurlencode($returnTo),
                 'startUrl' => '/demo/auth/google/start?return_to=' . rawurlencode($returnTo),
                 'logoutUrl' => '/demo/auth/google/logout?return_to=' . rawurlencode($returnTo),
+                'sseEndpoint' => Environment::getEnvValue('SSE_ENDPOINT', '/sse'),
                 'authRequiredMessage' => 'Authorization is required to open the long-lived SSE stream used by this demo.',
             ])
             ->withSourceCode($sourceCode)

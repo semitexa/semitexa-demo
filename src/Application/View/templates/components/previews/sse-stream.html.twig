@@ -13,6 +13,7 @@
   id="sse-demo"
   data-authorization-required="{{ authRequired ? 'true' : 'false' }}"
   data-is-authenticated="{{ isAuthenticated ? 'true' : 'false' }}"
+  data-sse-endpoint="{{ sseEndpoint|default('/sse')|e('html_attr') }}"
   data-auth-required-message="{{ authRequiredMessage|e('html_attr') }}"
 >
   <p class="preview-card__eyebrow">Server Push</p>

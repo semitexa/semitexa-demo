@@ -53,7 +53,7 @@ html {
   color-scheme: light;
 }
 
-:root[data-demo-theme="dark"] html {
+:root[data-demo-theme="dark"] {
   color-scheme: dark;
 }
 

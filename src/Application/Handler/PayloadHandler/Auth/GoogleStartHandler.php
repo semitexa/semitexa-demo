@@ -12,9 +12,7 @@ use Semitexa\Core\Http\Response\ResourceResponse;
 use Semitexa\Core\Request;
 use Semitexa\Core\Session\SessionInterface;
 use Semitexa\Demo\Application\Payload\Request\Auth\GoogleStartPayload;
-use Semitexa\Demo\Application\Auth\GooglePrincipal;
 use Semitexa\Demo\Application\Payload\Session\GoogleAuthSessionSegment;
-use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\GoogleOAuthClient;
 
 #[AsPayloadHandler(payload: GoogleStartPayload::class, resource: ResourceResponse::class)]

@@ -4,12 +4,11 @@
 (function () {
     'use strict';
 
-    // Connect to the public SSE route handled by the SSR package.
-    const SSE_ENDPOINT = '/sse';
     const DEMO_STREAM = 'showcase';
 
     function init() {
         const rootEl = document.getElementById('sse-demo');
+        const SSE_ENDPOINT = rootEl ? (rootEl.getAttribute('data-sse-endpoint') || '/sse') : '/sse';
         const connectBtn = document.getElementById('sse-connect');
         const disconnectBtn = document.getElementById('sse-disconnect');
         const statusEl = document.getElementById('sse-status');

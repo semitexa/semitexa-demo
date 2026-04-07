@@ -6,17 +6,22 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Auth;
 
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsMutable;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Http\Response\ResourceResponse;
 use Semitexa\Core\Session\SessionInterface;
 use Semitexa\Demo\Application\Payload\Request\Auth\GoogleLogoutPayload;
 use Semitexa\Demo\Application\Payload\Session\GoogleAuthSessionSegment;
+use Semitexa\Demo\Application\Service\GoogleOAuthClient;
 
 #[AsPayloadHandler(payload: GoogleLogoutPayload::class, resource: ResourceResponse::class)]
 final class GoogleLogoutHandler implements TypedHandlerInterface
 {
     #[InjectAsMutable]
     protected ?SessionInterface $session = null;
+
+    #[InjectAsReadonly]
+    protected GoogleOAuthClient $oauthClient;
 
     public function handle(GoogleLogoutPayload $payload, ResourceResponse $resource): ResourceResponse
     {
@@ -30,10 +35,7 @@ final class GoogleLogoutHandler implements TypedHandlerInterface
         $this->session->remove('_auth_user_id');
         $this->session->regenerate();
 
-        $returnTo = trim((string) ($payload->getReturnTo() ?? '/demo/rendering/deferred'));
-        if ($returnTo === '' || !str_starts_with($returnTo, '/') || str_starts_with($returnTo, '//')) {
-            $returnTo = '/demo/rendering/deferred';
-        }
+        $returnTo = $this->oauthClient->sanitizeReturnTo($payload->getReturnTo() ?? '/demo/rendering/deferred');
 
         $resource->setRedirect($returnTo);
         return $resource;
