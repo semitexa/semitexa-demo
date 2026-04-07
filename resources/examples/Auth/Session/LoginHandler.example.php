@@ -8,7 +8,7 @@ use App\Auth\Session\BrowserSessionSegment;
 use App\Payload\Auth\LoginPayload;
 use App\Resource\Auth\LoginPageResource;
 use App\User\UserRepositoryInterface;
-use Semitexa\Authorization\Attributes\PublicEndpoint;
+use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsMutable;
 use Semitexa\Core\Attribute\InjectAsReadonly;

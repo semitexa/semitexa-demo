@@ -4,10 +4,12 @@
 (function () {
     'use strict';
 
-    const SSE_ENDPOINT = '/demo/events/sse';
+    // Connect to the public SSE route handled by the SSR package.
+    const SSE_ENDPOINT = '/sse';
     const DEMO_STREAM = 'showcase';
 
     function init() {
+        const rootEl = document.getElementById('sse-demo');
         const connectBtn = document.getElementById('sse-connect');
         const disconnectBtn = document.getElementById('sse-disconnect');
         const statusEl = document.getElementById('sse-status');
@@ -17,6 +19,10 @@
         const minuteSummaryEl = document.getElementById('sse-minute-summary');
 
         if (!connectBtn || !disconnectBtn || !statusEl || !logEl || !minuteSyncEl || !minuteValueEl || !minuteSummaryEl) return;
+
+        const authRequired = rootEl ? rootEl.getAttribute('data-authorization-required') === 'true' : false;
+        const isAuthenticated = rootEl ? rootEl.getAttribute('data-is-authenticated') === 'true' : false;
+        const authRequiredMessage = rootEl ? (rootEl.getAttribute('data-auth-required-message') || 'Authorization is required.') : 'Authorization is required.';
 
         let source = null;
         let currentSessionId = '';
@@ -91,6 +97,11 @@
                 return;
             }
 
+            if (authRequired && !isAuthenticated) {
+                minuteSummaryEl.textContent = authRequiredMessage;
+                return;
+            }
+
             minuteSummaryEl.textContent = 'Connect once. The backend will emit a fresh SSE message on every new minute.';
         }
 
@@ -159,7 +170,7 @@
         }
 
         connectBtn.addEventListener('click', function () {
-            if (source) return;
+            if (source || connectBtn.disabled) return;
 
             openStream();
         });

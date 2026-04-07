@@ -12,7 +12,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Testing\Attributes\TestablePayload;
+use Semitexa\Testing\Attribute\TestablePayload;
 use Semitexa\Testing\Console\Command\TestInitCommand;
 use Semitexa\Testing\Console\Command\TestRunCommand;
 use Semitexa\Testing\PayloadContractTester;

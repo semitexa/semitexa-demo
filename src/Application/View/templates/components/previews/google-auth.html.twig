@@ -1,0 +1,64 @@
+<div class="preview-card">
+  <p class="preview-card__eyebrow">Google Account</p>
+  <h3 class="preview-card__title">Authorization gate</h3>
+  <p class="preview-card__summary">
+    {% if isAuthenticated %}
+      The demo session is already authorized. You can return to the gated page or sign out to test the blocked state again.
+    {% else %}
+      Authorization is required before the demo can open long-lived SSE connections.
+    {% endif %}
+  </p>
+
+  {% if authError is defined and authError %}
+    <div class="preview-card__notice" style="margin: 0.5rem 0 1rem; border-color: rgba(220, 38, 38, 0.35);">
+      <span class="preview-pill preview-pill--warning">Authorization failed</span>
+      <p class="preview-card__summary" style="margin-top: 0.75rem;">{{ authError }}</p>
+      <p class="preview-card__summary" style="margin-top: 0.5rem; opacity: 0.8;">Try again after fixing the Google OAuth configuration or completing the Google sign-in prompt.</p>
+    </div>
+  {% elseif googleError is defined and googleError %}
+    <div class="preview-card__notice" style="margin: 0.5rem 0 1rem; border-color: rgba(220, 38, 38, 0.35);">
+      <span class="preview-pill preview-pill--warning">Authorization failed</span>
+      <p class="preview-card__summary" style="margin-top: 0.75rem;">{{ googleError }}</p>
+      <p class="preview-card__summary" style="margin-top: 0.5rem; opacity: 0.8;">Try again after fixing the Google OAuth configuration or completing the Google sign-in prompt.</p>
+    </div>
+  {% endif %}
+
+  {% if authBypassEnabled is defined and authBypassEnabled %}
+    <div class="preview-card__notice" style="margin: 0.5rem 0 1rem;">
+      <span class="preview-pill preview-pill--success">Local bypass</span>
+      <p class="preview-card__summary" style="margin-top: 0.75rem;">{{ configurationMessage|default('This *.test host bypasses the Google OAuth round-trip.') }}</p>
+    </div>
+  {% elseif authConfigured is defined and not authConfigured %}
+    <div class="preview-card__notice" style="margin: 0.5rem 0 1rem;">
+      <span class="preview-pill preview-pill--warning">Not configured</span>
+      <p class="preview-card__summary" style="margin-top: 0.75rem;">{{ configurationMessage|default('Google OAuth is not configured.') }}</p>
+    </div>
+  {% endif %}
+
+  {% if isAuthenticated %}
+    <div class="preview-stats">
+      <div class="preview-stats__item">
+        <span class="preview-stats__value">{{ displayName|default('Google user') }}</span>
+        <span class="preview-stats__label">User</span>
+      </div>
+      <div class="preview-stats__item">
+        <span class="preview-stats__value">{{ email|default('') }}</span>
+        <span class="preview-stats__label">Email</span>
+      </div>
+      <div class="preview-stats__item">
+        <span class="preview-stats__value">{{ hostedDomain|default('personal') }}</span>
+        <span class="preview-stats__label">Domain</span>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="preview-actions">
+    {% if isAuthenticated %}
+      <a class="preview-button preview-button--secondary" href="{{ logoutUrl }}">Logout</a>
+      <a class="preview-button preview-button--primary" href="{{ returnTo|default('/demo/rendering/deferred') }}">Back to demo</a>
+    {% else %}
+      <a class="preview-button preview-button--primary" href="{{ startUrl }}">Sign in with Google</a>
+      <a class="preview-button preview-button--secondary" href="{{ returnTo|default('/demo/rendering/deferred') }}">Back to demo</a>
+    {% endif %}
+  </div>
+</div>
