@@ -6,6 +6,9 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Rendering;
 
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Auth\Context\AuthManager;
+use Semitexa\Core\Environment;
+use Semitexa\Demo\Application\Auth\GooglePrincipal;
 use Semitexa\Demo\Application\Payload\Request\Rendering\DeferredBlocksPayload;
 use Semitexa\Demo\Application\Resource\Response\DeferredBlocksDemoResource;
 
@@ -14,6 +17,12 @@ final class DeferredBlocksHandler implements TypedHandlerInterface
 {
     public function handle(DeferredBlocksPayload $payload, DeferredBlocksDemoResource $resource): DeferredBlocksDemoResource
     {
+        $auth = AuthManager::getInstance();
+        $user = $auth->getUser();
+        $googleUser = $user instanceof GooglePrincipal ? $user : null;
+        $authorizationRequired = true;
+        $returnTo = '/demo/rendering/deferred';
+
         return $resource
             ->pageTitle('Deferred Blocks — Semitexa Demo')
             ->withSection('rendering')
@@ -28,6 +37,20 @@ final class DeferredBlocksHandler implements TypedHandlerInterface
                 'Deferred slots let the page render immediately while slower regions arrive later as real server-rendered HTML.',
                 '#[AsSlotResource(deferred: true)] marks a region for late delivery. The shell is rendered first, then the server streams final slot HTML over SSE.',
                 'This keeps the page SSR-first even when some regions are expensive. The browser swaps in HTML instead of rebuilding the page from client state.',
-            );
+            )
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/sse-stream.html.twig', [
+                'authorizationRequired' => $authorizationRequired,
+                'isAuthenticated' => !$auth->isGuest(),
+                'displayName' => $googleUser?->getDisplayName() ?? ($user?->getId() ?? null),
+                'email' => $googleUser?->getEmail(),
+                'pictureUrl' => $googleUser?->getPictureUrl(),
+                'hostedDomain' => $googleUser?->getHostedDomain(),
+                'emailVerified' => $googleUser?->emailVerified ?? false,
+                'authPageUrl' => '/demo/auth/google?return_to=' . rawurlencode($returnTo),
+                'startUrl' => '/demo/auth/google/start?return_to=' . rawurlencode($returnTo),
+                'logoutUrl' => '/demo/auth/google/logout?return_to=' . rawurlencode($returnTo),
+                'sseEndpoint' => Environment::getEnvValue('SSE_ENDPOINT', '/sse'),
+                'authRequiredMessage' => 'Authorization is required to open the long-lived SSE stream used by the deferred blocks demo.',
+            ]);
     }
 }

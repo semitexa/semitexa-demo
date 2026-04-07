@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Payload\Data;
 
 use App\Application\Resource\Page\MerchandisingCatalogResource;
-use Semitexa\Authorization\Attributes\PublicEndpoint;
+use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayload;
 
 #[PublicEndpoint]

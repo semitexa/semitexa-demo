@@ -208,7 +208,7 @@
           <div class="deferred-demo-page__live-grid" data-timeline data-total-blocks="4">
             <div class="deferred-demo-page__transport">
               <div class="deferred-demo-page__transport-card deferred-demo-page__transport-card--stream">
-                {% include '@project-layouts-semitexa-demo/components/previews/sse-stream.html.twig' %}
+                {% include '@project-layouts-semitexa-demo/components/previews/sse-stream.html.twig' with resultPreviewData|default({}) only %}
               </div>
 
               <div class="preview-card deferred-demo-page__transport-card deferred-demo-page__transport-card--timeline">

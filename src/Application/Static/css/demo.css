@@ -48,6 +48,15 @@
     linear-gradient(180deg, rgba(23, 26, 36, 0.78) 0%, rgba(16, 19, 27, 0.7) 100%);
 }
 
+html {
+  background-color: var(--demo-bg);
+  color-scheme: light;
+}
+
+:root[data-demo-theme="dark"] {
+  color-scheme: dark;
+}
+
 .component-script-preview__grid {
   display: grid;
   gap: 1rem;
@@ -229,6 +238,7 @@
 .demo-layout {
   position: relative;
   margin: 0;
+  min-height: 100vh;
   font-family: var(--demo-font);
   font-size: 16px;
   line-height: 1.6;
@@ -243,6 +253,7 @@
   -webkit-font-smoothing: antialiased;
   scrollbar-width: thin;
   scrollbar-color: rgba(127, 39, 31, 0.92) rgba(126, 89, 60, 0.12);
+  background-color: var(--demo-bg);
 }
 
 :root[data-demo-theme="dark"] .demo-layout {
@@ -254,6 +265,7 @@
     linear-gradient(30deg, rgba(239, 140, 104, 0.05) 0, rgba(239, 140, 104, 0.05) 1px, transparent 1px, transparent 54px),
     linear-gradient(180deg, #081018 0%, #0e141b 52%, #131c25 100%);
   scrollbar-color: rgba(239, 140, 104, 0.88) rgba(146, 173, 191, 0.12);
+  background-color: var(--demo-bg);
 }
 
 .demo-layout::before,

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Payload\Routing;
 
-use Semitexa\Authorization\Attributes\PublicEndpoint;
+use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayload;
 use App\Resource\CatalogPageResource;
 

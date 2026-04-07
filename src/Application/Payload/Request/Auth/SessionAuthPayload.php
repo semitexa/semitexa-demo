@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Payload\Request\Auth;
 
-use Semitexa\Authorization\Attributes\PublicEndpoint;
+use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Attributes\DemoFeature;
@@ -20,12 +20,12 @@ use Semitexa\Demo\Attributes\DemoFeature;
     section: 'auth',
     title: 'Session Auth',
     slug: 'session',
-    summary: 'Authenticate once per session — the framework stores identity and re-hydrates it on every request.',
+    summary: 'Google signs the user in, then the session stores the selected demo role and re-hydrates it on every request.',
     order: 2,
-    highlights: ['SessionInterface', '#[SessionSegment]', 'AuthResult', '#[AsAuthHandler]'],
-    entryLine: 'Authenticate once per session — the framework stores identity and re-hydrates it on every request.',
-    learnMoreLabel: 'See the session lifecycle →',
-    deepDiveLabel: 'How the auth pipeline works →',
+    highlights: ['Google OAuth', '#[SessionSegment]', 'AuthResult', '#[AsAuthHandler]'],
+    entryLine: 'Google is the only login path; the session stores the selected role and re-hydrates it on every request.',
+    learnMoreLabel: 'See the Google login flow →',
+    deepDiveLabel: 'How role switching changes grants →',
 )]
 class SessionAuthPayload
 {

@@ -6,7 +6,7 @@ namespace Semitexa\Demo\Application\Payload\Request\Api;
 
 use Semitexa\Api\Attribute\ApiVersion;
 use Semitexa\Api\Attribute\ExternalApi;
-use Semitexa\Authorization\Attributes\PublicEndpoint;
+use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Core\Request;
 use Semitexa\Demo\Application\Resource\Response\DemoApiResponse;

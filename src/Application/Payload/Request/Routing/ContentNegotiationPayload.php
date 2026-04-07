@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Payload\Request\Routing;
 
-use Semitexa\Authorization\Attributes\PublicEndpoint;
+use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Core\Request;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;

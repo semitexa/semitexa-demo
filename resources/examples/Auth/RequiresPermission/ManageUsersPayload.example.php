@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Payload\Admin;
 
 use App\Resource\AdminPageResource;
-use Semitexa\Authorization\Attributes\RequiresPermission;
+use Semitexa\Authorization\Attribute\RequiresPermission;
 use Semitexa\Core\Attribute\AsPayload;
 
 #[RequiresPermission('users.manage')]

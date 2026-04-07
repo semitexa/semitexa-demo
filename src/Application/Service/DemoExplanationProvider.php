@@ -233,12 +233,13 @@ final class DemoExplanationProvider
 
         // --- Auth section ---
         'auth/session-auth' => [
-            'what' => 'Session-based authentication with cookie binding. Login sets a session, subsequent requests restore the authenticated user.',
-            'how' => 'The auth pipeline listener reads the session cookie, loads the user from the session store, and populates AuthContext. Handlers check $this->auth->isGuest() or access the authenticated user.',
-            'why' => 'Session auth is the foundation for browser-based demos. The pipeline listener pattern keeps auth logic out of individual handlers.',
+            'what' => 'Google is the only login path for the session demo. Once authenticated, the session stores the selected demo role and restores it on every request.',
+            'how' => 'The auth pipeline listener restores the verified Google account from the session store, then the session demo handler lets you switch the role in-place. The selected role becomes part of the authenticated subject identity so authorization sees different grants without a second login path.',
+            'why' => 'This keeps the demo realistic and safe: identity comes only from Google, while role changes remain controllable for illustrating how permissions shift across the same account.',
             'keywords' => [
                 ['term' => 'AuthContext', 'definition' => 'Request-scoped service holding the authenticated user (or guest state).'],
-                ['term' => '#[PublicEndpoint]', 'definition' => 'Marks a payload as accessible without authentication.'],
+                ['term' => 'Google OAuth', 'definition' => 'The only supported browser login path for the session demo.'],
+                ['term' => 'role switching', 'definition' => 'Changing the stored demo role while keeping the same authenticated Google identity.'],
             ],
         ],
         'auth/session-payloads' => [
@@ -274,6 +275,16 @@ final class DemoExplanationProvider
                 ['term' => '401 Unauthorized', 'definition' => 'Returned when a guest subject hits a permission-protected route.'],
                 ['term' => '403 Forbidden', 'definition' => 'Returned when the subject is authenticated but missing the declared permission.'],
                 ['term' => 'guard chain', 'definition' => 'The authorization flow that evaluates the payload policy before the handler runs.'],
+            ],
+        ],
+        'auth/google' => [
+            'what' => 'Google Authorization adds a simple browser-facing login gate for demo SSE surfaces that keep a long-lived backend connection open.',
+            'how' => 'A dedicated Google OAuth flow stores the verified account in the session. The demo SSE runtime then checks the existing session key before opening a persistent connection, so anonymous traffic cannot fan out unlimited streams.',
+            'why' => 'This keeps the showcase safe enough for a public demo while still using the existing Semitexa auth/session pipeline instead of inventing a one-off bypass.',
+            'keywords' => [
+                ['term' => 'Authorization is required', 'definition' => 'UI label shown on gated demo blocks before login.'],
+                ['term' => 'Google Account', 'definition' => 'The identity provider used for the demo authorization gate.'],
+                ['term' => 'persistent SSE', 'definition' => 'A long-lived server-sent events connection that stays open after the initial page render.'],
             ],
         ],
 

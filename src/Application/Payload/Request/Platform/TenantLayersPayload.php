@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Payload\Request\Platform;
 
-use Semitexa\Authorization\Attributes\PublicEndpoint;
+use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Demo\Application\Resource\Platform\DemoTenantLayersResource;
 use Semitexa\Demo\Attributes\DemoFeature;
