@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
     <title>{% block title %}{{ page_title()|default('Semitexa Demo') }}{% endblock %}</title>
+    <link rel="canonical" href="{{ current_absolute_url() }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
     {{ meta('description') }}
+    {{ meta('robots') }}
     {{ meta('keywords') }}
     {{ meta('og:title') }}
     {{ meta('og:description') }}
@@ -40,6 +42,7 @@
         {% include '@project-layouts-semitexa-demo/partials/nav.html.twig' with {
           sections: navSections|default(featureTree|default(sections|default([]))),
           currentSection: currentSection|default(null),
+          navMode: navMode|default(null),
         } only %}
       {% endblock %}
     </header>
@@ -65,6 +68,8 @@
             featureTree: featureTree|default(navSections|default(sections|default([]))),
             currentSection: currentSection|default(null),
             currentSlug: currentSlug|default(null),
+            navMode: navMode|default(null),
+            activeLayerKey: activeLayerKey|default(null),
           } only %}
         {% endblock %}
       </aside>

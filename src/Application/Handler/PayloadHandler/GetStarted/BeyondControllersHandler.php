@@ -63,7 +63,7 @@ final class BeyondControllersHandler implements TypedHandlerInterface
                 'infoKeywords' => $explanation['keywords'],
             ])
             ->withSection('get-started')
-            ->withSectionLabel('Get Started')
+            ->withSectionLabel('Start Here')
             ->withSlug('beyond-controllers')
             ->withTitle('Beyond Controllers')
             ->withSummary('Controller-first design bundles too many responsibilities into one unstable class. Semitexa splits the transport contract, the use case, and the response shape deliberately.')

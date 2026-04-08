@@ -1,5 +1,7 @@
 {% include '@project-layouts-semitexa-demo/components/feature-tree.html.twig' with {
-  sections: featureTree|default([]),
+  featureTree: featureTree|default([]),
   currentSection: currentSection|default(null),
   currentSlug: currentSlug|default(null),
+  navMode: navMode|default(null),
+  activeLayerKey: activeLayerKey|default(null),
 } only %}

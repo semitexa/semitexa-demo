@@ -20,6 +20,9 @@ class DemoHomeResource extends HtmlResponse implements ResourceInterface
     {
         $resource = $this;
 
+        if (array_key_exists('navigationLayers', $context)) {
+            $resource = $resource->withNavigationLayers($context['navigationLayers']);
+        }
         if (array_key_exists('sections', $context)) {
             $resource = $resource->withSections($context['sections']);
         }
@@ -42,6 +45,11 @@ class DemoHomeResource extends HtmlResponse implements ResourceInterface
     public function withSections(array $sections): self
     {
         return $this->with('sections', $sections);
+    }
+
+    public function withNavigationLayers(array $layers): self
+    {
+        return $this->with('navigationLayers', $layers);
     }
 
     public function withStarterSections(array $starterSections): self

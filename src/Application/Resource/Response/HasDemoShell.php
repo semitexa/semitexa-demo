@@ -8,10 +8,28 @@ trait HasDemoShell
 {
     public function withDemoShellContext(array $context): static
     {
+        $navMode = $context['navMode'] ?? null;
+
+        $activeLayerKey = $context['activeLayerKey'] ?? null;
+        if (!is_string($activeLayerKey) || $activeLayerKey === '') {
+            $currentSection = $context['currentSection'] ?? null;
+            if (!is_string($currentSection) || $currentSection === '' || $currentSection === 'get-started') {
+                $activeLayerKey = 'start-here';
+            } else {
+                $activeLayerKey = 'full-catalog';
+            }
+        }
+
+        if (!is_string($navMode) || $navMode === '') {
+            $navMode = $activeLayerKey === 'start-here' ? 'guided' : 'catalog';
+        }
+
         $shellContext = [];
 
         foreach ([
             'navSections',
+            'navMode',
+            'activeLayerKey',
             'featureTree',
             'currentSection',
             'currentSlug',
@@ -29,11 +47,21 @@ trait HasDemoShell
             $this->seoTagDefault('description', $context['infoWhat']);
         }
 
+        if (array_key_exists('infoWhat', $context) && is_string($context['infoWhat']) && $context['infoWhat'] !== '') {
+            $this->seoTagDefault('og:description', $context['infoWhat']);
+        }
+
         if (array_key_exists('infoKeywords', $context) && is_array($context['infoKeywords']) && $context['infoKeywords'] !== []) {
             /** @var array<int, string|array{term?: string, title?: string, label?: string, name?: string}> $infoKeywords */
             $infoKeywords = $context['infoKeywords'];
             $this->seoKeywords($this->normalizeSeoKeywordTerms($infoKeywords));
         }
+
+        $this->seoTagDefault('robots', 'index,follow');
+        $this->seoTagDefault('og:type', 'website');
+
+        $shellContext['navMode'] = $navMode;
+        $shellContext['activeLayerKey'] = $activeLayerKey;
 
         return $this->setRenderContext(array_merge($this->getRenderContext(), $shellContext));
     }

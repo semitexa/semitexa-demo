@@ -92,10 +92,15 @@
 
         {% if relatedPayloads is defined and relatedPayloads|length > 0 %}
           <div class="feature-detail__related">
-            <h3 class="feature-detail__related-heading">Related features</h3>
-            <ul class="feature-detail__related-list">
+              <h3 class="feature-detail__related-heading">Related features</h3>
+              <ul class="feature-detail__related-list">
               {% for related in relatedPayloads %}
-                <li><a href="/demo/{{ related|url_encode }}">{{ related }}</a></li>
+                {% set relatedHref = related.href|default(related) %}
+                {% set relatedLabel = related.label|default(related) %}
+                {% if relatedHref|slice(0, 6) != '/demo/' %}
+                  {% set relatedHref = '/demo/' ~ relatedHref %}
+                {% endif %}
+                <li><a href="{{ relatedHref }}">{{ relatedLabel }}</a></li>
               {% endfor %}
             </ul>
           </div>

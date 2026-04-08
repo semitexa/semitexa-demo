@@ -1,0 +1,14 @@
+<div class="preview-card module-structure-files">
+  {% if title is defined and title %}
+    <h3 class="preview-card__title">{{ title }}</h3>
+  {% endif %}
+  {% if summary is defined and summary %}
+    <p class="preview-card__summary">{{ summary }}</p>
+  {% endif %}
+
+  {% if tree is defined and tree %}
+    <pre class="preview-code module-structure-files__tree"><code>{{ tree|raw }}</code></pre>
+  {% endif %}
+
+  <p class="preview-note module-structure-files__note">Read it as the smallest useful path: request boundary, use case, response, presentation.</p>
+</div>
