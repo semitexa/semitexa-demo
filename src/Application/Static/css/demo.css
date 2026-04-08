@@ -3167,6 +3167,12 @@ a:hover {
   margin-bottom: 1.75rem;
 }
 
+.deferred-demo-page__overview {
+  display: grid;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
 .deferred-demo-page__primer {
   margin-top: 1rem;
   padding: 1.2rem 1.35rem;

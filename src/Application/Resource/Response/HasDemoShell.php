@@ -17,7 +17,7 @@ trait HasDemoShell
         $activeLayerKey = $context['activeLayerKey'] ?? null;
         if (!is_string($activeLayerKey) || $activeLayerKey === '') {
             $currentSection = $context['currentSection'] ?? null;
-            if (!is_string($currentSection) || $currentSection === '' || $currentSection === 'get-started') {
+            if (is_string($currentSection) && $currentSection === 'get-started') {
                 $activeLayerKey = 'start-here';
             } else {
                 $activeLayerKey = 'full-catalog';
@@ -25,7 +25,7 @@ trait HasDemoShell
         }
 
         if (!is_string($navMode) || $navMode === '') {
-            $navMode = $activeLayerKey === 'start-here' ? 'guided' : 'catalog';
+            $navMode = 'catalog';
         }
 
         $shellContext = [];
