@@ -10,12 +10,12 @@ use Semitexa\Core\Attribute\InjectAsMutable;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Request;
-use Semitexa\Core\Environment;
 use Semitexa\Demo\Application\Auth\GooglePrincipal;
 use Semitexa\Demo\Application\Handler\Auth\GoogleSessionAuthHandler;
 use Semitexa\Demo\Application\Payload\Request\Auth\GoogleAuthPayload;
 use Semitexa\Demo\Application\Payload\Session\GoogleAuthSessionSegment;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoAuthMode;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\GoogleOAuthClient;
@@ -50,7 +50,7 @@ final class GoogleAuthHandler implements TypedHandlerInterface
         $googleUser = $user instanceof GooglePrincipal ? $user : null;
         $returnTo = $this->oauthClient->sanitizeReturnTo($payload->getReturnTo() ?? '/demo/rendering/deferred');
         $isConfigured = $this->oauthClient->isConfigured();
-        $isLocalTestBypass = $this->isLocalTestHost();
+        $isLocalTestBypass = DemoAuthMode::isLocalLoginEnabled();
         $googleError = $this->resolveGoogleError($payload->getGoogleError());
 
         if ($payload->isLocalTestBypass() && $isLocalTestBypass) {
@@ -95,15 +95,16 @@ final class GoogleAuthHandler implements TypedHandlerInterface
                 'returnTo' => $returnTo,
                 'startUrl' => '/demo/auth/google/start?return_to=' . rawurlencode($returnTo),
                 'logoutUrl' => '/demo/auth/google/logout?return_to=' . rawurlencode($returnTo),
+                'authActionLabel' => DemoAuthMode::actionLabel(),
+                'authProviderLabel' => DemoAuthMode::providerLabel(),
+                'authSignedInLabel' => DemoAuthMode::signedInLabel(),
                 'googleError' => $googleError,
                 'authError' => $googleError,
                 'authConfigured' => $isConfigured,
                 'authBypassEnabled' => $isLocalTestBypass,
                 'configurationMessage' => $isConfigured
                     ? null
-                    : ($isLocalTestBypass
-                        ? 'Google OAuth is not configured, but this local *.test host is allowed to bypass the Google flow.'
-                        : 'Google OAuth is not configured. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REDIRECT_URI before signing in.'),
+                    : DemoAuthMode::configurationMessage(),
             ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
@@ -127,17 +128,6 @@ final class GoogleAuthHandler implements TypedHandlerInterface
         }
 
         return $payloadError ?? $sessionError;
-    }
-
-    private function isLocalTestHost(): bool
-    {
-        $baseDomain = strtolower(trim((string) (Environment::getEnvValue('TENANCY_BASE_DOMAIN', '') ?? '')));
-        if ($baseDomain !== '' && ($baseDomain === 'test' || str_ends_with($baseDomain, '.test'))) {
-            return true;
-        }
-
-        $host = $this->getRequestHost();
-        return $host !== '' && ($host === 'test' || str_ends_with($host, '.test'));
     }
 
     private function getRequestHost(): string

@@ -13,6 +13,8 @@ final class CountdownSlotHandler implements TypedSlotHandlerInterface
 {
     public function handle(object $slot): object
     {
+        DemoDeferredSlotDelay::sleepFor('deferred_countdown');
+
         return $slot
             ->withDuration(30)
             ->withLabel('Demo timer')

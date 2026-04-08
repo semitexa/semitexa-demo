@@ -13,6 +13,8 @@ final class ChartWidgetSlotHandler implements TypedSlotHandlerInterface
 {
     public function handle(object $slot): object
     {
+        DemoDeferredSlotDelay::sleepFor('deferred_chart_widget');
+
         return $slot
             ->withChartType('bar')
             ->withChartData([

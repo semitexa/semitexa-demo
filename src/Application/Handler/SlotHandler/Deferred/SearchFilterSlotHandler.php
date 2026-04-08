@@ -13,6 +13,8 @@ final class SearchFilterSlotHandler implements TypedSlotHandlerInterface
 {
     public function handle(object $slot): object
     {
+        DemoDeferredSlotDelay::sleepFor('deferred_search_filter');
+
         return $slot
             ->withCategories([
                 ['slug' => 'electronics', 'name' => 'Electronics'],

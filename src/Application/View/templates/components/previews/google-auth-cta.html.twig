@@ -1,0 +1,12 @@
+{% set ctaHref = href|default('/demo/auth/google/start') %}
+{% set ctaMessage = message|default('Sign in with Google to unlock this advanced demo.') %}
+{% set ctaActionLabel = actionLabel|default('Sign in with Google') %}
+{% set ctaPillLabel = pillLabel|default('Google sign-in required') %}
+
+<div class="preview-card__notice preview-card__notice--auth">
+  <span class="preview-pill preview-pill--warning">{{ ctaPillLabel }}</span>
+  <p class="preview-card__summary">{{ ctaMessage }}</p>
+  <div class="preview-actions">
+    <a class="preview-button preview-button--primary" href="{{ ctaHref }}">{{ ctaActionLabel }}</a>
+  </div>
+</div>

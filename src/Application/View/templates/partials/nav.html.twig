@@ -1,4 +1,16 @@
 <nav class="demo-nav" aria-label="Demo navigation">
+  {% set navAuth = authUi|default({}) %}
+  {% set navAuthIsAuthenticated = navAuth.isAuthenticated|default(false) %}
+  {% set navAuthHref = navAuthIsAuthenticated
+    ? navAuth.accountUrl|default('/demo/auth/google')
+    : navAuth.startUrl|default('/demo/auth/google/start') %}
+  {% set navAuthTitle = navAuthIsAuthenticated
+    ? (navAuth.email|default(navAuth.label|default('Signed in with Google')))
+    : navAuth.signInTitle|default('Sign in with Google to unlock advanced demos') %}
+  {% set navAuthText = navAuthIsAuthenticated
+    ? 'Hi, ' ~ navAuth.shortLabel|default(navAuth.label|default('there'))
+    : navAuth.actionLabel|default('Sign in') %}
+
   <a class="demo-nav__brand" href="/">
     <span class="demo-nav__title">
       <span class="semitexa-logo" aria-label="Semitexa">Semite<span>xa</span></span>
@@ -21,6 +33,10 @@
   <div class="demo-nav__spacer" aria-hidden="true"></div>
 
   <div class="demo-nav__actions">
+    <a class="demo-nav__signin{{ navAuthIsAuthenticated ? ' demo-nav__signin--active' : '' }}" href="{{ navAuthHref }}" title="{{ navAuthTitle }}">
+      <span class="demo-nav__signin-dot" aria-hidden="true"></span>
+      <span class="demo-nav__signin-text">{{ navAuthText }}</span>
+    </a>
     <div class="demo-nav__theme-control">
       <span class="demo-nav__theme-text" aria-hidden="true" data-demo-theme-text>Dark mode</span>
       <button

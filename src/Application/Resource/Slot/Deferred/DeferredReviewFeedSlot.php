@@ -13,6 +13,8 @@ use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
     template: '@project-layouts-semitexa-demo/deferred/review-feed.html.twig',
     deferred: true,
     skeletonTemplate: '@project-layouts-semitexa-demo/deferred/review-feed.skeleton.html.twig',
+    mode: 'template',
+    clientModules: ['@project-static-semitexa-demo/deferred/review-feed.js'],
 )]
 final class DeferredReviewFeedSlot extends HtmlSlotResponse
 {
