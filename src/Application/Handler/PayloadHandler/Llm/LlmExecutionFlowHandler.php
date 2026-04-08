@@ -63,9 +63,16 @@ final class LlmExecutionFlowHandler implements TypedHandlerInterface
                 'codeSnippet' => <<<'PHP'
 $manifest = $registry->buildManifest();
 $systemPrompt = $planner->buildSystemPrompt($manifest);
+$request = new LlmRequest(
+    systemPrompt: $systemPrompt,
+    userMessage: $input,
+    history: $session->getHistory(),
+);
 $llmResponse = $provider->complete($request);
 $decision = $planner->parseResponse($llmResponse);
-$result = $executor->execute($decision->skill, $decision->arguments, $manifest);
+if ($decision->type->value === 'propose_skill' && $decision->skill !== null) {
+    $result = $executor->execute($decision->skill, $decision->arguments, $manifest);
+}
 PHP,
                 'columns' => ['Stage', 'Primary class', 'What happens'],
                 'rows' => [
@@ -109,9 +116,9 @@ PHP,
             ])
             ->withSourceCode([
                 'Assistant Loop Example' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Llm/AssistantLoop.example.php'),
-                'Planner' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-llm/src/Planner/Planner.php'),
-                'Skill Executor' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-llm/src/Executor/SkillExecutor.php'),
-                'Conversation Session' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-llm/src/Session/ConversationSession.php'),
+                'Planner' => $this->sourceCodeReader->readClassSource(\Semitexa\Llm\Planner\Planner::class),
+                'Skill Executor' => $this->sourceCodeReader->readClassSource(\Semitexa\Llm\Executor\SkillExecutor::class),
+                'Conversation Session' => $this->sourceCodeReader->readClassSource(\Semitexa\Llm\Session\ConversationSession::class),
             ])
             ->withExplanation($explanation);
     }

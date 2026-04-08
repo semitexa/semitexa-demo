@@ -71,15 +71,22 @@
   function initFeatureTree() {
     document.querySelectorAll('.feature-tree__toggle').forEach(function (toggle) {
       var section = toggle.closest('.feature-tree__section');
+      var body = section ? section.querySelector('.feature-tree__section-body') : null;
       if (!section) return;
 
       section.classList.toggle('feature-tree__section--open', toggle.getAttribute('aria-expanded') === 'true');
+      if (body) {
+        body.setAttribute('data-expanded', toggle.getAttribute('aria-expanded') === 'true' ? 'true' : 'false');
+      }
 
       toggle.addEventListener('click', function () {
         var expanded = toggle.getAttribute('aria-expanded') === 'true';
         var nextExpanded = expanded ? 'false' : 'true';
         toggle.setAttribute('aria-expanded', nextExpanded);
         section.classList.toggle('feature-tree__section--open', nextExpanded === 'true');
+        if (body) {
+          body.setAttribute('data-expanded', nextExpanded);
+        }
       });
     });
   }
@@ -91,9 +98,9 @@
     document.querySelectorAll('[data-feature-slug]').forEach(function (link) {
       var slug = link.getAttribute('data-feature-slug');
       var section = link.closest('.feature-tree__section');
-      if (!section) return;
-
-      var sectionKey = section.getAttribute('data-section-key') || '';
+      var sectionKey = section
+        ? (section.getAttribute('data-section-key') || '')
+        : (link.getAttribute('data-feature-section') || '');
       if (!sectionKey) return;
 
       // Check if this feature has been visited
@@ -294,6 +301,11 @@
 
         cells.forEach(function (cell, index) {
           if (cell.hasAttribute('data-label')) {
+            return;
+          }
+
+          if ((parseInt(cell.getAttribute('colspan') || '1', 10) || 1) > 1 || (parseInt(cell.getAttribute('rowspan') || '1', 10) || 1) > 1) {
+            cell.setAttribute('data-label', '');
             return;
           }
 

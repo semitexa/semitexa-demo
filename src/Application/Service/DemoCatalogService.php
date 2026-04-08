@@ -437,6 +437,12 @@ final class DemoCatalogService
         return $sidebarLayers;
     }
 
+    /**
+     * Returns a single section entry wrapped in a list for callers that need
+     * the same outer shape as the layered feature tree helpers.
+     *
+     * @return list<array<string, mixed>>
+     */
     public function getFeatureTreeForSection(string $section): array
     {
         $entry = $this->getSection($section);
@@ -540,7 +546,15 @@ final class DemoCatalogService
 
     /**
      * @param list<array{class:string,attribute:DemoFeature,path:?string}> $entries
-     * @return list<array{section:string,slug:string,title:string,summary:string,opensInNewTab:bool,href:string}>
+     * @return list<array{
+     *   section:string,
+     *   slug:string,
+     *   label:string,
+     *   title:string,
+     *   summary:string,
+     *   opensInNewTab:bool,
+     *   href:string
+     * }>
      */
     private function mapRegistryEntries(string $section, array $entries): array
     {
@@ -567,7 +581,15 @@ final class DemoCatalogService
     }
 
     /**
-     * @param list<array{title:string,slug:string,summary:string,opensInNewTab:bool,href:string}> $features
+     * @param list<array{
+     *   section:string,
+     *   slug:string,
+     *   label:string,
+     *   title:string,
+     *   summary:string,
+     *   opensInNewTab:bool,
+     *   href:string
+     * }> $features
      * @return list<array{key:string,label:string,featureCount:int,features:list<array<string,mixed>>}>
      */
     private function buildSectionGroups(string $section, array $features): array

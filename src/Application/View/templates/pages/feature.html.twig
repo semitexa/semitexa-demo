@@ -95,10 +95,16 @@
               <h3 class="feature-detail__related-heading">Related features</h3>
               <ul class="feature-detail__related-list">
               {% for related in relatedPayloads %}
-                {% set relatedHref = related.href|default(related) %}
-                {% set relatedLabel = related.label|default(related) %}
-                {% if relatedHref|slice(0, 6) != '/demo/' %}
-                  {% set relatedHref = '/demo/' ~ relatedHref %}
+                {% set relatedHref = related.href|default(related)|default('') %}
+                {% set relatedLabel = related.label|default(relatedHref) %}
+                {% if relatedHref and not (
+                  relatedHref starts with '/demo/'
+                  or relatedHref == '/demo'
+                  or relatedHref starts with '/'
+                  or relatedHref starts with 'http://'
+                  or relatedHref starts with 'https://'
+                ) %}
+                  {% set relatedHref = '/demo/' ~ relatedHref|trim('/') %}
                 {% endif %}
                 <li><a href="{{ relatedHref }}">{{ relatedLabel }}</a></li>
               {% endfor %}

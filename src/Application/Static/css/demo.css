@@ -469,25 +469,6 @@ a:hover {
   text-decoration: none;
 }
 
-.demo-nav__layer--active {
-  border-color: rgba(182, 58, 47, 0.28);
-  background: rgba(182, 58, 47, 0.08);
-}
-
-.demo-nav__layer-eyebrow {
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--demo-text-light);
-}
-
-.demo-nav__layer-label {
-  font-size: 0.86rem;
-  font-weight: 700;
-  color: var(--demo-text);
-}
-
 .demo-nav__spacer {
   min-width: 0;
 }
