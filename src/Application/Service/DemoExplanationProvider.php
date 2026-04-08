@@ -222,6 +222,17 @@ final class DemoExplanationProvider
                 ['term' => 'DomainRepository', 'definition' => 'Typed repository surface over TableModel queries and aggregate persistence engine.'],
             ],
         ],
+        'data/relations' => [
+            'what' => 'Relations live on the resource fields themselves. A property marked with #[BelongsTo] or #[HasMany] declares which records are connected and which foreign key wires them together.',
+            'how' => 'A handler asks a repository for typed resources such as DemoProductResource. The ORM can then resolve parent and child links using the relation metadata already declared on the resource, so the handler reads $product->category or $product->reviews instead of rebuilding joins by hand.',
+            'why' => 'This keeps the graph definition in one place. Reviewers can see the shape of the aggregate directly on the resource class, while handlers stay focused on use-case flow instead of repeating SQL knowledge.',
+            'keywords' => [
+                ['term' => '#[BelongsTo]', 'definition' => 'Declares a single parent record and names the foreign key that points to it.'],
+                ['term' => '#[HasMany]', 'definition' => 'Declares a child collection that references the current resource through a foreign key.'],
+                ['term' => 'foreignKey', 'definition' => 'The database column that connects one resource to another, for example category_id or product_id.'],
+                ['term' => 'typed relation field', 'definition' => 'A resource property such as ?CategoryResource $category or array $reviews that exposes the linked records directly.'],
+            ],
+        ],
         'data/seeder' => [
             'what' => 'The demo data seeder creates a realistic dataset on first boot — products, categories, orders, reviews — with tenant isolation.',
             'how' => 'DemoDataSeeder checks for existing data and seeds if empty. Each entity gets a deterministic UUID so re-seeding is idempotent. Tenant-scoped models are seeded per tenant.',

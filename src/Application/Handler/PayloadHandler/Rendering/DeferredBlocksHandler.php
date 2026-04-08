@@ -9,6 +9,7 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Auth\Context\AuthManager;
 use Semitexa\Core\Environment;
 use Semitexa\Demo\Application\Auth\GooglePrincipal;
+use Semitexa\Demo\Application\Service\DemoAuthMode;
 use Semitexa\Demo\Application\Payload\Request\Rendering\DeferredBlocksPayload;
 use Semitexa\Demo\Application\Resource\Response\DeferredBlocksDemoResource;
 
@@ -39,6 +40,7 @@ final class DeferredBlocksHandler implements TypedHandlerInterface
                 'This keeps the page SSR-first even when some regions are expensive. The browser swaps in HTML instead of rebuilding the page from client state.',
             )
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/sse-stream.html.twig', [
+                'streamMode' => 'deferred_kiss',
                 'authorizationRequired' => $authorizationRequired,
                 'isAuthenticated' => !$auth->isGuest(),
                 'displayName' => $googleUser?->getDisplayName() ?? ($user?->getId() ?? null),
@@ -49,8 +51,14 @@ final class DeferredBlocksHandler implements TypedHandlerInterface
                 'authPageUrl' => '/demo/auth/google?return_to=' . rawurlencode($returnTo),
                 'startUrl' => '/demo/auth/google/start?return_to=' . rawurlencode($returnTo),
                 'logoutUrl' => '/demo/auth/google/logout?return_to=' . rawurlencode($returnTo),
+                'authActionLabel' => DemoAuthMode::actionLabel(),
+                'authSignInTitle' => DemoAuthMode::signInTitle(),
+                'authSignedInLabel' => DemoAuthMode::signedInLabel(),
                 'sseEndpoint' => Environment::getEnvValue('SSE_ENDPOINT', '/sse'),
-                'authRequiredMessage' => 'Authorization is required to open the long-lived SSE stream used by the deferred blocks demo.',
+                'expectedCadenceSeconds' => 60,
+                'authRequiredMessage' => DemoAuthMode::isLocalLoginEnabled()
+                    ? 'Local sign-in is required before the deferred runtime can open its long-lived kiss stream.'
+                    : 'Authorization is required before the deferred runtime can open its long-lived kiss stream.',
             ]);
     }
 }

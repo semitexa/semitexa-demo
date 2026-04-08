@@ -13,6 +13,7 @@ use Semitexa\Core\Request;
 use Semitexa\Core\Session\SessionInterface;
 use Semitexa\Demo\Application\Payload\Request\Auth\GoogleStartPayload;
 use Semitexa\Demo\Application\Payload\Session\GoogleAuthSessionSegment;
+use Semitexa\Demo\Application\Service\DemoAuthMode;
 use Semitexa\Demo\Application\Service\GoogleOAuthClient;
 
 #[AsPayloadHandler(payload: GoogleStartPayload::class, resource: ResourceResponse::class)]
@@ -35,7 +36,7 @@ final class GoogleStartHandler implements TypedHandlerInterface
         $returnTo = $this->oauthClient->sanitizeReturnTo($payload->getReturnTo() ?? '/demo/rendering/deferred');
         $segment = $this->session->getPayload(GoogleAuthSessionSegment::class);
 
-        if ($this->isLocalTestHost()) {
+        if (DemoAuthMode::isLocalLoginEnabled()) {
             $this->completeLocalTestSignIn($segment, $returnTo);
             $this->session->setPayload($segment);
             $this->session->regenerate();
@@ -84,12 +85,6 @@ final class GoogleStartHandler implements TypedHandlerInterface
         $segment->clearLastError();
 
         $this->session->set('_auth_user_id', 'google:' . $subjectId . ':' . $segment->getDemoRole());
-    }
-
-    private function isLocalTestHost(): bool
-    {
-        $host = strtolower($this->getRequestHost());
-        return $host !== '' && ($host === 'test' || str_ends_with($host, '.test'));
     }
 
     private function getRequestHost(): string

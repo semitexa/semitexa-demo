@@ -20,12 +20,12 @@ use Semitexa\Demo\Attributes\DemoFeature;
     section: 'data',
     title: 'Relations',
     slug: 'relations',
-    summary: 'Declare associations with attributes — eager loading, N+1 prevention, and nested reads.',
+    summary: 'Declare parent and child links on the resource itself, then read typed relations from the handler.',
     order: 8,
-    highlights: ['#[HasMany]', '#[BelongsTo]', 'RelationWritePolicy', 'AggregateWriteEngine', 'eager loading'],
-    entryLine: 'Declare associations with attributes — eager loading, N+1 prevention, and nested reads.',
+    highlights: ['#[HasMany]', '#[BelongsTo]', 'foreignKey', 'typed relations', 'batch loading'],
+    entryLine: 'Declare parent and child links on the resource itself, then read typed relations from the handler.',
     learnMoreLabel: 'See the relation attributes →',
-    deepDiveLabel: 'How eager loading works →',
+    deepDiveLabel: 'How handler reads relations →',
 )]
 class RelationsPayload
 {

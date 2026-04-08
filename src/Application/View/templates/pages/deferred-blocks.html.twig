@@ -33,6 +33,17 @@
     {{ __ssr_preload_hints|default('')|raw }}
   </head>
   <body class="demo-layout deferred-demo-page" {{ __ssr_handle_attr|default('')|raw }}>
+    {% set headerAuth = resultPreviewData|default({}) %}
+    {% set headerAuthIsAuthenticated = headerAuth.isAuthenticated|default(false) %}
+    {% set headerAuthHref = headerAuthIsAuthenticated
+      ? headerAuth.authPageUrl|default('/demo/auth/google?return_to=%2Fdemo%2Frendering%2Fdeferred')
+      : headerAuth.startUrl|default('/demo/auth/google/start?return_to=%2Fdemo%2Frendering%2Fdeferred') %}
+    {% set headerAuthTitle = headerAuthIsAuthenticated
+      ? (headerAuth.email|default(headerAuth.displayName|default('Signed in with Google')))
+      : headerAuth.authSignInTitle|default('Sign in with Google to unlock advanced demos') %}
+    {% set headerAuthText = headerAuthIsAuthenticated
+      ? 'Hi, ' ~ (headerAuth.displayName|default('there')|split(' ')|first)
+      : headerAuth.authActionLabel|default('Sign in') %}
     <script>
       (function () {
         var theme = window.__resolvedDemoTheme || document.documentElement.getAttribute('data-demo-theme') || 'light';
@@ -61,6 +72,10 @@
           <li class="demo-nav__item demo-nav__item--active"><a href="/demo/rendering">Rendering &amp; SSR</a></li>
         </ul>
         <div class="demo-nav__actions">
+          <a class="demo-nav__signin{{ headerAuthIsAuthenticated ? ' demo-nav__signin--active' : '' }}" href="{{ headerAuthHref }}" title="{{ headerAuthTitle }}">
+            <span class="demo-nav__signin-dot" aria-hidden="true"></span>
+            <span class="demo-nav__signin-text">{{ headerAuthText }}</span>
+          </a>
           <div class="demo-nav__theme-control">
             <span class="demo-nav__theme-text" aria-hidden="true" data-demo-theme-text>Dark mode</span>
             <button
@@ -100,13 +115,49 @@
               {% endfor %}
             </div>
           {% endif %}
+        </section>
+
+        <section class="feature-detail__deferred-demo">
+          <div class="deferred-demo-page__section-head">
+            <div>
+              <p class="preview-card__eyebrow">Live deferred surface</p>
+              <h2 class="preview-card__title">The shell is already there. These six regions arrive after it.</h2>
+            </div>
+            <p class="preview-card__summary">Each card below starts as skeleton HTML, appears with a deliberate staggered delay so the arrival sequence is visible, and is later resolved by the deferred runtime. Some stop there to demonstrate one-shot deferred delivery, while others keep reacting to real backend heartbeats over the shared kiss stream.</p>
+          </div>
+
+          <div class="deferred-demo-page__live-grid" data-timeline data-total-blocks="6">
+            <div class="preview-card deferred-demo-page__timeline-card">
+              <p class="preview-card__eyebrow">Arrival meter</p>
+              <h3 class="preview-card__title">Watch the deferred slots land in sequence.</h3>
+              <p class="preview-card__summary">Each <code>layout_slot_deferred()</code> region dispatches <code>semitexa:block:rendered</code> when its final content lands, whether that happened through direct HTML streaming, client template rendering, or emergency fallback recovery.</p>
+              <div class="deferred-timeline">
+                <div class="deferred-timeline__track" aria-hidden="true">
+                  <div class="deferred-timeline__fill" style="width:0%"></div>
+                </div>
+                <p class="deferred-timeline__label" role="status" aria-live="polite" aria-atomic="true">0 / 6 blocks loaded</p>
+              </div>
+            </div>
+
+            <div class="deferred-blocks-grid">
+              {{ layout_slot_deferred('deferred_product_carousel') }}
+              {{ layout_slot_deferred('deferred_chart_widget') }}
+              {{ layout_slot_deferred('deferred_search_filter') }}
+              {{ layout_slot_deferred('deferred_countdown') }}
+              {{ layout_slot_deferred('deferred_review_feed') }}
+              {{ layout_slot_deferred('deferred_notification') }}
+            </div>
+          </div>
+        </section>
+
+        <section class="feature-detail__l1 deferred-demo-page__hero">
 
           <div class="preview-card deferred-demo-page__primer">
             <div class="preview-card__header">
               <p class="preview-card__eyebrow">Why it matters</p>
               <h2 class="preview-card__title">{{ infoWhat|default('Deferred slots keep SSR pages usable while slower regions stream in later.') }}</h2>
             </div>
-            <p class="preview-card__summary">{{ infoHow|default('The shell is rendered first, then the server streams final slot HTML over SSE instead of shipping a client-side rebuild.') }}</p>
+            <p class="preview-card__summary">{{ infoHow|default('The shell is rendered first, then the server streams final slot HTML over SSE instead of shipping a client-side rebuild. After arrival, selected widgets can keep reacting to live backend events over the same kiss stream.') }}</p>
             <p class="preview-card__summary">{{ infoWhy|default('You keep one rendering model: HTML in, HTML out, no SPA handoff.') }}</p>
           </div>
 
@@ -131,14 +182,14 @@
           <div class="deferred-demo-page__section-head">
             <div>
               <p class="preview-card__eyebrow">Delivery modes</p>
-              <h2 class="preview-card__title">Deferred blocks support more than one delivery contract.</h2>
+              <h2 class="preview-card__title">This page demonstrates the primary deferred delivery paths and documents the emergency fallback separately.</h2>
             </div>
-            <p class="preview-card__summary">`html` is the canonical SSR-first default. `template` is available when you want to reuse a published client template. `fallback` is not a declared slot mode at all, but an emergency recovery path when the normal deferred pipeline fails.</p>
+            <p class="preview-card__summary">On this surface you can inspect the two expected steady-state paths: a normal <code>html</code> block streamed as ready markup and a real <code>template</code> block rendered in the browser from a published Twig asset. The <code>fallback</code> path still exists, but it should activate only when SSE delivery or client template rendering actually fails.</p>
           </div>
 
           <div class="deferred-demo-page__modes" aria-label="Deferred block delivery modes">
             <article class="preview-card preview-card--nested deferred-demo-page__mode deferred-demo-page__mode--recommended">
-              <p class="preview-card__eyebrow">Recommended default</p>
+              <p class="preview-card__eyebrow">Live on this page</p>
               <h3 class="preview-card__title"><code>mode: html</code></h3>
               <p class="preview-card__summary">The server renders the final fragment and streams ready-to-swap HTML over SSE.</p>
               <ul class="deferred-demo-page__mode-list">
@@ -149,9 +200,9 @@
             </article>
 
             <article class="preview-card preview-card--nested deferred-demo-page__mode">
-              <p class="preview-card__eyebrow">Published template reuse</p>
+              <p class="preview-card__eyebrow">Live on this page</p>
               <h3 class="preview-card__title"><code>mode: template</code></h3>
-              <p class="preview-card__summary">The server sends structured data plus a published template path, and the client renders that template locally.</p>
+              <p class="preview-card__summary">The server sends structured data plus a published template path, and the browser renders that Twig template locally after the SSE payload arrives.</p>
               <ul class="deferred-demo-page__mode-list">
                 <li>Useful when the same template is intentionally shared between server output and deferred client rendering.</li>
                 <li>Reduces payload size when HTML would be much heavier than the data slice.</li>
@@ -160,7 +211,7 @@
             </article>
 
             <article class="preview-card preview-card--nested deferred-demo-page__mode">
-              <p class="preview-card__eyebrow">Recovery path</p>
+              <p class="preview-card__eyebrow">Emergency path</p>
               <h3 class="preview-card__title"><code>mode: fallback</code></h3>
               <p class="preview-card__summary">This is not a slot mode you configure. It is the client runtime's rescue path when SSE delivery or template rendering fails.</p>
               <ul class="deferred-demo-page__mode-list">
@@ -173,14 +224,6 @@
         </section>
 
         <section class="feature-detail__deferred-demo">
-          <div class="deferred-demo-page__section-head">
-            <div>
-              <p class="preview-card__eyebrow">Live deferred surface</p>
-              <h2 class="preview-card__title">The shell is already there. These four regions arrive after it.</h2>
-            </div>
-            <p class="preview-card__summary">Each card below starts as skeleton HTML and is later replaced by final server-rendered content over SSE. Some stay pure SSR fragments, while others wake up a tiny scoped client module after delivery.</p>
-          </div>
-
           <div class="deferred-demo-page__flow" aria-label="Deferred rendering flow">
             <div class="deferred-demo-page__flow-step">
               <span class="deferred-demo-page__flow-index">01</span>
@@ -204,32 +247,8 @@
               </div>
             </div>
           </div>
-
-          <div class="deferred-demo-page__live-grid" data-timeline data-total-blocks="4">
-            <div class="deferred-demo-page__transport">
-              <div class="deferred-demo-page__transport-card deferred-demo-page__transport-card--stream">
-                {% include '@project-layouts-semitexa-demo/components/previews/sse-stream.html.twig' with resultPreviewData|default({}) only %}
-              </div>
-
-              <div class="preview-card deferred-demo-page__transport-card deferred-demo-page__transport-card--timeline">
-                <p class="preview-card__eyebrow">Arrival meter</p>
-                <h3 class="preview-card__title">Watch the deferred slots land in sequence.</h3>
-                <p class="preview-card__summary">Each `layout_slot_deferred()` region dispatches `semitexa:block:rendered` when its HTML arrives. The meter below turns that runtime signal into visible progress.</p>
-                <div class="deferred-timeline">
-                  <div class="deferred-timeline__track" aria-hidden="true">
-                    <div class="deferred-timeline__fill" style="width:0%"></div>
-                  </div>
-                  <p class="deferred-timeline__label" role="status" aria-live="polite" aria-atomic="true">0 / 4 blocks loaded</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="deferred-blocks-grid">
-              {{ layout_slot_deferred('deferred_product_carousel') }}
-              {{ layout_slot_deferred('deferred_chart_widget') }}
-              {{ layout_slot_deferred('deferred_search_filter') }}
-              {{ layout_slot_deferred('deferred_countdown') }}
-            </div>
+          <div class="deferred-demo-page__stream-card">
+            {% include '@project-layouts-semitexa-demo/components/previews/sse-stream.html.twig' with resultPreviewData|default({}) only %}
           </div>
         </section>
       </article>

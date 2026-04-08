@@ -22,7 +22,9 @@ final class DemoHomeHandler implements TypedHandlerInterface
         $sections = $this->catalog->getSections();
         $starterSections = $this->catalog->getStarterSections();
         $featuredFeatures = $this->catalog->getFeaturedFeatures();
+        $navigationLayers = $this->catalog->getNavigationLayers();
         $homeCatalog = [
+            'navigationLayers' => $navigationLayers,
             'sections' => $sections,
             'starterSections' => $starterSections,
             'featuredFeatures' => $featuredFeatures,
@@ -45,7 +47,7 @@ final class DemoHomeHandler implements TypedHandlerInterface
             ->seoKeywords($keywords)
             ->withDemoShellContext([
                 'navSections' => $sections,
-                'featureTree' => $sections,
+                'featureTree' => $this->catalog->getSidebarTree(),
                 'currentSection' => null,
                 'currentSlug' => null,
                 'infoWhat' => 'Production-like walkthroughs for the Semitexa runtime, not disconnected toy snippets.',

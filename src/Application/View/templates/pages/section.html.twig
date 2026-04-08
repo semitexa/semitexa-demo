@@ -66,39 +66,94 @@
 
     {% if section|default('') == 'get-started' %}
       <section class="demo-section-page__manifesto">
-        <div class="preview-card preview-card--layered">
+        <div class="preview-card preview-card--layered demo-get-started-structure">
           <div class="rendering-manifesto__intro">
-            <p class="demo-block-heading__eyebrow">Recommended Path</p>
-            <h2 class="preview-card__title">Start with first boot, then make the app behave like a real product host</h2>
-            <p class="preview-card__summary">This section is strongest when read as a sequence. Installation gets the runtime up. Local Domain removes the "localhost forever" mindset. Base Tenant turns that host into an actual tenant boundary you can inspect.</p>
+            <p class="demo-block-heading__eyebrow">Module Structure</p>
+            <h2 class="preview-card__title">The module has a minimal HTTP spine and an extended product stack</h2>
+            <p class="preview-card__summary">Use the minimal version to understand the request path itself. Use the extended version to understand how Semitexa turns that path into a guided demo module with SEO, navigation, and source-backed context.</p>
           </div>
-          <div class="preview-stats">
-            <article class="preview-stats__item">
-              <strong class="preview-stats__value">1</strong>
-              <span class="preview-stats__label">canonical install path before any customization</span>
+
+          <div class="demo-get-started-structure__grid">
+            <article class="preview-card preview-card--nested demo-get-started-structure__card">
+              <p class="preview-card__eyebrow">Minimal Stack</p>
+              <h3 class="preview-card__title">The smallest useful request flow</h3>
+              <p class="preview-card__summary">This is the narrow path that needs to exist for any simple feature page: transport in, use case out, response rendered.</p>
+              <div class="preview-checklist demo-get-started-structure__list">
+                <div class="preview-checklist__item">
+                  <span class="preview-checklist__mark" aria-hidden="true">1</span>
+                  <p><strong>Payload</strong> owns the route contract, path params, and request boundary.</p>
+                </div>
+                <div class="preview-checklist__item">
+                  <span class="preview-checklist__mark" aria-hidden="true">2</span>
+                  <p><strong>Handler</strong> owns the use case and produces one typed resource.</p>
+                </div>
+                <div class="preview-checklist__item">
+                  <span class="preview-checklist__mark" aria-hidden="true">3</span>
+                  <p><strong>Resource</strong> owns the outgoing response, metadata, and render context.</p>
+                </div>
+                <div class="preview-checklist__item">
+                  <span class="preview-checklist__mark" aria-hidden="true">4</span>
+                  <p><strong>Template</strong> owns presentation only and stays declarative.</p>
+                </div>
+              </div>
             </article>
-            <article class="preview-stats__item">
-              <strong class="preview-stats__value">2</strong>
-              <span class="preview-stats__label">host upgrades after boot: real local domain, then real tenant host</span>
-            </article>
-            <article class="preview-stats__item">
-              <strong class="preview-stats__value">0</strong>
-              <span class="preview-stats__label">reliance on undocumented first-run guesswork</span>
+
+            <article class="preview-card preview-card--nested demo-get-started-structure__card">
+              <p class="preview-card__eyebrow">Extended Stack</p>
+              <h3 class="preview-card__title">The full module as a guided demo system</h3>
+              <p class="preview-card__summary">Once the route works, the demo layers on a catalog, curated navigation, SEO defaults, grouped learning order, and source-linked explanations.</p>
+              <div class="preview-checklist demo-get-started-structure__list">
+                <div class="preview-checklist__item">
+                  <span class="preview-checklist__mark" aria-hidden="true">1</span>
+                  <p><strong>Catalog service</strong> assembles sections, groups, and navigation layers.</p>
+                </div>
+                <div class="preview-checklist__item">
+                  <span class="preview-checklist__mark" aria-hidden="true">2</span>
+                  <p><strong>Shell context</strong> adds SEO defaults, nav mode, and shared demo metadata.</p>
+                </div>
+                <div class="preview-checklist__item">
+                  <span class="preview-checklist__mark" aria-hidden="true">3</span>
+                  <p><strong>Section pages</strong> explain the learning order and group live routes by responsibility.</p>
+                </div>
+                <div class="preview-checklist__item">
+                  <span class="preview-checklist__mark" aria-hidden="true">4</span>
+                  <p><strong>Preview templates</strong> make the module feel like a product, not a stack of loose samples.</p>
+                </div>
+              </div>
             </article>
           </div>
-          <div class="preview-checklist">
-            <article class="preview-checklist__item">
-              <span class="preview-checklist__mark" aria-hidden="true">1</span>
-              <p><a href="/demo/get-started/installation">Installation</a> gets you from fresh scaffold to a running local app with CLI verification commands you can trust.</p>
-            </article>
-            <article class="preview-checklist__item">
-              <span class="preview-checklist__mark" aria-hidden="true">2</span>
-              <p><a href="/demo/get-started/local-domain">Local Domain</a> replaces generic localhost with a stable `.test` host, which matters once features depend on real hostnames.</p>
-            </article>
-            <article class="preview-checklist__item">
-              <span class="preview-checklist__mark" aria-hidden="true">3</span>
-              <p><a href="/demo/get-started/base-tenant">Base Tenant</a> shows how the first tenant is configured and resolved through that host instead of being treated as a late-stage concern.</p>
-            </article>
+
+          <div class="demo-get-started-owners">
+            <div class="demo-get-started-owners__head">
+              <p class="demo-block-heading__eyebrow">Responsibility Map</p>
+              <p class="demo-block-heading__text">The demo becomes easier to learn when every layer keeps one job and the module description says that out loud.</p>
+            </div>
+            <div class="demo-get-started-owners__grid">
+              <article class="demo-get-started-owners__item">
+                <strong>Payload</strong>
+                <span>Route contract, validation boundary, alternates.</span>
+              </article>
+              <article class="demo-get-started-owners__item">
+                <strong>Handler</strong>
+                <span>Use case orchestration and feature-level decisions.</span>
+              </article>
+              <article class="demo-get-started-owners__item">
+                <strong>Resource</strong>
+                <span>Response shape, SEO defaults, and render context.</span>
+              </article>
+              <article class="demo-get-started-owners__item">
+                <strong>Catalog</strong>
+                <span>Sections, groups, feature tree, and navigation layers.</span>
+              </article>
+              <article class="demo-get-started-owners__item">
+                <strong>Layout</strong>
+                <span>Shell chrome, canonical URL, and shared metadata.</span>
+              </article>
+              <article class="demo-get-started-owners__item">
+                <strong>Templates</strong>
+                <span>Progressive disclosure and story-driven presentation.</span>
+              </article>
+            </div>
           </div>
         </div>
       </section>
@@ -107,28 +162,60 @@
     {% if features|default([])|length > 0 %}
       <section class="demo-section-page__features">
         <div class="demo-block-heading demo-block-heading--tight">
-          <p class="demo-block-heading__eyebrow">{{ section|default('') == 'rendering' ? 'Suggested Path' : (section|default('') == 'get-started' ? 'Onboarding Pages' : 'Feature List') }}</p>
-          <p class="demo-block-heading__text">{{ section|default('') == 'rendering' ? 'Start with the first three pages. Together they explain the shared rendering model before the section branches into components, SEO, assets, and reactive patterns.' : (section|default('') == 'get-started' ? 'Open these pages in order if you want the shortest path from a fresh install to a realistic Semitexa local setup.' : 'Each feature page pairs live output with the source that produced it.') }}</p>
+          <p class="demo-block-heading__eyebrow">{{ section|default('') == 'rendering' ? 'Conceptual Path' : (section|default('') == 'get-started' ? 'Onboarding Pages' : 'Route Map') }}</p>
+          <p class="demo-block-heading__text">{{ section|default('') == 'rendering' ? 'Read the section as a progression: start with the rendering model, then move through delivery, and only then into the live surfaces that reuse the same server-owned story.' : (section|default('') == 'get-started' ? 'Open these pages in order if you want the shortest path from a fresh install to a realistic Semitexa local setup.' : 'Each feature page pairs live output with the source that produced it.') }}</p>
         </div>
-        <div class="demo-sections__grid">
-          {% for feature in features %}
-            <a
-              href="{{ feature.href|default('/demo/' ~ (section|url_encode) ~ '/' ~ (feature.slug|url_encode)) }}"
-              class="feature-card feature-card--feature"
-              {% if feature.opensInNewTab|default(false) %}aria-label="{{ feature.title }} (opens in new tab)"{% endif %}
-              {% if feature.opensInNewTab|default(false) %}target="_blank" rel="noopener"{% endif %}
-            >
-              <div class="feature-card__body">
-                <p class="feature-card__eyebrow">{{ sectionLabel|default(section|upper) }}</p>
-                <h3 class="feature-card__title">{{ feature.title }}{% if feature.opensInNewTab|default(false) %}<span class="demo-link-external-indicator" aria-hidden="true">↗</span>{% endif %}</h3>
-                <p class="feature-card__summary">{{ feature.summary }}</p>
-                <div class="feature-card__meta">
-                  <span class="feature-card__count">Open feature</span>
+        {% if groups|default([]) is not empty %}
+          <div class="demo-section-page__groups">
+            {% for group in groups|default([]) %}
+              <section class="demo-section-page__group">
+                <div class="demo-section-page__group-head">
+                  <h3 class="demo-section-page__group-title">{{ group.label }}</h3>
+                  <span class="demo-section-page__group-count">{{ group.featureCount }}</span>
                 </div>
-              </div>
-            </a>
-          {% endfor %}
-        </div>
+                <div class="demo-sections__grid">
+                  {% for feature in group.features|default([]) %}
+                    <a
+                      href="{{ feature.href|default('/demo/' ~ (section|url_encode) ~ '/' ~ (feature.slug|url_encode)) }}"
+                      class="feature-card feature-card--feature"
+                      {% if feature.opensInNewTab|default(false) %}aria-label="{{ feature.title }} (opens in new tab)"{% endif %}
+                      {% if feature.opensInNewTab|default(false) %}target="_blank" rel="noopener"{% endif %}
+                    >
+                      <div class="feature-card__body">
+                        <p class="feature-card__eyebrow">{{ sectionLabel|default(section|upper) }}</p>
+                        <h3 class="feature-card__title">{{ feature.title }}{% if feature.opensInNewTab|default(false) %}<span class="demo-link-external-indicator" aria-hidden="true">↗</span>{% endif %}</h3>
+                        <p class="feature-card__summary">{{ feature.summary }}</p>
+                        <div class="feature-card__meta">
+                          <span class="feature-card__count">Open feature</span>
+                        </div>
+                      </div>
+                    </a>
+                  {% endfor %}
+                </div>
+              </section>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="demo-sections__grid">
+            {% for feature in features %}
+              <a
+                href="{{ feature.href|default('/demo/' ~ (section|url_encode) ~ '/' ~ (feature.slug|url_encode)) }}"
+                class="feature-card feature-card--feature"
+                {% if feature.opensInNewTab|default(false) %}aria-label="{{ feature.title }} (opens in new tab)"{% endif %}
+                {% if feature.opensInNewTab|default(false) %}target="_blank" rel="noopener"{% endif %}
+              >
+                <div class="feature-card__body">
+                  <p class="feature-card__eyebrow">{{ sectionLabel|default(section|upper) }}</p>
+                  <h3 class="feature-card__title">{{ feature.title }}{% if feature.opensInNewTab|default(false) %}<span class="demo-link-external-indicator" aria-hidden="true">↗</span>{% endif %}</h3>
+                  <p class="feature-card__summary">{{ feature.summary }}</p>
+                  <div class="feature-card__meta">
+                    <span class="feature-card__count">Open feature</span>
+                  </div>
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+        {% endif %}
       </section>
     {% else %}
       <p class="demo-section-page__empty">No features in this section yet.</p>

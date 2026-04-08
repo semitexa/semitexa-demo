@@ -13,6 +13,8 @@ final class ProductCarouselSlotHandler implements TypedSlotHandlerInterface
 {
     public function handle(object $slot): object
     {
+        DemoDeferredSlotDelay::sleepFor('deferred_product_carousel');
+
         return $slot->withProducts([
             ['name' => 'Wireless Headphones', 'price' => '79.99', 'status' => 'active'],
             ['name' => 'Mechanical Keyboard', 'price' => '129.00', 'status' => 'active'],

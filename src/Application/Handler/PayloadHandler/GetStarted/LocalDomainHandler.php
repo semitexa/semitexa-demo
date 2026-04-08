@@ -44,7 +44,7 @@ final class LocalDomainHandler implements TypedHandlerInterface
                 'infoKeywords' => $explanation['keywords'],
             ])
             ->withSection('get-started')
-            ->withSectionLabel('Get Started')
+            ->withSectionLabel('Start Here')
             ->withSlug('local-domain')
             ->withTitle('Local Domain')
             ->withSummary('Register `.test` domains through the built-in local-domain helper instead of relying on ad-hoc host setup.')

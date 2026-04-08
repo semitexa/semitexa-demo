@@ -44,7 +44,7 @@ final class BaseTenantHandler implements TypedHandlerInterface
                 'infoKeywords' => $explanation['keywords'],
             ])
             ->withSection('get-started')
-            ->withSectionLabel('Get Started')
+            ->withSectionLabel('Start Here')
             ->withSlug('base-tenant')
             ->withTitle('Base Tenant')
             ->withSummary('Define the first tenant through environment variables and resolve it through a real local host.')
@@ -103,7 +103,7 @@ final class BaseTenantHandler implements TypedHandlerInterface
                     'Keep tenant ids stable and human-readable because they become part of local and operational reasoning.',
                     'Prefer one clear primary `TENANT_<ID>_DOMAIN` before introducing additional aliases.',
                     'When tenant resolution looks wrong, check `.env`, then `local-domain:list`, then the actual browser host in that order.',
-                    'Use the Tenancy & Isolation pages after this setup if you want to inspect how Semitexa resolves and propagates tenant context internally.',
+                    'Use the Tenancy pages after this setup if you want to inspect how Semitexa resolves and propagates tenant context internally.',
                 ],
             ])
             ->withExplanation($explanation);

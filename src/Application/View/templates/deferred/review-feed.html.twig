@@ -1,5 +1,13 @@
 <div class="deferred-block deferred-block--feed" data-block="review-feed">
-    <ul class="review-feed">
+    <div class="deferred-block__header">
+        <div>
+            <p class="deferred-block__eyebrow">Client template delivery</p>
+            <h3 class="deferred-block__title">Review feed</h3>
+        </div>
+        <span class="deferred-block__badge">Rendered from published Twig</span>
+    </div>
+    <p class="deferred-block__summary">This block arrives as <code>mode: template</code>, then keeps layering fresh backend reactions from the shared kiss stream on top of the initial template render.</p>
+    <ul class="review-feed" data-review-feed>
         {% for review in reviews %}
         <li class="review-feed__item">
             <div class="review-feed__rating">

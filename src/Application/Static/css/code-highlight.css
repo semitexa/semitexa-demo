@@ -386,6 +386,19 @@
 }
 
 @media (max-width: 640px) {
+  .code-block > pre,
+  .code-block > code {
+    font-size: 0.76rem;
+  }
+
+  .code-block__code {
+    font-size: 0.78rem;
+  }
+
+  .source-code__code {
+    font-size: 0.76rem;
+  }
+
   .code-block__quote-line {
     flex-wrap: wrap;
   }

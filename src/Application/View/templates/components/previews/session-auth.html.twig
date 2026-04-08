@@ -4,26 +4,25 @@
   <p class="preview-card__summary">{{ stateSummary }}</p>
 
   {% if isAuthenticated %}
-    <div class="preview-card__notice" style="margin: 0.75rem 0 1rem;">
-      <span class="preview-pill preview-pill--active">Signed in with Google</span>
-      <p class="preview-card__summary" style="margin-top: 0.75rem;">
+    <div class="preview-card__notice preview-card__notice--auth">
+      <span class="preview-pill preview-pill--active">{{ authSignedInLabel|default('Signed in with Google') }}</span>
+      <p class="preview-card__summary">
         {{ displayName|default(email|default('Google user')) }}
         {% if email is defined and email %}
           <span style="display:block; opacity:.8;">{{ email }}</span>
         {% endif %}
       </p>
-      <div class="preview-actions" style="margin-top: 0.75rem;">
+      <div class="preview-actions">
         <a class="preview-button preview-button--secondary" href="{{ googleLogoutUrl }}">Sign out</a>
       </div>
     </div>
   {% else %}
-    <div class="preview-card__notice" style="margin: 0.75rem 0 1rem;">
-      <span class="preview-pill preview-pill--warning">Authorization is required</span>
-      <p class="preview-card__summary" style="margin-top: 0.75rem;">{{ authRequiredMessage|default('Sign in with Google to unlock the role selector and permissions demo.') }}</p>
-      <div class="preview-actions" style="margin-top: 0.75rem;">
-        <a class="preview-button preview-button--primary" href="{{ authPageUrl }}">Sign in with Google</a>
-      </div>
-    </div>
+    {% include '@project-layouts-semitexa-demo/components/previews/google-auth-cta.html.twig' with {
+      href: startUrl|default(authPageUrl),
+      message: authRequiredMessage|default('Sign in with Google to unlock the role selector and permissions demo.'),
+      actionLabel: authActionLabel|default('Sign in with Google'),
+      pillLabel: authActionLabel|default('Google sign-in') ~ ' required'
+    } only %}
   {% endif %}
 
   {% if isAuthenticated %}

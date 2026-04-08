@@ -4,28 +4,37 @@
 (function () {
     'use strict';
 
-    const DEMO_STREAM = 'showcase';
+    const DEFERRED_KISS_MODE = 'deferred_kiss';
 
     function init() {
         const rootEl = document.getElementById('sse-demo');
+        const streamMode = rootEl ? (rootEl.getAttribute('data-stream-mode') || 'standalone') : 'standalone';
         const SSE_ENDPOINT = rootEl ? (rootEl.getAttribute('data-sse-endpoint') || '/sse') : '/sse';
         const connectBtn = document.getElementById('sse-connect');
         const disconnectBtn = document.getElementById('sse-disconnect');
         const statusEl = document.getElementById('sse-status');
         const logEl = document.getElementById('sse-event-log');
+        const logShellEl = logEl ? logEl.closest('.preview-sse-panel__log-shell') : null;
         const minuteSyncEl = document.getElementById('sse-minute-sync');
         const minuteValueEl = document.getElementById('sse-minute-value');
         const minuteSummaryEl = document.getElementById('sse-minute-summary');
 
-        if (!connectBtn || !disconnectBtn || !statusEl || !logEl || !minuteSyncEl || !minuteValueEl || !minuteSummaryEl) return;
+        if (!statusEl || !logEl || !minuteSyncEl || !minuteValueEl || !minuteSummaryEl) return;
 
         const authRequired = rootEl ? rootEl.getAttribute('data-authorization-required') === 'true' : false;
         const isAuthenticated = rootEl ? rootEl.getAttribute('data-is-authenticated') === 'true' : false;
         const authRequiredMessage = rootEl ? (rootEl.getAttribute('data-auth-required-message') || 'Authorization is required.') : 'Authorization is required.';
+        const expectedCadenceSeconds = rootEl ? Math.max(1, parseInt(rootEl.getAttribute('data-expected-cadence-seconds') || '60', 10) || 60) : 60;
 
         let source = null;
         let currentSessionId = '';
         let countdownTimer = null;
+        let deferredSummary = 'Shared kiss stream will stay open. The timer tracks the next scheduled heartbeat broadcast from the backend.';
+
+        function setDeferredState(summary) {
+            deferredSummary = summary;
+            minuteSummaryEl.textContent = summary;
+        }
 
         function setStatus(text, variant) {
             statusEl.innerHTML = '<span class="preview-pill preview-pill--' + variant + '">' + text + '</span>';
@@ -42,11 +51,15 @@
                 '<span class="preview-sse-panel__event-data">' + escHtml(typeof data === 'string' ? data : JSON.stringify(data)) + '</span>' +
                 '<span class="preview-sse-panel__event-time">' + new Date().toLocaleTimeString() + '</span>';
 
-            logEl.insertBefore(item, logEl.firstChild);
+            logEl.appendChild(item);
 
             // Keep at most 20 entries
             while (logEl.children.length > 20) {
-                logEl.removeChild(logEl.lastChild);
+                logEl.removeChild(logEl.firstChild);
+            }
+
+            if (logShellEl) {
+                logShellEl.scrollTop = logShellEl.scrollHeight;
             }
         }
 
@@ -81,23 +94,33 @@
             return 'demo_sse_' + Math.random().toString(36).slice(2, 10) + '_' + Date.now().toString(36);
         }
 
-        function secondsUntilNextMinute() {
-            const now = new Date();
-            const seconds = now.getSeconds();
-            const millis = now.getMilliseconds();
-            return Math.max(0, 60 - seconds - (millis > 0 ? 1 : 0));
+        function secondsUntilNextWindow(intervalSeconds) {
+            const intervalMs = intervalSeconds * 1000;
+            const remainder = Date.now() % intervalMs;
+
+            if (remainder === 0) {
+                return 0;
+            }
+
+            return Math.ceil((intervalMs - remainder) / 1000);
         }
 
         function renderCountdown(seconds) {
             minuteValueEl.textContent = String(seconds).padStart(2, '0');
 
             if (source) {
-                minuteSummaryEl.textContent = 'The SSE connection is open. The backend will publish the next minute tick when this counter reaches zero.';
+                minuteSummaryEl.textContent = 'The SSE connection is open. The backend will publish the next scheduled event when this counter reaches zero.';
                 return;
             }
 
             if (authRequired && !isAuthenticated) {
                 minuteSummaryEl.textContent = authRequiredMessage;
+                return;
+            }
+
+            if (streamMode === DEFERRED_KISS_MODE) {
+                minuteValueEl.textContent = String(secondsUntilNextWindow(expectedCadenceSeconds)).padStart(2, '0');
+                minuteSummaryEl.textContent = deferredSummary;
                 return;
             }
 
@@ -115,7 +138,7 @@
             clearCountdown();
 
             const tick = function () {
-                renderCountdown(secondsUntilNextMinute());
+                renderCountdown(secondsUntilNextWindow(expectedCadenceSeconds));
             };
 
             tick();
@@ -160,6 +183,80 @@
             });
         }
 
+        function initDeferredKissObserver() {
+            setStatus('Waiting for deferred stream', 'warning');
+            setDeferredState('Waiting for the deferred runtime to open its shared kiss stream and deliver page blocks.');
+
+            document.addEventListener('semitexa:deferred:stream', function (e) {
+                const detail = e.detail || {};
+                const phase = detail.phase || 'update';
+
+                if (phase === 'connecting') {
+                    setStatus('Opening shared kiss stream…', 'warning');
+                    setDeferredState('The deferred runtime is opening its shared SSE connection. The countdown tracks the next scheduled heartbeat window.');
+                    appendEvent('kiss.connecting', 'Opening __semitexa_kiss for deferred blocks');
+                    return;
+                }
+
+                if (phase === 'connected') {
+                    setStatus('Shared kiss stream connected', 'active');
+                    setDeferredState('The deferred runtime is streaming blocks over its shared kiss connection. The countdown tracks the next scheduled heartbeat window.');
+                    appendEvent('kiss.connected', 'Shared __semitexa_kiss connection established');
+                    return;
+                }
+
+                if (phase === 'done') {
+                    setStatus(detail.live ? 'Deferred stream live' : 'Deferred stream complete', 'success');
+                    setDeferredState(detail.live
+                        ? 'Initial deferred delivery finished; the shared kiss connection remains open.'
+                        : 'Deferred delivery finished and the shared kiss connection closed.');
+                    appendEvent('kiss.done', detail.live ? 'Initial blocks delivered, live updates remain enabled' : 'Initial deferred delivery completed');
+                    return;
+                }
+
+                if (phase === 'error') {
+                    setStatus('Shared kiss stream interrupted', 'warning');
+                    setDeferredState('The shared deferred stream dropped; runtime fallback or reconnect logic may take over.');
+                    appendEvent('kiss.error', 'The shared __semitexa_kiss connection dropped');
+                }
+            });
+
+            document.addEventListener('semitexa:deferred:block', function (e) {
+                const detail = e.detail || {};
+                if (!detail.slotId) return;
+
+                if (detail.mode === 'template') {
+                    return;
+                }
+
+                if (detail.mode === 'html') {
+                    return;
+                }
+
+                if (detail.mode === 'fallback') {
+                    return;
+                }
+            });
+
+            document.addEventListener('semitexa:deferred:message', function (e) {
+                const detail = e.detail || {};
+                const payload = detail.payload || {};
+                const eventName = detail.eventName || 'message';
+
+                if (eventName === 'scheduler.tick') {
+                    appendEvent(eventName, formatEventData(payload));
+                    setStatus('Scheduled heartbeat received', 'success');
+                    setDeferredState('A real scheduled backend heartbeat arrived over the shared kiss stream. The countdown restarted for the next scheduler window.');
+                    return;
+                }
+            });
+
+            if (window.SemitexaSSR && window.SemitexaSSR._connected) {
+                setStatus('Shared kiss stream connected', 'active');
+                setDeferredState('The deferred runtime already has an open shared kiss stream. The countdown tracks the next scheduled heartbeat window.');
+            }
+        }
+
         function escHtml(str) {
             return String(str)
                 .replace(/&/g, '&amp;')
@@ -168,23 +265,29 @@
                 .replace(/"/g, '&quot;');
         }
 
-        connectBtn.addEventListener('click', function () {
-            if (source || connectBtn.disabled) return;
+        if (streamMode === DEFERRED_KISS_MODE) {
+            initDeferredKissObserver();
+        } else {
+            if (!connectBtn || !disconnectBtn) return;
 
-            openStream();
-        });
+            connectBtn.addEventListener('click', function () {
+                if (source || connectBtn.disabled) return;
 
-        disconnectBtn.addEventListener('click', function () {
-            if (source) {
-                source.close();
-                source = null;
-            }
-            currentSessionId = '';
-            setStatus('Disconnected', 'warning');
-            minuteSummaryEl.textContent = 'Connect once. The backend will emit a fresh SSE message on every new minute.';
-            connectBtn.style.display = '';
-            disconnectBtn.style.display = 'none';
-        });
+                openStream();
+            });
+
+            disconnectBtn.addEventListener('click', function () {
+                if (source) {
+                    source.close();
+                    source = null;
+                }
+                currentSessionId = '';
+                setStatus('Disconnected', 'warning');
+                minuteSummaryEl.textContent = 'Connect once. The backend will emit a fresh SSE message on every new minute.';
+                connectBtn.style.display = '';
+                disconnectBtn.style.display = 'none';
+            });
+        }
 
         startCountdownLoop();
     }

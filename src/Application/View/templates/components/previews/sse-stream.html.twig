@@ -1,5 +1,6 @@
 {{ asset_require('semitexa-demo:js:sse-demo') }}
 
+{% set streamMode = streamMode|default('standalone') %}
 {% set authRequired = authorizationRequired|default(true) %}
 {% set isAuthenticated = isAuthenticated|default(false) %}
 {% set authPageUrl = authPageUrl|default('/demo/auth/google') %}
@@ -7,34 +8,38 @@
 {% set logoutUrl = logoutUrl|default('/demo/auth/google/logout') %}
 {% set authRequiredMessage = authRequiredMessage|default('Authorization is required to open this persistent SSE stream.') %}
 {% set identityLabel = displayName|default(email|default('Google user')) %}
+{% set authActionLabel = authActionLabel|default('Sign in with Google') %}
+{% set authSignedInLabel = authSignedInLabel|default('Authorized as') %}
+{% set expectedCadenceSeconds = expectedCadenceSeconds|default(60) %}
 
 <div
   class="preview-card"
   id="sse-demo"
+  data-stream-mode="{{ streamMode|e('html_attr') }}"
   data-authorization-required="{{ authRequired ? 'true' : 'false' }}"
   data-is-authenticated="{{ isAuthenticated ? 'true' : 'false' }}"
   data-sse-endpoint="{{ sseEndpoint|default('/sse')|e('html_attr') }}"
   data-auth-required-message="{{ authRequiredMessage|e('html_attr') }}"
+  data-expected-cadence-seconds="{{ expectedCadenceSeconds }}"
 >
-  <p class="preview-card__eyebrow">Server Push</p>
-  <h3 class="preview-card__title">Event stream over plain HTTP</h3>
-  <p class="preview-card__summary">Connect once, then watch the backend push named events from the server into this page without WebSockets or manual refresh.</p>
+  <p class="preview-card__eyebrow">{{ streamMode == 'deferred_kiss' ? 'Deferred Transport' : 'Server Push' }}</p>
+  <h3 class="preview-card__title">{{ streamMode == 'deferred_kiss' ? 'Shared kiss stream over plain HTTP' : 'Event stream over plain HTTP' }}</h3>
+  <p class="preview-card__summary">{{ streamMode == 'deferred_kiss' ? 'This card observes the same long-lived __semitexa_kiss connection that delivers deferred blocks. It does not open a second SSE connection.' : 'Connect once, then watch the backend push named events from the server into this page without WebSockets or manual refresh.' }}</p>
 
   {% if authRequired and not isAuthenticated %}
-    <div class="preview-card__notice" style="margin: 0.5rem 0 1rem;">
-      <span class="preview-pill preview-pill--warning">Authorization is required</span>
-      <p class="preview-card__summary" style="margin-top: 0.75rem;">{{ authRequiredMessage }}</p>
-      <div class="preview-actions" style="margin-top: 0.75rem;">
-        <a class="preview-button preview-button--primary" href="{{ authPageUrl }}">Sign in with Google</a>
-      </div>
-    </div>
+    {% include '@project-layouts-semitexa-demo/components/previews/google-auth-cta.html.twig' with {
+      href: startUrl,
+      message: authRequiredMessage,
+      actionLabel: authActionLabel,
+      pillLabel: authActionLabel ~ ' required'
+    } only %}
   {% elseif isAuthenticated %}
-    <div class="preview-card__notice" style="margin: 0.5rem 0 1rem;">
-      <span class="preview-pill preview-pill--active">Authorized as {{ identityLabel }}</span>
+    <div class="preview-card__notice preview-card__notice--auth">
+      <span class="preview-pill preview-pill--active">{{ authSignedInLabel }} {{ identityLabel }}</span>
       {% if email is defined and email %}
-        <p class="preview-card__summary" style="margin-top: 0.75rem;">{{ email }}</p>
+        <p class="preview-card__summary">{{ email }}</p>
       {% endif %}
-      <div class="preview-actions" style="margin-top: 0.75rem;">
+      <div class="preview-actions">
         <a class="preview-button preview-button--secondary" href="{{ logoutUrl }}">Logout</a>
       </div>
     </div>
@@ -57,28 +62,42 @@
 
   <div class="preview-sse-panel">
     <div class="preview-sse-panel__status" id="sse-status">
-      <span class="preview-pill preview-pill--warning">{{ authRequired and not isAuthenticated ? 'Authorization required' : 'Disconnected' }}</span>
+      <span class="preview-pill preview-pill--warning">{{
+        authRequired and not isAuthenticated
+          ? 'Authorization required'
+          : (streamMode == 'deferred_kiss' ? 'Waiting for shared stream' : 'Disconnected')
+      }}</span>
     </div>
     <div class="preview-sse-sync" id="sse-minute-sync" aria-live="polite">
-      <span class="preview-sse-sync__eyebrow">Next backend minute tick</span>
+      <span class="preview-sse-sync__eyebrow">{{ streamMode == 'deferred_kiss' ? 'Next expected backend event' : 'Next backend minute tick' }}</span>
       <div class="preview-sse-sync__value-row">
         <strong class="preview-sse-sync__value" id="sse-minute-value">--</strong>
         <span class="preview-sse-sync__unit">sec</span>
       </div>
       <p class="preview-sse-sync__summary" id="sse-minute-summary">
         {% if authRequired and not isAuthenticated %}
-          Authorization is required before this SSE stream can be opened.
+          {{ authRequiredMessage }}
+        {% elseif streamMode == 'deferred_kiss' %}
+          Shared kiss stream will stay open. The timer tracks the next scheduled heartbeat broadcast from the backend.
         {% else %}
           Connect once. The backend will emit a fresh SSE message on every new minute.
         {% endif %}
       </p>
     </div>
-    <ul class="preview-sse-panel__log" id="sse-event-log">
-      <li class="preview-sse-panel__placeholder">Backend events will appear here…</li>
-    </ul>
-    <div class="preview-actions">
-      <button class="preview-button preview-button--primary" id="sse-connect" type="button" {% if authRequired and not isAuthenticated %}disabled aria-disabled="true"{% endif %}>Connect to backend stream</button>
-      <button class="preview-button preview-button--secondary" id="sse-disconnect" type="button" style="display:none">Disconnect</button>
+    <div class="preview-sse-panel__log-shell">
+      <ul class="preview-sse-panel__log" id="sse-event-log">
+        <li class="preview-sse-panel__placeholder">Backend events will appear here…</li>
+      </ul>
     </div>
+    {% if authRequired and not isAuthenticated %}
+      <p class="preview-card__summary">{{ authActionLabel }} to see more.</p>
+    {% elseif streamMode == 'deferred_kiss' %}
+      <p class="preview-card__summary">The deferred runtime owns the connection lifecycle for this page.</p>
+    {% else %}
+      <div class="preview-actions">
+        <button class="preview-button preview-button--primary" id="sse-connect" type="button">Connect to backend stream</button>
+        <button class="preview-button preview-button--secondary" id="sse-disconnect" type="button" style="display:none">Disconnect</button>
+      </div>
+    {% endif %}
   </div>
 </div>

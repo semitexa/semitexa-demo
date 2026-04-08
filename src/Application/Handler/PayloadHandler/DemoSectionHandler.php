@@ -37,6 +37,7 @@ final class DemoSectionHandler implements TypedHandlerInterface
             ],
             $meta['features'],
         );
+        $groups = $meta['groups'] ?? [];
 
         $infoWhat = $meta['summary'];
         $infoHow = 'Each section groups working payloads that demonstrate one subsystem from entry-level view to implementation details.';
@@ -47,9 +48,13 @@ final class DemoSectionHandler implements TypedHandlerInterface
             $infoHow = 'If you want to persist auth state in the session, you declare a dedicated Session Payload and access it as a typed object. No magic array keys, no duplicated has/get checks, no hidden coupling between unrelated handlers.';
             $infoWhy = 'This closes one of the most common sources of legacy auth mess. Session state stays explicit, reviewable, and refactor-safe instead of turning into a bag of fragile string conventions.';
         } elseif ($section === 'get-started') {
-            $infoWhat = 'Get Started is the onboarding path for people who need a trustworthy first boot, not a tour of disconnected features. The sequence should move from installation to a real local host and then to the first tenant boundary.';
-            $infoHow = 'Start with Installation so the runtime is up and inspectable. Then use Local Domain and Base Tenant to promote localhost into a product-like host setup before you branch into deeper framework concepts.';
-            $infoWhy = 'If the first pages do not form a coherent path, the demo reads like a catalogue instead of an onboarding story. This section should reduce ambiguity in the first hour.';
+            $infoWhat = 'Start Here is the onboarding path for people who need a trustworthy first boot, and it now points directly to the dedicated module structure page so the smallest HTTP spine is visible before the rest of the demo stack.';
+            $infoHow = 'Read the first pass as a minimal HTTP stack: request contract, handler, response resource, template. Then expand into the full demo stack where catalog, feature tree, SEO defaults, grouped walkthroughs, and source-backed previews make the module feel product-like.';
+            $infoWhy = 'If the first pages do not show responsibilities clearly, the demo still feels like a list of pages. This section should make the architecture legible before the reader dives into individual features.';
+        } elseif ($section === 'llm') {
+            $infoWhat = 'The `semitexa/llm` section documents the LLM module as a real subsystem: assistant command, skill declaration, manifest building, planning, providers, and guarded execution.';
+            $infoHow = 'Read it in module order: first the assistant surface, then how commands become skills, then the execution flow, and finally the provider layer under the assistant.';
+            $infoWhy = 'AI features are easy to oversell and hard to trust. This section keeps the package grounded in concrete framework contracts instead of vague product copy.';
         }
 
         $keywords = [$meta['label'], $meta['summary'], 'Semitexa Demo'];
@@ -63,7 +68,7 @@ final class DemoSectionHandler implements TypedHandlerInterface
             ->seoKeywords($keywords)
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
+                'featureTree' => $this->catalog->getSidebarTree(),
                 'currentSection' => $section,
                 'currentSlug' => null,
                 'infoWhat' => $infoWhat,
@@ -75,6 +80,7 @@ final class DemoSectionHandler implements TypedHandlerInterface
             ->withSectionLabel($meta['label'])
             ->withSectionIcon($meta['icon'])
             ->withSectionSummary($meta['summary'])
+            ->withGroups($groups)
             ->withFeatures($features);
     }
 }

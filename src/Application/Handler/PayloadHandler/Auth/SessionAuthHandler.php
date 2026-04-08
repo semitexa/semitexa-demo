@@ -14,6 +14,7 @@ use Semitexa\Demo\Application\Auth\GooglePrincipal;
 use Semitexa\Demo\Application\Payload\Request\Auth\SessionAuthPayload;
 use Semitexa\Demo\Application\Payload\Session\GoogleAuthSessionSegment;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoAuthMode;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
@@ -93,16 +94,26 @@ final class SessionAuthHandler implements TypedHandlerInterface
             ->withSection('auth')
             ->withSlug('session')
             ->withTitle('Session Auth')
-            ->withSummary('Google signs the user in; the session stores the selected demo role and re-hydrates it on every request.')
-            ->withEntryLine('Google is the only login path; once signed in, the demo can switch roles to show how permissions change.')
+            ->withSummary(DemoAuthMode::isLocalLoginEnabled()
+                ? 'Local demo sign-in authorizes the user in dev mode; the session stores the selected demo role and re-hydrates it on every request.'
+                : 'Google signs the user in; the session stores the selected demo role and re-hydrates it on every request.')
+            ->withEntryLine(DemoAuthMode::isLocalLoginEnabled()
+                ? 'Local sign-in is enabled in dev mode; once signed in, the demo can switch roles to show how permissions change.'
+                : 'Google is the only login path; once signed in, the demo can switch roles to show how permissions change.')
             ->withHighlights(['Google OAuth', '#[SessionSegment]', 'AuthResult', '#[AsAuthHandler]'])
             ->withLearnMoreLabel('See the Google login flow →')
             ->withDeepDiveLabel('How role switching changes grants →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/session-auth.html.twig', [
-                'stateTitle' => $isAuthenticated ? 'Google account connected' : 'Google sign-in required',
+                'stateTitle' => $isAuthenticated
+                    ? (DemoAuthMode::isLocalLoginEnabled() ? 'Local account connected' : 'Google account connected')
+                    : (DemoAuthMode::isLocalLoginEnabled() ? 'Local sign-in required' : 'Google sign-in required'),
                 'stateSummary' => $isAuthenticated
-                    ? 'The session stores the authenticated Google identity and the selected demo role.'
-                    : 'Sign in with Google first. The role selector is only available after authentication.',
+                    ? (DemoAuthMode::isLocalLoginEnabled()
+                        ? 'The session stores the authenticated local demo identity and the selected demo role.'
+                        : 'The session stores the authenticated Google identity and the selected demo role.')
+                    : (DemoAuthMode::isLocalLoginEnabled()
+                        ? 'Sign in locally first. The role selector is only available after authentication.'
+                        : 'Sign in with Google first. The role selector is only available after authentication.'),
                 'isAuthenticated' => $isAuthenticated,
                 'displayName' => $googleUser?->getDisplayName(),
                 'email' => $googleUser?->getEmail(),
@@ -116,10 +127,15 @@ final class SessionAuthHandler implements TypedHandlerInterface
                     array_keys(self::ROLE_MATRIX),
                     array_values(self::ROLE_MATRIX),
                 ),
-                'authPageUrl' => '/demo/auth/google?local_test_bypass=1&return_to=' . rawurlencode('/demo/auth/session'),
+                'authPageUrl' => '/demo/auth/google?return_to=' . rawurlencode('/demo/auth/session'),
+                'startUrl' => '/demo/auth/google/start?return_to=' . rawurlencode('/demo/auth/session'),
                 'googleLogoutUrl' => '/demo/auth/google/logout?return_to=' . rawurlencode('/demo/auth/session'),
                 'roleChangeUrl' => '/demo/auth/session',
-                'authRequiredMessage' => 'Authorization is required to access role switching in this demo.',
+                'authRequiredMessage' => DemoAuthMode::isLocalLoginEnabled()
+                    ? 'Local sign-in is required to access role switching in this demo.'
+                    : 'Authorization is required to access role switching in this demo.',
+                'authActionLabel' => DemoAuthMode::actionLabel(),
+                'authSignedInLabel' => DemoAuthMode::isLocalLoginEnabled() ? 'Signed in locally' : 'Signed in with Google',
             ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);

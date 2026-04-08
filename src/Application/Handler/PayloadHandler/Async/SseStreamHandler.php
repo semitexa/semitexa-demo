@@ -12,6 +12,7 @@ use Semitexa\Core\Environment;
 use Semitexa\Demo\Application\Auth\GooglePrincipal;
 use Semitexa\Demo\Application\Payload\Request\Async\SseStreamPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoAuthMode;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
@@ -73,8 +74,12 @@ final class SseStreamHandler implements TypedHandlerInterface
                 'authPageUrl' => '/demo/auth/google?return_to=' . rawurlencode($returnTo),
                 'startUrl' => '/demo/auth/google/start?return_to=' . rawurlencode($returnTo),
                 'logoutUrl' => '/demo/auth/google/logout?return_to=' . rawurlencode($returnTo),
+                'authActionLabel' => DemoAuthMode::actionLabel(),
+                'authSignedInLabel' => DemoAuthMode::signedInLabel(),
                 'sseEndpoint' => Environment::getEnvValue('SSE_ENDPOINT', '/sse'),
-                'authRequiredMessage' => 'Authorization is required to open the long-lived SSE stream used by this demo.',
+                'authRequiredMessage' => DemoAuthMode::isLocalLoginEnabled()
+                    ? 'Local sign-in is required to open the long-lived SSE stream used by this demo.'
+                    : 'Authorization is required to open the long-lived SSE stream used by this demo.',
             ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);

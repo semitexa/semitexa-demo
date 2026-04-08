@@ -46,7 +46,7 @@ final class InstallationHandler implements TypedHandlerInterface
                 'infoKeywords' => $explanation['keywords'],
             ])
             ->withSection('get-started')
-            ->withSectionLabel('Get Started')
+            ->withSectionLabel('Start Here')
             ->withSlug('installation')
             ->withTitle('Installation')
             ->withSummary('Create the project, review the baseline env contract, and bring up the Semitexa runtime the supported way.')

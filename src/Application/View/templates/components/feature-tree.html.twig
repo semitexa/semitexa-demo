@@ -1,42 +1,106 @@
 <nav class="feature-tree" aria-label="Feature navigation tree" data-feature-tree>
-  {% for section in sections|default([]) %}
-    <div class="feature-tree__section{{ currentSection == section.key ? ' feature-tree__section--active feature-tree__section--open' : '' }}" data-section-key="{{ section.key }}">
-      <div class="feature-tree__header">
+  {% set layers = featureTree|default(sections|default([])) %}
+  {% for layer in layers %}
+    {% set layerTooltip = layer.summary|default('') %}
+    {% set isActiveLayer = activeLayerKey is defined and activeLayerKey ? activeLayerKey == layer.key : true %}
+    {% set shouldHideLayer = navMode is defined and navMode == 'guided' and activeLayerKey is defined and activeLayerKey and not isActiveLayer %}
+    <section class="feature-tree__layer{{ isActiveLayer ? ' feature-tree__layer--active' : '' }}{{ shouldHideLayer ? ' feature-tree__layer--hidden' : '' }}" data-layer-key="{{ layer.key }}">
+      <div class="feature-tree__layer-header">
         <a
-          href="{{ section.href|default('/demo/' ~ section.key) }}"
-          class="feature-tree__overview-link{{ currentSection == section.key and (currentSlug|default('')) == '' ? ' feature-tree__overview-link--active' : '' }}"
+          href="{{ layer.href|default('/demo') }}"
+          class="feature-tree__overview-link feature-tree__overview-link--layer"
+          {% if layerTooltip != '' %}title="{{ layerTooltip|e('html_attr') }}" data-tooltip="{{ layerTooltip|e('html_attr') }}"{% endif %}
         >
-          <span class="feature-tree__icon" aria-hidden="true">{{ section.icon }}</span>
-          <span class="feature-tree__label">{{ section.label }}</span>
+          <span class="feature-tree__icon" aria-hidden="true">{{ layer.eyebrow|default(layer.label|slice(0, 2)) }}</span>
+          <span class="feature-tree__label">{{ layer.label }}</span>
         </a>
-        <button
-          class="feature-tree__toggle"
-          type="button"
-          aria-expanded="{{ currentSection == section.key ? 'true' : 'false' }}"
-          aria-controls="tree-{{ section.key }}"
-          aria-label="Toggle {{ section.label }} section"
-        >
-          <span class="feature-tree__toggle-glyph" aria-hidden="true">⌄</span>
-        </button>
       </div>
-      <ul
-        id="tree-{{ section.key }}"
-        class="feature-tree__list"
-        role="group"
-      >
-        {% for feature in section.features|default([]) %}
-          <li class="feature-tree__item{{ (currentSection == section.key and currentSlug == feature.slug) ? ' feature-tree__item--active' : '' }}">
-            {% set opensInNewTab = feature.opensInNewTab|default(false) %}
-            <a
-              href="{{ feature.href|default('/demo/' ~ section.key ~ '/' ~ feature.slug) }}"
-              class="feature-tree__link"
-              data-feature-slug="{{ feature.slug }}"
-              {% if opensInNewTab %}target="_blank" rel="noopener noreferrer"{% endif %}
-              {% if opensInNewTab %}aria-label="{{ feature.title }} (opens in new tab)"{% endif %}
-            >{{ feature.title }}{% if opensInNewTab %}<span class="demo-link-external-indicator" aria-hidden="true">↗</span>{% endif %}</a>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
+
+      {% if layer.type == 'feature-links' %}
+        <ul class="feature-tree__feature-list">
+          {% for feature in layer.features|default([]) %}
+            <li class="feature-tree__feature-item">
+              {% set opensInNewTab = feature.opensInNewTab|default(false) %}
+              <a
+                href="{{ feature.href|default('/demo/' ~ feature.section ~ '/' ~ feature.slug) }}"
+                class="feature-tree__link feature-tree__link--feature{{ (currentSection == feature.section and currentSlug == feature.slug) ? ' feature-tree__link--active' : '' }}"
+                data-feature-slug="{{ feature.slug }}"
+                data-feature-section="{{ feature.section }}"
+                {% if feature.summary|default('') != '' %}title="{{ feature.summary|e('html_attr') }}" data-tooltip="{{ feature.summary|e('html_attr') }}"{% endif %}
+                {% if opensInNewTab %}target="_blank" rel="noopener noreferrer"{% endif %}
+                {% if opensInNewTab %}aria-label="{{ feature.title }} (opens in new tab)"{% endif %}
+              >
+                <span class="feature-tree__link-title">{{ feature.title }}</span>
+                {% if opensInNewTab %}<span class="demo-link-external-indicator" aria-hidden="true">↗</span>{% endif %}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="feature-tree__layer-sections">
+          {% for section in layer.sections|default([]) %}
+            {% set sectionLabel = section.sidebarLabel|default(section.label) %}
+            {% set sectionTooltip = section.summary|default('') %}
+            {% set sectionGroups = section.groups|default([]) %}
+            {% if sectionGroups is empty and section.features|default([]) is not empty %}
+              {% set sectionGroups = [{
+                'key': section.key ~ '-overview',
+                'label': 'Overview',
+                'featureCount': section.features|length,
+                'features': section.features
+              }] %}
+            {% endif %}
+            <div class="feature-tree__section{{ currentSection == section.key ? ' feature-tree__section--active feature-tree__section--open' : '' }}" data-section-key="{{ section.key }}">
+              <div class="feature-tree__header">
+                <a
+                  href="{{ section.href|default('/demo/' ~ section.key) }}"
+                  class="feature-tree__overview-link{{ currentSection == section.key and (currentSlug|default('')) == '' ? ' feature-tree__overview-link--active' : '' }}"
+                  {% if sectionTooltip != '' %}title="{{ sectionTooltip|e('html_attr') }}" data-tooltip="{{ sectionTooltip|e('html_attr') }}"{% endif %}
+                >
+                  <span class="feature-tree__icon" aria-hidden="true">{{ section.icon }}</span>
+                  <span class="feature-tree__label">{{ sectionLabel }}</span>
+                </a>
+                <button
+                  class="feature-tree__toggle"
+                  type="button"
+                  aria-expanded="{{ currentSection == section.key ? 'true' : 'false' }}"
+                  aria-controls="tree-{{ layer.key }}-{{ section.key }}"
+                  aria-label="Toggle {{ sectionLabel }} section"
+                >
+                  <span class="feature-tree__toggle-glyph" aria-hidden="true">⌄</span>
+                </button>
+              </div>
+              <div
+                id="tree-{{ layer.key }}-{{ section.key }}"
+                class="feature-tree__section-body"
+                data-expanded="{{ currentSection == section.key ? 'true' : 'false' }}"
+              >
+                {% for group in sectionGroups %}
+                  <div class="feature-tree__group">
+                    <div class="feature-tree__group-header">
+                      <span class="feature-tree__group-label">{{ group.label }}</span>
+                    </div>
+                    <ul class="feature-tree__group-list">
+                      {% for feature in group.features|default([]) %}
+                        <li class="feature-tree__item{{ (currentSection == section.key and currentSlug == feature.slug) ? ' feature-tree__item--active' : '' }}">
+                          {% set opensInNewTab = feature.opensInNewTab|default(false) %}
+                          <a
+                            href="{{ feature.href|default('/demo/' ~ section.key ~ '/' ~ feature.slug) }}"
+                            class="feature-tree__link"
+                            data-feature-slug="{{ feature.slug }}"
+                            {% if opensInNewTab %}target="_blank" rel="noopener noreferrer"{% endif %}
+                            {% if opensInNewTab %}aria-label="{{ feature.title }} (opens in new tab)"{% endif %}
+                          >{{ feature.title }}{% if opensInNewTab %}<span class="demo-link-external-indicator" aria-hidden="true">↗</span>{% endif %}</a>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+    </section>
   {% endfor %}
 </nav>

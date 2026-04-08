@@ -12,7 +12,6 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Ssr\Http\Response\HtmlResponse;
 
 #[AsPayloadHandler(payload: ResourceDtoPayload::class, resource: DemoFeatureResource::class)]
 final class ResourceDtoHandler implements TypedHandlerInterface
@@ -51,37 +50,16 @@ final class ResourceDtoHandler implements TypedHandlerInterface
             ->withLearnMoreLabel('See the response boundary →')
             ->withDeepDiveLabel('How the resource pipeline works →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/resource-dto-showcase.html.twig', [
-                'painPoints' => [
-                    'When templates receive loose arrays, presentation rules leak into Twig and data preparation gets scattered.',
-                    'Different partials start reshaping the same data in different ways because there is no single canonical response object.',
-                    'The handler stops looking like application logic and starts becoming an ad hoc template assembler.',
+                'flow' => [
+                    ['step' => '1', 'title' => 'Handler receives a typed resource', 'detail' => 'The payload declares `responseWith`, so the handler gets a concrete Resource DTO instead of assembling loose arrays.'],
+                    ['step' => '2', 'title' => 'Handler fills named fields', 'detail' => 'Presentation data is pushed through explicit `with*()` methods before Twig sees anything.'],
+                    ['step' => '3', 'title' => 'Twig renders the finished contract', 'detail' => 'The template reads one stable response object instead of reformatting raw business data on its own.'],
                 ],
-                'signals' => [
-                    ['value' => '1', 'label' => 'canonical presentation object'],
-                    ['value' => '0', 'label' => 'template-side data surgery'],
-                    ['value' => '100%', 'label' => 'typed handoff to the view layer'],
-                ],
-                'compare' => [
-                    [
-                        'variant' => 'warning',
-                        'eyebrow' => 'Blurry Presentation Boundary',
-                        'title' => 'Arrays drift through handlers and templates',
-                        'summary' => 'Data arrives as loose arrays, templates reshape it again, and every partial carries hidden mapping rules.',
-                        'note' => 'The real response contract is nowhere explicit, so presentation logic spreads across the stack.',
-                    ],
-                    [
-                        'variant' => 'active',
-                        'eyebrow' => 'Single Source Of View Data',
-                        'title' => 'Resource DTO drives the page',
-                        'summary' => 'The handler populates one typed response object through explicit with*() methods, and Twig only renders what the resource already decided.',
-                        'note' => 'Data shaping happens once, in one place, with names the whole presentation layer can trust.',
-                    ],
-                ],
-                'columns' => [
-                    ['name' => 'productName', 'owner' => 'Resource DTO', 'note' => 'Normalized once for headings, badges, and links.'],
-                    ['name' => 'priceLabel', 'owner' => 'Resource DTO', 'note' => 'Formatting decision lives before Twig, not inside partials.'],
-                    ['name' => 'inventoryState', 'owner' => 'Resource DTO', 'note' => 'Template consumes one semantic field, not branching raw numbers.'],
-                    ['name' => 'heroActions', 'owner' => 'Resource DTO', 'note' => 'All CTA metadata is explicit and reusable across page regions.'],
+                'fields' => [
+                    ['name' => 'title', 'detail' => 'Page heading already shaped for the template.'],
+                    ['name' => 'summary', 'detail' => 'Intro copy prepared in the handler, not reconstructed in Twig.'],
+                    ['name' => 'highlights', 'detail' => 'Structured view data ready for repeated rendering blocks.'],
+                    ['name' => 'resultPreviewData', 'detail' => 'Nested preview state passed as one explicit resource field.'],
                 ],
             ])
             ->withL2ContentTemplate('@project-layouts-semitexa-demo/components/previews/resource-dto-rules.html.twig', [
@@ -98,12 +76,8 @@ final class ResourceDtoHandler implements TypedHandlerInterface
                 ],
             ])
             ->withSourceCode([
-                'Array Drift Example' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/ResourceDto/LegacyProductPageHandler.example.php'),
                 'Resource DTO' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/ResourceDto/ProductShowcaseResource.example.php'),
-                'Resource Handler' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/ResourceDto/ProductShowcaseHandler.example.php'),
-                'HtmlResponse' => $this->sourceCodeReader->readClassSource(HtmlResponse::class),
-                'DemoFeatureResource' => $this->sourceCodeReader->readClassSource(DemoFeatureResource::class),
-                'Feature Handler' => $this->sourceCodeReader->readClassSource(self::class),
+                'Handler -> Resource DTO' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/ResourceDto/ProductShowcaseHandler.example.php'),
             ])
             ->withExplanation($explanation);
     }

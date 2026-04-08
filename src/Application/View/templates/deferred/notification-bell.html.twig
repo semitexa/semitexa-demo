@@ -1,12 +1,21 @@
 <div class="deferred-block deferred-block--notification" data-block="notification-bell">
+    <div class="deferred-block__header">
+        <div>
+            <p class="deferred-block__eyebrow">Template delivery</p>
+            <h3 class="deferred-block__title">Notification feed</h3>
+        </div>
+        <span class="deferred-block__badge">SSE template payload</span>
+    </div>
+    <p class="deferred-block__summary">This card arrives as <code>mode: template</code>, then keeps appending real backend heartbeat events from the shared kiss stream without opening a second connection.</p>
     <div class="notification-bell" data-notification-bell>
         <span class="notification-bell__icon">🔔</span>
         {% if count > 0 %}
         <span class="notification-bell__badge" data-notification-count>{{ count }}</span>
         {% endif %}
     </div>
+    <p class="deferred-block__summary" data-notification-summary>Waiting for the next backend heartbeat event.</p>
     {% if notifications|length > 0 %}
-    <ul class="notification-list">
+    <ul class="notification-list" data-notification-list>
         {% for notification in notifications %}
         <li class="notification-list__item notification-list__item--{{ notification.level|default('info') }}">
             {{ notification.message }}

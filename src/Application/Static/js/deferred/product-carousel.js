@@ -6,12 +6,18 @@
     'use strict';
 
     function initCarousel(block) {
+        if (block.dataset.carouselInitialized === '1') {
+            return;
+        }
+
         var items  = block.querySelectorAll('.carousel__item');
         var prev   = block.querySelector('[data-carousel-prev]');
         var next   = block.querySelector('[data-carousel-next]');
         if (!items.length) return;
 
         var current = 0;
+
+        block.dataset.carouselInitialized = '1';
 
         function show(index) {
             items.forEach(function (item, i) {
@@ -30,7 +36,7 @@
         });
 
         // Auto-advance every 4 seconds
-        setInterval(function () {
+        window.setInterval(function () {
             show((current + 1) % items.length);
         }, 4000);
     }
