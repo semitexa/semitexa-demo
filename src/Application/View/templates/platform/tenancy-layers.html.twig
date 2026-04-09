@@ -1,43 +1,68 @@
 {% extends '@project-layouts-semitexa-demo/layouts/demo-feature.html.twig' %}
 
 {% block feature_title %}Multi-Layer Tenancy{% endblock %}
-{% block feature_summary %}Four independent layers compose into one TenantContext — configure each independently.{% endblock %}
+{% block feature_summary %}Four independent layers compose into one TenantContext, so tenant identity, locale, theme, and environment stay explicit instead of collapsing into one switch.{% endblock %}
 
 {% block feature_l1 %}
-<div class="feature-l1">
-    <p class="feature-entry">Organization → Locale → Theme → Environment. Each layer has its own strategy. One <code>TenantContext</code>.</p>
-
-    <div class="layer-diagram">
-        {% for layer in layers %}
-            <div class="layer-node layer-node--{{ loop.index }}">
-                <div class="layer-node__order">{{ layer.order }}</div>
-                <div class="layer-node__name">{{ layer.name }}</div>
-                <div class="layer-node__desc">{{ layer.description }}</div>
-                <div class="layer-node__resolves"><code>{{ layer.resolves }}</code></div>
-                <div class="layer-node__strategy">via <code>{{ layer.strategy }}</code></div>
-            </div>
-            {% if not loop.last %}<div class="layer-arrow">↓</div>{% endif %}
-        {% endfor %}
-        <div class="layer-result">
-            <span class="badge badge--success">TenantContext { org, locale, theme, env }</span>
-        </div>
+<div class="feature-l1 tenancy-layers-page">
+    <div class="tenancy-layers-page__intro">
+        <p class="feature-entry tenancy-layers-page__lead">Organization → Locale → Theme → Environment. Each layer answers a different product question, and together they form one explicit <code>TenantContext</code>.</p>
+        <p class="tenancy-layers-page__copy">This page is not about stacking abstractions for their own sake. It shows how tenancy stops being mysterious when each decision is isolated, named, and resolved once.</p>
     </div>
 
-    <h3 style="margin-top: 2rem">Organization × Theme Matrix</h3>
-    <table class="data-table">
-        <thead><tr><th>Tenant</th><th>Organization</th><th>Theme</th><th>Locale</th><th>Color</th></tr></thead>
-        <tbody>
-            {% for row in matrix %}
-                <tr>
-                    <td><strong>{{ row.displayName }}</strong></td>
-                    <td><code>{{ row.organization }}</code></td>
-                    <td><code>{{ row.theme }}</code></td>
-                    <td><code>{{ row.locale }}</code></td>
-                    <td><span class="color-swatch" style="background: {{ row.color }}; width: 1rem; height: 1rem; display: inline-block; border-radius: 50%; vertical-align: middle"></span> <code>{{ row.color }}</code></td>
-                </tr>
+    <div class="tenancy-layers-page__highlights">
+        {% for item in layerHighlights %}
+            <article class="tenancy-layers-page__highlight">
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.detail }}</p>
+            </article>
+        {% endfor %}
+    </div>
+
+    <div class="layer-diagram tenancy-layers-page__diagram">
+        {% for layer in layers %}
+            <article class="layer-node tenancy-layers-page__layer-card layer-node--{{ loop.index }}">
+                <div class="tenancy-layers-page__layer-index">Layer {{ layer.order }}</div>
+                <div class="tenancy-layers-page__layer-main">
+                    <h3 class="layer-node__name">{{ layer.name }}</h3>
+                    <p class="layer-node__desc">{{ layer.description }}</p>
+                </div>
+                <div class="tenancy-layers-page__layer-meta">
+                    <div class="layer-node__resolves"><span>Resolves</span><code>{{ layer.resolves }}</code></div>
+                    <div class="layer-node__strategy"><span>Strategy</span><code>{{ layer.strategy }}</code></div>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+
+    <aside class="layer-result tenancy-layers-page__result">
+        <div class="tenancy-layers-page__eyebrow">{{ layerOutcome.title }}</div>
+        <div class="tenancy-layers-page__result-badge">TenantContext { org, locale, theme, env }</div>
+        <ul class="tenancy-layers-page__result-list">
+            {% for item in layerOutcome.items %}
+                <li>{{ item }}</li>
             {% endfor %}
-        </tbody>
-    </table>
+        </ul>
+    </aside>
+
+    <div class="tenancy-layers-page__matrix">
+        <h3>Organization × Theme Matrix</h3>
+        <p>Once the layers are composed, each tenant gets a consistent final surface without rebuilding the rules in handlers or templates.</p>
+        <table class="data-table demo-table-mobile">
+            <thead><tr><th>Tenant</th><th>Organization</th><th>Theme</th><th>Locale</th><th>Color</th></tr></thead>
+            <tbody>
+                {% for row in matrix %}
+                    <tr>
+                        <td data-label="Tenant"><strong>{{ row.displayName }}</strong></td>
+                        <td data-label="Organization"><code>{{ row.organization }}</code></td>
+                        <td data-label="Theme"><code>{{ row.theme }}</code></td>
+                        <td data-label="Locale"><code>{{ row.locale }}</code></td>
+                        <td data-label="Color"><span class="color-swatch tenancy-layers-page__swatch" style="background: {{ row.color }}"></span> <code>{{ row.color }}</code></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}
 
@@ -50,7 +75,14 @@
     new LayerDefinition(new ThemeLayer(),        new ThemeStrategy()),
     new LayerDefinition(new EnvironmentLayer(),  new EnvironmentStrategy()),
 ]);</pre></div>
-    <p>Each layer is configured once. You can swap any strategy without touching the others.</p>
+    <div class="tenancy-layers-page__principles">
+        {% for item in resolverPrinciples %}
+            <article class="tenancy-layers-page__principle">
+                <h4>{{ item.title }}</h4>
+                <p>{{ item.detail }}</p>
+            </article>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
 
@@ -58,6 +90,6 @@
 <div class="feature-l3">
     <h3>MultilayerTenantResolver internals</h3>
     <p>Each <code>LayerDefinition</code> pairs a <em>layer type</em> with a <em>resolver strategy</em>. The resolver runs all strategies, builds each layer independently, then merges them into a single immutable <code>TenantContext</code>.</p>
-    <p>Layers are resolved in order but are logically independent — <code>ThemeLayer</code> resolution never depends on <code>LocaleLayer</code> output.</p>
+    <p>The important architectural habit is this: downstream code reads the composed context, not the mechanics of how each layer was produced. Layers are resolved in order, but remain conceptually independent.</p>
 </div>
 {% endblock %}

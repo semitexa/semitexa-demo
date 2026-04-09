@@ -19,4 +19,7 @@ class DemoTenantConfigResource extends HtmlResponse implements ResourceInterface
 
     public function withTenantConfigs(array $configs): static { return $this->with('tenantConfigs', $configs); }
     public function withActiveTenant(string $tenant): static { return $this->with('activeTenant', $tenant); }
+    public function withActiveTenantConfig(array $config): static { return $this->with('activeTenantConfig', $config); }
+    public function withComparisonRows(array $rows): static { return $this->with('comparisonRows', $rows); }
+    public function withResolutionSteps(array $steps): static { return $this->with('resolutionSteps', $steps); }
 }

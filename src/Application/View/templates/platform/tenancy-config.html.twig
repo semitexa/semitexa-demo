@@ -1,44 +1,131 @@
 {% extends '@project-layouts-semitexa-demo/layouts/demo-feature.html.twig' %}
 
 {% block feature_title %}Per-Tenant Configuration{% endblock %}
-{% block feature_summary %}Three demo tenants with distinct branding — switch tenant, everything changes without if/else.{% endblock %}
+{% block feature_summary %}One resolved tenant config reshapes branding, locale, commerce defaults, and feature flags across the same product surface.{% endblock %}
 
 {% block feature_l1 %}
-<div class="feature-l1">
-    <p class="feature-entry">Acme (blue, serif) · Globex (green, modern) · Initech (orange, minimal). No if/else in templates.</p>
+<div class="feature-l1 tenancy-config-page">
+    <div class="tenancy-config-page__hero">
+        <div class="tenancy-config-page__intro">
+            <p class="feature-entry tenancy-config-page__lead">This page is about product-shaping tenancy, not database partitioning. One tenant decision changes what the product feels like to the user.</p>
+            <p class="tenancy-config-page__copy">Switch between tenants and compare what really moves: branding, locale defaults, pricing conventions, rating behavior, and capability flags. The same handler and template tree stay intact.</p>
+        </div>
+    </div>
 
-    <div class="brand-cards">
+    <div class="brand-cards tenancy-config-page__cards">
         {% for config in tenantConfigs %}
-            {{ component('demo-tenant-brand-preview', {
-                tenantId: config.tenantId,
-                displayName: config.displayName,
-                primaryColor: config.primaryColor,
-                fontFamily: config.fontFamily,
-                currencyCode: config.currencyCode,
-                ratingStyle: config.ratingStyle,
-                featureFlags: config.featureFlags,
-                supportedLocales: config.supportedLocales,
-            }) }}
+            <a
+                href="{{ config.href }}"
+                class="tenancy-config-page__card-link{{ config.isActive ? ' tenancy-config-page__card-link--active' : '' }}"
+                aria-current="{{ config.isActive ? 'page' : 'false' }}"
+            >
+                <div class="tenancy-config-page__card-shell" style="--tenant-accent: {{ config.primaryColor }};">
+                    {{ component('demo-tenant-brand-preview', {
+                        tenantId: config.tenantId,
+                        displayName: config.displayName,
+                        primaryColor: config.primaryColor,
+                        fontFamily: config.fontFamily,
+                        currencyCode: config.currencyCode,
+                        ratingStyle: config.ratingStyle,
+                        featureFlags: config.featureFlags,
+                        supportedLocales: config.supportedLocales,
+                    }) }}
+
+                    <div class="tenancy-config-page__card-note">
+                        <strong>{{ config.displayName }}</strong>
+                        <span>{{ config.narrative }}</span>
+                    </div>
+                </div>
+            </a>
         {% endfor %}
     </div>
+
+    {% if activeTenantConfig %}
+        <aside class="tenancy-config-page__active-panel" style="--tenant-accent: {{ activeTenantConfig.primaryColor }};">
+            <div class="tenancy-config-page__eyebrow">Active tenant</div>
+            <h3 class="tenancy-config-page__active-title">{{ activeTenantConfig.displayName }} <code>{{ activeTenantConfig.tenantId }}</code></h3>
+            <p class="tenancy-config-page__active-copy">{{ activeTenantConfig.narrative }}</p>
+
+            <dl class="tenancy-config-page__snapshot">
+                <div>
+                    <dt>Theme</dt>
+                    <dd><code>{{ activeTenantConfig.primaryColor }}</code> · {{ activeTenantConfig.fontFamily }}</dd>
+                </div>
+                <div>
+                    <dt>Commerce</dt>
+                    <dd>{{ activeTenantConfig.currencyCode }} · {{ activeTenantConfig.defaultLocale }} default · {{ activeTenantConfig.supportedLocales|join(', ') }}</dd>
+                </div>
+                <div>
+                    <dt>Ratings</dt>
+                    <dd>{{ activeTenantConfig.ratingStyle }}</dd>
+                </div>
+                <div>
+                    <dt>Flags</dt>
+                    <dd>
+                        reviews {{ activeTenantConfig.featureFlags.reviews_enabled ? 'on' : 'off' }},
+                        wishlist {{ activeTenantConfig.featureFlags.wishlist_enabled ? 'on' : 'off' }},
+                        AI chat {{ activeTenantConfig.featureFlags.ai_chat_enabled ? 'on' : 'off' }}
+                    </dd>
+                </div>
+            </dl>
+
+            <p class="tenancy-config-page__outcomes-label">What changes right now</p>
+            <ul class="tenancy-config-page__outcomes">
+                {% for outcome in activeTenantConfig.visibleOutcomes %}
+                    <li>{{ outcome }}</li>
+                {% endfor %}
+            </ul>
+        </aside>
+    {% endif %}
 </div>
 {% endblock %}
 
 {% block feature_l2 %}
 <div class="feature-l2">
-    <h3>Live switching</h3>
-    <p>Click any brand card above to activate that tenant. The config flows through DI — no controller changes needed.</p>
+    <h3>What this page is actually demonstrating</h3>
+    <p>The point is not that a color changed. The point is that one resolved tenant config can drive multiple product decisions consistently: theme, locale, currency, rating presentation, and feature flags.</p>
+
+    <table class="data-table demo-table-mobile">
+        <thead>
+            <tr>
+                <th>Aspect</th>
+                <th>Why it matters</th>
+                <th>Acme</th>
+                <th>Globex</th>
+                <th>Initech</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in comparisonRows %}
+                <tr>
+                    <td data-label="Aspect"><strong>{{ row.label }}</strong></td>
+                    <td data-label="Why it matters">{{ row.explanation }}</td>
+                    <td data-label="Acme">{{ row.values.acme }}</td>
+                    <td data-label="Globex">{{ row.values.globex }}</td>
+                    <td data-label="Initech">{{ row.values.initech }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
     <div class="code-block"><pre>// In a handler or template:
 $theme = TenantContext::getLayer(ThemeLayer::class);
 $color = $theme->primaryColor;   // '#1e40af' for acme
 $font  = $theme->fontFamily;     // 'Georgia, serif' for acme</pre></div>
+    <p>That is the real design goal: application code asks for the active layer, not for a tenant ID. Tenant selection happens once at the boundary; downstream code consumes capabilities.</p>
 </div>
 {% endblock %}
 
 {% block feature_l3 %}
 <div class="feature-l3">
-    <h3>TenantContext layer resolution</h3>
-    <p>The <code>TenantContext</code> is a layered value object. Each layer (<code>ThemeLayer</code>, <code>LocaleLayer</code>, <code>EnvironmentLayer</code>) is resolved independently via its own strategy and composed into the final context.</p>
-    <p>Templates and handlers call <code>TenantContext::getLayer(ClassName::class)</code> — no if/else, no switch, no tenant ID comparisons.</p>
+    <h3>How the resolution flow works</h3>
+    <p>Think about this page as a three-step pipeline rather than a styling demo:</p>
+    <ol>
+        {% for step in resolutionSteps %}
+            <li><strong>{{ step.title }}.</strong> {{ step.detail }}</li>
+        {% endfor %}
+    </ol>
+
+    <p>If you had to write <code>if ($tenantId === 'globex')</code> inside a template, the architecture would already be losing. The demo should teach the opposite habit: resolve tenant context once, then let the rest of the stack read structured configuration.</p>
 </div>
 {% endblock %}

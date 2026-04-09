@@ -19,8 +19,12 @@ class DemoTenantIsolationResource extends HtmlResponse implements ResourceInterf
 
     public function withDataUnavailable(bool $state): static { return $this->with('dataUnavailable', $state); }
     public function withActiveTenant(string $tenant): static { return $this->with('activeTenant', $tenant); }
+    public function withActiveTenantSummary(array $summary): static { return $this->with('activeTenantSummary', $summary); }
     public function withProducts(array $products): static { return $this->with('products', $products); }
     public function withProductCount(int $count): static { return $this->with('productCount', $count); }
     public function withIllustrationSql(string $sql): static { return $this->with('illustrationSql', $sql); }
     public function withAllTenantCounts(array $counts): static { return $this->with('allTenantCounts', $counts); }
+    public function withTenantTabs(array $tabs): static { return $this->with('tenantTabs', $tabs); }
+    public function withIsolationHighlights(array $highlights): static { return $this->with('isolationHighlights', $highlights); }
+    public function withIsolationStrategies(array $strategies): static { return $this->with('isolationStrategies', $strategies); }
 }

@@ -7,6 +7,7 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Platform;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Core\Log\LoggerInterface;
 use Semitexa\Demo\Application\Payload\Request\Platform\TenantDataIsolationPayload;
 use Semitexa\Demo\Application\Resource\Platform\DemoTenantIsolationResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
@@ -30,8 +31,12 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
+    #[InjectAsReadonly]
+    protected LoggerInterface $logger;
+
     public function handle(TenantDataIsolationPayload $payload, DemoTenantIsolationResource $resource): DemoTenantIsolationResource
     {
+        $configs = $this->tenantConfigProvider->getAllConfigs();
         $tenantIds = $this->tenantConfigProvider->getTenantIds();
         $activeTenant = in_array($payload->getTenant(), $tenantIds, true)
             ? $payload->getTenant()
@@ -51,12 +56,12 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
                 $allCounts[$tenantId] = $this->tenantDataSeeder->getProductCount($tenantId);
             }
         } catch (Throwable $exception) {
-            error_log((string) json_encode([
-                'demo_tenant_isolation' => 'data_unavailable',
+            $this->logger->warning('Demo tenant isolation data unavailable', [
                 'active_tenant' => $activeTenant,
                 'tenant_ids' => $tenantIds,
-                'error' => $exception->getMessage(),
-            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+                'exception' => $exception::class,
+                'message' => $exception->getMessage(),
+            ]);
 
             $dataUnavailable = true;
 
@@ -64,6 +69,70 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
                 $allCounts[$tenantId] = 0;
             }
         }
+
+        $tenantConfigMap = [];
+        foreach ($configs as $config) {
+            $tenantConfigMap[$config->tenantId] = $config;
+        }
+
+        $tenantTabs = [];
+        foreach ($tenantIds as $tenantId) {
+            $config = $tenantConfigMap[$tenantId] ?? null;
+            $tenantTabs[] = [
+                'tenantId' => $tenantId,
+                'displayName' => $config?->displayName ?? strtoupper($tenantId),
+                'count' => $allCounts[$tenantId] ?? 0,
+                'href' => '?tenant=' . $tenantId,
+                'isActive' => $tenantId === $activeTenant,
+                'color' => $config?->primaryColor ?? '#6b7280',
+            ];
+        }
+
+        $activeConfig = $tenantConfigMap[$activeTenant] ?? null;
+        $activeTenantSummary = [
+            'tenantId' => $activeTenant,
+            'displayName' => $activeConfig?->displayName ?? strtoupper($activeTenant),
+            'color' => $activeConfig?->primaryColor ?? '#6b7280',
+            'defaultLocale' => $activeConfig?->defaultLocale ?? 'en',
+            'currencyCode' => $activeConfig?->currencyCode ?? 'USD',
+            'count' => $count,
+            'narrative' => match ($activeTenant) {
+                'acme' => 'Acme should only see its own catalog rows even though the repository call stays the same.',
+                'globex' => 'Globex resolves a different tenant context and the dataset shifts without reopening query code.',
+                'initech' => 'Initech proves the same repository contract can safely return a smaller tenant-specific slice.',
+                default => 'The active tenant changes the dataset automatically at the persistence boundary.',
+            },
+        ];
+
+        $isolationHighlights = [
+            [
+                'title' => 'Switch tenant, keep the same query',
+                'detail' => 'The repository method does not change when the tenant changes. Only the active context changes.',
+            ],
+            [
+                'title' => 'Filtering belongs to the platform layer',
+                'detail' => 'The tenant WHERE clause is injected by the framework, so business queries are not polluted with isolation boilerplate.',
+            ],
+            [
+                'title' => 'The result should feel obviously different',
+                'detail' => 'A convincing demo must show that each tenant sees a distinct slice of data, not just a hidden architecture rule.',
+            ],
+        ];
+
+        $isolationStrategies = [
+            [
+                'name' => 'same_storage',
+                'summary' => 'Shared table, automatic WHERE tenant_id = ?',
+            ],
+            [
+                'name' => 'connection_switch',
+                'summary' => 'Separate database per tenant, connection swapped on context change',
+            ],
+            [
+                'name' => 'separate_schema',
+                'summary' => 'Separate schema per tenant, search-path switching',
+            ],
+        ];
 
         return $resource
             ->pageTitle('Data Isolation — Semitexa Demo')
@@ -78,6 +147,7 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
             )
             ->withDataUnavailable($dataUnavailable)
             ->withActiveTenant($activeTenant)
+            ->withActiveTenantSummary($activeTenantSummary)
             ->withProducts(array_map(fn ($p) => [
                 'name'   => $p->name ?? '—',
                 'price'  => $p->price ?? '0.00',
@@ -85,6 +155,9 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
             ], $products))
             ->withProductCount($count)
             ->withIllustrationSql($sql)
-            ->withAllTenantCounts($allCounts);
+            ->withAllTenantCounts($allCounts)
+            ->withTenantTabs($tenantTabs)
+            ->withIsolationHighlights($isolationHighlights)
+            ->withIsolationStrategies($isolationStrategies);
     }
 }
