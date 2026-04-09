@@ -117,6 +117,10 @@ class GoogleOAuthClient
             return $default;
         }
 
+        if ($returnTo === '/demo' || $returnTo === '/demo/') {
+            return '/';
+        }
+
         return $returnTo;
     }
 
