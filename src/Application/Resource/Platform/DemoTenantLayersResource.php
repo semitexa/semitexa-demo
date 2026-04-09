@@ -19,4 +19,7 @@ class DemoTenantLayersResource extends HtmlResponse implements ResourceInterface
 
     public function withLayers(array $layers): static { return $this->with('layers', $layers); }
     public function withMatrix(array $matrix): static { return $this->with('matrix', $matrix); }
+    public function withLayerHighlights(array $highlights): static { return $this->with('layerHighlights', $highlights); }
+    public function withResolverPrinciples(array $principles): static { return $this->with('resolverPrinciples', $principles); }
+    public function withLayerOutcome(array $outcome): static { return $this->with('layerOutcome', $outcome); }
 }

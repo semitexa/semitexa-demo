@@ -32,6 +32,7 @@
     {{ semantic_head() }}
     {{ asset_head() }}
     {{ __ssr_preload_hints|default('')|raw }}
+    {{ inject_scripts('head') }}
     {% block head_extra %}{{ layout_slot('head_extra') }}{% endblock %}
   </head>
   <body class="demo-layout" {{ __ssr_handle_attr|default('')|raw }}>
@@ -95,5 +96,6 @@
     {{ __ssr_deferred_manifest|default('')|raw }}
     {{ __ssr_runtime_script|default('')|raw }}
     {{ asset_body() }}
+    {{ inject_scripts('body') }}
   </body>
 </html>

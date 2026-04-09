@@ -1,34 +1,59 @@
 {% extends '@project-layouts-semitexa-demo/layouts/demo-feature.html.twig' %}
 
 {% block feature_title %}Data Isolation{% endblock %}
-{% block feature_summary %}Product listing scoped by tenant — switch tenant, list changes instantly.{% endblock %}
+{% block feature_summary %}The same repository call returns a different dataset when tenant context changes, without hand-written WHERE clauses in business code.{% endblock %}
 
 {% block feature_l1 %}
-<div class="feature-l1">
-    <p class="feature-entry">Switch tenant — the product list changes instantly. Zero manual WHERE clauses.</p>
+<div class="feature-l1 tenancy-isolation-page">
+    <div class="tenancy-isolation-page__intro">
+        <p class="feature-entry tenancy-isolation-page__lead">Switch tenant and the result set changes instantly. The point is not the table itself, but the fact that isolation happens below your business query.</p>
+        <p class="tenancy-isolation-page__copy">This page demonstrates tenant-scoped persistence as a platform guarantee. Repositories ask for products; the framework decides which tenant slice is allowed to come back.</p>
+    </div>
 
-    <div class="tenant-switcher-row">
-        {% for tenantId, count in allTenantCounts %}
-            <a href="?tenant={{ tenantId }}"
-               class="tenant-tab{% if tenantId == activeTenant %} tenant-tab--active{% endif %}">
-                {{ tenantId }} ({{ count }})
+    <div class="tenancy-isolation-page__highlights">
+        {% for item in isolationHighlights %}
+            <article class="tenancy-isolation-page__highlight">
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.detail }}</p>
+            </article>
+        {% endfor %}
+    </div>
+
+    <div class="tenant-switcher-row tenancy-isolation-page__tabs">
+        {% for tab in tenantTabs %}
+            <a href="{{ tab.href }}"
+               class="tenant-tab tenancy-isolation-page__tab{% if tab.isActive %} tenant-tab--active tenancy-isolation-page__tab--active{% endif %}"
+               style="--tenant-accent: {{ tab.color }}">
+                <strong>{{ tab.displayName }}</strong>
+                <span><code>{{ tab.tenantId }}</code> · {{ tab.count }} rows</span>
             </a>
         {% endfor %}
     </div>
 
-    <div class="isolation-result" style="margin-top: 1rem">
+    <div class="isolation-result tenancy-isolation-page__result">
         {% if dataUnavailable|default(false) %}
             <p class="muted">Tenant-scoped demo data is not available yet. Run <code>bin/semitexa semitexa:demo:seed</code> after syncing the demo schema.</p>
         {% elseif products is not empty %}
-            <p><strong>{{ productCount }} products</strong> for tenant <code>{{ activeTenant }}</code></p>
-            <table class="data-table">
+            <div class="tenancy-isolation-page__result-header" style="--tenant-accent: {{ activeTenantSummary.color }}">
+                <div>
+                    <div class="tenancy-isolation-page__eyebrow">Active tenant slice</div>
+                    <h3>{{ activeTenantSummary.displayName }} <code>{{ activeTenantSummary.tenantId }}</code></h3>
+                    <p>{{ activeTenantSummary.narrative }}</p>
+                </div>
+                <dl class="tenancy-isolation-page__result-stats">
+                    <div><dt>Rows</dt><dd>{{ activeTenantSummary.count }}</dd></div>
+                    <div><dt>Locale</dt><dd>{{ activeTenantSummary.defaultLocale }}</dd></div>
+                    <div><dt>Currency</dt><dd>{{ activeTenantSummary.currencyCode }}</dd></div>
+                </dl>
+            </div>
+            <table class="data-table demo-table-mobile">
                 <thead><tr><th>Product</th><th>Price</th><th>Status</th></tr></thead>
                 <tbody>
                     {% for product in products %}
                         <tr>
-                            <td>{{ product.name }}</td>
-                            <td>{{ product.price }}</td>
-                            <td><span class="badge badge--neutral">{{ product.status }}</span></td>
+                            <td data-label="Product">{{ product.name }}</td>
+                            <td data-label="Price">{{ product.price }}</td>
+                            <td data-label="Status"><span class="badge badge--neutral">{{ product.status }}</span></td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -44,7 +69,7 @@
 {% block feature_l2 %}
 <div class="feature-l2">
     <h3>ORM automatic WHERE injection</h3>
-    <p>Add <code>#[TenantScoped(strategy: 'same_storage')]</code> to any model — every SELECT, INSERT, and UPDATE is automatically scoped.</p>
+    <p>Add <code>#[TenantScoped(strategy: 'same_storage')]</code> to any model and the framework enforces tenant scoping automatically across reads and writes.</p>
     <div class="code-block"><pre>{{ illustrationSql }}</pre></div>
     <div class="code-block"><pre>#[FromTable(name: 'demo_products')]
 #[TenantScoped(strategy: 'same_storage')]
@@ -58,11 +83,14 @@ final class DemoProductResource
 {% block feature_l3 %}
 <div class="feature-l3">
     <h3>Three isolation strategies</h3>
-    <ul>
-        <li><strong>same_storage</strong> — shared table, automatic <code>WHERE tenant_id = ?</code></li>
-        <li><strong>connection_switch</strong> — separate database per tenant, connection swapped on context change</li>
-        <li><strong>separate_schema</strong> — separate schema per tenant, search-path switching</li>
-    </ul>
-    <p>The strategy is per-model — mix strategies in the same app.</p>
+    <div class="tenancy-isolation-page__strategies">
+        {% for strategy in isolationStrategies %}
+            <article class="tenancy-isolation-page__strategy">
+                <h4><code>{{ strategy.name }}</code></h4>
+                <p>{{ strategy.summary }}</p>
+            </article>
+        {% endfor %}
+    </div>
+    <p>The strategy is per-model, so the same app can mix lightweight shared-table isolation with stricter tenant storage boundaries where needed.</p>
 </div>
 {% endblock %}

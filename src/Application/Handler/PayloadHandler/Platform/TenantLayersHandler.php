@@ -73,6 +73,46 @@ final class TenantLayersHandler implements TypedHandlerInterface
             ];
         }
 
+        $layerHighlights = [
+            [
+                'title' => 'Resolve organization first',
+                'detail' => 'The runtime must decide whose request this is before any other tenant-aware behavior makes sense.',
+            ],
+            [
+                'title' => 'Derive locale and theme independently',
+                'detail' => 'Language and branding are separate concerns. One can change without forcing the other to be hard-wired.',
+            ],
+            [
+                'title' => 'Keep environment as a layer, not a hidden global',
+                'detail' => 'Production, staging, or preview behavior should be explicit in the tenant context instead of leaking through conditionals.',
+            ],
+        ];
+
+        $resolverPrinciples = [
+            [
+                'title' => 'Each layer owns one question',
+                'detail' => 'Organization answers who the request belongs to. Locale answers how the product speaks. Theme answers how it looks. Environment answers where it runs.',
+            ],
+            [
+                'title' => 'Strategies stay swappable',
+                'detail' => 'You can change how locale resolves without reopening organization or theme logic, because each strategy is isolated.',
+            ],
+            [
+                'title' => 'Consumers read one composed context',
+                'detail' => 'Templates and handlers should consume the final TenantContext, not reconstruct layer decisions themselves.',
+            ],
+        ];
+
+        $layerOutcome = [
+            'title' => 'What the composed context gives you',
+            'items' => [
+                'A stable tenant identifier for isolation and ownership checks.',
+                'Locale defaults that shape copy, formatting, and translation lookups.',
+                'Theme decisions that control colors, fonts, and product feel.',
+                'Environment metadata that can influence integrations and deployment behavior.',
+            ],
+        ];
+
         return $resource
             ->pageTitle('Multi-Layer Tenancy — Semitexa Demo')
             ->withNavSections($this->catalog->getSections())
@@ -85,6 +125,9 @@ final class TenantLayersHandler implements TypedHandlerInterface
                 'Showing the layers separately makes the platform model understandable instead of mystical.',
             )
             ->withLayers(self::LAYERS)
-            ->withMatrix($matrix);
+            ->withMatrix($matrix)
+            ->withLayerHighlights($layerHighlights)
+            ->withResolverPrinciples($resolverPrinciples)
+            ->withLayerOutcome($layerOutcome);
     }
 }
