@@ -22,7 +22,7 @@ use Semitexa\Demo\Attributes\DemoFeature;
     slug: 'queued',
     summary: 'Events survive restarts and scale across workers — backed by a durable message queue.',
     order: 3,
-    highlights: ['EventExecution::Queued', 'queue transport', 'RabbitMQ', 'retry', 'DLQ'],
+    highlights: ['EventExecution::Queued', 'queue transport', 'NATS', 'retry', 'DLQ'],
     entryLine: 'Events survive restarts and scale across workers — backed by a durable message queue.',
     learnMoreLabel: 'See the queue configuration →',
     deepDiveLabel: 'Queue driver internals →',

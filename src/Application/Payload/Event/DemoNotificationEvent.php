@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Payload\Event;
 
 use Semitexa\Core\Attribute\AsEvent;
+use Semitexa\Ledger\Attribute\Propagated;
 
 #[AsEvent]
+#[Propagated(domain: 'demo')]
 final class DemoNotificationEvent
 {
     private string $message = '';

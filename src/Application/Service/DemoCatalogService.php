@@ -29,6 +29,7 @@ final class DemoCatalogService
                 ['section' => 'get-started', 'slug' => 'base-tenant'],
                 ['section' => 'get-started', 'slug' => 'locale-setup'],
                 ['section' => 'get-started', 'slug' => 'ai-console'],
+                ['section' => 'project-graph', 'slug' => 'overview'],
                 ['section' => 'routing', 'slug' => 'basic'],
                 ['section' => 'di', 'slug' => 'overview'],
             ],
@@ -40,7 +41,7 @@ final class DemoCatalogService
             'summary' => 'A conceptual map of the framework, grouped by the order a builder or evaluator naturally needs it.',
             'type' => 'section-groups',
             'href' => '/#core-concepts',
-            'sectionKeys' => ['get-started', 'routing', 'di', 'data', 'auth', 'events', 'rendering', 'platform', 'api', 'cli', 'llm', 'testing'],
+            'sectionKeys' => ['get-started', 'routing', 'di', 'data', 'auth', 'events', 'rendering', 'platform', 'api', 'cli', 'project-graph', 'llm', 'testing'],
         ],
         [
             'key' => 'full-catalog',
@@ -49,7 +50,7 @@ final class DemoCatalogService
             'summary' => 'The exhaustive live map, still route-first, still real, and still one click away from every feature route.',
             'type' => 'section-groups',
             'href' => '/#full-catalog',
-            'sectionKeys' => ['get-started', 'routing', 'di', 'data', 'auth', 'events', 'rendering', 'platform', 'api', 'cli', 'llm', 'testing'],
+            'sectionKeys' => ['get-started', 'routing', 'di', 'data', 'auth', 'events', 'rendering', 'platform', 'api', 'cli', 'project-graph', 'llm', 'testing'],
         ],
     ];
 
@@ -179,6 +180,23 @@ final class DemoCatalogService
                 'slugs' => ['scaffolding-generators', 'workers-scheduling', 'ai-tooling', 'orm-console'],
             ],
         ],
+        'project-graph' => [
+            [
+                'key' => 'launch',
+                'label' => 'Start Here',
+                'slugs' => ['overview'],
+            ],
+            [
+                'key' => 'exploration',
+                'label' => 'Explore & Inspect',
+                'slugs' => ['inspection'],
+            ],
+            [
+                'key' => 'change-safety',
+                'label' => 'Impact & Context',
+                'slugs' => ['impact'],
+            ],
+        ],
         'llm' => [
             [
                 'key' => 'assistant-basics',
@@ -300,6 +318,15 @@ final class DemoCatalogService
             'icon' => 'AI',
             'eyebrow' => 'semitexa/llm',
             'starter' => false,
+            'prerequisites' => ['cli'],
+        ],
+        'project-graph' => [
+            'key' => 'project-graph',
+            'label' => 'Project Graph',
+            'summary' => 'A live structural map of the codebase for AI agents and engineers: generate the graph once, inspect dependencies fast, and ask impact questions before risky edits.',
+            'icon' => 'PG',
+            'eyebrow' => 'AI Accelerator',
+            'starter' => true,
             'prerequisites' => ['cli'],
         ],
         'testing' => [

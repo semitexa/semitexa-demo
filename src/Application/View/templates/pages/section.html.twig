@@ -159,11 +159,51 @@
       </section>
     {% endif %}
 
+    {% if section|default('') == 'project-graph' %}
+      <section class="demo-section-page__manifesto">
+        <div class="preview-card preview-card--layered">
+          <div class="rendering-manifesto__intro">
+            <p class="demo-block-heading__eyebrow">Marketing Feature</p>
+            <h2 class="preview-card__title">A real codebase map beats grep-driven guesswork</h2>
+            <p class="preview-card__summary">`semitexa-project-graph` is not decorative metadata. It builds a live structural graph that makes Semitexa easier to learn, safer to change, and much more usable for AI-assisted work. Instead of forcing engineers or agents to rediscover modules and dependencies from scratch on every task, the framework can answer those questions directly.</p>
+          </div>
+          <div class="preview-stats">
+            <article class="preview-stats__item">
+              <strong class="preview-stats__value">1</strong>
+              <span class="preview-stats__label">incremental graph refresh before deep edits</span>
+            </article>
+            <article class="preview-stats__item">
+              <strong class="preview-stats__value">Fast</strong>
+              <span class="preview-stats__label">dependency lookup, capability discovery, and focused impact checks</span>
+            </article>
+            <article class="preview-stats__item">
+              <strong class="preview-stats__value">Safer</strong>
+              <span class="preview-stats__label">AI and humans both start from actual structure instead of assumptions</span>
+            </article>
+          </div>
+          <div class="preview-checklist rendering-manifesto__points">
+            <article class="preview-checklist__item">
+              <span class="preview-checklist__mark" aria-hidden="true">1</span>
+              <p><strong>Generate once, reuse everywhere.</strong> The graph becomes shared project memory for capability manifests, dependency exploration, and change analysis.</p>
+            </article>
+            <article class="preview-checklist__item">
+              <span class="preview-checklist__mark" aria-hidden="true">2</span>
+              <p><strong>Explain the system structurally.</strong> Routes, services, handlers, entities, and module boundaries stop being hidden behind naming conventions alone.</p>
+            </article>
+            <article class="preview-checklist__item">
+              <span class="preview-checklist__mark" aria-hidden="true">3</span>
+              <p><strong>Feed better AI context.</strong> Instead of pasting half the repository into prompts, teams can package targeted impact context and prompt scaffolds directly from the graph.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+    {% endif %}
+
     {% if features|default([])|length > 0 %}
       <section class="demo-section-page__features">
         <div class="demo-block-heading demo-block-heading--tight">
-          <p class="demo-block-heading__eyebrow">{{ section|default('') == 'rendering' ? 'Conceptual Path' : (section|default('') == 'get-started' ? 'Onboarding Pages' : 'Route Map') }}</p>
-          <p class="demo-block-heading__text">{{ section|default('') == 'rendering' ? 'Read the section as a progression: start with the rendering model, then move through delivery, and only then into the live surfaces that reuse the same server-owned story.' : (section|default('') == 'get-started' ? 'Open these pages in order if you want the shortest path from a fresh install to a realistic Semitexa local setup.' : 'Each feature page pairs live output with the source that produced it.') }}</p>
+          <p class="demo-block-heading__eyebrow">{{ section|default('') == 'rendering' ? 'Conceptual Path' : (section|default('') == 'get-started' ? 'Onboarding Pages' : (section|default('') == 'project-graph' ? 'Usage Paths' : 'Route Map')) }}</p>
+          <p class="demo-block-heading__text">{{ section|default('') == 'rendering' ? 'Read the section as a progression: start with the rendering model, then move through delivery, and only then into the live surfaces that reuse the same server-owned story.' : (section|default('') == 'get-started' ? 'Open these pages in order if you want the shortest path from a fresh install to a realistic Semitexa local setup.' : (section|default('') == 'project-graph' ? 'Start with the overview, then move into inspection and impact workflows to see how the graph helps real engineering and AI-assisted work.' : 'Each feature page pairs live output with the source that produced it.')) }}</p>
         </div>
         {% if groups|default([]) is not empty %}
           <div class="demo-section-page__groups">

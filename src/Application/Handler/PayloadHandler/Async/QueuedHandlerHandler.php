@@ -50,7 +50,7 @@ final class QueuedHandlerHandler implements TypedHandlerInterface
             ->withTitle('Queued Handler')
             ->withSummary('Events survive restarts and scale across workers — backed by a durable message queue.')
             ->withEntryLine('Events survive restarts and scale across workers — backed by a durable message queue.')
-            ->withHighlights(['EventExecution::Queued', 'queue transport', 'RabbitMQ', 'retry', 'DLQ'])
+            ->withHighlights(['EventExecution::Queued', 'queue transport', 'NATS', 'retry', 'DLQ'])
             ->withLearnMoreLabel('See the queue configuration →')
             ->withDeepDiveLabel('Queue driver internals →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
