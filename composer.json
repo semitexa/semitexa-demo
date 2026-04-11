@@ -39,5 +39,12 @@
       "name": "Semitexa Demo",
       "description": "Official showcase of the Semitexa Framework"
     }
-  }
+  },
+  "keywords": [
+    "semitexa",
+    "demo",
+    "showcase",
+    "ssr",
+    "starter"
+  ]
 }
