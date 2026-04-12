@@ -6,7 +6,7 @@ namespace Semitexa\Demo\Application\Db\MySQL\Repository;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoAiTaskResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoAiTaskTableModel;
+use Semitexa\Demo\Application\Db\MySQL\Table\DemoAiTaskTableModel;
 use Semitexa\Orm\Attribute\AsRepository;
 use Semitexa\Orm\OrmManager;
 use Semitexa\Orm\Query\Direction;

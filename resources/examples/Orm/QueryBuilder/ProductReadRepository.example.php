@@ -6,7 +6,7 @@ namespace Examples\Orm\QueryBuilder;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductTableModel;
+use Semitexa\Demo\Application\Db\MySQL\Table\DemoProductTableModel;
 use Semitexa\Orm\Attribute\AsRepository;
 use Semitexa\Orm\Query\Direction;
 use Semitexa\Orm\Query\Operator;

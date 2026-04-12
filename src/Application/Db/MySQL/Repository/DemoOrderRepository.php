@@ -6,7 +6,7 @@ namespace Semitexa\Demo\Application\Db\MySQL\Repository;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoOrderResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoOrderTableModel;
+use Semitexa\Demo\Application\Db\MySQL\Table\DemoOrderTableModel;
 use Semitexa\Orm\Attribute\AsRepository;
 use Semitexa\Orm\OrmManager;
 use Semitexa\Orm\Query\Direction;
