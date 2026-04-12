@@ -55,6 +55,10 @@ final class DemoSectionHandler implements TypedHandlerInterface
             $infoWhat = 'The `semitexa/llm` section documents the LLM module as a real subsystem: assistant command, skill declaration, manifest building, planning, providers, and guarded execution.';
             $infoHow = 'Read it in module order: first the assistant surface, then how commands become skills, then the execution flow, and finally the provider layer under the assistant.';
             $infoWhy = 'AI features are easy to oversell and hard to trust. This section keeps the package grounded in concrete framework contracts instead of vague product copy.';
+        } elseif ($section === 'project-graph') {
+            $infoWhat = 'Project Graph turns a real Semitexa codebase into a queryable structural map: files, classes, modules, dependencies, and framework capabilities become explicit data instead of tribal knowledge.';
+            $infoHow = 'Start by generating the graph once, then use the dedicated commands to inspect health, query dependencies, export views, and pack focused context before code changes or AI-assisted edits.';
+            $infoWhy = 'This is one of the most practical Semitexa differentiators. It shortens onboarding, reduces blind searching, gives AI agents a safer starting point, and makes risky refactors reviewable before they become expensive.';
         }
 
         $keywords = [$meta['label'], $meta['summary'], 'Semitexa Demo'];

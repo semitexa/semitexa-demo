@@ -78,7 +78,7 @@ final class WorkersSchedulingHandler implements TypedHandlerInterface
                 ],
                 'commands' => [
                     [
-                        'name' => 'bin/semitexa queue:work rabbitmq async',
+                        'name' => 'bin/semitexa queue:work nats async',
                         'purpose' => 'Run the async events worker against a chosen transport and queue.',
                         'value' => 'Keeps event-driven background work explicit and separately operable.',
                     ],

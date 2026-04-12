@@ -21,6 +21,7 @@
     "semitexa/tenancy": "*",
     "semitexa/locale": "*",
     "semitexa/cache": "*",
+    "semitexa/ledger": "*",
     "semitexa/mail": "*",
     "semitexa/scheduler": "*",
     "semitexa/workflow": "*",
@@ -39,5 +40,12 @@
       "name": "Semitexa Demo",
       "description": "Official showcase of the Semitexa Framework"
     }
-  }
+  },
+  "keywords": [
+    "semitexa",
+    "demo",
+    "showcase",
+    "ssr",
+    "starter"
+  ]
 }

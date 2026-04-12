@@ -1,0 +1,122 @@
+{{ asset_require('semitexa-demo:js:execution-arena') }}
+
+<section
+  class="execution-arena"
+  id="execution-arena"
+  data-launch-endpoint="{{ launchEndpoint|e('html_attr') }}"
+  data-sse-endpoint="{{ sseEndpoint|e('html_attr') }}"
+>
+  <div class="execution-arena__hero">
+    <div>
+      <p class="preview-card__eyebrow">Proof-Driven Async Demo</p>
+      <h3 class="preview-card__title">One backend intent. Three execution lifecycles. Zero hand-waving.</h3>
+      <p class="preview-card__summary">
+        Click any lane and watch Semitexa prove the difference between inline work, Swoole post-response work,
+        and queue-backed background work. The response timings and SSE milestones come from the backend.
+      </p>
+    </div>
+    <div class="execution-arena__hero-metrics">
+      <div class="execution-arena__hero-metric">
+        <strong>1</strong>
+        <span>SSE proof stream</span>
+      </div>
+      <div class="execution-arena__hero-metric">
+        <strong>3</strong>
+        <span>execution modes</span>
+      </div>
+      <div class="execution-arena__hero-metric">
+        <strong>∞</strong>
+        <span>marketing ammo</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="execution-arena__stream">
+    <div>
+      <p class="preview-card__eyebrow">Live Transport</p>
+      <div class="execution-arena__stream-row">
+        <h4 class="preview-card__title">Dedicated SSE proof stream</h4>
+        <span class="preview-pill preview-pill--warning" id="execution-arena-stream-status" role="status" aria-live="polite" aria-atomic="true">Connecting…</span>
+      </div>
+      <p class="preview-card__summary" id="execution-arena-stream-summary" aria-live="polite">
+        Opening one browser EventSource so every backend milestone lands in the same live audit trail.
+      </p>
+    </div>
+    <div class="execution-arena__stream-meta">
+      <span class="preview-pill">EventSource</span>
+      <span class="preview-pill"><code>text/event-stream</code></span>
+      <span class="preview-pill" id="execution-arena-session-pill">session pending</span>
+    </div>
+  </div>
+
+  <div class="execution-arena__grid">
+    {% for lane in lanes %}
+      <article class="execution-lane" data-mode="{{ lane.mode }}">
+        <div class="execution-lane__header">
+          <div>
+            <p class="preview-card__eyebrow">{{ lane.execution }}</p>
+            <h4 class="preview-card__title">{{ lane.label }}</h4>
+          </div>
+          <span class="preview-pill preview-pill--neutral" data-role="lane-state">Idle</span>
+        </div>
+
+        <p class="preview-card__summary" data-role="response-summary">{{ lane.responseSummary }}</p>
+
+        <div class="execution-lane__proof">
+          <div class="execution-lane__proof-item">
+            <span class="execution-lane__proof-label">Response</span>
+            <strong data-role="response-ms">--</strong>
+          </div>
+          <div class="execution-lane__proof-item">
+            <span class="execution-lane__proof-label">Backend dispatch</span>
+            <strong data-role="dispatch-ms">--</strong>
+          </div>
+          <div class="execution-lane__proof-item">
+            <span class="execution-lane__proof-label">Run id</span>
+            <strong data-role="run-id">{{ lane.latestRunId ? lane.latestRunId|slice(0, 8) ~ '…' : '—' }}</strong>
+          </div>
+        </div>
+
+        <div class="execution-lane__progress-shell">
+          <div class="execution-lane__progress-bar" data-role="progress-bar" style="width: {{ lane.latestProgress|default(0) }}%"></div>
+        </div>
+        <div class="execution-lane__progress-meta">
+          <span data-role="progress-label">{{ lane.latestProgress|default(0) }}%</span>
+          <span data-role="worker-label">{{ lane.latestWorker|default('waiting for evidence') }}</span>
+        </div>
+
+        <p class="execution-lane__message" data-role="lane-message">{{ lane.latestMessage }}</p>
+
+        <button class="preview-button preview-button--primary execution-lane__button" type="button" data-action="launch">
+          Launch {{ lane.label }}
+        </button>
+
+        <ul class="execution-lane__timeline" data-role="timeline">
+          {% if lane.latestFinishedAt %}
+            <li>Latest completed run finished at {{ lane.latestFinishedAt }}.</li>
+          {% else %}
+            <li>Waiting for the first live run.</li>
+          {% endif %}
+        </ul>
+      </article>
+    {% endfor %}
+  </div>
+
+  <div class="execution-arena__log-card">
+    <div class="execution-arena__stream-row">
+      <div>
+        <p class="preview-card__eyebrow">Backend Audit Trail</p>
+        <h4 class="preview-card__title">The server narrates what actually happened</h4>
+      </div>
+      <span class="preview-pill">single live log</span>
+    </div>
+    <ul class="execution-arena__log" id="execution-arena-log" aria-live="polite" aria-relevant="additions text">
+      <li class="execution-arena__log-placeholder">The SSE stream will append backend events here…</li>
+    </ul>
+  </div>
+
+  <div class="execution-arena__operator-note">
+    <span class="preview-pill preview-pill--warning">Queue lane requires worker</span>
+    <code>{{ queueCommand }}</code>
+  </div>
+</section>

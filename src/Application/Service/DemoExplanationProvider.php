@@ -300,22 +300,54 @@ final class DemoExplanationProvider
         ],
 
         // --- Events section ---
-        'events/sync-dispatch' => [
+        'events/sync' => [
             'what' => 'Events decouple side effects from handlers. Dispatch an event and listeners react — notifications, cache invalidation, analytics.',
-            'how' => 'EventDispatcher::create() builds the event, dispatch() triggers all registered listeners. #[AsEventListener] marks listener classes. Default execution is synchronous in the same coroutine.',
+            'how' => 'EventDispatcher::create() builds the event, dispatch() triggers all registered listeners, and propagated events can also be mirrored into Semitexa Ledger for cross-node delivery. #[AsEventListener] marks listener classes. Default execution is synchronous in the same coroutine.',
             'why' => 'Events let handlers focus on the main task. Side effects belong in listeners, keeping handler code clean and each concern independently testable.',
             'keywords' => [
                 ['term' => '#[AsEventListener]', 'definition' => 'Registers a class as a listener for a specific event type.'],
+                ['term' => '#[Propagated]', 'definition' => 'Marks an event for ledger persistence and cross-node propagation when the ledger runtime is enabled.'],
                 ['term' => 'EventDispatcher', 'definition' => 'Core service for creating and dispatching domain events.'],
             ],
         ],
-        'events/async-defer' => [
+        'events/ledger' => [
+            'what' => 'Semitexa Ledger can be demonstrated safely from the demo app when the surface is authenticated, the write action is fixed, and the read path is filtered to demo-only rows.',
+            'how' => 'The payload is guarded with #[RequiresPermission(\'demo.ledger.view\')], the POST action validates a typed session nonce, dispatches one fixed DemoItemCreated event, and then a dedicated inspector opens the SQLite ledger in read-only mode and queries only rows where domain = demo.',
+            'why' => 'This keeps the example honest. Users can see real persisted ledger evidence without exposing replay controls, unrelated system events, or an arbitrary write surface to the browser.',
+            'keywords' => [
+                ['term' => '#[RequiresPermission]', 'definition' => 'Prevents anonymous or unauthorized sessions from accessing the ledger demo route.'],
+                ['term' => '#[Propagated]', 'definition' => 'Marks the demo events for ledger persistence when the ledger runtime is active.'],
+                ['term' => 'read-only SQLite', 'definition' => 'The inspector opens the ledger file without write access and shows only filtered demo rows.'],
+                ['term' => 'typed session nonce', 'definition' => 'A per-session anti-replay token used to constrain the POST action.'],
+            ],
+        ],
+        'events/deferred' => [
             'what' => 'Async events run after the response is sent — via Swoole::defer() or a queue transport.',
             'how' => 'Set execution mode to Async or Queued on the listener attribute. Async defers to the event loop. Queued publishes to the configured queue transport for background processing.',
             'why' => 'Heavy side effects (email, external API calls) should not block the response. Async/queued execution keeps response times fast while ensuring side effects complete.',
             'keywords' => [
                 ['term' => 'EventExecution::Async', 'definition' => 'Defers listener execution via Swoole::defer() — runs after response.'],
                 ['term' => 'EventExecution::Queued', 'definition' => 'Publishes the event to a queue transport for background processing.'],
+            ],
+        ],
+        'events/queued' => [
+            'what' => 'Queued events move side effects into a durable transport, so processing can survive restarts and scale beyond the current worker.',
+            'how' => 'A listener marked with EventExecution::Queued serializes the event into the configured queue transport. Dedicated workers consume that transport, apply retry rules, and can route poison messages into a DLQ.',
+            'why' => 'This is the boundary for heavy, failure-prone, or cross-worker work. The request stays fast, retries become explicit, and operational control moves out of the web request lifecycle.',
+            'keywords' => [
+                ['term' => 'EventExecution::Queued', 'definition' => 'Publishes listener work into a queue transport instead of running inline.'],
+                ['term' => 'DLQ', 'definition' => 'Dead-letter queue for messages that keep failing and need operator review.'],
+                ['term' => 'durable transport', 'definition' => 'A queue backend that keeps the message outside the worker memory lifecycle.'],
+            ],
+        ],
+        'events/sse' => [
+            'what' => 'Server-sent events keep one long-lived HTTP response open and let the backend push named messages to the browser without polling.',
+            'how' => 'The browser opens an EventSource connection to the SSE endpoint, and the Semitexa SSE runtime streams text/event-stream frames as backend events arrive. The demo keeps this surface authenticated because a persistent stream is a resource multiplier.',
+            'why' => 'SSE is a pragmatic fit for one-way real-time updates. It uses plain HTTP, works well with browsers, and avoids the extra complexity of WebSockets when the client only needs to receive updates.',
+            'keywords' => [
+                ['term' => 'EventSource', 'definition' => 'Browser API for opening an SSE connection over plain HTTP.'],
+                ['term' => 'text/event-stream', 'definition' => 'HTTP content type used by the SSE protocol.'],
+                ['term' => 'long-lived response', 'definition' => 'A response that stays open so the server can push multiple messages over time.'],
             ],
         ],
 

@@ -76,14 +76,14 @@ final class SyncEventHandler implements TypedHandlerInterface
             ->withTitle('Sync Events')
             ->withSummary('Dispatch an event and all sync listeners run before the response is sent.')
             ->withEntryLine('Dispatch an event and all sync listeners run before the response is sent.')
-            ->withHighlights(['#[AsEvent]', '#[AsEventListener]', 'EventExecution::Sync', 'EventDispatcherInterface'])
+            ->withHighlights(['#[AsEvent]', '#[Propagated]', '#[AsEventListener]', 'EventExecution::Sync', 'EventDispatcherInterface'])
             ->withLearnMoreLabel('See the event & listener code →')
             ->withDeepDiveLabel('Dispatcher execution modes →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
                 'eyebrow' => 'Inline Dispatch',
                 'title' => 'Fire an event in the current request',
                 'summary' => $fired
-                    ? 'Event dispatched successfully. The sync listener ran inline before this response was built.'
+                    ? 'Event dispatched successfully. The sync listener ran inline before this response was built, and the event is now eligible for ledger persistence when the ledger runtime is enabled.'
                     : 'No event fired yet. Submit the form to dispatch DemoItemCreated.',
                 'form' => [
                     'label' => 'Fire DemoItemCreated →',
@@ -102,7 +102,7 @@ final class SyncEventHandler implements TypedHandlerInterface
                     $eventLog,
                 ),
                 'emptyMessage' => 'Trigger the event to see the dispatch log.',
-                'note' => $fired ? 'The async listener is queued after the response is flushed.' : null,
+                'note' => $fired ? 'The async listener is queued after the response is flushed. With ledger enabled, both demo events are also written to the node ledger.' : null,
             ])
             ->withSourceCode($sourceCode)
             ->withExplanation($explanation);
