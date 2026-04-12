@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Service;
 
 use Semitexa\Core\Attribute\AsService;
+use Semitexa\Core\Support\ProjectRoot;
 
 #[AsService]
 final class DemoLedgerInspector
@@ -189,7 +190,7 @@ final class DemoLedgerInspector
 
     private function projectRoot(): string
     {
-        return dirname(__DIR__, 5);
+        return ProjectRoot::get();
     }
 
     private function toProjectRelativePath(string $absolutePath): string
