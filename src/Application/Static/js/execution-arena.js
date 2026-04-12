@@ -130,10 +130,18 @@
                         throw new Error(result.payload && result.payload.error ? result.payload.error : 'Launch failed');
                     }
 
-                    lane.responseMs.textContent = roundtripMs + ' ms';
-                    lane.dispatchMs.textContent = result.payload.dispatchMs + ' ms';
-                    lane.runId.textContent = shortId(result.payload.runId);
-                    lane.workerLabel.textContent = result.payload.executionLabel || 'accepted';
+                    if (lane.responseMs) {
+                        lane.responseMs.textContent = roundtripMs + ' ms';
+                    }
+                    if (lane.dispatchMs) {
+                        lane.dispatchMs.textContent = result.payload.dispatchMs + ' ms';
+                    }
+                    if (lane.runId) {
+                        lane.runId.textContent = shortId(result.payload.runId);
+                    }
+                    if (lane.workerLabel) {
+                        lane.workerLabel.textContent = result.payload.executionLabel || 'accepted';
+                    }
                     updateResponseSummary(lane, result.payload.responseSummary || result.payload.message || 'Launch accepted.');
                     updateLaneMessage(lane, result.payload.message || 'Launch accepted.');
                     appendLaneTimeline(lane, 'HTTP response returned in ' + roundtripMs + ' ms.');
@@ -164,15 +172,17 @@
             }
 
             if (payload.run_id) {
-                lane.runId.textContent = shortId(payload.run_id);
+                if (lane.runId) {
+                    lane.runId.textContent = shortId(payload.run_id);
+                }
             }
 
-            if (typeof payload.progress === 'number') {
+            if (typeof payload.progress === 'number' && lane.progressBar && lane.progressLabel) {
                 lane.progressBar.style.width = payload.progress + '%';
                 lane.progressLabel.textContent = payload.progress + '%';
             }
 
-            if (payload.worker_model) {
+            if (payload.worker_model && lane.workerLabel) {
                 lane.workerLabel.textContent = payload.worker_model;
             }
 
@@ -192,7 +202,7 @@
 
             if (eventName === 'demo.execution.completed') {
                 setLaneState(lane, 'Completed', 'success');
-                if (payload.duration_ms) {
+                if (payload.duration_ms && lane.dispatchMs) {
                     lane.dispatchMs.textContent = payload.duration_ms + ' ms work';
                 }
                 appendLaneTimeline(lane, 'Completed at backend in ' + (payload.duration_ms || '?') + ' ms.');
