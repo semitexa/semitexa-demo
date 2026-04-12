@@ -119,7 +119,7 @@ final class DemoCatalogService
             [
                 'key' => 'event-flow',
                 'label' => 'Event Flow',
-                'slugs' => ['sync', 'deferred', 'queued', 'sse'],
+                'slugs' => ['arena', 'sync', 'deferred', 'queued', 'sse'],
             ],
         ],
         'rendering' => [
