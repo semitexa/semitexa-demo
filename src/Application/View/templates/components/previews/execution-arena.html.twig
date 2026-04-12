@@ -36,9 +36,9 @@
       <p class="preview-card__eyebrow">Live Transport</p>
       <div class="execution-arena__stream-row">
         <h4 class="preview-card__title">Dedicated SSE proof stream</h4>
-        <span class="preview-pill preview-pill--warning" id="execution-arena-stream-status">Connecting…</span>
+        <span class="preview-pill preview-pill--warning" id="execution-arena-stream-status" role="status" aria-live="polite" aria-atomic="true">Connecting…</span>
       </div>
-      <p class="preview-card__summary" id="execution-arena-stream-summary">
+      <p class="preview-card__summary" id="execution-arena-stream-summary" aria-live="polite">
         Opening one browser EventSource so every backend milestone lands in the same live audit trail.
       </p>
     </div>
@@ -110,7 +110,7 @@
       </div>
       <span class="preview-pill">single live log</span>
     </div>
-    <ul class="execution-arena__log" id="execution-arena-log">
+    <ul class="execution-arena__log" id="execution-arena-log" aria-live="polite" aria-relevant="additions text">
       <li class="execution-arena__log-placeholder">The SSE stream will append backend events here…</li>
     </ul>
   </div>

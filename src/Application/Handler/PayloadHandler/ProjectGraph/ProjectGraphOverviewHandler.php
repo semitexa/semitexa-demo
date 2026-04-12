@@ -58,8 +58,8 @@ final class ProjectGraphOverviewHandler implements TypedHandlerInterface
             ->withDeepDiveLabel('Why this becomes a real engineering advantage →')
             ->withSourceCode([
                 'Package README' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-project-graph/README.md'),
-                'Quickstart Commands' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/ProjectGraph/Overview/Quickstart.example.sh'),
-                'Capabilities Example' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/ProjectGraph/Overview/Capabilities.example.md'),
+                'Quickstart Commands' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Overview/Quickstart.example.sh'),
+                'Capabilities Example' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Overview/Capabilities.example.md'),
             ])
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/get-started-playbook.html.twig', [
                 'eyebrow' => 'Quick Start',

@@ -57,9 +57,9 @@ final class ProjectGraphImpactHandler implements TypedHandlerInterface
             ->withLearnMoreLabel('See the impact workflow →')
             ->withDeepDiveLabel('How it reduces risky refactors and vague prompts →')
             ->withSourceCode([
-                'Impact Commands' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/ProjectGraph/Impact/Impact.example.sh'),
-                'Prompt Packaging' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/ProjectGraph/Impact/Prompt.example.md'),
-                'Watch Mode' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/ProjectGraph/Impact/Watch.example.sh'),
+                'Impact Commands' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Impact/Impact.example.sh'),
+                'Prompt Packaging' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Impact/Prompt.example.md'),
+                'Watch Mode' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Impact/Watch.example.sh'),
             ])
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/get-started-playbook.html.twig', [
                 'eyebrow' => 'Change Safety Flow',

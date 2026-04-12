@@ -48,6 +48,15 @@ final class ExecutionArenaLaunchHandler implements TypedHandlerInterface
                 ]);
         }
 
+        if ($this->eventDispatcher === null) {
+            return $resource
+                ->setStatusCode(HttpStatus::ServiceUnavailable->value)
+                ->withData([
+                    'ok' => false,
+                    'error' => 'Event dispatcher is unavailable.',
+                ]);
+        }
+
         $startedAt = microtime(true);
         $run = $this->showcaseService->createRun($mode);
         $event = match ($mode) {
@@ -69,7 +78,7 @@ final class ExecutionArenaLaunchHandler implements TypedHandlerInterface
         $event->setSessionId($sessionId);
         $event->setRequestedAt((new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format(DATE_ATOM));
 
-        $this->eventDispatcher?->dispatch($event);
+        $this->eventDispatcher->dispatch($event);
         $dispatchMs = (int) round((microtime(true) - $startedAt) * 1000);
         $modeMeta = $this->showcaseService->getModeMeta($mode);
 

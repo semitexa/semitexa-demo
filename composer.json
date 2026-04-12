@@ -21,6 +21,7 @@
     "semitexa/tenancy": "*",
     "semitexa/locale": "*",
     "semitexa/cache": "*",
+    "semitexa/ledger": "*",
     "semitexa/mail": "*",
     "semitexa/scheduler": "*",
     "semitexa/workflow": "*",

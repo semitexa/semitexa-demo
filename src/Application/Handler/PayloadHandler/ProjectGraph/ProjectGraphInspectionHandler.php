@@ -57,9 +57,9 @@ final class ProjectGraphInspectionHandler implements TypedHandlerInterface
             ->withLearnMoreLabel('See the inspection workflows →')
             ->withDeepDiveLabel('What this saves during real project work →')
             ->withSourceCode([
-                'Inspection Commands' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/ProjectGraph/Inspection/Queries.example.sh'),
-                'Show Formats' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/ProjectGraph/Inspection/ShowFormats.example.sh'),
-                'Capabilities Markdown' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/ProjectGraph/Inspection/Capabilities.example.md'),
+                'Inspection Commands' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Inspection/Queries.example.sh'),
+                'Show Formats' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Inspection/ShowFormats.example.sh'),
+                'Capabilities Markdown' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Inspection/Capabilities.example.md'),
             ])
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/get-started-playbook.html.twig', [
                 'eyebrow' => 'Inspection Flow',

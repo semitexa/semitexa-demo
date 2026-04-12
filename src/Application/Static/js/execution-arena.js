@@ -65,7 +65,9 @@
         });
 
         function openStream(sessionId) {
-            source = new EventSource(sseEndpoint + '?session_id=' + encodeURIComponent(sessionId));
+            const streamUrl = new URL(sseEndpoint, window.location.origin);
+            streamUrl.searchParams.set('session_id', sessionId);
+            source = new EventSource(streamUrl.toString());
 
             source.addEventListener('open', function () {
                 setStreamStatus('SSE proof stream live', 'active');
@@ -305,6 +307,19 @@
         }
 
         function createSessionId() {
+            if (globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function') {
+                return 'arena_' + globalThis.crypto.randomUUID();
+            }
+
+            if (globalThis.crypto && typeof globalThis.crypto.getRandomValues === 'function') {
+                const bytes = new Uint8Array(8);
+                globalThis.crypto.getRandomValues(bytes);
+
+                return 'arena_' + Array.from(bytes, function (value) {
+                    return value.toString(16).padStart(2, '0');
+                }).join('') + '_' + Date.now().toString(36);
+            }
+
             return 'arena_' + Math.random().toString(36).slice(2, 10) + '_' + Date.now().toString(36);
         }
 

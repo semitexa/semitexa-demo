@@ -27,7 +27,8 @@ class ExecutionArenaLaunchPayload
 
     public function setMode(?string $mode): void
     {
-        $this->mode = $mode !== null ? trim($mode) : null;
+        $mode = $mode !== null ? trim($mode) : null;
+        $this->mode = $mode !== '' ? $mode : null;
     }
 
     public function getSessionId(): ?string
@@ -37,6 +38,7 @@ class ExecutionArenaLaunchPayload
 
     public function setSessionId(?string $sessionId): void
     {
-        $this->sessionId = $sessionId !== null ? trim($sessionId) : null;
+        $sessionId = $sessionId !== null ? trim($sessionId) : null;
+        $this->sessionId = $sessionId !== '' ? $sessionId : null;
     }
 }

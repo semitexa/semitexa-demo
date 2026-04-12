@@ -312,7 +312,7 @@ final class DemoExplanationProvider
         ],
         'events/ledger' => [
             'what' => 'Semitexa Ledger can be demonstrated safely from the demo app when the surface is authenticated, the write action is fixed, and the read path is filtered to demo-only rows.',
-            'how' => 'The payload is guarded with #[RequiresPermission(\'products.read\')], the POST action validates a typed session nonce, dispatches one fixed DemoItemCreated event, and then a dedicated inspector opens the SQLite ledger in read-only mode and queries only rows where domain = demo.',
+            'how' => 'The payload is guarded with #[RequiresPermission(\'demo.ledger.view\')], the POST action validates a typed session nonce, dispatches one fixed DemoItemCreated event, and then a dedicated inspector opens the SQLite ledger in read-only mode and queries only rows where domain = demo.',
             'why' => 'This keeps the example honest. Users can see real persisted ledger evidence without exposing replay controls, unrelated system events, or an arbitrary write surface to the browser.',
             'keywords' => [
                 ['term' => '#[RequiresPermission]', 'definition' => 'Prevents anonymous or unauthorized sessions from accessing the ledger demo route.'],
