@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Scheduler;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoJobRunResource;
+use Semitexa\Demo\Domain\Model\DemoJobRun;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoJobRunRepository;
 use Semitexa\Demo\Application\Service\DemoReportBuilder;
 use Semitexa\Scheduler\Attribute\AsScheduledJob;
@@ -34,21 +34,21 @@ final class DemoReportGenerationJob implements ScheduledJobInterface
         $active = $this->jobRunRepository->findActiveRuns();
         $activeReport = null;
         foreach ($active as $run) {
-            if ($run->job_type === 'report_generation') {
+            if ($run->jobType === 'report_generation') {
                 $activeReport = $run;
                 break;
             }
         }
 
         if ($activeReport === null) {
-            $run = new DemoJobRunResource();
-            $run->job_type = 'report_generation';
+            $run = new DemoJobRun();
+            $run->jobType = 'report_generation';
             $run->status = 'running';
-            $run->progress_percent = 0;
-            $run->progress_message = 'Starting…';
-            $run->scheduler_run_id = $context->runId;
-            $run->attempt_number = 1;
-            $this->jobRunRepository->save($run);
+            $run->progressPercent = 0;
+            $run->progressMessage = 'Starting…';
+            $run->schedulerRunId = $context->runId;
+            $run->attemptNumber = 1;
+            $run = $this->jobRunRepository->save($run);
             $activeReport = $run;
         }
 

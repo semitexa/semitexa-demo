@@ -27,7 +27,7 @@ final class DemoReportBuilder
             return;
         }
 
-        $current = $run->progress_percent ?? 0;
+        $current = $run->progressPercent ?? 0;
         $next = min(100, $current + 25);
         $stageIndex = $next >= 100 ? count(self::STAGES) - 1 : max(0, (int) floor(($next - 1) / 25));
         $stage = self::STAGES[$stageIndex] ?? 'complete';

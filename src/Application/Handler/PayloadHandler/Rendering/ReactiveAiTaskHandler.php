@@ -50,9 +50,9 @@ final class ReactiveAiTaskHandler implements TypedHandlerInterface
 
         $latestTask = $recentTasks[0] ?? null;
         $stageResults = [];
-        if ($latestTask !== null && !empty($latestTask->stage_results)) {
+        if ($latestTask !== null && !empty($latestTask->stageResults)) {
             try {
-                $stageResults = json_decode($latestTask->stage_results, true, 512, JSON_THROW_ON_ERROR);
+                $stageResults = json_decode($latestTask->stageResults, true, 512, JSON_THROW_ON_ERROR);
             } catch (\JsonException) {
                 $stageResults = [];
             }

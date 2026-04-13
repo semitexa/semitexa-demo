@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Scheduler;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoJobRunResource;
+use Semitexa\Demo\Domain\Model\DemoJobRun;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoJobRunRepository;
 use Semitexa\Demo\Application\Service\DemoProductImporter;
 use Semitexa\Scheduler\Attribute\AsScheduledJob;
@@ -34,21 +34,21 @@ final class DemoProductImportJob implements ScheduledJobInterface
         $active = $this->jobRunRepository->findActiveRuns();
         $activeImport = null;
         foreach ($active as $run) {
-            if ($run->job_type === 'product_import') {
+            if ($run->jobType === 'product_import') {
                 $activeImport = $run;
                 break;
             }
         }
 
         if ($activeImport === null) {
-            $run = new DemoJobRunResource();
-            $run->job_type = 'product_import';
+            $run = new DemoJobRun();
+            $run->jobType = 'product_import';
             $run->status = 'running';
-            $run->progress_percent = 0;
-            $run->progress_message = 'Preparing import…';
-            $run->scheduler_run_id = $context->runId;
-            $run->attempt_number = 1;
-            $this->jobRunRepository->save($run);
+            $run->progressPercent = 0;
+            $run->progressMessage = 'Preparing import…';
+            $run->schedulerRunId = $context->runId;
+            $run->attemptNumber = 1;
+            $run = $this->jobRunRepository->save($run);
             $activeImport = $run;
         }
 

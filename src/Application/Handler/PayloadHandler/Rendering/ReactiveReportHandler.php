@@ -40,8 +40,8 @@ final class ReactiveReportHandler implements TypedHandlerInterface
         $latestRun = $runs[0] ?? null;
 
         $status = $latestRun?->status ?? 'idle';
-        $progress = $latestRun?->progress_percent ?? 0;
-        $message = $latestRun?->progress_message ?? 'Waiting for next scheduled run…';
+        $progress = $latestRun?->progressPercent ?? 0;
+        $message = $latestRun?->progressMessage ?? 'Waiting for next scheduled run…';
 
         $explanation = $this->explanationProvider->getExplanation('rendering', 'reactive-report') ?? [];
 

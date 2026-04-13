@@ -9,6 +9,7 @@ use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
+use Semitexa\Demo\Domain\Model\DemoProduct;
 use Semitexa\Demo\Application\Payload\Request\Data\OrmCrudPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
@@ -41,15 +42,15 @@ final class OrmCrudHandler implements TypedHandlerInterface
                 $price = 9.99;
             }
 
-            $product = new DemoProductResource();
+            $product = new DemoProduct();
             $product->name = $payload->getName();
             $product->price = number_format($price, 2, '.', '');
             $product->status = 'active';
-            $product->tenant_id = 'demo';
+            $product->tenantId = 'demo';
             $this->productRepository->save($product);
         } elseif ($isMutationRequest && $action === 'delete' && $payload->getProductId() !== null) {
             $product = $this->productRepository->findById($payload->getProductId());
-            if ($product !== null && $product->tenant_id === 'demo') {
+            if ($product !== null && $product->tenantId === 'demo') {
                 $this->productRepository->delete($product);
             }
         }
@@ -58,7 +59,7 @@ final class OrmCrudHandler implements TypedHandlerInterface
 
         $rows = [];
         foreach ($products as $product) {
-            /** @var DemoProductResource $product */
+            /** @var DemoProduct $product */
             $rows[] = [
                 ['text' => $product->name],
                 ['text' => '$' . number_format((float) $product->price, 2)],

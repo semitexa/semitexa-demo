@@ -7,10 +7,10 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Data;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoCategoryResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoReviewResource;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoCategoryRepository;
+use Semitexa\Demo\Domain\Model\DemoCategory;
+use Semitexa\Demo\Domain\Model\DemoProduct;
+use Semitexa\Demo\Domain\Model\DemoReview;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoReviewRepository;
 use Semitexa\Demo\Application\Payload\Request\Data\RelationsPayload;
@@ -158,16 +158,16 @@ PHP,
             ->withExplanation($explanation);
     }
 
-    private function resolveProductCategory(?DemoProductResource $product): ?DemoCategoryResource
+    private function resolveProductCategory(?DemoProduct $product): ?DemoCategory
     {
-        if ($product === null || $product->category_id === null || $product->category_id === '') {
+        if ($product === null || $product->categoryId === null || $product->categoryId === '') {
             return null;
         }
 
-        return $this->categoryRepository->findById($product->category_id);
+        return $this->categoryRepository->findById($product->categoryId);
     }
 
-    private function describeCategoryProducts(?DemoCategoryResource $category): string
+    private function describeCategoryProducts(?DemoCategory $category): string
     {
         if ($category === null) {
             return 'One category field opens a child collection.';
@@ -181,7 +181,7 @@ PHP,
             : sprintf('%s can expose its linked products without manual joins in the handler.', $category->name);
     }
 
-    private function describeProductCategory(?DemoProductResource $product, ?DemoCategoryResource $category): string
+    private function describeProductCategory(?DemoProduct $product, ?DemoCategory $category): string
     {
         if ($product === null) {
             return 'A product can point to exactly one parent category.';
@@ -193,9 +193,9 @@ PHP,
     }
 
     /**
-     * @param list<DemoReviewResource> $reviews
+     * @param list<DemoReview> $reviews
      */
-    private function describeProductReviews(?DemoProductResource $product, array $reviews): string
+    private function describeProductReviews(?DemoProduct $product, array $reviews): string
     {
         if ($product === null) {
             return 'A product can expose many child reviews.';
@@ -204,7 +204,7 @@ PHP,
         return sprintf('%s currently exposes %d linked reviews.', $product->name, count($reviews));
     }
 
-    private function describeReviewProduct(?DemoReviewResource $review, ?DemoProductResource $product): string
+    private function describeReviewProduct(?DemoReview $review, ?DemoProduct $product): string
     {
         if ($review === null || $product === null) {
             return 'A review can walk back to the product it belongs to.';

@@ -9,36 +9,37 @@ use Semitexa\Orm\Attribute\Column;
 use Semitexa\Orm\Attribute\Filterable;
 use Semitexa\Orm\Attribute\FromTable;
 use Semitexa\Orm\Attribute\Index;
+use Semitexa\Orm\Attribute\PrimaryKey;
 use Semitexa\Orm\Attribute\TenantScoped;
-use Semitexa\Orm\Contract\FilterableResourceInterface;
-use Semitexa\Orm\Trait\FilterableTrait;
-use Semitexa\Orm\Trait\HasTimestamps;
-use Semitexa\Orm\Trait\HasUuidV7;
+use Semitexa\Orm\Metadata\HasColumnReferences;
+use Semitexa\Orm\Metadata\HasRelationReferences;
 
-/**
- * Workflow states: pending → confirmed → shipped → delivered (+ cancel from any state).
- */
 #[FromTable(name: 'demo_orders')]
-#[TenantScoped(strategy: 'same_storage')]
+#[TenantScoped(strategy: 'column', column: 'tenantId')]
 #[Index(columns: ['tenant_id', 'status'], name: 'idx_demo_orders_tenant_status')]
 #[Index(columns: ['user_id'], name: 'idx_demo_orders_user')]
-class DemoOrderResource implements FilterableResourceInterface
+final readonly class DemoOrderResource
 {
-    use HasUuidV7;
-    use HasTimestamps;
-    use FilterableTrait;
+    use HasColumnReferences;
+    use HasRelationReferences;
 
-    #[Column(type: MySqlType::Varchar, length: 64, nullable: true)]
-    public ?string $tenant_id = null;
-
-    #[Column(type: MySqlType::Char, length: 36)]
-    public string $user_id = '';
-
-    #[Filterable]
-    #[Column(type: MySqlType::Varchar, length: 32)]
-    public string $status = 'pending';
-
-    #[Filterable]
-    #[Column(type: MySqlType::Decimal, precision: 10, scale: 2)]
-    public string $total_amount = '0.00';
+    public function __construct(
+        #[PrimaryKey(strategy: 'uuid')]
+        #[Column(type: MySqlType::Binary, length: 16)]
+        public string $id,
+        #[Column(name: 'tenant_id', type: MySqlType::Varchar, length: 64, nullable: true)]
+        public ?string $tenantId,
+        #[Column(name: 'user_id', type: MySqlType::Char, length: 36)]
+        public string $userId,
+        #[Filterable]
+        #[Column(type: MySqlType::Varchar, length: 32)]
+        public string $status,
+        #[Filterable]
+        #[Column(name: 'total_amount', type: MySqlType::Decimal, precision: 10, scale: 2)]
+        public string $totalAmount,
+        #[Column(name: 'created_at', type: MySqlType::Datetime, nullable: true)]
+        public ?\DateTimeImmutable $createdAt,
+        #[Column(name: 'updated_at', type: MySqlType::Datetime, nullable: true)]
+        public ?\DateTimeImmutable $updatedAt,
+    ) {}
 }

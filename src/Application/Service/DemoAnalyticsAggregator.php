@@ -6,7 +6,7 @@ namespace Semitexa\Demo\Application\Service;
 
 use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoAnalyticsSnapshotResource;
+use Semitexa\Demo\Domain\Model\DemoAnalyticsSnapshot;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoAnalyticsSnapshotRepository;
 
 #[AsService]
@@ -24,12 +24,12 @@ final class DemoAnalyticsAggregator
     {
         $periodEnd = new \DateTimeImmutable();
 
-        $snapshot = new DemoAnalyticsSnapshotResource();
-        $snapshot->metric_type = $metricType;
-        $snapshot->tenant_id = $tenantId;
+        $snapshot = new DemoAnalyticsSnapshot();
+        $snapshot->metricType = $metricType;
+        $snapshot->tenantId = $tenantId;
         $snapshot->value = $this->generateValue($metricType);
-        $snapshot->period_end = $periodEnd;
-        $snapshot->period_start = $periodEnd->modify('-5 minutes');
+        $snapshot->periodEnd = $periodEnd;
+        $snapshot->periodStart = $periodEnd->modify('-5 minutes');
 
         $this->snapshotRepository?->save($snapshot);
     }

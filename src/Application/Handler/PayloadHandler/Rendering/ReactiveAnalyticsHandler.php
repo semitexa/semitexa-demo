@@ -53,7 +53,7 @@ final class ReactiveAnalyticsHandler implements TypedHandlerInterface
                 'label' => $label,
                 'value' => $display,
                 'updated' => $snapshot !== null
-                    ? 'Last snapshot: ' . ($snapshot->period_end?->format('Y-m-d H:i:s') ?? 'unknown')
+                    ? 'Last snapshot: ' . ($snapshot->periodEnd?->format('Y-m-d H:i:s') ?? 'unknown')
                     : 'No data yet',
             ];
         }

@@ -9,6 +9,7 @@ use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
+use Semitexa\Demo\Domain\Model\DemoProduct;
 use Semitexa\Demo\Application\Payload\Request\Data\FilteringPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
@@ -48,7 +49,7 @@ final class FilteringHandler implements TypedHandlerInterface
         $products = array_values(array_filter(
             $products,
             function ($product) use ($payload): bool {
-                if (!$product instanceof DemoProductResource) {
+                if (!$product instanceof DemoProduct) {
                     return false;
                 }
 
@@ -58,7 +59,7 @@ final class FilteringHandler implements TypedHandlerInterface
                 }
 
                 $categoryId = $payload->getCategoryId();
-                if ($categoryId !== null && $categoryId !== '' && $product->category_id !== $categoryId) {
+                if ($categoryId !== null && $categoryId !== '' && $product->categoryId !== $categoryId) {
                     return false;
                 }
 
@@ -71,7 +72,7 @@ final class FilteringHandler implements TypedHandlerInterface
         $count = count($products);
         $rows = [];
         foreach (array_slice($products, 0, 6) as $product) {
-            /** @var DemoProductResource $product */
+            /** @var DemoProduct $product */
             $rows[] = [
                 ['text' => $product->name],
                 ['text' => '$' . number_format((float) $product->price, 2)],

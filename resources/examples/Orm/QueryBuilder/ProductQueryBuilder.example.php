@@ -6,7 +6,7 @@ namespace Examples\Orm\QueryBuilder;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
-use Semitexa\Demo\Application\Db\MySQL\Table\DemoProductTableModel;
+use Semitexa\Demo\Domain\Model\DemoProduct;
 use Semitexa\Orm\OrmManager;
 use Semitexa\Orm\Query\TableModelQuery;
 use Semitexa\Orm\Repository\DomainRepository;
@@ -25,21 +25,21 @@ final class ProductQueryBuilder
 
     public function map(TableModelQuery $query): array
     {
-        /** @var list<DemoProductResource> */
-        return $query->fetchAllAs(DemoProductResource::class, $this->orm()->getMapperRegistry());
+        /** @var list<DemoProduct> */
+        return $query->fetchAllAs(DemoProduct::class, $this->orm()->getMapperRegistry());
     }
 
-    public function one(TableModelQuery $query): ?DemoProductResource
+    public function one(TableModelQuery $query): ?DemoProduct
     {
-        /** @var DemoProductResource|null */
-        return $query->fetchOneAs(DemoProductResource::class, $this->orm()->getMapperRegistry());
+        /** @var DemoProduct|null */
+        return $query->fetchOneAs(DemoProduct::class, $this->orm()->getMapperRegistry());
     }
 
     private function repository(): DomainRepository
     {
         return $this->repository ??= $this->orm()->repository(
-            DemoProductTableModel::class,
             DemoProductResource::class,
+            DemoProduct::class,
         );
     }
 

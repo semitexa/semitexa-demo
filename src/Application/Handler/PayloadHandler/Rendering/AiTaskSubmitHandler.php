@@ -7,7 +7,7 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Rendering;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoAiTaskResource;
+use Semitexa\Demo\Domain\Model\DemoAiTask;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoAiTaskRepository;
 use Semitexa\Demo\Application\Payload\Request\Rendering\AiTaskSubmitPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
@@ -45,13 +45,13 @@ final class AiTaskSubmitHandler implements TypedHandlerInterface
             if (strlen($inputText) > 2000) {
                 $errorMessage = 'Input text must not exceed 2000 characters.';
             } else {
-                $task = new DemoAiTaskResource();
-                $task->tenant_id = 'demo';
-                $task->input_text = $inputText;
+                $task = new DemoAiTask();
+                $task->tenantId = 'demo';
+                $task->inputText = $inputText;
                 $task->status = 'pending';
                 $task->stages = json_encode($this->aiTextProcessor->getStages(), JSON_THROW_ON_ERROR);
 
-                $this->aiTaskRepository->save($task);
+                $task = $this->aiTaskRepository->save($task);
                 $taskId = $task->id ?? null;
                 $submitted = true;
             }

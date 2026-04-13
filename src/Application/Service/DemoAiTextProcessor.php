@@ -30,9 +30,9 @@ final class DemoAiTextProcessor
         }
 
         $stageResults = [];
-        if (!empty($task->stage_results)) {
+        if (!empty($task->stageResults)) {
             try {
-                $stageResults = json_decode($task->stage_results, true, 512, JSON_THROW_ON_ERROR);
+                $stageResults = json_decode($task->stageResults, true, 512, JSON_THROW_ON_ERROR);
             } catch (JsonException) {
                 $stageResults = [];
             }

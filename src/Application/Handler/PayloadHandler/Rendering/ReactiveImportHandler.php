@@ -40,7 +40,7 @@ final class ReactiveImportHandler implements TypedHandlerInterface
         $latestRun = $runs[0] ?? null;
 
         $totalRows = $this->productImporter->getTotalRows();
-        $progress = $latestRun?->progress_percent ?? 0;
+        $progress = $latestRun?->progressPercent ?? 0;
         $processed = (int) round($progress / 100 * $totalRows);
 
         $explanation = $this->explanationProvider->getExplanation('rendering', 'reactive-import') ?? [];
@@ -78,7 +78,7 @@ final class ReactiveImportHandler implements TypedHandlerInterface
                 'processed' => number_format($processed),
                 'total' => number_format($totalRows),
                 'progress' => (int) $progress,
-                'message' => $latestRun?->progress_message ?? 'Waiting for import job…',
+                'message' => $latestRun?->progressMessage ?? 'Waiting for import job…',
                 'signals' => [
                     ['value' => '1', 'label' => 'source of truth for progress'],
                     ['value' => '0', 'label' => 'frontend counters to reconcile'],

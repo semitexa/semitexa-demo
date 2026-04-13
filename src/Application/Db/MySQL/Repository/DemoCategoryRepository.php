@@ -6,7 +6,7 @@ namespace Semitexa\Demo\Application\Db\MySQL\Repository;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoCategoryResource;
-use Semitexa\Demo\Application\Db\MySQL\Table\DemoCategoryTableModel;
+use Semitexa\Demo\Domain\Model\DemoCategory;
 use Semitexa\Orm\Attribute\AsRepository;
 use Semitexa\Orm\OrmManager;
 use Semitexa\Orm\Query\Direction;
@@ -21,49 +21,42 @@ final class DemoCategoryRepository
 
     private ?DomainRepository $repository = null;
 
-    public function findById(string $id): ?DemoCategoryResource
+    public function findById(string $id): ?DemoCategory
     {
-        /** @var DemoCategoryResource|null */
+        /** @var DemoCategory|null */
         return $this->repository()->findById($id);
     }
 
-    public function save(DemoCategoryResource $entity): void
+    public function save(DemoCategory $entity): DemoCategory
     {
-        $persisted = $entity->id === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
-        $this->copyInto($persisted, $entity);
+        /** @var DemoCategory */
+        return $entity->id === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
     }
 
-    public function findBySlug(string $slug): ?DemoCategoryResource
+    public function findBySlug(string $slug): ?DemoCategory
     {
-        /** @var DemoCategoryResource|null */
+        /** @var DemoCategory|null */
         return $this->repository()->query()
-            ->where(DemoCategoryTableModel::column('slug'), Operator::Equals, $slug)
-            ->fetchOneAs(DemoCategoryResource::class, $this->orm()->getMapperRegistry());
+            ->where(DemoCategoryResource::column('slug'), Operator::Equals, $slug)
+            ->fetchOneAs(DemoCategory::class, $this->orm()->getMapperRegistry());
     }
 
+    /** @return list<DemoCategory> */
     public function findAllOrdered(): array
     {
-        /** @var list<DemoCategoryResource> */
+        /** @var list<DemoCategory> */
         return $this->repository()->query()
-            ->orderBy(DemoCategoryTableModel::column('name'), Direction::Asc)
-            ->fetchAllAs(DemoCategoryResource::class, $this->orm()->getMapperRegistry());
+            ->orderBy(DemoCategoryResource::column('name'), Direction::Asc)
+            ->fetchAllAs(DemoCategory::class, $this->orm()->getMapperRegistry());
     }
 
     private function repository(): DomainRepository
     {
-        return $this->repository ??= $this->orm()->repository(DemoCategoryTableModel::class, DemoCategoryResource::class);
+        return $this->repository ??= $this->orm()->repository(DemoCategoryResource::class, DemoCategory::class);
     }
 
     private function orm(): OrmManager
     {
         return $this->orm ??= new OrmManager();
-    }
-
-    private function copyInto(object $source, DemoCategoryResource $target): void
-    {
-        $source instanceof DemoCategoryResource || throw new \InvalidArgumentException('Unexpected persisted resource.');
-        foreach (get_object_vars($source) as $property => $value) {
-            $target->{$property} = $value;
-        }
     }
 }

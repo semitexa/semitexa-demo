@@ -27,7 +27,7 @@ final class DemoProductImporter
             return;
         }
 
-        $processed = (int) round(($run->progress_percent ?? 0) / 100 * self::TOTAL_ROWS);
+        $processed = (int) round(($run->progressPercent ?? 0) / 100 * self::TOTAL_ROWS);
         $next = min(self::TOTAL_ROWS, $processed + self::BATCH_SIZE);
         $pct = (int) round(($next / self::TOTAL_ROWS) * 100);
 
