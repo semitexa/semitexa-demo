@@ -113,15 +113,17 @@ final class DemoProductRepository
     /** @return list<DemoProduct> */
     public function findFiltered(?string $status = null, ?float $minPrice = null, ?float $maxPrice = null, ?string $orderBy = null, int $limit = 10, int $offset = 0): array
     {
+        $minPriceValue = $this->normalizeDecimal($minPrice);
+        $maxPriceValue = $this->normalizeDecimal($maxPrice);
         $query = $this->repository()->query();
         if ($status !== null) {
             $query->where(DemoProductResource::column('status'), Operator::Equals, $status);
         }
-        if ($minPrice !== null) {
-            $query->where(DemoProductResource::column('price'), Operator::GreaterThanOrEquals, $minPrice);
+        if ($minPriceValue !== null) {
+            $query->where(DemoProductResource::column('price'), Operator::GreaterThanOrEquals, $minPriceValue);
         }
-        if ($maxPrice !== null) {
-            $query->where(DemoProductResource::column('price'), Operator::LessThanOrEquals, $maxPrice);
+        if ($maxPriceValue !== null) {
+            $query->where(DemoProductResource::column('price'), Operator::LessThanOrEquals, $maxPriceValue);
         }
         $query->orderBy(
             DemoProductResource::column(self::ORDERABLE_COLUMNS[$orderBy ?? 'name'] ?? 'name'),
@@ -137,6 +139,8 @@ final class DemoProductRepository
 
     public function countFiltered(?string $status = null, ?float $minPrice = null, ?float $maxPrice = null): int
     {
+        $minPriceValue = $this->normalizeDecimal($minPrice);
+        $maxPriceValue = $this->normalizeDecimal($maxPrice);
         $conditions = [];
         $params = [];
 
@@ -144,13 +148,13 @@ final class DemoProductRepository
             $conditions[] = 'status = :status';
             $params['status'] = $status;
         }
-        if ($minPrice !== null) {
+        if ($minPriceValue !== null) {
             $conditions[] = 'price >= :min_price';
-            $params['min_price'] = $minPrice;
+            $params['min_price'] = $minPriceValue;
         }
-        if ($maxPrice !== null) {
+        if ($maxPriceValue !== null) {
             $conditions[] = 'price <= :max_price';
-            $params['max_price'] = $maxPrice;
+            $params['max_price'] = $maxPriceValue;
         }
 
         $sql = 'SELECT COUNT(*) AS total FROM demo_products';
@@ -185,5 +189,14 @@ final class DemoProductRepository
     private function adapter(): \Semitexa\Orm\Adapter\DatabaseAdapterInterface
     {
         return $this->orm()->getAdapter();
+    }
+
+    private function normalizeDecimal(?float $value, int $scale = 2): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return number_format($value, $scale, '.', '');
     }
 }
