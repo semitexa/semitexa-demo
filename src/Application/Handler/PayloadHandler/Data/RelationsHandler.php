@@ -124,10 +124,12 @@ final class RelationsHandler implements TypedHandlerInterface
 $products = $this->productRepository->findPage(3);
 $product = $products[0] ?? null;
 
-$categoryName = $product?->category?->name;
-$reviewCount = count($product?->reviews ?? []);
+$category = $product !== null ? $this->categoryRepository->findById($product->categoryId) : null;
+$reviews = $product !== null ? $this->reviewRepository->findByProduct($product->id) : [];
 
-$firstReviewProduct = $product?->reviews[0]?->product?->name ?? null;
+$categoryName = $category?->name;
+$reviewCount = count($reviews);
+$firstReviewProduct = $reviews[0]?->productId ?? null;
 PHP,
                 'columns' => ['Step', 'Handler code', 'What becomes available'],
                 'rows' => [
@@ -138,17 +140,17 @@ PHP,
                     ],
                     [
                         ['text' => 'Walk to parent'],
-                        ['text' => '$product->category?->name', 'code' => true],
+                        ['text' => '$this->categoryRepository->findById($product->categoryId)?->name', 'code' => true],
                         ['text' => $this->describeProductCategory($focusProduct, $focusCategory)],
                     ],
                     [
                         ['text' => 'Walk to children'],
-                        ['text' => 'count($product->reviews)', 'code' => true],
+                        ['text' => 'count($this->reviewRepository->findByProduct($product->id))', 'code' => true],
                         ['text' => $this->describeProductReviews($focusProduct, $focusReviews)],
                     ],
                     [
                         ['text' => 'Walk back from child'],
-                        ['text' => '$review->product?->name', 'code' => true],
+                        ['text' => '$this->productRepository->findById($review->productId)?->name', 'code' => true],
                         ['text' => $this->describeReviewProduct($firstReview, $focusProduct)],
                     ],
                 ],

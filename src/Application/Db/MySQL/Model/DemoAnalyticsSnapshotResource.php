@@ -32,7 +32,7 @@ final readonly class DemoAnalyticsSnapshotResource
         #[Column(name: 'metric_type', type: MySqlType::Varchar, length: 64)]
         public string $metricType,
         #[Column(type: MySqlType::Decimal, precision: 12, scale: 4)]
-        public float $value,
+        public string $value,
         #[Column(name: 'period_start', type: MySqlType::Datetime)]
         public ?\DateTimeImmutable $periodStart,
         #[Column(name: 'period_end', type: MySqlType::Datetime)]
