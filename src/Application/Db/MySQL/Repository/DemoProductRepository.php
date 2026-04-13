@@ -6,12 +6,14 @@ namespace Semitexa\Demo\Application\Db\MySQL\Repository;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductTableModel;
+use Semitexa\Demo\Domain\Model\DemoProduct;
 use Semitexa\Orm\Attribute\AsRepository;
 use Semitexa\Orm\OrmManager;
 use Semitexa\Orm\Query\Direction;
 use Semitexa\Orm\Query\Operator;
+use Semitexa\Orm\Query\SystemScopeToken;
 use Semitexa\Orm\Repository\DomainRepository;
+use Semitexa\Tenancy\Context\TenantContext;
 
 #[AsRepository]
 final class DemoProductRepository
@@ -20,33 +22,40 @@ final class DemoProductRepository
         'name' => 'name',
         'price' => 'price',
         'status' => 'status',
-        'created_at' => 'created_at',
+        'created_at' => 'createdAt',
     ];
 
     #[InjectAsReadonly]
     protected ?OrmManager $orm = null;
 
     private ?DomainRepository $repository = null;
+    private ?SystemScopeToken $systemScopeToken = null;
 
-    public function findById(string $id): ?DemoProductResource
+    public function findById(string $id): ?DemoProduct
     {
-        /** @var DemoProductResource|null */
+        /** @var DemoProduct|null */
         return $this->repository()->findById($id);
     }
 
-    public function save(DemoProductResource $entity): void
+    public function save(DemoProduct $entity): DemoProduct
     {
-        $persisted = $entity->id === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
-        $this->copyInto($persisted, $entity);
+        /** @var DemoProduct */
+        return $entity->id === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
     }
 
+    public function delete(DemoProduct $entity): void
+    {
+        $this->repository()->delete($entity);
+    }
+
+    /** @return list<DemoProduct> */
     public function findByTenant(string $tenantId, int $limit = 100): array
     {
-        /** @var list<DemoProductResource> */
+        /** @var list<DemoProduct> */
         return $this->repository()->query()
-            ->where(DemoProductTableModel::column('tenant_id'), Operator::Equals, $tenantId)
+            ->where(DemoProductResource::column('tenantId'), Operator::Equals, $tenantId)
             ->limit(max(1, $limit))
-            ->fetchAllAs(DemoProductResource::class, $this->orm()->getMapperRegistry());
+            ->fetchAllAs(DemoProduct::class, $this->orm()->getMapperRegistry());
     }
 
     public function countByTenant(string $tenantId): int
@@ -62,67 +71,76 @@ final class DemoProductRepository
         return (int) ($this->adapter()->execute('SELECT COUNT(*) AS total FROM demo_products', [])->rows[0]['total'] ?? 0);
     }
 
+    /** @return list<DemoProduct> */
     public function findPage(int $limit, int $offset = 0): array
     {
-        /** @var list<DemoProductResource> */
+        /** @var list<DemoProduct> */
         return $this->repository()->query()
             ->limit(max(1, $limit))
             ->offset(max(0, $offset))
-            ->fetchAllAs(DemoProductResource::class, $this->orm()->getMapperRegistry());
+            ->fetchAllAs(DemoProduct::class, $this->orm()->getMapperRegistry());
     }
 
+    /** @return list<DemoProduct> */
     public function findByCategory(string $categoryId): array
     {
-        /** @var list<DemoProductResource> */
+        /** @var list<DemoProduct> */
         return $this->repository()->query()
-            ->where(DemoProductTableModel::column('category_id'), Operator::Equals, $categoryId)
-            ->orderBy(DemoProductTableModel::column('name'), Direction::Asc)
-            ->fetchAllAs(DemoProductResource::class, $this->orm()->getMapperRegistry());
+            ->where(DemoProductResource::column('categoryId'), Operator::Equals, $categoryId)
+            ->orderBy(DemoProductResource::column('name'), Direction::Asc)
+            ->fetchAllAs(DemoProduct::class, $this->orm()->getMapperRegistry());
     }
 
+    /** @return list<DemoProduct> */
     public function findByStatus(string $status): array
     {
-        /** @var list<DemoProductResource> */
+        /** @var list<DemoProduct> */
         return $this->repository()->query()
-            ->where(DemoProductTableModel::column('status'), Operator::Equals, $status)
-            ->fetchAllAs(DemoProductResource::class, $this->orm()->getMapperRegistry());
+            ->where(DemoProductResource::column('status'), Operator::Equals, $status)
+            ->fetchAllAs(DemoProduct::class, $this->orm()->getMapperRegistry());
     }
 
+    /** @return list<DemoProduct> */
     public function search(string $term, int $limit = 50): array
     {
-        /** @var list<DemoProductResource> */
+        /** @var list<DemoProduct> */
         return $this->repository()->query()
-            ->where(DemoProductTableModel::column('name'), Operator::Like, "%{$term}%")
+            ->where(DemoProductResource::column('name'), Operator::Like, "%{$term}%")
             ->limit($limit)
-            ->fetchAllAs(DemoProductResource::class, $this->orm()->getMapperRegistry());
+            ->fetchAllAs(DemoProduct::class, $this->orm()->getMapperRegistry());
     }
 
+    /** @return list<DemoProduct> */
     public function findFiltered(?string $status = null, ?float $minPrice = null, ?float $maxPrice = null, ?string $orderBy = null, int $limit = 10, int $offset = 0): array
     {
+        $minPriceValue = $this->normalizeDecimal($minPrice);
+        $maxPriceValue = $this->normalizeDecimal($maxPrice);
         $query = $this->repository()->query();
         if ($status !== null) {
-            $query->where(DemoProductTableModel::column('status'), Operator::Equals, $status);
+            $query->where(DemoProductResource::column('status'), Operator::Equals, $status);
         }
-        if ($minPrice !== null) {
-            $query->where(DemoProductTableModel::column('price'), Operator::GreaterThanOrEquals, $minPrice);
+        if ($minPriceValue !== null) {
+            $query->where(DemoProductResource::column('price'), Operator::GreaterThanOrEquals, $minPriceValue);
         }
-        if ($maxPrice !== null) {
-            $query->where(DemoProductTableModel::column('price'), Operator::LessThanOrEquals, $maxPrice);
+        if ($maxPriceValue !== null) {
+            $query->where(DemoProductResource::column('price'), Operator::LessThanOrEquals, $maxPriceValue);
         }
         $query->orderBy(
-            DemoProductTableModel::column(self::ORDERABLE_COLUMNS[$orderBy ?? 'name'] ?? 'name'),
+            DemoProductResource::column(self::ORDERABLE_COLUMNS[$orderBy ?? 'name'] ?? 'name'),
             Direction::Asc,
         );
 
-        /** @var list<DemoProductResource> */
+        /** @var list<DemoProduct> */
         return $query
             ->limit(max(1, $limit))
             ->offset(max(0, $offset))
-            ->fetchAllAs(DemoProductResource::class, $this->orm()->getMapperRegistry());
+            ->fetchAllAs(DemoProduct::class, $this->orm()->getMapperRegistry());
     }
 
     public function countFiltered(?string $status = null, ?float $minPrice = null, ?float $maxPrice = null): int
     {
+        $minPriceValue = $this->normalizeDecimal($minPrice);
+        $maxPriceValue = $this->normalizeDecimal($maxPrice);
         $conditions = [];
         $params = [];
 
@@ -130,13 +148,13 @@ final class DemoProductRepository
             $conditions[] = 'status = :status';
             $params['status'] = $status;
         }
-        if ($minPrice !== null) {
+        if ($minPriceValue !== null) {
             $conditions[] = 'price >= :min_price';
-            $params['min_price'] = $minPrice;
+            $params['min_price'] = $minPriceValue;
         }
-        if ($maxPrice !== null) {
+        if ($maxPriceValue !== null) {
             $conditions[] = 'price <= :max_price';
-            $params['max_price'] = $maxPrice;
+            $params['max_price'] = $maxPriceValue;
         }
 
         $sql = 'SELECT COUNT(*) AS total FROM demo_products';
@@ -149,7 +167,18 @@ final class DemoProductRepository
 
     private function repository(): DomainRepository
     {
-        return $this->repository ??= $this->orm()->repository(DemoProductTableModel::class, DemoProductResource::class);
+        if ($this->repository === null) {
+            $this->repository = $this->orm()->repository(DemoProductResource::class, DemoProduct::class);
+        }
+
+        $tenantId = TenantContext::get()?->getTenantId();
+        if ($tenantId !== null && $tenantId !== '' && $tenantId !== 'default') {
+            return $this->repository->forTenant($tenantId);
+        }
+
+        $systemScopeToken = $this->systemScopeToken ??= SystemScopeToken::issue();
+
+        return $this->repository->withoutTenantScope($systemScopeToken);
     }
 
     private function orm(): OrmManager
@@ -162,11 +191,12 @@ final class DemoProductRepository
         return $this->orm()->getAdapter();
     }
 
-    private function copyInto(object $source, DemoProductResource $target): void
+    private function normalizeDecimal(?float $value, int $scale = 2): ?string
     {
-        $source instanceof DemoProductResource || throw new \InvalidArgumentException('Unexpected persisted resource.');
-        foreach (get_object_vars($source) as $property => $value) {
-            $target->{$property} = $value;
+        if ($value === null) {
+            return null;
         }
+
+        return number_format($value, $scale, '.', '');
     }
 }

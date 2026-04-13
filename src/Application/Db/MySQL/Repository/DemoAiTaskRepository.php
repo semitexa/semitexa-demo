@@ -6,12 +6,14 @@ namespace Semitexa\Demo\Application\Db\MySQL\Repository;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoAiTaskResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoAiTaskTableModel;
+use Semitexa\Demo\Domain\Model\DemoAiTask;
 use Semitexa\Orm\Attribute\AsRepository;
 use Semitexa\Orm\OrmManager;
 use Semitexa\Orm\Query\Direction;
 use Semitexa\Orm\Query\Operator;
+use Semitexa\Orm\Query\SystemScopeToken;
 use Semitexa\Orm\Repository\DomainRepository;
+use Semitexa\Tenancy\Context\TenantContext;
 
 #[AsRepository]
 final class DemoAiTaskRepository
@@ -20,45 +22,49 @@ final class DemoAiTaskRepository
     protected ?OrmManager $orm = null;
 
     private ?DomainRepository $repository = null;
+    private ?SystemScopeToken $systemScopeToken = null;
 
-    public function findById(string $id): ?DemoAiTaskResource
+    public function findById(string $id): ?DemoAiTask
     {
-        /** @var DemoAiTaskResource|null */
+        /** @var DemoAiTask|null */
         return $this->repository()->findById($id);
     }
 
-    public function save(DemoAiTaskResource $entity): void
+    public function save(DemoAiTask $entity): DemoAiTask
     {
-        $persisted = $entity->id === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
-        $this->copyInto($persisted, $entity);
+        /** @var DemoAiTask */
+        return $entity->id === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
     }
 
+    /** @return list<DemoAiTask> */
     public function findByTenant(string $tenantId, int $limit = 100): array
     {
-        /** @var list<DemoAiTaskResource> */
+        /** @var list<DemoAiTask> */
         return $this->repository()->query()
-            ->where(DemoAiTaskTableModel::column('tenant_id'), Operator::Equals, $tenantId)
+            ->where(DemoAiTaskResource::column('tenantId'), Operator::Equals, $tenantId)
             ->limit($limit)
-            ->fetchAllAs(DemoAiTaskResource::class, $this->orm()->getMapperRegistry());
+            ->fetchAllAs(DemoAiTask::class, $this->orm()->getMapperRegistry());
     }
 
+    /** @return list<DemoAiTask> */
     public function findPending(int $limit = 10): array
     {
-        /** @var list<DemoAiTaskResource> */
+        /** @var list<DemoAiTask> */
         return $this->repository()->query()
-            ->where(DemoAiTaskTableModel::column('status'), Operator::Equals, 'pending')
-            ->orderBy(DemoAiTaskTableModel::column('created_at'), Direction::Asc)
+            ->where(DemoAiTaskResource::column('status'), Operator::Equals, 'pending')
+            ->orderBy(DemoAiTaskResource::column('createdAt'), Direction::Asc)
             ->limit($limit)
-            ->fetchAllAs(DemoAiTaskResource::class, $this->orm()->getMapperRegistry());
+            ->fetchAllAs(DemoAiTask::class, $this->orm()->getMapperRegistry());
     }
 
+    /** @return list<DemoAiTask> */
     public function findByStatus(string $status): array
     {
-        /** @var list<DemoAiTaskResource> */
+        /** @var list<DemoAiTask> */
         return $this->repository()->query()
-            ->where(DemoAiTaskTableModel::column('status'), Operator::Equals, $status)
-            ->orderBy(DemoAiTaskTableModel::column('created_at'), Direction::Desc)
-            ->fetchAllAs(DemoAiTaskResource::class, $this->orm()->getMapperRegistry());
+            ->where(DemoAiTaskResource::column('status'), Operator::Equals, $status)
+            ->orderBy(DemoAiTaskResource::column('createdAt'), Direction::Desc)
+            ->fetchAllAs(DemoAiTask::class, $this->orm()->getMapperRegistry());
     }
 
     public function updateStatus(string $id, string $status): bool
@@ -78,26 +84,29 @@ final class DemoAiTaskRepository
         if ($task === null) {
             return false;
         }
-        $task->stage_results = $stageResultsJson;
+        $task->stageResults = $stageResultsJson;
         $this->save($task);
         return true;
     }
 
     private function repository(): DomainRepository
     {
-        return $this->repository ??= $this->orm()->repository(DemoAiTaskTableModel::class, DemoAiTaskResource::class);
+        if ($this->repository === null) {
+            $this->repository = $this->orm()->repository(DemoAiTaskResource::class, DemoAiTask::class);
+        }
+
+        $tenantId = TenantContext::get()?->getTenantId();
+        if ($tenantId !== null && $tenantId !== '' && $tenantId !== 'default') {
+            return $this->repository->forTenant($tenantId);
+        }
+
+        $systemScopeToken = $this->systemScopeToken ??= SystemScopeToken::issue();
+
+        return $this->repository->withoutTenantScope($systemScopeToken);
     }
 
     private function orm(): OrmManager
     {
         return $this->orm ??= new OrmManager();
-    }
-
-    private function copyInto(object $source, DemoAiTaskResource $target): void
-    {
-        $source instanceof DemoAiTaskResource || throw new \InvalidArgumentException('Unexpected persisted resource.');
-        foreach (get_object_vars($source) as $property => $value) {
-            $target->{$property} = $value;
-        }
     }
 }

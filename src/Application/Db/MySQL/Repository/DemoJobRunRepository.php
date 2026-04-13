@@ -6,7 +6,7 @@ namespace Semitexa\Demo\Application\Db\MySQL\Repository;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoJobRunResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoJobRunTableModel;
+use Semitexa\Demo\Domain\Model\DemoJobRun;
 use Semitexa\Orm\Attribute\AsRepository;
 use Semitexa\Orm\OrmManager;
 use Semitexa\Orm\Query\Direction;
@@ -21,27 +21,29 @@ final class DemoJobRunRepository
 
     private ?DomainRepository $repository = null;
 
-    public function findById(string $id): ?DemoJobRunResource
+    public function findById(string $id): ?DemoJobRun
     {
-        /** @var DemoJobRunResource|null */
+        /** @var DemoJobRun|null */
         return $this->repository()->findById($id);
     }
 
-    public function save(DemoJobRunResource $entity): void
+    public function save(DemoJobRun $entity): DemoJobRun
     {
-        $persisted = $entity->id === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
-        $this->copyInto($persisted, $entity);
+        /** @var DemoJobRun */
+        return $entity->id === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
     }
 
+    /** @return list<DemoJobRun> */
     public function findByJobType(string $jobType): array
     {
-        /** @var list<DemoJobRunResource> */
+        /** @var list<DemoJobRun> */
         return $this->repository()->query()
-            ->where(DemoJobRunTableModel::column('job_type'), Operator::Equals, $jobType)
-            ->orderBy(DemoJobRunTableModel::column('created_at'), Direction::Desc)
-            ->fetchAllAs(DemoJobRunResource::class, $this->orm()->getMapperRegistry());
+            ->where(DemoJobRunResource::column('jobType'), Operator::Equals, $jobType)
+            ->orderBy(DemoJobRunResource::column('createdAt'), Direction::Desc)
+            ->fetchAllAs(DemoJobRun::class, $this->orm()->getMapperRegistry());
     }
 
+    /** @return list<DemoJobRun> */
     public function findActiveRuns(): array
     {
         $rows = $this->adapter()->execute(
@@ -52,20 +54,21 @@ final class DemoJobRunRepository
         )->rows;
 
         return array_map(
-            fn (array $row): DemoJobRunResource => $this->orm()->getMapperRegistry()->mapToDomain(
-                $this->orm()->getTableModelHydrator()->hydrate($row, DemoJobRunTableModel::class),
-                DemoJobRunResource::class,
+            fn (array $row): DemoJobRun => $this->orm()->getMapperRegistry()->mapToDomain(
+                $this->orm()->getTableModelHydrator()->hydrate($row, DemoJobRunResource::class),
+                DemoJobRun::class,
             ),
             $rows,
         );
     }
 
+    /** @return list<DemoJobRun> */
     public function findBySchedulerRun(string $schedulerRunId): array
     {
-        /** @var list<DemoJobRunResource> */
+        /** @var list<DemoJobRun> */
         return $this->repository()->query()
-            ->where(DemoJobRunTableModel::column('scheduler_run_id'), Operator::Equals, $schedulerRunId)
-            ->fetchAllAs(DemoJobRunResource::class, $this->orm()->getMapperRegistry());
+            ->where(DemoJobRunResource::column('schedulerRunId'), Operator::Equals, $schedulerRunId)
+            ->fetchAllAs(DemoJobRun::class, $this->orm()->getMapperRegistry());
     }
 
     public function updateProgress(string $id, int $percent, ?string $message = null): void
@@ -74,9 +77,9 @@ final class DemoJobRunRepository
         if ($run === null) {
             return;
         }
-        $run->progress_percent = max(0, min(100, $percent));
+        $run->progressPercent = max(0, min(100, $percent));
         if ($message !== null) {
-            $run->progress_message = $message;
+            $run->progressMessage = $message;
         }
         $this->save($run);
     }
@@ -88,8 +91,8 @@ final class DemoJobRunRepository
             return;
         }
         $run->status = 'completed';
-        $run->progress_percent = 100;
-        $run->result_payload = $resultPayload;
+        $run->progressPercent = 100;
+        $run->resultPayload = $resultPayload;
         $this->save($run);
     }
 
@@ -100,13 +103,13 @@ final class DemoJobRunRepository
             return;
         }
         $run->status = 'failed';
-        $run->progress_message = $errorMessage;
+        $run->progressMessage = $errorMessage;
         $this->save($run);
     }
 
     private function repository(): DomainRepository
     {
-        return $this->repository ??= $this->orm()->repository(DemoJobRunTableModel::class, DemoJobRunResource::class);
+        return $this->repository ??= $this->orm()->repository(DemoJobRunResource::class, DemoJobRun::class);
     }
 
     private function orm(): OrmManager
@@ -117,13 +120,5 @@ final class DemoJobRunRepository
     private function adapter(): \Semitexa\Orm\Adapter\DatabaseAdapterInterface
     {
         return $this->orm()->getAdapter();
-    }
-
-    private function copyInto(object $source, DemoJobRunResource $target): void
-    {
-        $source instanceof DemoJobRunResource || throw new \InvalidArgumentException('Unexpected persisted resource.');
-        foreach (get_object_vars($source) as $property => $value) {
-            $target->{$property} = $value;
-        }
     }
 }

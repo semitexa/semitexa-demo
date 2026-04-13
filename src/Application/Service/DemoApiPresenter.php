@@ -7,12 +7,12 @@ namespace Semitexa\Demo\Application\Service;
 use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Request;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoCategoryResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoReviewResource;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoCategoryRepository;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoReviewRepository;
+use Semitexa\Demo\Domain\Model\DemoCategory;
+use Semitexa\Demo\Domain\Model\DemoProduct;
+use Semitexa\Demo\Domain\Model\DemoReview;
 
 #[AsService]
 final class DemoApiPresenter
@@ -50,7 +50,7 @@ final class DemoApiPresenter
             $needle = mb_strtolower($query);
             $all = array_values(array_filter(
                 $all,
-                static fn (DemoProductResource $product): bool => str_contains(
+                static fn (DemoProduct $product): bool => str_contains(
                     mb_strtolower($product->name . ' ' . ($product->description ?? '')),
                     $needle,
                 ),
@@ -62,7 +62,7 @@ final class DemoApiPresenter
         $items = array_slice($all, $offset, $limit);
 
         $payloadItems = array_map(
-            fn (DemoProductResource $product): array => $this->presentProduct(
+            fn (DemoProduct $product): array => $this->presentProduct(
                 product: $product,
                 profile: $profileName,
                 fields: $fieldList,
@@ -287,7 +287,7 @@ final class DemoApiPresenter
     }
 
     private function presentProduct(
-        DemoProductResource $product,
+        DemoProduct $product,
         string $profile,
         array $fields,
         array $expand,
@@ -327,8 +327,8 @@ final class DemoApiPresenter
 
         if (in_array('reviews', $expand, true) || $profile === 'full') {
             $json['reviews'] = array_map(
-                static fn (DemoReviewResource $review): array => [
-                    'user' => $review->user_id,
+                static fn (DemoReview $review): array => [
+                    'user' => $review->userId,
                     'rating' => $review->rating,
                     'body' => $review->body,
                 ],
@@ -424,18 +424,14 @@ final class DemoApiPresenter
         ));
     }
 
-    private function resolveCategory(DemoProductResource $product): ?DemoCategoryResource
+    private function resolveCategory(DemoProduct $product): ?DemoCategory
     {
-        if ($product->category instanceof DemoCategoryResource) {
-            return $product->category;
-        }
-
-        if ($product->category_id === null || $product->category_id === '') {
+        if ($product->categoryId === null || $product->categoryId === '') {
             return null;
         }
 
         foreach ($this->categories->findAllOrdered() as $category) {
-            if ($category->id === $product->category_id) {
+            if ($category->id === $product->categoryId) {
                 return $category;
             }
         }
@@ -444,7 +440,7 @@ final class DemoApiPresenter
     }
 
     /**
-     * @param list<DemoReviewResource> $reviews
+     * @param list<DemoReview> $reviews
      */
     private function resolveRating(array $reviews): float
     {
@@ -453,7 +449,7 @@ final class DemoApiPresenter
         }
 
         $sum = array_sum(array_map(
-            static fn (DemoReviewResource $review): int => $review->rating ?? 0,
+            static fn (DemoReview $review): int => $review->rating ?? 0,
             $reviews,
         ));
 
@@ -496,7 +492,7 @@ final class DemoApiPresenter
         return '/demo/api/v1/products';
     }
 
-    public function findProductBySlug(string $slug): ?DemoProductResource
+    public function findProductBySlug(string $slug): ?DemoProduct
     {
         foreach ($this->products->findPage(200, 0) as $product) {
             if ($this->slugify($product->name) === $slug) {

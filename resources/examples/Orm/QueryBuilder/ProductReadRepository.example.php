@@ -6,7 +6,7 @@ namespace Examples\Orm\QueryBuilder;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductTableModel;
+use Semitexa\Demo\Domain\Model\DemoProduct;
 use Semitexa\Orm\Attribute\AsRepository;
 use Semitexa\Orm\Query\Direction;
 use Semitexa\Orm\Query\Operator;
@@ -23,9 +23,9 @@ final class ProductReadRepository
             ->map(
                 $this->queryBuilder
                     ->new()
-                    ->where(DemoProductTableModel::column('status'), Operator::Equals, 'active')
-                    ->whereNull(DemoProductTableModel::column('deleted_at'))
-                    ->orderBy(DemoProductTableModel::column('created_at'), Direction::Desc)
+                    ->where(DemoProductResource::column('status'), Operator::Equals, 'active')
+                    ->whereNull(DemoProductResource::column('deletedAt'))
+                    ->orderBy(DemoProductResource::column('createdAt'), Direction::Desc)
                     ->limit($limit)
                     ->offset($offset),
             );
@@ -35,26 +35,26 @@ final class ProductReadRepository
     {
         $query = $this->queryBuilder
             ->new()
-            ->where(DemoProductTableModel::column('name'), Operator::Like, '%' . $term . '%')
-            ->where(DemoProductTableModel::column('status'), Operator::Equals, 'active')
-            ->orderBy(DemoProductTableModel::column('name'), Direction::Asc)
+            ->where(DemoProductResource::column('name'), Operator::Like, '%' . $term . '%')
+            ->where(DemoProductResource::column('status'), Operator::Equals, 'active')
+            ->orderBy(DemoProductResource::column('name'), Direction::Asc)
             ->limit(20);
 
         if ($maxPrice !== null) {
-            $query->where(DemoProductTableModel::column('price'), Operator::LessThanOrEquals, $maxPrice);
+            $query->where(DemoProductResource::column('price'), Operator::LessThanOrEquals, $maxPrice);
         }
 
         return $this->queryBuilder->map($query);
     }
 
-    public function findOneBySlug(string $slug): ?DemoProductResource
+    public function findOneByName(string $name): ?DemoProduct
     {
         return $this->queryBuilder
             ->one(
                 $this->queryBuilder
                     ->new()
-                    ->where(DemoProductTableModel::column('slug'), Operator::Equals, $slug)
-                    ->where(DemoProductTableModel::column('status'), Operator::Equals, 'active'),
+                    ->where(DemoProductResource::column('name'), Operator::Equals, $name)
+                    ->where(DemoProductResource::column('status'), Operator::Equals, 'active'),
             );
     }
 }

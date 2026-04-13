@@ -5,40 +5,42 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Db\MySQL\Model;
 
 use Semitexa\Orm\Adapter\MySqlType;
-use Semitexa\Orm\Attribute\BelongsTo;
 use Semitexa\Orm\Attribute\Column;
 use Semitexa\Orm\Attribute\Filterable;
 use Semitexa\Orm\Attribute\FromTable;
 use Semitexa\Orm\Attribute\Index;
+use Semitexa\Orm\Attribute\PrimaryKey;
 use Semitexa\Orm\Attribute\TenantScoped;
-use Semitexa\Orm\Trait\HasTimestamps;
-use Semitexa\Orm\Trait\HasUuidV7;
+use Semitexa\Orm\Metadata\HasColumnReferences;
+use Semitexa\Orm\Metadata\HasRelationReferences;
 
 #[FromTable(name: 'demo_reviews')]
-#[TenantScoped(strategy: 'same_storage')]
+#[TenantScoped(strategy: 'column', column: 'tenantId')]
 #[Index(columns: ['product_id'], name: 'idx_demo_reviews_product')]
 #[Index(columns: ['tenant_id', 'user_id'], name: 'idx_demo_reviews_tenant_user')]
-class DemoReviewResource
+final readonly class DemoReviewResource
 {
-    use HasUuidV7;
-    use HasTimestamps;
+    use HasColumnReferences;
+    use HasRelationReferences;
 
-    #[Column(type: MySqlType::Varchar, length: 64, nullable: true)]
-    public ?string $tenant_id = null;
-
-    #[Column(type: MySqlType::Binary, length: 16)]
-    public string $product_id = '';
-
-    #[Column(type: MySqlType::Char, length: 36)]
-    public string $user_id = '';
-
-    #[Filterable]
-    #[Column(type: MySqlType::Int, nullable: true)]
-    public ?int $rating = null;
-
-    #[Column(type: MySqlType::Text, nullable: true)]
-    public ?string $body = null;
-
-    #[BelongsTo(target: DemoProductResource::class, foreignKey: 'product_id')]
-    public ?DemoProductResource $product = null;
+    public function __construct(
+        #[PrimaryKey(strategy: 'uuid')]
+        #[Column(type: MySqlType::Binary, length: 16)]
+        public string $id,
+        #[Column(name: 'tenant_id', type: MySqlType::Varchar, length: 64, nullable: true)]
+        public ?string $tenantId,
+        #[Column(name: 'product_id', type: MySqlType::Binary, length: 16)]
+        public string $productId,
+        #[Column(name: 'user_id', type: MySqlType::Char, length: 36)]
+        public string $userId,
+        #[Filterable]
+        #[Column(type: MySqlType::Int, nullable: true)]
+        public ?int $rating,
+        #[Column(type: MySqlType::Text, nullable: true)]
+        public ?string $body,
+        #[Column(name: 'created_at', type: MySqlType::Datetime, nullable: true)]
+        public ?\DateTimeImmutable $createdAt,
+        #[Column(name: 'updated_at', type: MySqlType::Datetime, nullable: true)]
+        public ?\DateTimeImmutable $updatedAt,
+    ) {}
 }

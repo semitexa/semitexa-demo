@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Semitexa\Demo\Application\Command;
+namespace Semitexa\Demo\Console\Command;
 
 use Semitexa\Core\Attribute\AsCommand;
 use Semitexa\Core\Console\Command\BaseCommand;

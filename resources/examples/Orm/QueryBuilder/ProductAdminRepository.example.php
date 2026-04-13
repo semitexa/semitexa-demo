@@ -6,7 +6,7 @@ namespace Examples\Orm\QueryBuilder;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductTableModel;
+use Semitexa\Demo\Domain\Model\DemoProduct;
 use Semitexa\Orm\Attribute\AsRepository;
 use Semitexa\Orm\Query\Direction;
 use Semitexa\Orm\Query\Operator;
@@ -24,9 +24,9 @@ final class ProductAdminRepository
                 $this->queryBuilder
                     ->new()
                     ->forTenant($tenantId)
-                    ->where(DemoProductTableModel::column('status'), Operator::Equals, 'draft')
+                    ->where(DemoProductResource::column('status'), Operator::Equals, 'draft')
                     ->includeSoftDeleted()
-                    ->orderBy(DemoProductTableModel::column('updated_at'), Direction::Desc)
+                    ->orderBy(DemoProductResource::column('updatedAt'), Direction::Desc)
                     ->limit(50),
             );
     }
@@ -38,21 +38,21 @@ final class ProductAdminRepository
                 $this->queryBuilder
                     ->new()
                     ->forTenant($tenantId)
-                    ->whereNull(DemoProductTableModel::column('category_id'))
-                    ->whereNotNull(DemoProductTableModel::column('created_at'))
-                    ->orderBy(DemoProductTableModel::column('name'), Direction::Asc),
+                    ->whereNull(DemoProductResource::column('categoryId'))
+                    ->whereNotNull(DemoProductResource::column('createdAt'))
+                    ->orderBy(DemoProductResource::column('name'), Direction::Asc),
             );
     }
 
-    public function findMostExpensiveForTenant(string $tenantId): ?DemoProductResource
+    public function findMostExpensiveForTenant(string $tenantId): ?DemoProduct
     {
         return $this->queryBuilder
             ->one(
                 $this->queryBuilder
                     ->new()
                     ->forTenant($tenantId)
-                    ->where(DemoProductTableModel::column('status'), Operator::Equals, 'active')
-                    ->orderBy(DemoProductTableModel::column('price'), Direction::Desc)
+                    ->where(DemoProductResource::column('status'), Operator::Equals, 'active')
+                    ->orderBy(DemoProductResource::column('price'), Direction::Desc)
                     ->limit(1),
             );
     }

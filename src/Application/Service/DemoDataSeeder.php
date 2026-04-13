@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Service;
 
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoAiTaskResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoAnalyticsSnapshotResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoCategoryResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoJobRunResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoOrderResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoReviewResource;
+use Semitexa\Demo\Domain\Model\DemoAiTask;
+use Semitexa\Demo\Domain\Model\DemoCategory;
+use Semitexa\Demo\Domain\Model\DemoJobRun;
+use Semitexa\Demo\Domain\Model\DemoOrder;
+use Semitexa\Demo\Domain\Model\DemoProduct;
+use Semitexa\Demo\Domain\Model\DemoReview;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoAiTaskRepository;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoCategoryRepository;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoJobRunRepository;
@@ -200,12 +199,12 @@ final class DemoDataSeeder
         $map = [];
 
         foreach (self::CATEGORIES as $data) {
-            $category = new DemoCategoryResource();
+            $category = new DemoCategory();
             $category->name = $data['name'];
             $category->slug = $data['slug'];
             $category->description = $data['description'];
 
-            $this->categoryRepository->save($category);
+            $category = $this->categoryRepository->save($category);
             $map[$data['slug']] = $category->id;
         }
 
@@ -223,15 +222,15 @@ final class DemoDataSeeder
         $tenantCount = count($tenants);
 
         foreach (self::PRODUCTS as $i => $data) {
-            $product = new DemoProductResource();
+            $product = new DemoProduct();
             $product->name = $data['name'];
             $product->description = $data['description'];
             $product->price = number_format($data['price'], 2, '.', '');
             $product->status = 'active';
-            $product->category_id = $categoryIds[$data['category']] ?? null;
-            $product->tenant_id = $tenants[$i % $tenantCount];
+            $product->categoryId = $categoryIds[$data['category']] ?? null;
+            $product->tenantId = $tenants[$i % $tenantCount];
 
-            $this->productRepository->save($product);
+            $product = $this->productRepository->save($product);
             $productIds[] = $product->id;
         }
 
@@ -251,12 +250,12 @@ final class DemoDataSeeder
         $tenantCount = count($tenants);
 
         for ($i = 0; $i < 200; $i++) {
-            $review = new DemoReviewResource();
-            $review->product_id = $productIds[$i % $productCount];
-            $review->user_id = sprintf('demo-user-%03d', ($i % 20) + 1);
+            $review = new DemoReview();
+            $review->productId = $productIds[$i % $productCount];
+            $review->userId = sprintf('demo-user-%03d', ($i % 20) + 1);
             $review->rating = ($i % 5) + 1;
             $review->body = $bodies[$i % $bodyCount];
-            $review->tenant_id = $tenants[$i % $tenantCount];
+            $review->tenantId = $tenants[$i % $tenantCount];
 
             $this->reviewRepository->save($review);
             $count++;
@@ -274,11 +273,11 @@ final class DemoDataSeeder
         $tenantCount = count($tenants);
 
         for ($i = 0; $i < 20; $i++) {
-            $order = new DemoOrderResource();
-            $order->user_id = sprintf('demo-user-%03d', ($i % 10) + 1);
+            $order = new DemoOrder();
+            $order->userId = sprintf('demo-user-%03d', ($i % 10) + 1);
             $order->status = $statuses[$i % $statusCount];
-            $order->total_amount = number_format(19.99 + ($i * 15.50), 2, '.', '');
-            $order->tenant_id = $tenants[$i % $tenantCount];
+            $order->totalAmount = number_format(19.99 + ($i * 15.50), 2, '.', '');
+            $order->tenantId = $tenants[$i % $tenantCount];
 
             $this->orderRepository->save($order);
             $count++;
@@ -294,22 +293,22 @@ final class DemoDataSeeder
 
         $count = 0;
         foreach ($jobTypes as $i => $type) {
-            $run = new DemoJobRunResource();
-            $run->job_type = $type;
+            $run = new DemoJobRun();
+            $run->jobType = $type;
             $run->status = $statuses[$i];
-            $run->progress_percent = match ($statuses[$i]) {
+            $run->progressPercent = match ($statuses[$i]) {
                 'completed' => 100,
                 'running' => 42,
                 'failed' => 67,
                 default => 0,
             };
-            $run->progress_message = match ($statuses[$i]) {
+            $run->progressMessage = match ($statuses[$i]) {
                 'completed' => 'Finished successfully.',
                 'running' => 'Processing batch 3 of 7…',
                 'failed' => 'Connection timeout after 3 retries.',
                 default => null,
             };
-            $run->attempt_number = $statuses[$i] === 'failed' ? 3 : 1;
+            $run->attemptNumber = $statuses[$i] === 'failed' ? 3 : 1;
 
             $this->jobRunRepository->save($run);
             $count++;
@@ -329,13 +328,13 @@ final class DemoDataSeeder
 
         $count = 0;
         foreach ($tasks as $i => $data) {
-            $task = new DemoAiTaskResource();
-            $task->input_text = $data['input'];
+            $task = new DemoAiTask();
+            $task->inputText = $data['input'];
             $task->status = $data['status'];
-            $task->tenant_id = $tenants[$i % count($tenants)];
+            $task->tenantId = $tenants[$i % count($tenants)];
             $task->stages = json_encode(['parse', 'process', 'format'], JSON_THROW_ON_ERROR);
             if ($data['status'] === 'completed') {
-                $task->stage_results = json_encode([
+                $task->stageResults = json_encode([
                     'parse' => ['status' => 'done', 'tokens' => 42],
                     'process' => ['status' => 'done', 'tokens' => 156],
                     'format' => ['status' => 'done', 'tokens' => 23],

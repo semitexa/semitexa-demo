@@ -6,12 +6,14 @@ namespace Semitexa\Demo\Application\Db\MySQL\Repository;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoAnalyticsSnapshotResource;
-use Semitexa\Demo\Application\Db\MySQL\Model\DemoAnalyticsSnapshotTableModel;
+use Semitexa\Demo\Domain\Model\DemoAnalyticsSnapshot;
 use Semitexa\Orm\Attribute\AsRepository;
 use Semitexa\Orm\OrmManager;
 use Semitexa\Orm\Query\Direction;
 use Semitexa\Orm\Query\Operator;
+use Semitexa\Orm\Query\SystemScopeToken;
 use Semitexa\Orm\Repository\DomainRepository;
+use Semitexa\Tenancy\Context\TenantContext;
 
 #[AsRepository]
 final class DemoAnalyticsSnapshotRepository
@@ -20,55 +22,61 @@ final class DemoAnalyticsSnapshotRepository
     protected ?OrmManager $orm = null;
 
     private ?DomainRepository $repository = null;
+    private ?SystemScopeToken $systemScopeToken = null;
 
-    public function findById(string $id): ?DemoAnalyticsSnapshotResource
+    public function findById(string $id): ?DemoAnalyticsSnapshot
     {
-        /** @var DemoAnalyticsSnapshotResource|null */
+        /** @var DemoAnalyticsSnapshot|null */
         return $this->repository()->findById($id);
     }
 
-    public function save(DemoAnalyticsSnapshotResource $entity): void
+    public function save(DemoAnalyticsSnapshot $entity): DemoAnalyticsSnapshot
     {
-        $persisted = $entity->id === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
-        $this->copyInto($persisted, $entity);
+        /** @var DemoAnalyticsSnapshot */
+        return $entity->id === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
     }
 
+    /** @return list<DemoAnalyticsSnapshot> */
     public function findByMetricAndTenant(string $metricType, string $tenantId, int $limit = 10): array
     {
-        /** @var list<DemoAnalyticsSnapshotResource> */
+        /** @var list<DemoAnalyticsSnapshot> */
         return $this->repository()->query()
-            ->where(DemoAnalyticsSnapshotTableModel::column('metric_type'), Operator::Equals, $metricType)
-            ->where(DemoAnalyticsSnapshotTableModel::column('tenant_id'), Operator::Equals, $tenantId)
-            ->orderBy(DemoAnalyticsSnapshotTableModel::column('period_end'), Direction::Desc)
+            ->where(DemoAnalyticsSnapshotResource::column('metricType'), Operator::Equals, $metricType)
+            ->where(DemoAnalyticsSnapshotResource::column('tenantId'), Operator::Equals, $tenantId)
+            ->orderBy(DemoAnalyticsSnapshotResource::column('periodEnd'), Direction::Desc)
             ->limit($limit)
-            ->fetchAllAs(DemoAnalyticsSnapshotResource::class, $this->orm()->getMapperRegistry());
+            ->fetchAllAs(DemoAnalyticsSnapshot::class, $this->orm()->getMapperRegistry());
     }
 
+    /** @return list<DemoAnalyticsSnapshot> */
     public function findByTenant(string $tenantId, int $limit = 100): array
     {
-        /** @var list<DemoAnalyticsSnapshotResource> */
+        /** @var list<DemoAnalyticsSnapshot> */
         return $this->repository()->query()
-            ->where(DemoAnalyticsSnapshotTableModel::column('tenant_id'), Operator::Equals, $tenantId)
-            ->orderBy(DemoAnalyticsSnapshotTableModel::column('period_end'), Direction::Desc)
+            ->where(DemoAnalyticsSnapshotResource::column('tenantId'), Operator::Equals, $tenantId)
+            ->orderBy(DemoAnalyticsSnapshotResource::column('periodEnd'), Direction::Desc)
             ->limit($limit)
-            ->fetchAllAs(DemoAnalyticsSnapshotResource::class, $this->orm()->getMapperRegistry());
+            ->fetchAllAs(DemoAnalyticsSnapshot::class, $this->orm()->getMapperRegistry());
     }
 
     private function repository(): DomainRepository
     {
-        return $this->repository ??= $this->orm()->repository(DemoAnalyticsSnapshotTableModel::class, DemoAnalyticsSnapshotResource::class);
+        if ($this->repository === null) {
+            $this->repository = $this->orm()->repository(DemoAnalyticsSnapshotResource::class, DemoAnalyticsSnapshot::class);
+        }
+
+        $tenantId = TenantContext::get()?->getTenantId();
+        if ($tenantId !== null && $tenantId !== '' && $tenantId !== 'default') {
+            return $this->repository->forTenant($tenantId);
+        }
+
+        $systemScopeToken = $this->systemScopeToken ??= SystemScopeToken::issue();
+
+        return $this->repository->withoutTenantScope($systemScopeToken);
     }
 
     private function orm(): OrmManager
     {
         return $this->orm ??= new OrmManager();
-    }
-
-    private function copyInto(object $source, DemoAnalyticsSnapshotResource $target): void
-    {
-        $source instanceof DemoAnalyticsSnapshotResource || throw new \InvalidArgumentException('Unexpected persisted resource.');
-        foreach (get_object_vars($source) as $property => $value) {
-            $target->{$property} = $value;
-        }
     }
 }
