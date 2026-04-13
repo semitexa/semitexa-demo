@@ -13,6 +13,7 @@ use Semitexa\Orm\Query\Direction;
 use Semitexa\Orm\Query\Operator;
 use Semitexa\Orm\Query\SystemScopeToken;
 use Semitexa\Orm\Repository\DomainRepository;
+use Semitexa\Tenancy\Context\TenantContext;
 
 #[AsRepository]
 final class DemoOrderRepository
@@ -75,6 +76,11 @@ final class DemoOrderRepository
     {
         if ($this->repository === null) {
             $this->repository = $this->orm()->repository(DemoOrderResource::class, DemoOrder::class);
+        }
+
+        $tenantId = TenantContext::get()?->getTenantId();
+        if ($tenantId !== null && $tenantId !== '' && $tenantId !== 'default') {
+            return $this->repository->forTenant($tenantId);
         }
 
         $systemScopeToken = $this->systemScopeToken ??= SystemScopeToken::issue();

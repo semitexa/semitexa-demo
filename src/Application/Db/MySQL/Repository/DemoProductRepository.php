@@ -13,6 +13,7 @@ use Semitexa\Orm\Query\Direction;
 use Semitexa\Orm\Query\Operator;
 use Semitexa\Orm\Query\SystemScopeToken;
 use Semitexa\Orm\Repository\DomainRepository;
+use Semitexa\Tenancy\Context\TenantContext;
 
 #[AsRepository]
 final class DemoProductRepository
@@ -21,7 +22,7 @@ final class DemoProductRepository
         'name' => 'name',
         'price' => 'price',
         'status' => 'status',
-        'created_at' => 'created_at',
+        'created_at' => 'createdAt',
     ];
 
     #[InjectAsReadonly]
@@ -40,6 +41,11 @@ final class DemoProductRepository
     {
         /** @var DemoProduct */
         return $entity->id === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
+    }
+
+    public function delete(DemoProduct $entity): void
+    {
+        $this->repository()->delete($entity);
     }
 
     /** @return list<DemoProduct> */
@@ -159,6 +165,11 @@ final class DemoProductRepository
     {
         if ($this->repository === null) {
             $this->repository = $this->orm()->repository(DemoProductResource::class, DemoProduct::class);
+        }
+
+        $tenantId = TenantContext::get()?->getTenantId();
+        if ($tenantId !== null && $tenantId !== '' && $tenantId !== 'default') {
+            return $this->repository->forTenant($tenantId);
         }
 
         $systemScopeToken = $this->systemScopeToken ??= SystemScopeToken::issue();

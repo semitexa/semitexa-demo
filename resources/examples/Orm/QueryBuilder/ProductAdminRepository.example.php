@@ -26,7 +26,7 @@ final class ProductAdminRepository
                     ->forTenant($tenantId)
                     ->where(DemoProductResource::column('status'), Operator::Equals, 'draft')
                     ->includeSoftDeleted()
-                    ->orderBy(DemoProductResource::column('updated_at'), Direction::Desc)
+                    ->orderBy(DemoProductResource::column('updatedAt'), Direction::Desc)
                     ->limit(50),
             );
     }
@@ -38,8 +38,8 @@ final class ProductAdminRepository
                 $this->queryBuilder
                     ->new()
                     ->forTenant($tenantId)
-                    ->whereNull(DemoProductResource::column('category_id'))
-                    ->whereNotNull(DemoProductResource::column('created_at'))
+                    ->whereNull(DemoProductResource::column('categoryId'))
+                    ->whereNotNull(DemoProductResource::column('createdAt'))
                     ->orderBy(DemoProductResource::column('name'), Direction::Asc),
             );
     }

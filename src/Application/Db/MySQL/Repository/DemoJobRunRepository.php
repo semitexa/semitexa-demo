@@ -38,8 +38,8 @@ final class DemoJobRunRepository
     {
         /** @var list<DemoJobRun> */
         return $this->repository()->query()
-            ->where(DemoJobRunResource::column('job_type'), Operator::Equals, $jobType)
-            ->orderBy(DemoJobRunResource::column('created_at'), Direction::Desc)
+            ->where(DemoJobRunResource::column('jobType'), Operator::Equals, $jobType)
+            ->orderBy(DemoJobRunResource::column('createdAt'), Direction::Desc)
             ->fetchAllAs(DemoJobRun::class, $this->orm()->getMapperRegistry());
     }
 
@@ -67,7 +67,7 @@ final class DemoJobRunRepository
     {
         /** @var list<DemoJobRun> */
         return $this->repository()->query()
-            ->where(DemoJobRunResource::column('scheduler_run_id'), Operator::Equals, $schedulerRunId)
+            ->where(DemoJobRunResource::column('schedulerRunId'), Operator::Equals, $schedulerRunId)
             ->fetchAllAs(DemoJobRun::class, $this->orm()->getMapperRegistry());
     }
 

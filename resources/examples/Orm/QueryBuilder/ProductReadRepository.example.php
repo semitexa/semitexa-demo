@@ -24,8 +24,8 @@ final class ProductReadRepository
                 $this->queryBuilder
                     ->new()
                     ->where(DemoProductResource::column('status'), Operator::Equals, 'active')
-                    ->whereNull(DemoProductResource::column('deleted_at'))
-                    ->orderBy(DemoProductResource::column('created_at'), Direction::Desc)
+                    ->whereNull(DemoProductResource::column('deletedAt'))
+                    ->orderBy(DemoProductResource::column('createdAt'), Direction::Desc)
                     ->limit($limit)
                     ->offset($offset),
             );
@@ -47,13 +47,13 @@ final class ProductReadRepository
         return $this->queryBuilder->map($query);
     }
 
-    public function findOneBySlug(string $slug): ?DemoProduct
+    public function findOneByName(string $name): ?DemoProduct
     {
         return $this->queryBuilder
             ->one(
                 $this->queryBuilder
                     ->new()
-                    ->where(DemoProductResource::column('slug'), Operator::Equals, $slug)
+                    ->where(DemoProductResource::column('name'), Operator::Equals, $name)
                     ->where(DemoProductResource::column('status'), Operator::Equals, 'active'),
             );
     }
