@@ -15,7 +15,7 @@ use Semitexa\Orm\Metadata\HasColumnReferences;
 use Semitexa\Orm\Metadata\HasRelationReferences;
 
 #[FromTable(name: 'demo_analytics_snapshots')]
-#[TenantScoped(strategy: 'column', column: 'tenantId')]
+#[TenantScoped(strategy: 'column', column: 'tenant_id')]
 #[Index(columns: ['tenant_id', 'metric_type', 'period_start'], name: 'idx_demo_analytics_tenant_metric_period')]
 final readonly class DemoAnalyticsSnapshotResource
 {
