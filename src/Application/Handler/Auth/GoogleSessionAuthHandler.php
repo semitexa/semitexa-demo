@@ -6,22 +6,21 @@ namespace Semitexa\Demo\Application\Handler\Auth;
 
 use Semitexa\Auth\Attribute\AsAuthHandler;
 use Semitexa\Auth\Handler\AuthHandlerInterface;
+use Semitexa\Core\Attribute\AsService;
+use Semitexa\Core\Attribute\InjectAsMutable;
 use Semitexa\Core\Auth\AuthResult;
 use Semitexa\Core\Session\SessionInterface;
 use Semitexa\Demo\Application\Auth\GooglePrincipal;
 use Semitexa\Demo\Application\Payload\Session\GoogleAuthSessionSegment;
 
+#[AsService]
 #[AsAuthHandler(priority: -20)]
 final class GoogleSessionAuthHandler implements AuthHandlerInterface
 {
-    private const DEFAULT_ROLE = 'viewer';
+    private const string DEFAULT_ROLE = 'viewer';
 
+    #[InjectAsMutable]
     protected ?SessionInterface $session = null;
-
-    public function setSession(SessionInterface $session): void
-    {
-        $this->session = $session;
-    }
 
     public function handle(object $payload): ?AuthResult
     {
