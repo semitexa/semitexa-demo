@@ -10,12 +10,12 @@ use Semitexa\Demo\Domain\Model\DemoJobRun;
 use Semitexa\Demo\Domain\Model\DemoOrder;
 use Semitexa\Demo\Domain\Model\DemoProduct;
 use Semitexa\Demo\Domain\Model\DemoReview;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoAiTaskRepository;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoCategoryRepository;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoJobRunRepository;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoOrderRepository;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoReviewRepository;
+use Semitexa\Demo\Domain\Repository\DemoAiTaskRepositoryInterface;
+use Semitexa\Demo\Domain\Repository\DemoCategoryRepositoryInterface;
+use Semitexa\Demo\Domain\Repository\DemoJobRunRepositoryInterface;
+use Semitexa\Demo\Domain\Repository\DemoOrderRepositoryInterface;
+use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
+use Semitexa\Demo\Domain\Repository\DemoReviewRepositoryInterface;
 use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Orm\Transaction\TransactionManager;
@@ -117,22 +117,22 @@ final class DemoDataSeeder
     private const ORDER_STATUSES = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
 
     #[InjectAsReadonly]
-    protected ?DemoCategoryRepository $categoryRepository = null;
+    protected ?DemoCategoryRepositoryInterface $categoryRepository = null;
 
     #[InjectAsReadonly]
-    protected ?DemoProductRepository $productRepository = null;
+    protected ?DemoProductRepositoryInterface $productRepository = null;
 
     #[InjectAsReadonly]
-    protected ?DemoReviewRepository $reviewRepository = null;
+    protected ?DemoReviewRepositoryInterface $reviewRepository = null;
 
     #[InjectAsReadonly]
-    protected ?DemoOrderRepository $orderRepository = null;
+    protected ?DemoOrderRepositoryInterface $orderRepository = null;
 
     #[InjectAsReadonly]
-    protected ?DemoJobRunRepository $jobRunRepository = null;
+    protected ?DemoJobRunRepositoryInterface $jobRunRepository = null;
 
     #[InjectAsReadonly]
-    protected ?DemoAiTaskRepository $aiTaskRepository = null;
+    protected ?DemoAiTaskRepositoryInterface $aiTaskRepository = null;
 
     #[InjectAsReadonly]
     protected ?TransactionManager $transactionManager = null;
@@ -200,12 +200,12 @@ final class DemoDataSeeder
 
         foreach (self::CATEGORIES as $data) {
             $category = new DemoCategory();
-            $category->name = $data['name'];
-            $category->slug = $data['slug'];
-            $category->description = $data['description'];
+            $category->setName($data['name']);
+            $category->setSlug($data['slug']);
+            $category->setDescription($data['description']);
 
             $category = $this->categoryRepository->save($category);
-            $map[$data['slug']] = $category->id;
+            $map[$data['slug']] = $category->getId();
         }
 
         return $map;
@@ -223,15 +223,15 @@ final class DemoDataSeeder
 
         foreach (self::PRODUCTS as $i => $data) {
             $product = new DemoProduct();
-            $product->name = $data['name'];
-            $product->description = $data['description'];
-            $product->price = number_format($data['price'], 2, '.', '');
-            $product->status = 'active';
-            $product->categoryId = $categoryIds[$data['category']] ?? null;
-            $product->tenantId = $tenants[$i % $tenantCount];
+            $product->setName($data['name']);
+            $product->setDescription($data['description']);
+            $product->setPrice(number_format($data['price'], 2, '.', ''));
+            $product->setStatus('active');
+            $product->setCategoryId($categoryIds[$data['category']] ?? null);
+            $product->setTenantId($tenants[$i % $tenantCount]);
 
             $product = $this->productRepository->save($product);
-            $productIds[] = $product->id;
+            $productIds[] = $product->getId();
         }
 
         return $productIds;
@@ -251,11 +251,11 @@ final class DemoDataSeeder
 
         for ($i = 0; $i < 200; $i++) {
             $review = new DemoReview();
-            $review->productId = $productIds[$i % $productCount];
-            $review->userId = sprintf('demo-user-%03d', ($i % 20) + 1);
-            $review->rating = ($i % 5) + 1;
-            $review->body = $bodies[$i % $bodyCount];
-            $review->tenantId = $tenants[$i % $tenantCount];
+            $review->setProductId($productIds[$i % $productCount]);
+            $review->setUserId(sprintf('demo-user-%03d', ($i % 20) + 1));
+            $review->setRating(($i % 5) + 1);
+            $review->setBody($bodies[$i % $bodyCount]);
+            $review->setTenantId($tenants[$i % $tenantCount]);
 
             $this->reviewRepository->save($review);
             $count++;
@@ -274,10 +274,10 @@ final class DemoDataSeeder
 
         for ($i = 0; $i < 20; $i++) {
             $order = new DemoOrder();
-            $order->userId = sprintf('demo-user-%03d', ($i % 10) + 1);
-            $order->status = $statuses[$i % $statusCount];
-            $order->totalAmount = number_format(19.99 + ($i * 15.50), 2, '.', '');
-            $order->tenantId = $tenants[$i % $tenantCount];
+            $order->setUserId(sprintf('demo-user-%03d', ($i % 10) + 1));
+            $order->setStatus($statuses[$i % $statusCount]);
+            $order->setTotalAmount(number_format(19.99 + ($i * 15.50), 2, '.', ''));
+            $order->setTenantId($tenants[$i % $tenantCount]);
 
             $this->orderRepository->save($order);
             $count++;
@@ -294,21 +294,21 @@ final class DemoDataSeeder
         $count = 0;
         foreach ($jobTypes as $i => $type) {
             $run = new DemoJobRun();
-            $run->jobType = $type;
-            $run->status = $statuses[$i];
-            $run->progressPercent = match ($statuses[$i]) {
+            $run->setJobType($type);
+            $run->setStatus($statuses[$i]);
+            $run->setProgressPercent(match ($statuses[$i]) {
                 'completed' => 100,
                 'running' => 42,
                 'failed' => 67,
                 default => 0,
-            };
-            $run->progressMessage = match ($statuses[$i]) {
+            });
+            $run->setProgressMessage(match ($statuses[$i]) {
                 'completed' => 'Finished successfully.',
                 'running' => 'Processing batch 3 of 7…',
                 'failed' => 'Connection timeout after 3 retries.',
                 default => null,
-            };
-            $run->attemptNumber = $statuses[$i] === 'failed' ? 3 : 1;
+            });
+            $run->setAttemptNumber($statuses[$i] === 'failed' ? 3 : 1);
 
             $this->jobRunRepository->save($run);
             $count++;
@@ -329,16 +329,16 @@ final class DemoDataSeeder
         $count = 0;
         foreach ($tasks as $i => $data) {
             $task = new DemoAiTask();
-            $task->inputText = $data['input'];
-            $task->status = $data['status'];
-            $task->tenantId = $tenants[$i % count($tenants)];
-            $task->stages = json_encode(['parse', 'process', 'format'], JSON_THROW_ON_ERROR);
+            $task->setInputText($data['input']);
+            $task->setStatus($data['status']);
+            $task->setTenantId($tenants[$i % count($tenants)]);
+            $task->setStages(json_encode(['parse', 'process', 'format'], JSON_THROW_ON_ERROR));
             if ($data['status'] === 'completed') {
-                $task->stageResults = json_encode([
+                $task->setStageResults(json_encode([
                     'parse' => ['status' => 'done', 'tokens' => 42],
                     'process' => ['status' => 'done', 'tokens' => 156],
                     'format' => ['status' => 'done', 'tokens' => 23],
-                ], JSON_THROW_ON_ERROR);
+                ], JSON_THROW_ON_ERROR));
             }
 
             $this->aiTaskRepository->save($task);

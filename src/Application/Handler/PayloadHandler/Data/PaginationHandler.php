@@ -7,7 +7,7 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Data;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
+use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
 use Semitexa\Demo\Application\Payload\Request\Data\PaginationPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
@@ -18,7 +18,7 @@ use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 final class PaginationHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoProductRepository $productRepository;
+    protected DemoProductRepositoryInterface $productRepository;
 
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
@@ -45,8 +45,8 @@ final class PaginationHandler implements TypedHandlerInterface
         $rows = [];
         foreach ($items as $product) {
             $rows[] = [
-                ['text' => $product->name],
-                ['text' => '$' . number_format((float) $product->price, 2)],
+                ['text' => $product->getName()],
+                ['text' => '$' . number_format((float) $product->getPrice(), 2)],
             ];
         }
 

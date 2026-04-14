@@ -7,7 +7,6 @@ namespace Semitexa\Demo\Application\Payload\Request\Platform;
 use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Demo\Application\Resource\Platform\DemoTenantConfigResource;
-use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
@@ -15,17 +14,6 @@ use Semitexa\Demo\Attributes\DemoFeature;
     methods: ['GET'],
     responseWith: DemoTenantConfigResource::class,
     produces: ['application/json', 'text/html'],
-)]
-#[DemoFeature(
-    section: 'platform',
-    title: 'Per-Tenant Configuration',
-    slug: 'tenancy-config',
-    summary: 'Three demo tenants with distinct branding — switch tenant, everything changes without if/else.',
-    order: 22,
-    highlights: ['TenantContext::getLayer()', 'ThemeLayer', 'DemoTenantConfig', 'featureFlags'],
-    entryLine: 'Acme (blue, serif) · Globex (green, modern) · Initech (orange, minimal).',
-    learnMoreLabel: 'See branding config →',
-    deepDiveLabel: 'TenantContext layer resolution →',
 )]
 class TenantConfigPayload
 {

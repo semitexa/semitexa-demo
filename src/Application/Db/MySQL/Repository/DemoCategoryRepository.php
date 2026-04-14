@@ -5,16 +5,19 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Db\MySQL\Repository;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
+use Semitexa\Core\Attribute\SatisfiesRepositoryContract;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoCategoryResource;
 use Semitexa\Demo\Domain\Model\DemoCategory;
 use Semitexa\Orm\Attribute\AsRepository;
 use Semitexa\Orm\OrmManager;
 use Semitexa\Orm\Query\Direction;
 use Semitexa\Orm\Query\Operator;
+use Semitexa\Demo\Domain\Repository\DemoCategoryRepositoryInterface;
 use Semitexa\Orm\Repository\DomainRepository;
 
 #[AsRepository]
-final class DemoCategoryRepository
+#[SatisfiesRepositoryContract(of: DemoCategoryRepositoryInterface::class)]
+final class DemoCategoryRepository implements DemoCategoryRepositoryInterface
 {
     #[InjectAsReadonly]
     protected ?OrmManager $orm = null;
@@ -30,7 +33,7 @@ final class DemoCategoryRepository
     public function save(DemoCategory $entity): DemoCategory
     {
         /** @var DemoCategory */
-        return $entity->id === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
+        return $entity->getId() === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
     }
 
     public function findBySlug(string $slug): ?DemoCategory

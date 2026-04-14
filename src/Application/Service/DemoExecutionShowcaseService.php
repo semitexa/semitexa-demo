@@ -7,14 +7,14 @@ namespace Semitexa\Demo\Application\Service;
 use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Domain\Model\DemoJobRun;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoJobRunRepository;
+use Semitexa\Demo\Domain\Repository\DemoJobRunRepositoryInterface;
 use Semitexa\Ssr\Async\AsyncResourceSseServer;
 
 #[AsService]
 final class DemoExecutionShowcaseService
 {
     #[InjectAsReadonly]
-    protected DemoJobRunRepository $jobRunRepository;
+    protected DemoJobRunRepositoryInterface $jobRunRepository;
 
     private const MODE_META = [
         'sync' => [
@@ -51,15 +51,15 @@ final class DemoExecutionShowcaseService
     {
         $meta = $this->getModeMeta($mode);
         $run = new DemoJobRun();
-        $run->jobType = (string) ($meta['job_type'] ?? 'demo_execution_arena_unknown');
-        $run->status = 'pending';
-        $run->progressPercent = 0;
-        $run->progressMessage = 'Ticket issued. Waiting for backend execution.';
-        $run->resultPayload = json_encode([
+        $run->setJobType((string) ($meta['job_type'] ?? 'demo_execution_arena_unknown'));
+        $run->setStatus('pending');
+        $run->setProgressPercent(0);
+        $run->setProgressMessage('Ticket issued. Waiting for backend execution.');
+        $run->setResultPayload(json_encode([
             'mode' => $mode,
             'mode_label' => $meta['label'] ?? strtoupper($mode),
             'execution_label' => $meta['execution'] ?? 'Unknown',
-        ], JSON_THROW_ON_ERROR);
+        ], JSON_THROW_ON_ERROR));
 
         $run = $this->jobRunRepository->save($run);
 
@@ -73,17 +73,17 @@ final class DemoExecutionShowcaseService
         foreach (array_keys(self::MODE_META) as $mode) {
             $meta = $this->getModeMeta($mode);
             $latest = $this->jobRunRepository->findByJobType((string) $meta['job_type'])[0] ?? null;
-            $resultPayload = $this->decodeJson($latest?->resultPayload);
+            $resultPayload = $this->decodeJson($latest?->getResultPayload());
 
             $lanes[] = [
                 'mode' => $mode,
                 'label' => $meta['label'],
                 'execution' => $meta['execution'],
                 'responseSummary' => $meta['response_summary'],
-                'latestRunId' => $latest?->id,
-                'latestStatus' => $latest?->status ?? 'idle',
-                'latestProgress' => $latest?->progressPercent ?? 0,
-                'latestMessage' => $latest?->progressMessage ?? 'No run yet.',
+                'latestRunId' => $latest?->getId(),
+                'latestStatus' => $latest?->getStatus() ?? 'idle',
+                'latestProgress' => $latest?->getProgressPercent() ?? 0,
+                'latestMessage' => $latest?->getProgressMessage() ?? 'No run yet.',
                 'latestFinishedAt' => $resultPayload['completed_at'] ?? null,
                 'latestWorker' => $resultPayload['worker_model'] ?? null,
             ];
@@ -176,9 +176,9 @@ final class DemoExecutionShowcaseService
             return;
         }
 
-        $run->status = $status;
-        $run->progressPercent = $progress;
-        $run->progressMessage = $message;
+        $run->setStatus($status);
+        $run->setProgressPercent($progress);
+        $run->setProgressMessage($message);
         $this->jobRunRepository->save($run);
     }
 
@@ -189,10 +189,10 @@ final class DemoExecutionShowcaseService
             return;
         }
 
-        $run->status = 'completed';
-        $run->progressPercent = 100;
-        $run->progressMessage = $message;
-        $run->resultPayload = json_encode($resultPayload, JSON_THROW_ON_ERROR);
+        $run->setStatus('completed');
+        $run->setProgressPercent(100);
+        $run->setProgressMessage($message);
+        $run->setResultPayload(json_encode($resultPayload, JSON_THROW_ON_ERROR));
         $this->jobRunRepository->save($run);
     }
 

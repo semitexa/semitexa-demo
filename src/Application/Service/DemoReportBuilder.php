@@ -6,7 +6,7 @@ namespace Semitexa\Demo\Application\Service;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Attribute\AsService;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoJobRunRepository;
+use Semitexa\Demo\Domain\Repository\DemoJobRunRepositoryInterface;
 
 #[AsService]
 final class DemoReportBuilder
@@ -14,7 +14,7 @@ final class DemoReportBuilder
     private const STAGES = ['querying', 'aggregating', 'formatting', 'complete'];
 
     #[InjectAsReadonly]
-    protected ?DemoJobRunRepository $jobRunRepository = null;
+    protected ?DemoJobRunRepositoryInterface $jobRunRepository = null;
 
     /**
      * Simulate report aggregation progress for a given job run.
@@ -27,7 +27,7 @@ final class DemoReportBuilder
             return;
         }
 
-        $current = $run->progressPercent ?? 0;
+        $current = $run->getProgressPercent() ?? 0;
         $next = min(100, $current + 25);
         $stageIndex = $next >= 100 ? count(self::STAGES) - 1 : max(0, (int) floor(($next - 1) / 25));
         $stage = self::STAGES[$stageIndex] ?? 'complete';

@@ -5,16 +5,19 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Db\MySQL\Repository;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
+use Semitexa\Core\Attribute\SatisfiesRepositoryContract;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoJobRunResource;
 use Semitexa\Demo\Domain\Model\DemoJobRun;
 use Semitexa\Orm\Attribute\AsRepository;
 use Semitexa\Orm\OrmManager;
 use Semitexa\Orm\Query\Direction;
 use Semitexa\Orm\Query\Operator;
+use Semitexa\Demo\Domain\Repository\DemoJobRunRepositoryInterface;
 use Semitexa\Orm\Repository\DomainRepository;
 
 #[AsRepository]
-final class DemoJobRunRepository
+#[SatisfiesRepositoryContract(of: DemoJobRunRepositoryInterface::class)]
+final class DemoJobRunRepository implements DemoJobRunRepositoryInterface
 {
     #[InjectAsReadonly]
     protected ?OrmManager $orm = null;
@@ -30,7 +33,7 @@ final class DemoJobRunRepository
     public function save(DemoJobRun $entity): DemoJobRun
     {
         /** @var DemoJobRun */
-        return $entity->id === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
+        return $entity->getId() === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
     }
 
     /** @return list<DemoJobRun> */
@@ -55,7 +58,7 @@ final class DemoJobRunRepository
 
         return array_map(
             fn (array $row): DemoJobRun => $this->orm()->getMapperRegistry()->mapToDomain(
-                $this->orm()->getTableModelHydrator()->hydrate($row, DemoJobRunResource::class),
+                $this->orm()->getResourceModelHydrator()->hydrate($row, DemoJobRunResource::class),
                 DemoJobRun::class,
             ),
             $rows,
@@ -77,9 +80,9 @@ final class DemoJobRunRepository
         if ($run === null) {
             return;
         }
-        $run->progressPercent = max(0, min(100, $percent));
+        $run->setProgressPercent(max(0, min(100, $percent)));
         if ($message !== null) {
-            $run->progressMessage = $message;
+            $run->setProgressMessage($message);
         }
         $this->save($run);
     }
@@ -90,9 +93,9 @@ final class DemoJobRunRepository
         if ($run === null) {
             return;
         }
-        $run->status = 'completed';
-        $run->progressPercent = 100;
-        $run->resultPayload = $resultPayload;
+        $run->setStatus('completed');
+        $run->setProgressPercent(100);
+        $run->setResultPayload($resultPayload);
         $this->save($run);
     }
 
@@ -102,8 +105,8 @@ final class DemoJobRunRepository
         if ($run === null) {
             return;
         }
-        $run->status = 'failed';
-        $run->progressMessage = $errorMessage;
+        $run->setStatus('failed');
+        $run->setProgressMessage($errorMessage);
         $this->save($run);
     }
 

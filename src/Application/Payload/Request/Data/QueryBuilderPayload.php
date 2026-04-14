@@ -7,7 +7,6 @@ namespace Semitexa\Demo\Application\Payload\Request\Data;
 use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
@@ -15,17 +14,6 @@ use Semitexa\Demo\Attributes\DemoFeature;
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
     produces: ['application/json', 'text/html'],
-)]
-#[DemoFeature(
-    section: 'data',
-    title: 'Query Builder',
-    slug: 'query',
-    summary: 'Compose type-safe queries with a fluent API — no raw SQL, no magic strings.',
-    order: 2,
-    highlights: ['TableModelQuery', 'where()', 'orderBy()', 'limit()', 'fetchAll()', 'fetchOne()'],
-    entryLine: 'Compose type-safe queries with a fluent API — no raw SQL, no magic strings.',
-    learnMoreLabel: 'See the query builder →',
-    deepDiveLabel: 'How TableModelQuery compiles SQL →',
 )]
 class QueryBuilderPayload
 {

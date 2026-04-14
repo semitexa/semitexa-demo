@@ -74,7 +74,7 @@ final class ExecutionArenaLaunchHandler implements TypedHandlerInterface
                 ]);
         }
 
-        $event->setRunId($run->id);
+        $event->setRunId($run->getId());
         $event->setSessionId($sessionId);
         $event->setRequestedAt((new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format(DATE_ATOM));
 
@@ -93,9 +93,9 @@ final class ExecutionArenaLaunchHandler implements TypedHandlerInterface
                 'queued' => 'HTTP 200 confirms the queue ticket was published. Worker completion comes later over SSE.',
                 default => 'Launch accepted.',
             },
-            'runId' => $run->id,
+            'runId' => $run->getId(),
             'dispatchMs' => $dispatchMs,
-            'status' => $run->status,
+            'status' => $run->getStatus(),
             'message' => match ($mode) {
                 'sync' => 'The HTTP response waited for the sync listener to finish.',
                 'async' => 'The response is already back; the deferred listener will keep working over SSE.',

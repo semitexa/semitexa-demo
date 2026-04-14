@@ -6,7 +6,7 @@ namespace Semitexa\Demo\Application\Scheduler;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Domain\Model\DemoJobRun;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoJobRunRepository;
+use Semitexa\Demo\Domain\Repository\DemoJobRunRepositoryInterface;
 use Semitexa\Demo\Application\Service\DemoReportBuilder;
 use Semitexa\Scheduler\Attribute\AsScheduledJob;
 use Semitexa\Scheduler\Contract\ScheduledJobInterface;
@@ -20,7 +20,7 @@ use Semitexa\Scheduler\Domain\Value\ScheduledJobContext;
 final class DemoReportGenerationJob implements ScheduledJobInterface
 {
     #[InjectAsReadonly]
-    protected ?DemoJobRunRepository $jobRunRepository = null;
+    protected ?DemoJobRunRepositoryInterface $jobRunRepository = null;
 
     #[InjectAsReadonly]
     protected ?DemoReportBuilder $reportBuilder = null;
@@ -34,7 +34,7 @@ final class DemoReportGenerationJob implements ScheduledJobInterface
         $active = $this->jobRunRepository->findActiveRuns();
         $activeReport = null;
         foreach ($active as $run) {
-            if ($run->jobType === 'report_generation') {
+            if ($run->getJobType() === 'report_generation') {
                 $activeReport = $run;
                 break;
             }
@@ -42,16 +42,16 @@ final class DemoReportGenerationJob implements ScheduledJobInterface
 
         if ($activeReport === null) {
             $run = new DemoJobRun();
-            $run->jobType = 'report_generation';
-            $run->status = 'running';
-            $run->progressPercent = 0;
-            $run->progressMessage = 'Starting…';
-            $run->schedulerRunId = $context->runId;
-            $run->attemptNumber = 1;
+            $run->setJobType('report_generation');
+            $run->setStatus('running');
+            $run->setProgressPercent(0);
+            $run->setProgressMessage('Starting…');
+            $run->setSchedulerRunId($context->runId);
+            $run->setAttemptNumber(1);
             $run = $this->jobRunRepository->save($run);
             $activeReport = $run;
         }
 
-        $this->reportBuilder->advanceProgress($activeReport->id);
+        $this->reportBuilder->advanceProgress($activeReport->getId());
     }
 }

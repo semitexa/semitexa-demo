@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Db\MySQL\Repository;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
+use Semitexa\Core\Attribute\SatisfiesRepositoryContract;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
 use Semitexa\Demo\Domain\Model\DemoProduct;
 use Semitexa\Orm\Attribute\AsRepository;
@@ -12,11 +13,13 @@ use Semitexa\Orm\OrmManager;
 use Semitexa\Orm\Query\Direction;
 use Semitexa\Orm\Query\Operator;
 use Semitexa\Orm\Query\SystemScopeToken;
+use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
 use Semitexa\Orm\Repository\DomainRepository;
 use Semitexa\Tenancy\Context\TenantContext;
 
 #[AsRepository]
-final class DemoProductRepository
+#[SatisfiesRepositoryContract(of: DemoProductRepositoryInterface::class)]
+final class DemoProductRepository implements DemoProductRepositoryInterface
 {
     private const ORDERABLE_COLUMNS = [
         'name' => 'name',
@@ -40,7 +43,7 @@ final class DemoProductRepository
     public function save(DemoProduct $entity): DemoProduct
     {
         /** @var DemoProduct */
-        return $entity->id === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
+        return $entity->getId() === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
     }
 
     public function delete(DemoProduct $entity): void

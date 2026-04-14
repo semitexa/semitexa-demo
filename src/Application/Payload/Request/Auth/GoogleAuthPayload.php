@@ -7,7 +7,6 @@ namespace Semitexa\Demo\Application\Payload\Request\Auth;
 use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
@@ -15,17 +14,6 @@ use Semitexa\Demo\Attributes\DemoFeature;
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
     produces: ['application/json', 'text/html'],
-)]
-#[DemoFeature(
-    section: 'auth',
-    title: 'Google Authorization',
-    slug: 'google',
-    summary: 'Authorization is required for demo SSE blocks that keep a long-lived backend connection open.',
-    order: 6,
-    highlights: ['Authorization is required', 'Google Account', 'session-backed login', 'persistent SSE'],
-    entryLine: 'This demo gates long-lived SSE surfaces behind a Google Account so the stream cannot be opened by anonymous traffic.',
-    learnMoreLabel: 'See the authorization gate →',
-    deepDiveLabel: 'Why the demo stream is protected →',
 )]
 class GoogleAuthPayload
 {

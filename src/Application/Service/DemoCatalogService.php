@@ -5,15 +5,10 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Service;
 
 use Semitexa\Core\Attribute\AsService;
-use Semitexa\Core\Attribute\InjectAsReadonly;
-use Semitexa\Demo\Attributes\DemoFeature;
 
 #[AsService]
 final class DemoCatalogService
 {
-    #[InjectAsReadonly]
-    protected DemoFeatureRegistry $featureRegistry;
-
     private const NAVIGATION_LAYERS = [
         [
             'key' => 'start-here',
@@ -346,19 +341,136 @@ final class DemoCatalogService
         ['section' => 'platform', 'slug' => 'tenancy-resolution'],
     ];
 
+    /**
+     * Static feature metadata keyed by "section/slug".
+     *
+     * Title and summary for each feature. Order is implicit from the
+     * position inside SECTION_GROUPS. The only feature that sets
+     * opensInNewTab is rendering/deferred.
+     *
+     * @var array<string, array{title: string, summary: string, opensInNewTab?: true}>
+     */
+    private const FEATURE_META = [
+        // get-started
+        'get-started/module-structure' => ['title' => 'Module Structure', 'summary' => 'See the minimal Semitexa module spine first, then expand it into the full demo stack with catalog, shell, and SEO layers.'],
+        'get-started/installation' => ['title' => 'Installation', 'summary' => 'Create the project, prepare `.env`, and bring up the Semitexa runtime the supported way.'],
+        'get-started/local-domain' => ['title' => 'Local Domain', 'summary' => 'Register `.test` domains through the built-in local-domain helper instead of relying on ad-hoc host setup.'],
+        'get-started/base-tenant' => ['title' => 'Base Tenant', 'summary' => 'Define the first tenant through environment variables and resolve it through a real local host.'],
+        'get-started/locale-setup' => ['title' => 'Locale Setup', 'summary' => 'Configure the minimal Semitexa Locale contract: default locale, supported locales, JSON catalogs, and one Twig translation check.'],
+        'get-started/ai-console' => ['title' => 'AI Console', 'summary' => 'Use `bin/semitexa ai` as an alternative CLI entrypoint when you do not want to remember exact command names.'],
+        'get-started/beyond-controllers' => ['title' => 'Beyond Controllers', 'summary' => 'See why controller-first HTTP design collapses transport, use case, and rendering into one unstable class and why Semitexa keeps them apart.'],
+
+        // routing
+        'routing/basic' => ['title' => 'Basic Route', 'summary' => 'Define a route with one attribute — no XML, no YAML, no config files.'],
+        'routing/parameterized' => ['title' => 'Parameterized Route', 'summary' => 'Path parameters with regex constraints and typed injection.'],
+        'routing/env-route-override' => ['title' => 'Env Route Override', 'summary' => 'Keep the payload as the route source of truth while allowing operations to remap the public URL through .env.'],
+        'routing/payload-shield' => ['title' => 'Payload As A Shield', 'summary' => 'Hydration happens before the handler, and each setter owns the normalization and guard logic for its own field.'],
+        'routing/payload-parts' => ['title' => 'Payload Parts', 'summary' => 'One module owns the route, another module can extend the same payload contract without forking or reopening the base class.'],
+        'routing/content-negotiation' => ['title' => 'Content Negotiation', 'summary' => 'One endpoint, multiple response formats — automatically.'],
+        'routing/public-endpoint' => ['title' => 'Public Endpoint', 'summary' => 'Every endpoint is private by default. #[PublicEndpoint] is the explicit opt-in for anonymous access.'],
+
+        // di
+        'di/overview' => ['title' => 'DI Canon', 'summary' => 'One canonical DI path for container-managed classes: explicit properties, explicit lifecycles, deterministic boot.'],
+        'di/readonly' => ['title' => 'Readonly Injection', 'summary' => 'One explicit DI path, one shared worker instance — fast at runtime and stable under reload.'],
+        'di/mutable' => ['title' => 'Mutable Injection', 'summary' => 'Execution-scoped services get a fresh clone every run — safe state without contaminating the worker.'],
+        'di/factory' => ['title' => 'Factory Injection', 'summary' => 'On-demand creation stays explicit — lazy instances without falling back to service locator habits.'],
+        'di/contracts' => ['title' => 'Service Contracts', 'summary' => 'Depend on contracts, but keep ownership explicit — deterministic substitution instead of runtime magic.'],
+
+        // data
+        'data/domain-models' => ['title' => 'Domain-Level Models', 'summary' => 'Semitexa separates persistence resources from business models. Resources map tables; domain models carry behavior and invariants.'],
+        'data/repository-workflow' => ['title' => 'Repository Workflow', 'summary' => 'The canonical Semitexa path: handlers depend on repository contracts, repositories return domain models, and persistence resources stay behind the boundary.'],
+        'data/schema-sync' => ['title' => 'Schema Sync, Not Migration Churn', 'summary' => 'Semitexa creates SQL only when the real schema changed, blocks destructive drops by default, and logs the exact DDL plan as SQL and JSON.'],
+        'data/query' => ['title' => 'Query Builder', 'summary' => 'Compose type-safe queries with a fluent API — no raw SQL, no magic strings.'],
+        'data/filtering' => ['title' => 'Filtering', 'summary' => 'Mark a property #[Filterable] and the ORM handles the rest — no manual WHERE clauses.'],
+        'data/pagination' => ['title' => 'Pagination', 'summary' => 'Offset and cursor pagination out of the box — switch modes with a single query parameter.'],
+        'data/relations' => ['title' => 'Relations', 'summary' => 'Declare parent and child links on the resource itself, then read typed relations from the handler.'],
+        'data/table-extension' => ['title' => 'Shared Table Extension', 'summary' => 'Two modules can extend one table independently, and the ORM merges the schema without forcing either side to edit the other.'],
+        'data/n-plus-one' => ['title' => 'N+1 Without Magic', 'summary' => 'Semitexa avoids N+1 by using resource slices for the exact columns and relations each screen needs, instead of hiding database traffic behind implicit relation loading.'],
+
+        // auth
+        'auth/session' => ['title' => 'Session Auth', 'summary' => 'Google signs the user in, then the session stores the selected demo role and re-hydrates it on every request.'],
+        'auth/session-payloads' => ['title' => 'Session Payloads', 'summary' => 'Semitexa forbids string-key session chaos: session state lives in typed Session Payloads or it does not exist.'],
+        'auth/google' => ['title' => 'Google Authorization', 'summary' => 'Authorization is required for demo SSE blocks that keep a long-lived backend connection open.'],
+        'auth/machine' => ['title' => 'Machine Auth', 'summary' => 'Service-to-service authentication via Bearer tokens — scoped, revocable, and audited.'],
+        'auth/protected' => ['title' => 'Protected Route', 'summary' => 'Add one attribute to any route and the framework enforces access — 403 returned automatically.'],
+        'auth/requires-permission' => ['title' => 'Requires Permission', 'summary' => 'Declare one permission slug on the payload and let the framework enforce it before your handler runs.'],
+        'auth/rbac' => ['title' => 'RBAC', 'summary' => 'Hybrid RBAC with coarse-grained capabilities, exact permission slugs, and module-owned permission catalogs.'],
+
+        // events
+        'events/arena' => ['title' => 'Execution Arena', 'summary' => 'Launch the same backend intent in sync, Swoole async, and queued modes, then watch the proof arrive over SSE.'],
+        'events/sync' => ['title' => 'Sync Events', 'summary' => 'Dispatch an event and all sync listeners run before the response is sent.'],
+        'events/deferred' => ['title' => 'Deferred Handler', 'summary' => 'Heavy work runs after the response is sent — the user gets instant feedback.'],
+        'events/queued' => ['title' => 'Queued Handler', 'summary' => 'Events survive restarts and scale across workers — backed by a durable message queue.'],
+        'events/sse' => ['title' => 'SSE Stream', 'summary' => 'Real-time server push without WebSockets — connect once and receive real backend events over plain HTTP.'],
+        'events/ledger' => ['title' => 'Ledger Demo', 'summary' => 'Dispatch a protected demo event and inspect only the persisted demo ledger rows through a safe read-only view.'],
+
+        // rendering
+        'rendering/philosophy' => ['title' => 'SSR Philosophy', 'summary' => 'Semitexa SSR is one continuous rendering architecture: page, slots, deferred regions, live refresh, and interactive components stay inside one server-owned story.'],
+        'rendering/resource-dtos' => ['title' => 'Resource DTOs', 'summary' => 'A Resource DTO is the one typed source of presentation data: handlers shape it once, templates consume it everywhere, and no view has to dissect random arrays.'],
+        'rendering/slots' => ['title' => 'Slot Resources', 'summary' => 'Each page region is its own resource pipeline with the same template system as the main page — no scattered partial glue, no mystery wiring.'],
+        'rendering/components' => ['title' => 'Components', 'summary' => 'Reusable, attribute-registered UI components — discovered automatically from the classmap.'],
+        'rendering/seo' => ['title' => 'SEO', 'summary' => 'Set title, description, and Open Graph tags from your handler — no template hacks needed.'],
+        'rendering/assets' => ['title' => 'Asset Pipeline', 'summary' => 'Declare assets with glob patterns in assets.json — served, versioned, and injected automatically.'],
+        'rendering/component-scripts' => ['title' => 'Component Script Assets', 'summary' => 'A Semitexa SSR component can own its optional enhancement asset, so behavior travels with the component instead of leaking into page-level glue.'],
+        'rendering/deferred-scripts' => ['title' => 'Script Injection', 'summary' => 'Deferred blocks carry their own JS — injected once when the block arrives, never duplicated.'],
+        'rendering/deferred' => ['title' => 'Deferred Blocks', 'summary' => 'SSR renders the shell first, then expensive regions stream in as real HTML over SSE — no SPA handoff and no client-side page rebuild.', 'opensInNewTab' => true],
+        'rendering/deferred-encapsulation' => ['title' => 'Block Isolation', 'summary' => 'Two identical blocks on the same page run independently — scoped DOM, scoped JS, no conflicts.'],
+        'rendering/deferred-live' => ['title' => 'Live Widgets', 'summary' => 'A live slot can refresh itself on a timer while the page stays SSR-first — no SPA runtime and no handwritten polling layer.'],
+        'rendering/reactive-report' => ['title' => 'Reactive Report', 'summary' => 'Background work updates an SSR-first slot in place, so the UI feels live without falling back to SPA state orchestration.'],
+        'rendering/reactive-import' => ['title' => 'Reactive Import', 'summary' => 'Background batches keep moving, and the page reflects server progress as live HTML instead of a client-managed progress app.'],
+        'rendering/reactive-analytics' => ['title' => 'Reactive Analytics', 'summary' => 'Independent analytics jobs can light up one dashboard progressively, while the page stays server-rendered from the first byte.'],
+        'rendering/reactive-ai' => ['title' => 'Reactive AI Task', 'summary' => 'Submit a task and watch the AI pipeline stages reveal one by one as the cron job processes it.'],
+
+        // platform
+        'platform/tenancy-resolution' => ['title' => 'Tenant Context Resolution', 'summary' => 'See how Semitexa resolves the active tenant from subdomain, header, path, or query input before the rest of the platform runs.'],
+        'platform/tenancy-config' => ['title' => 'Per-Tenant Configuration', 'summary' => 'Three demo tenants with distinct branding — switch tenant, everything changes without if/else.'],
+        'platform/tenancy-layers' => ['title' => 'Multi-Layer Tenancy', 'summary' => 'Organization → Locale → Theme → Environment — four independent layers compose into one TenantContext.'],
+        'platform/tenancy-isolation' => ['title' => 'Data Isolation', 'summary' => 'Product listing scoped by tenant — switch tenant, list changes. Zero manual WHERE clauses.'],
+        'platform/tenancy-queue' => ['title' => 'Queue Tenant Propagation', 'summary' => 'Tenant context travels with queued jobs — _tenant key injected automatically, restored by worker.'],
+
+        // api
+        'api/rest-api' => ['title' => 'REST API', 'summary' => 'Classic Semitexa REST endpoints with typed payloads, versioning, and consumer-friendly response shaping.'],
+        'api/structured-errors' => ['title' => 'Structured Errors', 'summary' => 'Throw domain exceptions and let semitexa-api map them into stable machine-readable error envelopes.'],
+        'api/active-version' => ['title' => 'Active Version', 'summary' => 'The current collection endpoint with a clean X-Api-Version header and no deprecation noise.'],
+        'api/sunset-version' => ['title' => 'Sunset Version', 'summary' => 'A deprecated product endpoint that emits both Deprecation and Sunset headers.'],
+        'api/schema-discovery' => ['title' => 'Schema Discovery', 'summary' => 'A mini Swagger-style explorer for the live product API contract, schema endpoint, and response shapes.'],
+        'api/graphql' => ['title' => 'GraphQL API', 'summary' => 'GraphQL-first Semitexa contracts built with typed payloads and typed output DTOs instead of resolver sprawl.'],
+        'api/rest-graphql' => ['title' => 'REST + GraphQL', 'summary' => 'One Semitexa use case can serve both REST and GraphQL without duplicating handler logic into separate resolver classes.'],
+
+        // cli
+        'cli/describe-commands' => ['title' => 'Project Describe Commands', 'summary' => 'Routes, modules, contracts, and handlers can be described directly from the CLI instead of reverse-engineering the framework graph by hand.'],
+        'cli/runtime-maintenance' => ['title' => 'Runtime Maintenance', 'summary' => 'Reload workers, clear stale cache, sync registries, lint architecture rules, and probe handler wiring without reaching for ad-hoc shell scripts.'],
+        'cli/scaffolding-generators' => ['title' => 'Scaffolding Generators', 'summary' => 'Scaffold modules, pages, payloads, services, and contracts through commands that already understand Semitexa structure and AI-friendly output modes.'],
+        'cli/workers-scheduling' => ['title' => 'Workers & Scheduling', 'summary' => 'Run queues, scheduler pools, mail delivery, webhooks, and tenant-scoped commands from a coherent operator surface instead of bespoke daemons.'],
+        'cli/ai-tooling' => ['title' => 'AI Tooling Surface', 'summary' => 'Semitexa exposes AI-facing commands as explicit CLI contracts: capabilities, skills, log access, and a local assistant entrypoint.'],
+        'cli/orm-console' => ['title' => 'ORM Console Toolkit', 'summary' => 'The ORM ships with a practical CLI surface: status, diff, sync, and seed commands with dry-run safety and SQL plan export.'],
+
+        // project-graph
+        'project-graph/overview' => ['title' => 'Project Graph Overview', 'summary' => 'Build a live structural map of the Semitexa codebase so both engineers and AI agents can start from real architecture instead of guesswork.'],
+        'project-graph/inspection' => ['title' => 'Inspecting the Graph', 'summary' => 'Use the graph to explore modules, dependencies, cross-module edges, and AI-relevant capabilities without reconstructing the architecture by hand.'],
+        'project-graph/impact' => ['title' => 'Impact, Context, and Watch Mode', 'summary' => 'Ask what a change will touch, package focused context for AI, and keep the graph fresh while the codebase evolves.'],
+
+        // llm
+        'llm/overview' => ['title' => 'Overview', 'summary' => 'What `semitexa/llm` adds to the framework and how your project can expose its own CLI skills to the assistant.'],
+        'llm/providers' => ['title' => 'Providers & Backends', 'summary' => 'Provider contracts, backend resolution, local vs remote Ollama, and the environment knobs that shape LLM runtime behavior.'],
+        'llm/skills' => ['title' => 'Adding Skills', 'summary' => 'How a console command becomes AI-executable through `#[AsAiSkill]`, metadata policy, and registry discovery.'],
+        'llm/execution-flow' => ['title' => 'Execution Flow', 'summary' => 'How a user request becomes a planner decision, a reviewed skill proposal, and finally a real console execution.'],
+
+        // testing
+        'testing/payload-contracts' => ['title' => 'Payload Contract Testing', 'summary' => 'Scaffold one project-level contract test and let strategy profiles verify payload boundaries without hand-writing repetitive negative cases.'],
+    ];
+
     public function getSections(bool $includeEmpty = false): array
     {
         $sections = [];
 
         foreach (self::SECTION_META as $key => $meta) {
-            $registryEntries = $this->featureRegistry->getBySection($key);
-            $featureCount = count($registryEntries);
+            $flatFeatures = $this->buildFeaturesForSection($key);
+            $featureCount = count($flatFeatures);
 
             if (!$includeEmpty && $featureCount === 0) {
                 continue;
             }
-
-            $flatFeatures = $this->mapRegistryEntries($key, $registryEntries);
 
             $sections[] = array_merge($meta, [
                 'featureCount' => $featureCount,
@@ -465,9 +577,6 @@ final class DemoCatalogService
     }
 
     /**
-     * Returns a single section entry wrapped in a list for callers that need
-     * the same outer shape as the layered feature tree helpers.
-     *
      * @return list<array<string, mixed>>
      */
     public function getFeatureTreeForSection(string $section): array
@@ -528,25 +637,22 @@ final class DemoCatalogService
 
     private function getFeatureCard(string $section, string $slug): ?array
     {
-        foreach ($this->featureRegistry->getBySection($section) as $entry) {
-            /** @var DemoFeature $feature */
-            $feature = $entry['attribute'];
-            if ($feature->slug !== $slug) {
-                continue;
-            }
+        $key = $section . '/' . $slug;
+        $meta = self::FEATURE_META[$key] ?? null;
 
-            return [
-                'section' => $section,
-                'slug' => $feature->slug,
-                'label' => self::SECTION_META[$section]['label'] ?? ucfirst($section),
-                'title' => $feature->title,
-                'summary' => $feature->entryLine !== '' ? $feature->entryLine : $feature->summary,
-                'opensInNewTab' => $feature->opensInNewTab,
-                'href' => $this->featureRegistry->getPath($section, $slug) ?? '/demo/' . $section . '/' . $feature->slug,
-            ];
+        if ($meta === null) {
+            return null;
         }
 
-        return null;
+        return [
+            'section' => $section,
+            'slug' => $slug,
+            'label' => self::SECTION_META[$section]['label'] ?? ucfirst($section),
+            'title' => $meta['title'],
+            'summary' => $meta['summary'],
+            'opensInNewTab' => $meta['opensInNewTab'] ?? false,
+            'href' => '/demo/' . $section . '/' . $slug,
+        ];
     }
 
     /**
@@ -572,51 +678,41 @@ final class DemoCatalogService
     }
 
     /**
-     * @param list<array{class:string,attribute:DemoFeature,path:?string}> $entries
-     * @return list<array{
-     *   section:string,
-     *   slug:string,
-     *   label:string,
-     *   title:string,
-     *   summary:string,
-     *   opensInNewTab:bool,
-     *   href:string
-     * }>
+     * Builds the flat feature list for a section from SECTION_GROUPS + FEATURE_META.
+     *
+     * @return list<array{section:string,slug:string,label:string,title:string,summary:string,opensInNewTab:bool,href:string}>
      */
-    private function mapRegistryEntries(string $section, array $entries): array
+    private function buildFeaturesForSection(string $section): array
     {
         $features = [];
+        $groups = self::SECTION_GROUPS[$section] ?? [];
 
-        foreach ($entries as $entry) {
-            if (!isset($entry['attribute']) || !$entry['attribute'] instanceof DemoFeature) {
-                continue;
+        foreach ($groups as $group) {
+            foreach ($group['slugs'] as $slug) {
+                $key = $section . '/' . $slug;
+                $meta = self::FEATURE_META[$key] ?? null;
+
+                if ($meta === null) {
+                    continue;
+                }
+
+                $features[] = [
+                    'section' => $section,
+                    'slug' => $slug,
+                    'label' => self::SECTION_META[$section]['label'] ?? ucfirst($section),
+                    'title' => $meta['title'],
+                    'summary' => $meta['summary'],
+                    'opensInNewTab' => $meta['opensInNewTab'] ?? false,
+                    'href' => '/demo/' . $section . '/' . $slug,
+                ];
             }
-
-            $feature = $entry['attribute'];
-            $features[] = [
-                'section' => $section,
-                'slug' => $feature->slug,
-                'label' => self::SECTION_META[$section]['label'] ?? ucfirst($section),
-                'title' => $feature->title,
-                'summary' => $feature->entryLine !== '' ? $feature->entryLine : $feature->summary,
-                'opensInNewTab' => $feature->opensInNewTab,
-                'href' => $entry['path'] ?? '/demo/' . $section . '/' . $feature->slug,
-            ];
         }
 
         return $features;
     }
 
     /**
-     * @param list<array{
-     *   section:string,
-     *   slug:string,
-     *   label:string,
-     *   title:string,
-     *   summary:string,
-     *   opensInNewTab:bool,
-     *   href:string
-     * }> $features
+     * @param list<array{section:string,slug:string,label:string,title:string,summary:string,opensInNewTab:bool,href:string}> $features
      * @return list<array{key:string,label:string,featureCount:int,features:list<array<string,mixed>>}>
      */
     private function buildSectionGroups(string $section, array $features): array

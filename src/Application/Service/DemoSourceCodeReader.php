@@ -94,7 +94,7 @@ final class DemoSourceCodeReader
         'Semitexa\\Api\\Domain\\Model\\MachineCredential' => 'resources/examples/Data/Identity/MachineCredential.example.php',
         'Semitexa\\Api\\Domain\\Contract\\MachineCredentialRepositoryInterface' => 'resources/examples/Data/Identity/MachineCredentialRepositoryInterface.example.php',
         'Semitexa\\Api\\Application\\Db\\MySQL\\Repository\\MachineCredentialRepository' => 'resources/examples/Data/Identity/MachineCredentialRepository.example.php',
-        'Semitexa\\Api\\Application\\Db\\MySQL\\Model\\MachineCredentialTableModel' => 'resources/examples/Data/Identity/MachineCredentialTableModel.example.php',
+        'Semitexa\\Api\\Application\\Db\\MySQL\\Model\\MachineCredentialResourceModel' => 'resources/examples/Data/Identity/MachineCredentialResourceModel.example.php',
         'Semitexa\\Api\\Application\\Db\\MySQL\\Model\\MachineCredentialMapper' => 'resources/examples/Data/Identity/MachineCredentialMapper.example.php',
     ];
 
@@ -478,31 +478,7 @@ PHP);
     private function sanitizeForDisplay(string $contents): string
     {
         $lines = preg_split("/\r\n|\n|\r/", $contents) ?: [];
-        $filtered = [];
-        $skippingDemoFeature = false;
-
-        foreach ($lines as $line) {
-            if (preg_match('/^use\s+Semitexa\\\\Demo\\\\Attributes\\\\DemoFeature;$/', trim($line)) === 1) {
-                continue;
-            }
-
-            if (str_contains($line, '#[DemoFeature(')) {
-                $skippingDemoFeature = true;
-                continue;
-            }
-
-            if ($skippingDemoFeature) {
-                if (trim($line) === ')]') {
-                    $skippingDemoFeature = false;
-                }
-
-                continue;
-            }
-
-            $filtered[] = $line;
-        }
-
-        $sanitized = implode("\n", $filtered);
+        $sanitized = implode("\n", $lines);
 
         return preg_replace("/\n{3,}/", "\n\n", $sanitized) ?? $sanitized;
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Db\MySQL\Repository;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
+use Semitexa\Core\Attribute\SatisfiesRepositoryContract;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoReviewResource;
 use Semitexa\Demo\Domain\Model\DemoReview;
 use Semitexa\Orm\Attribute\AsRepository;
@@ -12,11 +13,13 @@ use Semitexa\Orm\OrmManager;
 use Semitexa\Orm\Query\Direction;
 use Semitexa\Orm\Query\Operator;
 use Semitexa\Orm\Query\SystemScopeToken;
+use Semitexa\Demo\Domain\Repository\DemoReviewRepositoryInterface;
 use Semitexa\Orm\Repository\DomainRepository;
 use Semitexa\Tenancy\Context\TenantContext;
 
 #[AsRepository]
-final class DemoReviewRepository
+#[SatisfiesRepositoryContract(of: DemoReviewRepositoryInterface::class)]
+final class DemoReviewRepository implements DemoReviewRepositoryInterface
 {
     #[InjectAsReadonly]
     protected ?OrmManager $orm = null;
@@ -33,7 +36,7 @@ final class DemoReviewRepository
     public function save(DemoReview $entity): DemoReview
     {
         /** @var DemoReview */
-        return $entity->id === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
+        return $entity->getId() === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
     }
 
     /** @return list<DemoReview> */

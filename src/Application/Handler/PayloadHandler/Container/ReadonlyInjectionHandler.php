@@ -11,15 +11,11 @@ use Semitexa\Demo\Application\Payload\Request\Container\ReadonlyInjectionPayload
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureRegistry;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ReadonlyInjectionPayload::class, resource: DemoFeatureResource::class)]
 final class ReadonlyInjectionHandler implements TypedHandlerInterface
 {
-    #[InjectAsReadonly]
-    protected DemoFeatureRegistry $featureRegistry;
-
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
@@ -31,8 +27,6 @@ final class ReadonlyInjectionHandler implements TypedHandlerInterface
 
     public function handle(ReadonlyInjectionPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $registryId = spl_object_id($this->featureRegistry);
-
         $explanation = $this->explanationProvider->getExplanation('di', 'readonly') ?? [];
 
         $sourceCode = [
@@ -66,9 +60,9 @@ final class ReadonlyInjectionHandler implements TypedHandlerInterface
                 'columns' => ['Service', 'Scope', 'Object ID'],
                 'rows' => [
                     [
-                        ['text' => 'DemoFeatureRegistry'],
+                        ['text' => 'DemoCatalogService'],
                         ['text' => 'worker'],
-                        ['text' => sprintf('#%d', $registryId), 'code' => true],
+                        ['text' => sprintf('#%d', spl_object_id($this->catalog)), 'code' => true],
                     ],
                     [
                         ['text' => 'DemoSourceCodeReader'],

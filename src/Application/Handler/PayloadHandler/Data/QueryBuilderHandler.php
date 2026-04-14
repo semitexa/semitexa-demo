@@ -7,7 +7,7 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Data;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
+use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
 use Semitexa\Demo\Application\Payload\Request\Data\QueryBuilderPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
@@ -18,7 +18,7 @@ use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 final class QueryBuilderHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoProductRepository $productRepository;
+    protected DemoProductRepositoryInterface $productRepository;
 
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
@@ -43,18 +43,18 @@ final class QueryBuilderHandler implements TypedHandlerInterface
         $rows = [];
         foreach (array_slice($products, 0, 5) as $product) {
             $rows[] = [
-                ['text' => $product->name],
-                ['text' => '$' . number_format((float) $product->price, 2)],
-                ['text' => (string) $product->status],
+                ['text' => $product->getName()],
+                ['text' => '$' . number_format((float) $product->getPrice(), 2)],
+                ['text' => $product->getStatus()],
             ];
         }
 
-        $querySnippet = '$products = $orm->repository(DemoProductTableModel::class, DemoProductResource::class)' . "\n"
+        $querySnippet = '$products = $orm->repository(DemoProductResourceModel::class, DemoProductResource::class)' . "\n"
             . '    ->query()' . "\n"
-            . ($payload->getStatus() !== null ? sprintf("    ->where(DemoProductTableModel::column('status'), Operator::Equals, '%s')\n", $payload->getStatus()) : '')
-            . ($payload->getMinPrice() !== null ? sprintf("    ->where(DemoProductTableModel::column('price'), Operator::GreaterThanOrEquals, %.2f)\n", $payload->getMinPrice()) : '')
-            . ($payload->getMaxPrice() !== null ? sprintf("    ->where(DemoProductTableModel::column('price'), Operator::LessThanOrEquals, %.2f)\n", $payload->getMaxPrice()) : '')
-            . ($payload->getOrderBy() !== null ? sprintf("    ->orderBy(DemoProductTableModel::column('%s'), Direction::Asc)\n", $payload->getOrderBy()) : '')
+            . ($payload->getStatus() !== null ? sprintf("    ->where(DemoProductResourceModel::column('status'), Operator::Equals, '%s')\n", $payload->getStatus()) : '')
+            . ($payload->getMinPrice() !== null ? sprintf("    ->where(DemoProductResourceModel::column('price'), Operator::GreaterThanOrEquals, %.2f)\n", $payload->getMinPrice()) : '')
+            . ($payload->getMaxPrice() !== null ? sprintf("    ->where(DemoProductResourceModel::column('price'), Operator::LessThanOrEquals, %.2f)\n", $payload->getMaxPrice()) : '')
+            . ($payload->getOrderBy() !== null ? sprintf("    ->orderBy(DemoProductResourceModel::column('%s'), Direction::Asc)\n", $payload->getOrderBy()) : '')
             . sprintf("    ->limit(%d)\n", $payload->getLimit())
             . '    ->fetchAllAs(DemoProductResource::class, $orm->getMapperRegistry());';
 
@@ -84,9 +84,9 @@ final class QueryBuilderHandler implements TypedHandlerInterface
             ->withTitle('Query Builder')
             ->withSummary('Compose type-safe queries with a fluent API — no raw SQL, no magic strings.')
             ->withEntryLine('Compose type-safe queries with a fluent API — no raw SQL, no magic strings.')
-            ->withHighlights(['TableModelQuery', 'where()', 'orderBy()', 'limit()', 'fetchAll()', 'fetchOne()'])
+            ->withHighlights(['ResourceModelQuery', 'where()', 'orderBy()', 'limit()', 'fetchAll()', 'fetchOne()'])
             ->withLearnMoreLabel('See the query builder →')
-            ->withDeepDiveLabel('How TableModelQuery compiles SQL →')
+            ->withDeepDiveLabel('How ResourceModelQuery compiles SQL →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/data-table.html.twig', [
                 'eyebrow' => 'Query Builder',
                 'title' => 'Compiled query example',

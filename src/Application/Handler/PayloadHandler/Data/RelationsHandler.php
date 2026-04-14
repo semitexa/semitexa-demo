@@ -7,12 +7,12 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Data;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoCategoryRepository;
+use Semitexa\Demo\Domain\Repository\DemoCategoryRepositoryInterface;
 use Semitexa\Demo\Domain\Model\DemoCategory;
 use Semitexa\Demo\Domain\Model\DemoProduct;
 use Semitexa\Demo\Domain\Model\DemoReview;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoReviewRepository;
+use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
+use Semitexa\Demo\Domain\Repository\DemoReviewRepositoryInterface;
 use Semitexa\Demo\Application\Payload\Request\Data\RelationsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
@@ -23,13 +23,13 @@ use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 final class RelationsHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoCategoryRepository $categoryRepository;
+    protected DemoCategoryRepositoryInterface $categoryRepository;
 
     #[InjectAsReadonly]
-    protected DemoProductRepository $productRepository;
+    protected DemoProductRepositoryInterface $productRepository;
 
     #[InjectAsReadonly]
-    protected DemoReviewRepository $reviewRepository;
+    protected DemoReviewRepositoryInterface $reviewRepository;
 
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
@@ -46,7 +46,7 @@ final class RelationsHandler implements TypedHandlerInterface
         $products = $this->productRepository->findPage(3);
         $focusProduct = $products[0] ?? null;
         $focusCategory = $this->resolveProductCategory($focusProduct);
-        $focusReviews = $focusProduct !== null ? $this->reviewRepository->findByProduct($focusProduct->id) : [];
+        $focusReviews = $focusProduct !== null ? $this->reviewRepository->findByProduct($focusProduct->getId()) : [];
         $firstReview = $focusReviews[0] ?? null;
 
         $explanation = $this->explanationProvider->getExplanation('data', 'relations') ?? [];
@@ -124,12 +124,12 @@ final class RelationsHandler implements TypedHandlerInterface
 $products = $this->productRepository->findPage(3);
 $product = $products[0] ?? null;
 
-$category = $product !== null ? $this->categoryRepository->findById($product->categoryId) : null;
-$reviews = $product !== null ? $this->reviewRepository->findByProduct($product->id) : [];
+$category = $product !== null ? $this->categoryRepository->findById($product->getCategoryId()) : null;
+$reviews = $product !== null ? $this->reviewRepository->findByProduct($product->getId()) : [];
 
-$categoryName = $category?->name;
+$categoryName = $category?->getName();
 $reviewCount = count($reviews);
-$firstReviewProduct = $reviews[0]?->productId ?? null;
+$firstReviewProduct = $reviews[0]?->getProductId() ?? null;
 PHP,
                 'columns' => ['Step', 'Handler code', 'What becomes available'],
                 'rows' => [
@@ -140,17 +140,17 @@ PHP,
                     ],
                     [
                         ['text' => 'Walk to parent'],
-                        ['text' => '$this->categoryRepository->findById($product->categoryId)?->name', 'code' => true],
+                        ['text' => '$this->categoryRepository->findById($product->getCategoryId())?->getName()', 'code' => true],
                         ['text' => $this->describeProductCategory($focusProduct, $focusCategory)],
                     ],
                     [
                         ['text' => 'Walk to children'],
-                        ['text' => 'count($this->reviewRepository->findByProduct($product->id))', 'code' => true],
+                        ['text' => 'count($this->reviewRepository->findByProduct($product->getId()))', 'code' => true],
                         ['text' => $this->describeProductReviews($focusProduct, $focusReviews)],
                     ],
                     [
                         ['text' => 'Walk back from child'],
-                        ['text' => '$this->productRepository->findById($review->productId)?->name', 'code' => true],
+                        ['text' => '$this->productRepository->findById($review->getProductId())?->getName()', 'code' => true],
                         ['text' => $this->describeReviewProduct($firstReview, $focusProduct)],
                     ],
                 ],
@@ -162,11 +162,11 @@ PHP,
 
     private function resolveProductCategory(?DemoProduct $product): ?DemoCategory
     {
-        if ($product === null || $product->categoryId === null || $product->categoryId === '') {
+        if ($product === null || $product->getCategoryId() === null || $product->getCategoryId() === '') {
             return null;
         }
 
-        return $this->categoryRepository->findById($product->categoryId);
+        return $this->categoryRepository->findById($product->getCategoryId());
     }
 
     private function describeCategoryProducts(?DemoCategory $category): string
@@ -175,12 +175,12 @@ PHP,
             return 'One category field opens a child collection.';
         }
 
-        $products = $this->productRepository->findByCategory($category->id);
+        $products = $this->productRepository->findByCategory($category->getId());
         $sample = $products[0] ?? null;
 
         return $sample !== null
-            ? sprintf('%s currently groups %d products such as %s.', $category->name, count($products), $sample->name)
-            : sprintf('%s can expose its linked products without manual joins in the handler.', $category->name);
+            ? sprintf('%s currently groups %d products such as %s.', $category->getName(), count($products), $sample->getName())
+            : sprintf('%s can expose its linked products without manual joins in the handler.', $category->getName());
     }
 
     private function describeProductCategory(?DemoProduct $product, ?DemoCategory $category): string
@@ -190,8 +190,8 @@ PHP,
         }
 
         return $category !== null
-            ? sprintf('%s belongs to %s through category_id.', $product->name, $category->name)
-            : sprintf('%s keeps the parent link on $category.', $product->name);
+            ? sprintf('%s belongs to %s through category_id.', $product->getName(), $category->getName())
+            : sprintf('%s keeps the parent link on $category.', $product->getName());
     }
 
     /**
@@ -203,7 +203,7 @@ PHP,
             return 'A product can expose many child reviews.';
         }
 
-        return sprintf('%s currently exposes %d linked reviews.', $product->name, count($reviews));
+        return sprintf('%s currently exposes %d linked reviews.', $product->getName(), count($reviews));
     }
 
     private function describeReviewProduct(?DemoReview $review, ?DemoProduct $product): string
@@ -212,8 +212,8 @@ PHP,
             return 'A review can walk back to the product it belongs to.';
         }
 
-        $rating = $review->rating !== null ? sprintf('%d-star', $review->rating) : 'One';
+        $rating = $review->getRating() !== null ? sprintf('%d-star', $review->getRating()) : 'One';
 
-        return sprintf('%s review points back to %s.', $rating, $product->name);
+        return sprintf('%s review points back to %s.', $rating, $product->getName());
     }
 }

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Application\Db\TableModel;
+namespace App\Application\Db\ResourceModel;
 
 use Semitexa\Orm\Adapter\MySqlType;
 use Semitexa\Orm\Attribute\Column;
 use Semitexa\Orm\Attribute\FromTable;
 
 #[FromTable(name: 'machine_credentials')]
-final class MachineCredentialTableModel
+final class MachineCredentialResourceModel
 {
     #[Column(type: MySqlType::Varchar, length: 64)]
     public string $id;

@@ -72,7 +72,7 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
 
         $tenantConfigMap = [];
         foreach ($configs as $config) {
-            $tenantConfigMap[$config->tenantId] = $config;
+            $tenantConfigMap[$config->getTenantId()] = $config;
         }
 
         $tenantTabs = [];
@@ -80,21 +80,21 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
             $config = $tenantConfigMap[$tenantId] ?? null;
             $tenantTabs[] = [
                 'tenantId' => $tenantId,
-                'displayName' => $config?->displayName ?? strtoupper($tenantId),
+                'displayName' => $config?->getDisplayName() ?? strtoupper($tenantId),
                 'count' => $allCounts[$tenantId] ?? 0,
                 'href' => '?tenant=' . $tenantId,
                 'isActive' => $tenantId === $activeTenant,
-                'color' => $config?->primaryColor ?? '#6b7280',
+                'color' => $config?->getPrimaryColor() ?? '#6b7280',
             ];
         }
 
         $activeConfig = $tenantConfigMap[$activeTenant] ?? null;
         $activeTenantSummary = [
             'tenantId' => $activeTenant,
-            'displayName' => $activeConfig?->displayName ?? strtoupper($activeTenant),
-            'color' => $activeConfig?->primaryColor ?? '#6b7280',
-            'defaultLocale' => $activeConfig?->defaultLocale ?? 'en',
-            'currencyCode' => $activeConfig?->currencyCode ?? 'USD',
+            'displayName' => $activeConfig?->getDisplayName() ?? strtoupper($activeTenant),
+            'color' => $activeConfig?->getPrimaryColor() ?? '#6b7280',
+            'defaultLocale' => $activeConfig?->getDefaultLocale() ?? 'en',
+            'currencyCode' => $activeConfig?->getCurrencyCode() ?? 'USD',
             'count' => $count,
             'narrative' => match ($activeTenant) {
                 'acme' => 'Acme should only see its own catalog rows even though the repository call stays the same.',
@@ -149,9 +149,9 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
             ->withActiveTenant($activeTenant)
             ->withActiveTenantSummary($activeTenantSummary)
             ->withProducts(array_map(fn ($p) => [
-                'name'   => $p->name ?? '—',
-                'price'  => $p->price ?? '0.00',
-                'status' => $p->status ?? 'active',
+                'name'   => $p->getName(),
+                'price'  => $p->getPrice(),
+                'status' => $p->getStatus(),
             ], $products))
             ->withProductCount($count)
             ->withIllustrationSql($sql)

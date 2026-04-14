@@ -6,7 +6,7 @@ namespace Semitexa\Demo\Application\Service;
 
 use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoJobRunRepository;
+use Semitexa\Demo\Domain\Repository\DemoJobRunRepositoryInterface;
 
 #[AsService]
 final class DemoProductImporter
@@ -15,7 +15,7 @@ final class DemoProductImporter
     private const BATCH_SIZE = 40;
 
     #[InjectAsReadonly]
-    protected DemoJobRunRepository $jobRunRepository;
+    protected DemoJobRunRepositoryInterface $jobRunRepository;
 
     /**
      * Simulate one batch of CSV import for a given job run.
@@ -27,7 +27,7 @@ final class DemoProductImporter
             return;
         }
 
-        $processed = (int) round(($run->progressPercent ?? 0) / 100 * self::TOTAL_ROWS);
+        $processed = (int) round($run->getProgressPercent() / 100 * self::TOTAL_ROWS);
         $next = min(self::TOTAL_ROWS, $processed + self::BATCH_SIZE);
         $pct = (int) round(($next / self::TOTAL_ROWS) * 100);
 

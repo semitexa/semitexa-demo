@@ -64,12 +64,12 @@ final class TenantLayersHandler implements TypedHandlerInterface
         $matrix = [];
         foreach ($configs as $config) {
             $matrix[] = [
-                'tenant'       => $config->tenantId,
-                'displayName'  => $config->displayName,
-                'organization' => $config->tenantId,
-                'theme'        => $config->tenantId . '-theme',
-                'locale'       => $config->defaultLocale,
-                'color'        => $config->primaryColor,
+                'tenant'       => $config->getTenantId(),
+                'displayName'  => $config->getDisplayName(),
+                'organization' => $config->getTenantId(),
+                'theme'        => $config->getTenantId() . '-theme',
+                'locale'       => $config->getDefaultLocale(),
+                'color'        => $config->getPrimaryColor(),
             ];
         }
 

@@ -7,7 +7,6 @@ namespace Semitexa\Demo\Application\Payload\Request\Async;
 use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
@@ -15,17 +14,6 @@ use Semitexa\Demo\Attributes\DemoFeature;
     methods: ['GET', 'POST'],
     responseWith: DemoFeatureResource::class,
     produces: ['application/json', 'text/html'],
-)]
-#[DemoFeature(
-    section: 'events',
-    title: 'Sync Events',
-    slug: 'sync',
-    summary: 'Dispatch an event and all sync listeners run before the response is sent.',
-    order: 1,
-    highlights: ['#[AsEvent]', '#[AsEventListener]', 'EventExecution::Sync', 'EventDispatcherInterface'],
-    entryLine: 'Dispatch an event and all sync listeners run before the response is sent.',
-    learnMoreLabel: 'See the event & listener code →',
-    deepDiveLabel: 'Dispatcher execution modes →',
 )]
 class SyncEventPayload
 {

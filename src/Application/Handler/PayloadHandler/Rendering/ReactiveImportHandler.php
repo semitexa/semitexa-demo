@@ -7,7 +7,7 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Rendering;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoJobRunRepository;
+use Semitexa\Demo\Domain\Repository\DemoJobRunRepositoryInterface;
 use Semitexa\Demo\Application\Payload\Request\Rendering\ReactiveImportPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Resource\Slot\Reactive\ReactiveImportSlot;
@@ -20,7 +20,7 @@ use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 final class ReactiveImportHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoJobRunRepository $jobRunRepository;
+    protected DemoJobRunRepositoryInterface $jobRunRepository;
 
     #[InjectAsReadonly]
     protected DemoProductImporter $productImporter;
@@ -40,7 +40,7 @@ final class ReactiveImportHandler implements TypedHandlerInterface
         $latestRun = $runs[0] ?? null;
 
         $totalRows = $this->productImporter->getTotalRows();
-        $progress = $latestRun?->progressPercent ?? 0;
+        $progress = $latestRun?->getProgressPercent() ?? 0;
         $processed = (int) round($progress / 100 * $totalRows);
 
         $explanation = $this->explanationProvider->getExplanation('rendering', 'reactive-import') ?? [];
@@ -78,7 +78,7 @@ final class ReactiveImportHandler implements TypedHandlerInterface
                 'processed' => number_format($processed),
                 'total' => number_format($totalRows),
                 'progress' => (int) $progress,
-                'message' => $latestRun?->progressMessage ?? 'Waiting for import job…',
+                'message' => $latestRun?->getProgressMessage() ?? 'Waiting for import job…',
                 'signals' => [
                     ['value' => '1', 'label' => 'source of truth for progress'],
                     ['value' => '0', 'label' => 'frontend counters to reconcile'],

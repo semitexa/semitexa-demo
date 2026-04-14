@@ -7,7 +7,6 @@ namespace Semitexa\Demo\Application\Payload\Request\Data;
 use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
@@ -15,17 +14,6 @@ use Semitexa\Demo\Attributes\DemoFeature;
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
     produces: ['application/json', 'text/html'],
-)]
-#[DemoFeature(
-    section: 'data',
-    title: 'Pagination',
-    slug: 'pagination',
-    summary: 'Offset and cursor pagination out of the box — switch modes with a single query parameter.',
-    order: 9,
-    highlights: ['PaginatedResult', 'limit()', 'offset()', 'cursor pagination', 'total count'],
-    entryLine: 'Offset and cursor pagination out of the box — switch modes with a single query parameter.',
-    learnMoreLabel: 'See pagination in action →',
-    deepDiveLabel: 'Offset vs cursor trade-offs →',
 )]
 class PaginationPayload
 {

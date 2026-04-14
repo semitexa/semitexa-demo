@@ -41,49 +41,50 @@ final class TenantConfigHandler implements TypedHandlerInterface
 
         $configs = array_map(
             fn ($config) => [
-                'tenantId'        => $config->tenantId,
-                'displayName'     => $config->displayName,
-                'primaryColor'    => $config->primaryColor,
-                'fontFamily'      => $config->fontFamily,
-                'currencyCode'    => $config->currencyCode,
-                'ratingStyle'     => $config->ratingStyle,
-                'featureFlags'    => $config->featureFlags,
-                'supportedLocales' => $config->supportedLocales,
-                'defaultLocale'   => $config->defaultLocale,
-                'isActive'        => $config->tenantId === $activeTenant,
-                'href'            => '/demo/platform/tenancy/config?tenant=' . $config->tenantId,
-                'narrative'       => $tenantNarratives[$config->tenantId] ?? 'Tenant-specific configuration changes the product surface without branching handlers.',
+                'tenantId'        => $config->getTenantId(),
+                'displayName'     => $config->getDisplayName(),
+                'primaryColor'    => $config->getPrimaryColor(),
+                'fontFamily'      => $config->getFontFamily(),
+                'currencyCode'    => $config->getCurrencyCode(),
+                'ratingStyle'     => $config->getRatingStyle(),
+                'featureFlags'    => $config->getFeatureFlags(),
+                'supportedLocales' => $config->getSupportedLocales(),
+                'defaultLocale'   => $config->getDefaultLocale(),
+                'isActive'        => $config->getTenantId() === $activeTenant,
+                'href'            => '/demo/platform/tenancy/config?tenant=' . $config->getTenantId(),
+                'narrative'       => $tenantNarratives[$config->getTenantId()] ?? 'Tenant-specific configuration changes the product surface without branching handlers.',
             ],
             $providerConfigs
         );
 
         $activeConfig = null;
         foreach ($providerConfigs as $config) {
-            if ($config->tenantId !== $activeTenant) {
+            if ($config->getTenantId() !== $activeTenant) {
                 continue;
             }
 
+            $featureFlags = $config->getFeatureFlags();
             $activeConfig = [
-                'tenantId' => $config->tenantId,
-                'displayName' => $config->displayName,
-                'primaryColor' => $config->primaryColor,
-                'fontFamily' => $config->fontFamily,
-                'currencyCode' => $config->currencyCode,
-                'ratingStyle' => $config->ratingStyle,
-                'defaultLocale' => $config->defaultLocale,
-                'supportedLocales' => $config->supportedLocales,
-                'featureFlags' => $config->featureFlags,
-                'logoPath' => $config->logoPath,
-                'narrative' => $tenantNarratives[$config->tenantId] ?? '',
+                'tenantId' => $config->getTenantId(),
+                'displayName' => $config->getDisplayName(),
+                'primaryColor' => $config->getPrimaryColor(),
+                'fontFamily' => $config->getFontFamily(),
+                'currencyCode' => $config->getCurrencyCode(),
+                'ratingStyle' => $config->getRatingStyle(),
+                'defaultLocale' => $config->getDefaultLocale(),
+                'supportedLocales' => $config->getSupportedLocales(),
+                'featureFlags' => $featureFlags,
+                'logoPath' => $config->getLogoPath(),
+                'narrative' => $tenantNarratives[$config->getTenantId()] ?? '',
                 'visibleOutcomes' => [
-                    sprintf('Branding resolves to %s with %s typography.', $config->primaryColor, $config->fontFamily),
-                    sprintf('Prices and commerce copy can default to %s and locale %s.', $config->currencyCode, $config->defaultLocale),
-                    sprintf('Rating widgets switch to %s presentation.', $config->ratingStyle),
+                    sprintf('Branding resolves to %s with %s typography.', $config->getPrimaryColor(), $config->getFontFamily()),
+                    sprintf('Prices and commerce copy can default to %s and locale %s.', $config->getCurrencyCode(), $config->getDefaultLocale()),
+                    sprintf('Rating widgets switch to %s presentation.', $config->getRatingStyle()),
                     sprintf(
                         'Feature flags: reviews %s, wishlist %s, AI chat %s.',
-                        ($config->featureFlags['reviews_enabled'] ?? false) ? 'on' : 'off',
-                        ($config->featureFlags['wishlist_enabled'] ?? false) ? 'on' : 'off',
-                        ($config->featureFlags['ai_chat_enabled'] ?? false) ? 'on' : 'off',
+                        ($featureFlags['reviews_enabled'] ?? false) ? 'on' : 'off',
+                        ($featureFlags['wishlist_enabled'] ?? false) ? 'on' : 'off',
+                        ($featureFlags['ai_chat_enabled'] ?? false) ? 'on' : 'off',
                     ),
                 ],
             ];

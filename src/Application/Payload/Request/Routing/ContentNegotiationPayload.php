@@ -8,7 +8,6 @@ use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Core\Request;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
@@ -16,17 +15,6 @@ use Semitexa\Demo\Attributes\DemoFeature;
     produces: ['application/json', 'text/html'],
     path: '/demo/routing/products',
     methods: ['GET'],
-)]
-#[DemoFeature(
-    section: 'routing',
-    title: 'Content Negotiation',
-    slug: 'content-negotiation',
-    summary: 'One endpoint, multiple response formats — automatically.',
-    order: 6,
-    highlights: ['#[AsPayload(produces)]', 'Accept header', '?_format= override', 'ContentNegotiator'],
-    entryLine: 'One endpoint serves JSON or HTML depending on the Accept header — no branching in handler code.',
-    learnMoreLabel: 'Toggle formats →',
-    deepDiveLabel: 'How negotiation works →',
 )]
 class ContentNegotiationPayload
 {
