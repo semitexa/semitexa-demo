@@ -7,7 +7,7 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Rendering;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoAiTaskRepository;
+use Semitexa\Demo\Domain\Repository\DemoAiTaskRepositoryInterface;
 use Semitexa\Demo\Application\Payload\Request\Rendering\ReactiveAiTaskPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Resource\Slot\Reactive\ReactiveAiTaskSlot;
@@ -20,7 +20,7 @@ use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 final class ReactiveAiTaskHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoAiTaskRepository $aiTaskRepository;
+    protected DemoAiTaskRepositoryInterface $aiTaskRepository;
 
     #[InjectAsReadonly]
     protected DemoAiTextProcessor $aiTextProcessor;
@@ -50,9 +50,9 @@ final class ReactiveAiTaskHandler implements TypedHandlerInterface
 
         $latestTask = $recentTasks[0] ?? null;
         $stageResults = [];
-        if ($latestTask !== null && !empty($latestTask->stageResults)) {
+        if ($latestTask !== null && !empty($latestTask->getStageResults())) {
             try {
-                $stageResults = json_decode($latestTask->stageResults, true, 512, JSON_THROW_ON_ERROR);
+                $stageResults = json_decode($latestTask->getStageResults(), true, 512, JSON_THROW_ON_ERROR);
             } catch (\JsonException) {
                 $stageResults = [];
             }
@@ -73,7 +73,7 @@ final class ReactiveAiTaskHandler implements TypedHandlerInterface
             ];
         }
 
-        $status = $latestTask?->status ?? 'idle';
+        $status = $latestTask?->getStatus() ?? 'idle';
         $statusClass = match ($status) {
             'running'   => 'badge--active',
             'completed' => 'badge--success',
@@ -115,7 +115,7 @@ final class ReactiveAiTaskHandler implements TypedHandlerInterface
                 'summary' => 'Submit a task and watch each processing stage reveal itself as background work completes.',
                 'statusVariant' => str_replace('badge--', '', $statusClass),
                 'statusLabel' => ucfirst($status),
-                'taskLabel' => $latestTask !== null ? 'Task ' . substr((string) ($latestTask->id ?? ''), 0, 8) . '…' : null,
+                'taskLabel' => $latestTask !== null ? 'Task ' . substr($latestTask->getId(), 0, 8) . '…' : null,
                 'stages' => $stageRows,
                 'stageResultsJson' => $stageResultsJson,
             ])

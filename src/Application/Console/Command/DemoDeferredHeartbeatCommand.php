@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Semitexa\Demo\Console\Command;
+namespace Semitexa\Demo\Application\Console\Command;
 
 use Semitexa\Core\Attribute\AsCommand;
 use Semitexa\Ssr\Async\AsyncResourceSseServer;

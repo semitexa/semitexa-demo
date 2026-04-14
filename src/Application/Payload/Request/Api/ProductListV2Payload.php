@@ -10,7 +10,6 @@ use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Core\Request;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
@@ -21,17 +20,6 @@ use Semitexa\Demo\Attributes\DemoFeature;
 )]
 #[ExternalApi(version: 'v2', description: 'Active demo product collection endpoint')]
 #[ApiVersion(version: '2.0.0')]
-#[DemoFeature(
-    section: 'api',
-    title: 'Active Version',
-    slug: 'active-version',
-    summary: 'The current collection endpoint with a clean X-Api-Version header and no deprecation noise.',
-    order: 6,
-    highlights: ['#[ApiVersion]', 'X-Api-Version', 'active lifecycle'],
-    entryLine: 'The healthy path is boring on purpose: one stable version header, no sunset or migration warnings.',
-    learnMoreLabel: 'See active version output →',
-    deepDiveLabel: 'Version metadata internals →',
-)]
 final class ProductListV2Payload
 {
     protected ?Request $httpRequest = null;

@@ -7,43 +7,44 @@ namespace Semitexa\Demo\Application\Db\MySQL\Mapper;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoAnalyticsSnapshotResource;
 use Semitexa\Demo\Domain\Model\DemoAnalyticsSnapshot;
 use Semitexa\Orm\Attribute\AsMapper;
-use Semitexa\Orm\Contract\TableModelMapper;
+use Semitexa\Orm\Contract\ResourceModelMapperInterface;
 
 #[AsMapper(
     resourceModel: DemoAnalyticsSnapshotResource::class,
     domainModel: DemoAnalyticsSnapshot::class
 )]
-final class DemoAnalyticsSnapshotMapper implements TableModelMapper
+final class DemoAnalyticsSnapshotMapper implements ResourceModelMapperInterface
 {
     public function toDomain(object $resource): object
     {
         $resource instanceof DemoAnalyticsSnapshotResource || throw new \InvalidArgumentException('Unexpected resource model.');
 
-        return new DemoAnalyticsSnapshot(
-            id: $resource->id,
-            tenantId: $resource->tenantId,
-            metricType: $resource->metricType,
-            value: (float) $resource->value,
-            periodStart: $resource->periodStart,
-            periodEnd: $resource->periodEnd,
-            createdAt: $resource->createdAt,
-            updatedAt: $resource->updatedAt,
-        );
+        $domain = new DemoAnalyticsSnapshot();
+        $domain->setId($resource->id);
+        $domain->setTenantId($resource->tenantId);
+        $domain->setMetricType($resource->metricType);
+        $domain->setValue((float) $resource->value);
+        $domain->setPeriodStart($resource->periodStart);
+        $domain->setPeriodEnd($resource->periodEnd);
+        $domain->setCreatedAt($resource->createdAt);
+        $domain->setUpdatedAt($resource->updatedAt);
+
+        return $domain;
     }
 
-    public function toTableModel(object $domainModel): object
+    public function toSourceModel(object $domainModel): object
     {
         $domainModel instanceof DemoAnalyticsSnapshot || throw new \InvalidArgumentException('Unexpected domain model.');
 
         return new DemoAnalyticsSnapshotResource(
-            id: $domainModel->id,
-            tenantId: $domainModel->tenantId,
-            metricType: $domainModel->metricType,
-            value: number_format($domainModel->value, 4, '.', ''),
-            periodStart: $domainModel->periodStart,
-            periodEnd: $domainModel->periodEnd,
-            createdAt: $domainModel->createdAt,
-            updatedAt: $domainModel->updatedAt,
+            id: $domainModel->getId(),
+            tenantId: $domainModel->getTenantId(),
+            metricType: $domainModel->getMetricType(),
+            value: number_format($domainModel->getValue(), 4, '.', ''),
+            periodStart: $domainModel->getPeriodStart(),
+            periodEnd: $domainModel->getPeriodEnd(),
+            createdAt: $domainModel->getCreatedAt(),
+            updatedAt: $domainModel->getUpdatedAt(),
         );
     }
 }

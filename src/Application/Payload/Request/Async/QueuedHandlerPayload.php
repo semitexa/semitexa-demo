@@ -7,7 +7,6 @@ namespace Semitexa\Demo\Application\Payload\Request\Async;
 use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
@@ -15,17 +14,6 @@ use Semitexa\Demo\Attributes\DemoFeature;
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
     produces: ['application/json', 'text/html'],
-)]
-#[DemoFeature(
-    section: 'events',
-    title: 'Queued Handler',
-    slug: 'queued',
-    summary: 'Events survive restarts and scale across workers — backed by a durable message queue.',
-    order: 3,
-    highlights: ['EventExecution::Queued', 'queue transport', 'NATS', 'retry', 'DLQ'],
-    entryLine: 'Events survive restarts and scale across workers — backed by a durable message queue.',
-    learnMoreLabel: 'See the queue configuration →',
-    deepDiveLabel: 'Queue driver internals →',
 )]
 class QueuedHandlerPayload
 {

@@ -6,7 +6,7 @@ namespace Semitexa\Demo\Application\Service;
 
 use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
+use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
 
 /**
  * Reports per-tenant data counts for the tenancy isolation demo.
@@ -16,7 +16,7 @@ use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
 final class DemoTenantDataSeeder
 {
     #[InjectAsReadonly]
-    protected DemoProductRepository $productRepository;
+    protected DemoProductRepositoryInterface $productRepository;
 
     /**
      * Get product count for a given tenant.

@@ -7,7 +7,7 @@ namespace Semitexa\Demo\Application\Service;
 use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Domain\Model\DemoAnalyticsSnapshot;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoAnalyticsSnapshotRepository;
+use Semitexa\Demo\Domain\Repository\DemoAnalyticsSnapshotRepositoryInterface;
 
 #[AsService]
 final class DemoAnalyticsAggregator
@@ -15,7 +15,7 @@ final class DemoAnalyticsAggregator
     private const METRIC_TYPES = ['pageviews', 'conversions', 'top_products'];
 
     #[InjectAsReadonly]
-    protected ?DemoAnalyticsSnapshotRepository $snapshotRepository = null;
+    protected ?DemoAnalyticsSnapshotRepositoryInterface $snapshotRepository = null;
 
     /**
      * Record a simulated analytics snapshot for a given metric type.
@@ -25,11 +25,11 @@ final class DemoAnalyticsAggregator
         $periodEnd = new \DateTimeImmutable();
 
         $snapshot = new DemoAnalyticsSnapshot();
-        $snapshot->metricType = $metricType;
-        $snapshot->tenantId = $tenantId;
-        $snapshot->value = $this->generateValue($metricType);
-        $snapshot->periodEnd = $periodEnd;
-        $snapshot->periodStart = $periodEnd->modify('-5 minutes');
+        $snapshot->setMetricType($metricType);
+        $snapshot->setTenantId($tenantId);
+        $snapshot->setValue($this->generateValue($metricType));
+        $snapshot->setPeriodEnd($periodEnd);
+        $snapshot->setPeriodStart($periodEnd->modify('-5 minutes'));
 
         $this->snapshotRepository?->save($snapshot);
     }

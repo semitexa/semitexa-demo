@@ -7,7 +7,7 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Rendering;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoJobRunRepository;
+use Semitexa\Demo\Domain\Repository\DemoJobRunRepositoryInterface;
 use Semitexa\Demo\Application\Payload\Request\Rendering\ReactiveReportPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Resource\Slot\Reactive\ReactiveReportSlot;
@@ -20,7 +20,7 @@ use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 final class ReactiveReportHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoJobRunRepository $jobRunRepository;
+    protected DemoJobRunRepositoryInterface $jobRunRepository;
 
     #[InjectAsReadonly]
     protected DemoReportBuilder $reportBuilder;
@@ -39,9 +39,9 @@ final class ReactiveReportHandler implements TypedHandlerInterface
         $runs = $this->jobRunRepository->findByJobType('report_generation');
         $latestRun = $runs[0] ?? null;
 
-        $status = $latestRun?->status ?? 'idle';
-        $progress = $latestRun?->progressPercent ?? 0;
-        $message = $latestRun?->progressMessage ?? 'Waiting for next scheduled run…';
+        $status = $latestRun?->getStatus() ?? 'idle';
+        $progress = $latestRun?->getProgressPercent() ?? 0;
+        $message = $latestRun?->getProgressMessage() ?? 'Waiting for next scheduled run…';
 
         $explanation = $this->explanationProvider->getExplanation('rendering', 'reactive-report') ?? [];
 

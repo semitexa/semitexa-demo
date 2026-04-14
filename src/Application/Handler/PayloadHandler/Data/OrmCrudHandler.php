@@ -8,7 +8,7 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
+use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
 use Semitexa\Demo\Domain\Model\DemoProduct;
 use Semitexa\Demo\Application\Payload\Request\Data\OrmCrudPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
@@ -20,7 +20,7 @@ use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 final class OrmCrudHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoProductRepository $productRepository;
+    protected DemoProductRepositoryInterface $productRepository;
 
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
@@ -43,14 +43,14 @@ final class OrmCrudHandler implements TypedHandlerInterface
             }
 
             $product = new DemoProduct();
-            $product->name = $payload->getName();
-            $product->price = number_format($price, 2, '.', '');
-            $product->status = 'active';
-            $product->tenantId = 'demo';
+            $product->setName($payload->getName());
+            $product->setPrice(number_format($price, 2, '.', ''));
+            $product->setStatus('active');
+            $product->setTenantId('demo');
             $this->productRepository->save($product);
         } elseif ($isMutationRequest && $action === 'delete' && $payload->getProductId() !== null) {
             $product = $this->productRepository->findById($payload->getProductId());
-            if ($product !== null && $product->tenantId === 'demo') {
+            if ($product !== null && $product->getTenantId() === 'demo') {
                 $this->productRepository->delete($product);
             }
         }
@@ -61,9 +61,9 @@ final class OrmCrudHandler implements TypedHandlerInterface
         foreach ($products as $product) {
             /** @var DemoProduct $product */
             $rows[] = [
-                ['text' => $product->name],
-                ['text' => '$' . number_format((float) $product->price, 2)],
-                ['text' => (string) $product->status, 'variant' => (string) $product->status],
+                ['text' => $product->getName()],
+                ['text' => '$' . number_format((float) $product->getPrice(), 2)],
+                ['text' => $product->getStatus(), 'variant' => $product->getStatus()],
             ];
         }
 

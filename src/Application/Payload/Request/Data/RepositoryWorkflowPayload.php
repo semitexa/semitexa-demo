@@ -7,7 +7,6 @@ namespace Semitexa\Demo\Application\Payload\Request\Data;
 use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
@@ -15,17 +14,6 @@ use Semitexa\Demo\Attributes\DemoFeature;
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
     produces: ['application/json', 'text/html'],
-)]
-#[DemoFeature(
-    section: 'data',
-    title: 'Repository Workflow',
-    slug: 'repository-workflow',
-    summary: 'The canonical Semitexa path: handlers depend on repository contracts, repositories return domain models, and persistence resources stay behind the boundary.',
-    order: 1,
-    highlights: ['repository contract', 'TableModel', '#[AsMapper]', 'DomainRepository', 'fetchOneAs()'],
-    entryLine: 'Business code should work with domain models, while TableModel and mapper logic stay inside the persistence layer.',
-    learnMoreLabel: 'See the canonical flow →',
-    deepDiveLabel: 'Where resource reads still belong →',
 )]
 final class RepositoryWorkflowPayload
 {

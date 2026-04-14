@@ -7,47 +7,48 @@ namespace Semitexa\Demo\Application\Db\MySQL\Mapper;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoJobRunResource;
 use Semitexa\Demo\Domain\Model\DemoJobRun;
 use Semitexa\Orm\Attribute\AsMapper;
-use Semitexa\Orm\Contract\TableModelMapper;
+use Semitexa\Orm\Contract\ResourceModelMapperInterface;
 
 #[AsMapper(
     resourceModel: DemoJobRunResource::class,
     domainModel: DemoJobRun::class
 )]
-final class DemoJobRunMapper implements TableModelMapper
+final class DemoJobRunMapper implements ResourceModelMapperInterface
 {
     public function toDomain(object $resource): object
     {
         $resource instanceof DemoJobRunResource || throw new \InvalidArgumentException('Unexpected resource model.');
 
-        return new DemoJobRun(
-            id: $resource->id,
-            jobType: $resource->jobType,
-            schedulerRunId: $resource->schedulerRunId,
-            status: $resource->status,
-            progressPercent: $resource->progressPercent,
-            progressMessage: $resource->progressMessage,
-            resultPayload: $resource->resultPayload,
-            attemptNumber: $resource->attemptNumber,
-            createdAt: $resource->createdAt,
-            updatedAt: $resource->updatedAt,
-        );
+        $domain = new DemoJobRun();
+        $domain->setId($resource->id);
+        $domain->setJobType($resource->jobType);
+        $domain->setSchedulerRunId($resource->schedulerRunId);
+        $domain->setStatus($resource->status);
+        $domain->setProgressPercent($resource->progressPercent);
+        $domain->setProgressMessage($resource->progressMessage);
+        $domain->setResultPayload($resource->resultPayload);
+        $domain->setAttemptNumber($resource->attemptNumber);
+        $domain->setCreatedAt($resource->createdAt);
+        $domain->setUpdatedAt($resource->updatedAt);
+
+        return $domain;
     }
 
-    public function toTableModel(object $domainModel): object
+    public function toSourceModel(object $domainModel): object
     {
         $domainModel instanceof DemoJobRun || throw new \InvalidArgumentException('Unexpected domain model.');
 
         return new DemoJobRunResource(
-            id: $domainModel->id,
-            jobType: $domainModel->jobType,
-            schedulerRunId: $domainModel->schedulerRunId,
-            status: $domainModel->status,
-            progressPercent: $domainModel->progressPercent,
-            progressMessage: $domainModel->progressMessage,
-            resultPayload: $domainModel->resultPayload,
-            attemptNumber: $domainModel->attemptNumber,
-            createdAt: $domainModel->createdAt,
-            updatedAt: $domainModel->updatedAt,
+            id: $domainModel->getId(),
+            jobType: $domainModel->getJobType(),
+            schedulerRunId: $domainModel->getSchedulerRunId(),
+            status: $domainModel->getStatus(),
+            progressPercent: $domainModel->getProgressPercent(),
+            progressMessage: $domainModel->getProgressMessage(),
+            resultPayload: $domainModel->getResultPayload(),
+            attemptNumber: $domainModel->getAttemptNumber(),
+            createdAt: $domainModel->getCreatedAt(),
+            updatedAt: $domainModel->getUpdatedAt(),
         );
     }
 }

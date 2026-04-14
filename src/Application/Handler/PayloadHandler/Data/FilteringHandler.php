@@ -8,7 +8,7 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
+use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
 use Semitexa\Demo\Domain\Model\DemoProduct;
 use Semitexa\Demo\Application\Payload\Request\Data\FilteringPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
@@ -20,7 +20,7 @@ use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 final class FilteringHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoProductRepository $productRepository;
+    protected DemoProductRepositoryInterface $productRepository;
 
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
@@ -54,12 +54,12 @@ final class FilteringHandler implements TypedHandlerInterface
                 }
 
                 $name = $payload->getName();
-                if ($name !== null && $name !== '' && stripos($product->name, $name) === false) {
+                if ($name !== null && $name !== '' && stripos($product->getName(), $name) === false) {
                     return false;
                 }
 
                 $categoryId = $payload->getCategoryId();
-                if ($categoryId !== null && $categoryId !== '' && $product->categoryId !== $categoryId) {
+                if ($categoryId !== null && $categoryId !== '' && $product->getCategoryId() !== $categoryId) {
                     return false;
                 }
 
@@ -74,9 +74,9 @@ final class FilteringHandler implements TypedHandlerInterface
         foreach (array_slice($products, 0, 6) as $product) {
             /** @var DemoProduct $product */
             $rows[] = [
-                ['text' => $product->name],
-                ['text' => '$' . number_format((float) $product->price, 2)],
-                ['text' => (string) $product->status],
+                ['text' => $product->getName()],
+                ['text' => '$' . number_format((float) $product->getPrice(), 2)],
+                ['text' => $product->getStatus()],
             ];
         }
 

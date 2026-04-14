@@ -10,7 +10,6 @@ use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Core\Request;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
@@ -21,17 +20,6 @@ use Semitexa\Demo\Attributes\DemoFeature;
 )]
 #[ExternalApi(version: 'v0', description: 'Sunset demo product collection endpoint')]
 #[ApiVersion(version: '0.9.0', deprecatedSince: '2025-06-01', sunsetDate: '2026-06-01')]
-#[DemoFeature(
-    section: 'api',
-    title: 'Sunset Version',
-    slug: 'sunset-version',
-    summary: 'A deprecated product endpoint that emits both Deprecation and Sunset headers.',
-    order: 5,
-    highlights: ['#[ApiVersion]', 'Deprecation', 'Sunset', 'lifecycle headers'],
-    entryLine: 'Version lifecycle in Semitexa lives in metadata headers, not route forks and tribal knowledge.',
-    learnMoreLabel: 'See sunset headers →',
-    deepDiveLabel: 'Version policy internals →',
-)]
 final class ProductListV0Payload
 {
     protected ?Request $httpRequest = null;

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Handler\PayloadHandler\Data;
 
 use Semitexa\Api\Application\Db\MySQL\Model\MachineCredentialMapper;
-use Semitexa\Api\Application\Db\MySQL\Model\MachineCredentialTableModel;
+use Semitexa\Api\Application\Db\MySQL\Model\MachineCredentialResourceModel;
 use Semitexa\Api\Application\Db\MySQL\Repository\MachineCredentialRepository;
 use Semitexa\Api\Domain\Contract\MachineCredentialRepositoryInterface;
 use Semitexa\Api\Domain\Model\MachineCredential;
@@ -48,16 +48,16 @@ final class RepositoryWorkflowHandler implements TypedHandlerInterface
             ->withSection('data')
             ->withSlug('repository-workflow')
             ->withTitle('Repository Workflow')
-            ->withSummary('The canonical Semitexa path: handlers depend on repository contracts, repositories return domain models, and persistence table models stay behind the boundary.')
-            ->withEntryLine('Business code should work with domain models, while TableModel and mapper logic stay inside the persistence layer.')
-            ->withHighlights(['repository contract', 'domain model', 'TableModel', 'mapper', '#[SatisfiesRepositoryContract]'])
+            ->withSummary('The canonical Semitexa path: handlers depend on repository contracts, repositories return domain models, and persistence resource models stay behind the boundary.')
+            ->withEntryLine('Business code should work with domain models, while ResourceModel and mapper logic stay inside the persistence layer.')
+            ->withHighlights(['repository contract', 'domain model', 'ResourceModel', 'mapper', '#[SatisfiesRepositoryContract]'])
             ->withLearnMoreLabel('See the canonical flow →')
             ->withDeepDiveLabel('Where resource reads still belong →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/repository-workflow.html.twig', [
                 'principles' => [
                     'Handlers should ask for repository contracts, not ORM implementations.',
-                    'The default read path should return domain/business models through the explicit TableModel -> mapper -> domain pipeline.',
-                    'insert(domainModel) and update(domainModel) are the happy path; low-level TableModel reads are an explicit infrastructure concern.',
+                    'The default read path should return domain/business models through the explicit ResourceModel -> mapper -> domain pipeline.',
+                    'insert(domainModel) and update(domainModel) are the happy path; low-level ResourceModel reads are an explicit infrastructure concern.',
                 ],
                 'lanes' => [
                     [
@@ -71,8 +71,8 @@ final class RepositoryWorkflowHandler implements TypedHandlerInterface
                         'badge' => 'Infrastructure-only',
                         'title' => 'Persistence path',
                         'tone' => 'warning',
-                        'summary' => 'TableModel and mapper classes still matter, but their job is to describe storage and convert data between persistence and domain.',
-                        'chips' => ['MachineCredentialTableModel', 'MachineCredentialMapper', 'DomainRepository', 'mapping only'],
+                        'summary' => 'ResourceModel and mapper classes still matter, but their job is to describe storage and convert data between persistence and domain.',
+                        'chips' => ['MachineCredentialResourceModel', 'MachineCredentialMapper', 'DomainRepository', 'mapping only'],
                     ],
                 ],
                 'steps' => [
@@ -88,16 +88,16 @@ final class RepositoryWorkflowHandler implements TypedHandlerInterface
                     ],
                     [
                         'name' => 'Persist',
-                        'flow' => 'Repository implementation converts domain -> table model via explicit mapper and persists through the ORM core',
+                        'flow' => 'Repository implementation converts domain -> resource model via explicit mapper and persists through the ORM core',
                         'why' => 'Storage mapping stays in the persistence layer where it belongs.',
                     ],
                 ],
             ])
             ->withL2ContentTemplate('@project-layouts-semitexa-demo/components/previews/repository-workflow-rules.html.twig', [
                 'rules' => [
-                    'TableModel-level persistence is a capability, not the headline practice that the demo should teach first.',
-                    'If a screen is demonstrating application architecture, show repository contracts and domain models, not direct TableModel mutation.',
-                    'Mapper and TableModel code should stay clearly visible, but behind the repository boundary.',
+                    'ResourceModel-level persistence is a capability, not the headline practice that the demo should teach first.',
+                    'If a screen is demonstrating application architecture, show repository contracts and domain models, not direct ResourceModel mutation.',
+                    'Mapper and ResourceModel code should stay clearly visible, but behind the repository boundary.',
                     'If a feature is mostly about domain behavior, the source tabs should foreground the domain model and contract before the persistence model.',
                 ],
             ])
@@ -105,7 +105,7 @@ final class RepositoryWorkflowHandler implements TypedHandlerInterface
                 'Repository Contract' => $this->sourceCodeReader->readClassSource(MachineCredentialRepositoryInterface::class),
                 'Domain Model' => $this->sourceCodeReader->readClassSource(MachineCredential::class),
                 'ORM Repository Implementation' => $this->sourceCodeReader->readClassSource(MachineCredentialRepository::class),
-                'TableModel' => $this->sourceCodeReader->readClassSource(MachineCredentialTableModel::class),
+                'ResourceModel' => $this->sourceCodeReader->readClassSource(MachineCredentialResourceModel::class),
                 'Mapper' => $this->sourceCodeReader->readClassSource(MachineCredentialMapper::class),
             ])
             ->withExplanation($explanation);

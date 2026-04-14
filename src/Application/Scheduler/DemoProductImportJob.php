@@ -6,7 +6,7 @@ namespace Semitexa\Demo\Application\Scheduler;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Domain\Model\DemoJobRun;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoJobRunRepository;
+use Semitexa\Demo\Domain\Repository\DemoJobRunRepositoryInterface;
 use Semitexa\Demo\Application\Service\DemoProductImporter;
 use Semitexa\Scheduler\Attribute\AsScheduledJob;
 use Semitexa\Scheduler\Contract\ScheduledJobInterface;
@@ -20,7 +20,7 @@ use Semitexa\Scheduler\Domain\Value\ScheduledJobContext;
 final class DemoProductImportJob implements ScheduledJobInterface
 {
     #[InjectAsReadonly]
-    protected ?DemoJobRunRepository $jobRunRepository = null;
+    protected ?DemoJobRunRepositoryInterface $jobRunRepository = null;
 
     #[InjectAsReadonly]
     protected ?DemoProductImporter $importer = null;
@@ -34,7 +34,7 @@ final class DemoProductImportJob implements ScheduledJobInterface
         $active = $this->jobRunRepository->findActiveRuns();
         $activeImport = null;
         foreach ($active as $run) {
-            if ($run->jobType === 'product_import') {
+            if ($run->getJobType() === 'product_import') {
                 $activeImport = $run;
                 break;
             }
@@ -42,16 +42,16 @@ final class DemoProductImportJob implements ScheduledJobInterface
 
         if ($activeImport === null) {
             $run = new DemoJobRun();
-            $run->jobType = 'product_import';
-            $run->status = 'running';
-            $run->progressPercent = 0;
-            $run->progressMessage = 'Preparing import…';
-            $run->schedulerRunId = $context->runId;
-            $run->attemptNumber = 1;
+            $run->setJobType('product_import');
+            $run->setStatus('running');
+            $run->setProgressPercent(0);
+            $run->setProgressMessage('Preparing import…');
+            $run->setSchedulerRunId($context->runId);
+            $run->setAttemptNumber(1);
             $run = $this->jobRunRepository->save($run);
             $activeImport = $run;
         }
 
-        $this->importer->processBatch($activeImport->id);
+        $this->importer->processBatch($activeImport->getId());
     }
 }

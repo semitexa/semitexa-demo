@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Db\MySQL\Repository;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
+use Semitexa\Core\Attribute\SatisfiesRepositoryContract;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoAiTaskResource;
 use Semitexa\Demo\Domain\Model\DemoAiTask;
 use Semitexa\Orm\Attribute\AsRepository;
@@ -12,11 +13,13 @@ use Semitexa\Orm\OrmManager;
 use Semitexa\Orm\Query\Direction;
 use Semitexa\Orm\Query\Operator;
 use Semitexa\Orm\Query\SystemScopeToken;
+use Semitexa\Demo\Domain\Repository\DemoAiTaskRepositoryInterface;
 use Semitexa\Orm\Repository\DomainRepository;
 use Semitexa\Tenancy\Context\TenantContext;
 
 #[AsRepository]
-final class DemoAiTaskRepository
+#[SatisfiesRepositoryContract(of: DemoAiTaskRepositoryInterface::class)]
+final class DemoAiTaskRepository implements DemoAiTaskRepositoryInterface
 {
     #[InjectAsReadonly]
     protected ?OrmManager $orm = null;
@@ -33,7 +36,7 @@ final class DemoAiTaskRepository
     public function save(DemoAiTask $entity): DemoAiTask
     {
         /** @var DemoAiTask */
-        return $entity->id === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
+        return $entity->getId() === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
     }
 
     /** @return list<DemoAiTask> */
@@ -73,7 +76,7 @@ final class DemoAiTaskRepository
         if ($task === null) {
             return false;
         }
-        $task->status = $status;
+        $task->setStatus($status);
         $this->save($task);
         return true;
     }
@@ -84,7 +87,7 @@ final class DemoAiTaskRepository
         if ($task === null) {
             return false;
         }
-        $task->stageResults = $stageResultsJson;
+        $task->setStageResults($stageResultsJson);
         $this->save($task);
         return true;
     }

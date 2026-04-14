@@ -8,7 +8,7 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Domain\Model\DemoAiTask;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoAiTaskRepository;
+use Semitexa\Demo\Domain\Repository\DemoAiTaskRepositoryInterface;
 use Semitexa\Demo\Application\Payload\Request\Rendering\AiTaskSubmitPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoAiTextProcessor;
@@ -20,7 +20,7 @@ use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 final class AiTaskSubmitHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoAiTaskRepository $aiTaskRepository;
+    protected DemoAiTaskRepositoryInterface $aiTaskRepository;
 
     #[InjectAsReadonly]
     protected DemoAiTextProcessor $aiTextProcessor;
@@ -46,13 +46,13 @@ final class AiTaskSubmitHandler implements TypedHandlerInterface
                 $errorMessage = 'Input text must not exceed 2000 characters.';
             } else {
                 $task = new DemoAiTask();
-                $task->tenantId = 'demo';
-                $task->inputText = $inputText;
-                $task->status = 'pending';
-                $task->stages = json_encode($this->aiTextProcessor->getStages(), JSON_THROW_ON_ERROR);
+                $task->setTenantId('demo');
+                $task->setInputText($inputText);
+                $task->setStatus('pending');
+                $task->setStages(json_encode($this->aiTextProcessor->getStages(), JSON_THROW_ON_ERROR));
 
                 $task = $this->aiTaskRepository->save($task);
-                $taskId = $task->id ?? null;
+                $taskId = $task->getId() !== '' ? $task->getId() : null;
                 $submitted = true;
             }
         }

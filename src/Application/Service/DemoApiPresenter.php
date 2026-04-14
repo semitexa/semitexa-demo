@@ -7,9 +7,9 @@ namespace Semitexa\Demo\Application\Service;
 use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Request;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoCategoryRepository;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoReviewRepository;
+use Semitexa\Demo\Domain\Repository\DemoCategoryRepositoryInterface;
+use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
+use Semitexa\Demo\Domain\Repository\DemoReviewRepositoryInterface;
 use Semitexa\Demo\Domain\Model\DemoCategory;
 use Semitexa\Demo\Domain\Model\DemoProduct;
 use Semitexa\Demo\Domain\Model\DemoReview;
@@ -18,13 +18,13 @@ use Semitexa\Demo\Domain\Model\DemoReview;
 final class DemoApiPresenter
 {
     #[InjectAsReadonly]
-    protected DemoProductRepository $products;
+    protected DemoProductRepositoryInterface $products;
 
     #[InjectAsReadonly]
-    protected DemoCategoryRepository $categories;
+    protected DemoCategoryRepositoryInterface $categories;
 
     #[InjectAsReadonly]
-    protected DemoReviewRepository $reviews;
+    protected DemoReviewRepositoryInterface $reviews;
 
     public function buildCollection(
         Request $request,
@@ -51,7 +51,7 @@ final class DemoApiPresenter
             $all = array_values(array_filter(
                 $all,
                 static fn (DemoProduct $product): bool => str_contains(
-                    mb_strtolower($product->name . ' ' . ($product->description ?? '')),
+                    mb_strtolower($product->getName() . ' ' . ($product->getDescription() ?? '')),
                     $needle,
                 ),
             ));
@@ -302,23 +302,23 @@ final class DemoApiPresenter
         };
 
         $selected = $fields !== [] ? $fields : $baseFields;
-        $slug = $this->slugify($product->name);
+        $slug = $this->slugify($product->getName());
         $category = $this->resolveCategory($product);
         $reviews = in_array('reviews', $expand, true) || $profile === 'full'
-            ? $this->reviews->findByProduct($product->id)
+            ? $this->reviews->findByProduct($product->getId())
             : [];
-        $reviewCount = $reviews !== [] ? count($reviews) : count($this->reviews->findByProduct($product->id));
-        $rating = $this->resolveRating($reviews !== [] ? $reviews : $this->reviews->findByProduct($product->id));
+        $reviewCount = $reviews !== [] ? count($reviews) : count($this->reviews->findByProduct($product->getId()));
+        $rating = $this->resolveRating($reviews !== [] ? $reviews : $this->reviews->findByProduct($product->getId()));
 
         $json = [];
         foreach ($selected as $field) {
             $json += match ($field) {
                 'slug' => ['slug' => $slug],
-                'name' => ['name' => $product->name],
-                'price' => ['price' => (float) $product->price],
-                'description' => ['description' => $product->description],
-                'status' => ['status' => $product->status],
-                'category' => ['category' => $category === null ? null : ['slug' => $category->slug, 'name' => $category->name]],
+                'name' => ['name' => $product->getName()],
+                'price' => ['price' => (float) $product->getPrice()],
+                'description' => ['description' => $product->getDescription()],
+                'status' => ['status' => $product->getStatus()],
+                'category' => ['category' => $category === null ? null : ['slug' => $category->getSlug(), 'name' => $category->getName()]],
                 'rating' => ['rating' => $rating],
                 'reviewCount' => ['reviewCount' => $reviewCount],
                 default => [],
@@ -328,11 +328,11 @@ final class DemoApiPresenter
         if (in_array('reviews', $expand, true) || $profile === 'full') {
             $json['reviews'] = array_map(
                 static fn (DemoReview $review): array => [
-                    'user' => $review->userId,
-                    'rating' => $review->rating,
-                    'body' => $review->body,
+                    'user' => $review->getUserId(),
+                    'rating' => $review->getRating(),
+                    'body' => $review->getBody(),
                 ],
-                array_slice($reviews !== [] ? $reviews : $this->reviews->findByProduct($product->id), 0, 4),
+                array_slice($reviews !== [] ? $reviews : $this->reviews->findByProduct($product->getId()), 0, 4),
             );
         }
 
@@ -348,14 +348,14 @@ final class DemoApiPresenter
                 '@context' => 'https://schema.org',
                 '@type' => 'Product',
                 '@id' => $basePath . '/' . $slug,
-                'name' => $product->name,
-                'description' => $product->description,
-                'category' => $category?->name,
+                'name' => $product->getName(),
+                'description' => $product->getDescription(),
+                'category' => $category?->getName(),
                 'offers' => [
                     '@type' => 'Offer',
                     'priceCurrency' => 'USD',
-                    'price' => (float) $product->price,
-                    'availability' => 'https://schema.org/' . ($product->status === 'active' ? 'InStock' : 'Discontinued'),
+                    'price' => (float) $product->getPrice(),
+                    'availability' => 'https://schema.org/' . ($product->getStatus() === 'active' ? 'InStock' : 'Discontinued'),
                 ],
                 'aggregateRating' => [
                     '@type' => 'AggregateRating',
@@ -426,12 +426,12 @@ final class DemoApiPresenter
 
     private function resolveCategory(DemoProduct $product): ?DemoCategory
     {
-        if ($product->categoryId === null || $product->categoryId === '') {
+        if ($product->getCategoryId() === null || $product->getCategoryId() === '') {
             return null;
         }
 
         foreach ($this->categories->findAllOrdered() as $category) {
-            if ($category->id === $product->categoryId) {
+            if ($category->getId() === $product->getCategoryId()) {
                 return $category;
             }
         }
@@ -449,7 +449,7 @@ final class DemoApiPresenter
         }
 
         $sum = array_sum(array_map(
-            static fn (DemoReview $review): int => $review->rating ?? 0,
+            static fn (DemoReview $review): int => $review->getRating() ?? 0,
             $reviews,
         ));
 
@@ -495,7 +495,7 @@ final class DemoApiPresenter
     public function findProductBySlug(string $slug): ?DemoProduct
     {
         foreach ($this->products->findPage(200, 0) as $product) {
-            if ($this->slugify($product->name) === $slug) {
+            if ($this->slugify($product->getName()) === $slug) {
                 return $product;
             }
         }

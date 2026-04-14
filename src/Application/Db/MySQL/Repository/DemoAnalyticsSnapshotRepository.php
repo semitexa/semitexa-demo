@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Db\MySQL\Repository;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
+use Semitexa\Core\Attribute\SatisfiesRepositoryContract;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoAnalyticsSnapshotResource;
 use Semitexa\Demo\Domain\Model\DemoAnalyticsSnapshot;
 use Semitexa\Orm\Attribute\AsRepository;
@@ -12,11 +13,13 @@ use Semitexa\Orm\OrmManager;
 use Semitexa\Orm\Query\Direction;
 use Semitexa\Orm\Query\Operator;
 use Semitexa\Orm\Query\SystemScopeToken;
+use Semitexa\Demo\Domain\Repository\DemoAnalyticsSnapshotRepositoryInterface;
 use Semitexa\Orm\Repository\DomainRepository;
 use Semitexa\Tenancy\Context\TenantContext;
 
 #[AsRepository]
-final class DemoAnalyticsSnapshotRepository
+#[SatisfiesRepositoryContract(of: DemoAnalyticsSnapshotRepositoryInterface::class)]
+final class DemoAnalyticsSnapshotRepository implements DemoAnalyticsSnapshotRepositoryInterface
 {
     #[InjectAsReadonly]
     protected ?OrmManager $orm = null;
@@ -33,7 +36,7 @@ final class DemoAnalyticsSnapshotRepository
     public function save(DemoAnalyticsSnapshot $entity): DemoAnalyticsSnapshot
     {
         /** @var DemoAnalyticsSnapshot */
-        return $entity->id === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
+        return $entity->getId() === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
     }
 
     /** @return list<DemoAnalyticsSnapshot> */

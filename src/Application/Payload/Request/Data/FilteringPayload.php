@@ -7,7 +7,6 @@ namespace Semitexa\Demo\Application\Payload\Request\Data;
 use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Attributes\DemoFeature;
 
 #[PublicEndpoint]
 #[AsPayload(
@@ -15,17 +14,6 @@ use Semitexa\Demo\Attributes\DemoFeature;
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
     produces: ['application/json', 'text/html'],
-)]
-#[DemoFeature(
-    section: 'data',
-    title: 'Filtering',
-    slug: 'filtering',
-    summary: 'Mark a property #[Filterable] and the ORM handles the rest — no manual WHERE clauses.',
-    order: 10,
-    highlights: ['#[Filterable]', 'FilterableTrait', 'FilterableResourceInterface', 'getFilterCriteria()'],
-    entryLine: 'Mark a property #[Filterable] and the ORM handles the rest — no manual WHERE clauses.',
-    learnMoreLabel: 'See the filter attributes →',
-    deepDiveLabel: 'How filter criteria compile →',
 )]
 class FilteringPayload
 {

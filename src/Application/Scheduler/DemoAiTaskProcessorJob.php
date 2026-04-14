@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Scheduler;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoAiTaskRepository;
+use Semitexa\Demo\Domain\Repository\DemoAiTaskRepositoryInterface;
 use Semitexa\Demo\Application\Service\DemoAiTextProcessor;
 use Semitexa\Scheduler\Attribute\AsScheduledJob;
 use Semitexa\Scheduler\Contract\ScheduledJobInterface;
@@ -19,7 +19,7 @@ use Semitexa\Scheduler\Domain\Value\ScheduledJobContext;
 final class DemoAiTaskProcessorJob implements ScheduledJobInterface
 {
     #[InjectAsReadonly]
-    protected ?DemoAiTaskRepository $aiTaskRepository = null;
+    protected ?DemoAiTaskRepositoryInterface $aiTaskRepository = null;
 
     #[InjectAsReadonly]
     protected ?DemoAiTextProcessor $processor = null;
@@ -37,7 +37,7 @@ final class DemoAiTaskProcessorJob implements ScheduledJobInterface
         }
 
         foreach ($pending as $task) {
-            $this->processor->processNextStage($task->id);
+            $this->processor->processNextStage($task->getId());
         }
     }
 }

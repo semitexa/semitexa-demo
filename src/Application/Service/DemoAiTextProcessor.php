@@ -8,7 +8,7 @@ use JsonException;
 use Random\RandomException;
 use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
-use Semitexa\Demo\Application\Db\MySQL\Repository\DemoAiTaskRepository;
+use Semitexa\Demo\Domain\Repository\DemoAiTaskRepositoryInterface;
 
 #[AsService]
 final class DemoAiTextProcessor
@@ -16,7 +16,7 @@ final class DemoAiTextProcessor
     private const array STAGES = ['parse', 'analyze', 'generate', 'format'];
 
     #[InjectAsReadonly]
-    protected ?DemoAiTaskRepository $aiTaskRepository = null;
+    protected ?DemoAiTaskRepositoryInterface $aiTaskRepository = null;
 
     /**
      * Advance a pending AI task by one processing stage.
@@ -30,9 +30,9 @@ final class DemoAiTextProcessor
         }
 
         $stageResults = [];
-        if (!empty($task->stageResults)) {
+        if (!empty($task->getStageResults())) {
             try {
-                $stageResults = json_decode($task->stageResults, true, 512, JSON_THROW_ON_ERROR);
+                $stageResults = json_decode($task->getStageResults(), true, 512, JSON_THROW_ON_ERROR);
             } catch (JsonException) {
                 $stageResults = [];
             }

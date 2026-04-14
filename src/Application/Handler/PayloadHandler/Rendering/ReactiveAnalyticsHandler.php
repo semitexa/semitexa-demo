@@ -38,7 +38,7 @@ final class ReactiveAnalyticsHandler implements TypedHandlerInterface
         $panels = [];
         foreach ($metricTypes as $type) {
             $snapshot = $snapshots[$type] ?? null;
-            $value = $snapshot?->value ?? null;
+            $value = $snapshot?->getValue() ?? null;
             $label = match ($type) {
                 'pageviews'    => 'Page Views',
                 'conversions'  => 'Conversion Rate',
@@ -53,7 +53,7 @@ final class ReactiveAnalyticsHandler implements TypedHandlerInterface
                 'label' => $label,
                 'value' => $display,
                 'updated' => $snapshot !== null
-                    ? 'Last snapshot: ' . ($snapshot->periodEnd?->format('Y-m-d H:i:s') ?? 'unknown')
+                    ? 'Last snapshot: ' . ($snapshot->getPeriodEnd()?->format('Y-m-d H:i:s') ?? 'unknown')
                     : 'No data yet',
             ];
         }
