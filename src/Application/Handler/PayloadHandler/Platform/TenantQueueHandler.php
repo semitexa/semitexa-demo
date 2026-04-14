@@ -36,7 +36,7 @@ final class TenantQueueHandler implements TypedHandlerInterface
 
         $tenantContext = [
             'org'      => $activeTenant,
-            'locale'   => $config?->defaultLocale ?? 'en',
+            'locale'   => $config?->getDefaultLocale() ?? 'en',
             'theme'    => $activeTenant . '-theme',
             'env'      => 'production',
         ];
