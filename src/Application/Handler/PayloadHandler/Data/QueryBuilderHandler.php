@@ -8,11 +8,14 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
+use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
+use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
 use Semitexa\Demo\Application\Payload\Request\Data\QueryBuilderPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
+use Semitexa\Demo\Domain\Model\DemoProduct;
 
 #[AsPayloadHandler(payload: QueryBuilderPayload::class, resource: DemoFeatureResource::class)]
 final class QueryBuilderHandler implements TypedHandlerInterface
@@ -49,14 +52,14 @@ final class QueryBuilderHandler implements TypedHandlerInterface
             ];
         }
 
-        $querySnippet = '$products = $orm->repository(DemoProductResourceModel::class, DemoProductResource::class)' . "\n"
+        $querySnippet = '$products = $orm->repository(DemoProductResource::class, DemoProduct::class)' . "\n"
             . '    ->query()' . "\n"
-            . ($payload->getStatus() !== null ? sprintf("    ->where(DemoProductResourceModel::column('status'), Operator::Equals, '%s')\n", $payload->getStatus()) : '')
-            . ($payload->getMinPrice() !== null ? sprintf("    ->where(DemoProductResourceModel::column('price'), Operator::GreaterThanOrEquals, %.2f)\n", $payload->getMinPrice()) : '')
-            . ($payload->getMaxPrice() !== null ? sprintf("    ->where(DemoProductResourceModel::column('price'), Operator::LessThanOrEquals, %.2f)\n", $payload->getMaxPrice()) : '')
-            . ($payload->getOrderBy() !== null ? sprintf("    ->orderBy(DemoProductResourceModel::column('%s'), Direction::Asc)\n", $payload->getOrderBy()) : '')
+            . ($payload->getStatus() !== null ? sprintf("    ->where(DemoProductResource::column('status'), Operator::Equals, '%s')\n", $payload->getStatus()) : '')
+            . ($payload->getMinPrice() !== null ? sprintf("    ->where(DemoProductResource::column('price'), Operator::GreaterThanOrEquals, %.2f)\n", $payload->getMinPrice()) : '')
+            . ($payload->getMaxPrice() !== null ? sprintf("    ->where(DemoProductResource::column('price'), Operator::LessThanOrEquals, %.2f)\n", $payload->getMaxPrice()) : '')
+            . ($payload->getOrderBy() !== null ? sprintf("    ->orderBy(DemoProductResource::column('%s'), Direction::Asc)\n", $payload->getOrderBy()) : '')
             . sprintf("    ->limit(%d)\n", $payload->getLimit())
-            . '    ->fetchAllAs(DemoProductResource::class, $orm->getMapperRegistry());';
+            . '    ->fetchAllAs(DemoProduct::class, $orm->getMapperRegistry());';
 
         $explanation = $this->explanationProvider->getExplanation('data', 'query') ?? [];
 
