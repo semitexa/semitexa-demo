@@ -88,6 +88,8 @@ final class GoogleStartHandler implements TypedHandlerInterface
         $segment->setIdentity($identity);
         $segment->setDemoRole('viewer');
         $segment->clearLastError();
+
+        $this->session->set('_auth_user_id', 'google:' . $subjectId . ':' . $segment->getDemoRole());
     }
 
     private function getRequestHost(): string
