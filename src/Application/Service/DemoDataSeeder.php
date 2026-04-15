@@ -204,6 +204,12 @@ final class DemoDataSeeder
         $map = [];
 
         foreach (self::CATEGORIES as $data) {
+            $existing = $this->categoryRepository->findBySlug($data['slug']);
+            if ($existing !== null) {
+                $map[$data['slug']] = $existing->getId();
+                continue;
+            }
+
             $category = new DemoCategory();
             $category->setName($data['name']);
             $category->setSlug($data['slug']);
