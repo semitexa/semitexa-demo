@@ -10,12 +10,10 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 
 #[PublicEndpoint]
 #[AsPayload(
-    path: '/demo/routing/product/{slug}',
+    path: '/demo/routing/parameterized',
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
     produces: ['application/json', 'text/html'],
-    requirements: ['slug' => '[a-z0-9-]+'],
-    defaults: ['slug' => 'headphones'],
 )]
 class ParameterizedRoutePayload
 {

@@ -69,9 +69,9 @@ final class ParameterizedRouteHandler implements TypedHandlerInterface
                 'slug' => $slug,
                 'product' => $product,
                 'examples' => [
-                    ['label' => 'keyboard', 'href' => '/demo/routing/product/keyboard'],
-                    ['label' => 'monitor', 'href' => '/demo/routing/product/monitor'],
-                    ['label' => 'mouse', 'href' => '/demo/routing/product/mouse'],
+                    ['label' => 'keyboard', 'href' => '/demo/routing/parameterized/keyboard'],
+                    ['label' => 'monitor', 'href' => '/demo/routing/parameterized/monitor'],
+                    ['label' => 'mouse', 'href' => '/demo/routing/parameterized/mouse'],
                 ],
             ]);
     }
