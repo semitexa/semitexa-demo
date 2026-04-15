@@ -1314,7 +1314,6 @@ a:hover {
 }
 
 :root[data-demo-theme="dark"] .feature-card,
-:root[data-demo-theme="dark"] .feature-detail__preview,
 :root[data-demo-theme="dark"] .demo-feature-info,
 :root[data-demo-theme="dark"] .demo-feature-info__section,
 :root[data-demo-theme="dark"] .demo-get-started__primer,
@@ -2581,14 +2580,13 @@ a:hover {
 }
 
 .feature-detail__preview {
-  background:
-    linear-gradient(180deg, rgba(255, 252, 248, 0.36), rgba(243, 232, 218, 0.24));
-  border: 1px solid rgba(255, 255, 255, 0.26);
-  border-radius: 20px;
-  padding: 1.5rem;
+  display: grid;
+  gap: 1rem;
   margin-bottom: 1.5rem;
-  box-shadow: var(--demo-glass-shadow);
-  backdrop-filter: blur(18px) saturate(138%);
+}
+
+.feature-detail__preview > * {
+  min-width: 0;
 }
 
 .feature-detail__highlights {

@@ -10,9 +10,9 @@ use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Http\Response\ResourceResponse;
 use Semitexa\Core\Session\SessionInterface;
-use Semitexa\Demo\Application\Auth\GooglePrincipal;
 use Semitexa\Demo\Application\Payload\Request\Auth\GoogleCallbackPayload;
 use Semitexa\Demo\Application\Payload\Session\GoogleAuthSessionSegment;
+use Semitexa\Demo\Application\Payload\Session\GoogleSessionIdentityPayload;
 use Semitexa\Demo\Application\Service\GoogleOAuthClient;
 
 #[AsPayloadHandler(payload: GoogleCallbackPayload::class, resource: ResourceResponse::class)]
@@ -89,20 +89,23 @@ final class GoogleCallbackHandler implements TypedHandlerInterface
             return $resource;
         }
 
+        $identity = new GoogleSessionIdentityPayload(
+            subjectId: $subjectId,
+            email: $email,
+            displayName: $displayName,
+            emailVerified: $emailVerified,
+            pictureUrl: $pictureUrl !== '' ? $pictureUrl : null,
+            hostedDomain: $hostedDomain !== '' ? $hostedDomain : null,
+        );
+
         $segment->setState(null);
         $segment->setReturnTo($returnTo);
-        $segment->setSubjectId($subjectId);
-        $segment->setEmail($email);
-        $segment->setDisplayName($displayName);
-        $segment->setPictureUrl($pictureUrl);
-        $segment->setHostedDomain($hostedDomain);
-        $segment->setEmailVerified($emailVerified);
+        $segment->setIdentity($identity);
         if ($segment->getDemoRole() === null) {
             $segment->setDemoRole('viewer');
         }
         $segment->clearLastError();
         $this->session->setPayload($segment);
-        $this->session->set('_auth_user_id', 'google:' . $subjectId . ':' . $segment->getDemoRole());
         $this->session->regenerate();
 
         $resource->setRedirect($returnTo);

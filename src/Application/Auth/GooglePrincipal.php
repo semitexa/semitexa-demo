@@ -5,9 +5,23 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Auth;
 
 use Semitexa\Core\Auth\AuthenticatableInterface;
+use Semitexa\Demo\Application\Payload\Session\GoogleSessionIdentityPayload;
 
 final readonly class GooglePrincipal implements AuthenticatableInterface
 {
+    public static function fromSessionIdentity(GoogleSessionIdentityPayload $identity, string $role): self
+    {
+        return new self(
+            subjectId: $identity->getSubjectId(),
+            email: $identity->getEmail(),
+            displayName: $identity->getDisplayName(),
+            role: $role,
+            pictureUrl: $identity->getPictureUrl(),
+            hostedDomain: $identity->getHostedDomain(),
+            emailVerified: $identity->getEmailVerified(),
+        );
+    }
+
     public function __construct(
         public string $subjectId,
         public string $email,
