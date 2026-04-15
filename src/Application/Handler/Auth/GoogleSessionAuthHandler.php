@@ -20,10 +20,14 @@ final class GoogleSessionAuthHandler implements AuthHandlerInterface
     private const string DEFAULT_ROLE = 'viewer';
 
     #[InjectAsMutable]
-    protected SessionInterface $session;
+    protected ?SessionInterface $session = null;
 
     public function handle(object $payload): ?AuthResult
     {
+        if ($this->session === null) {
+            return null;
+        }
+
         $segment = $this->session->getPayload(
             GoogleAuthSessionSegment::class
         );
