@@ -23,7 +23,7 @@ use Semitexa\Orm\Transaction\TransactionManager;
 #[AsService]
 final class DemoDataSeeder
 {
-    private const TENANTS = ['acme', 'globex', 'initech'];
+    private const TENANTS = ['acme', 'globex', 'initech', 'demo'];
 
     private const CATEGORIES = [
         ['name' => 'Electronics', 'slug' => 'electronics', 'description' => 'Gadgets, devices, and accessories'],
@@ -154,14 +154,15 @@ final class DemoDataSeeder
                 'ai_tasks' => 0,
             ];
 
-            $categoryIds = $this->seedCategories();
-            $counts['categories'] = count($categoryIds);
+            $categorySeed = $this->seedCategories();
+            $counts['categories'] = $categorySeed['created'];
 
-            $productIds = $this->seedProducts($categoryIds);
-            $counts['products'] = count($productIds);
+            $missingProductTenants = $this->findMissingProductTenants();
+            $productSeed = $this->seedProducts($categorySeed['ids'], $missingProductTenants);
+            $counts['products'] = $productSeed['created'];
 
-            $counts['reviews'] = $this->seedReviews($productIds);
-            $counts['orders'] = $this->seedOrders();
+            $counts['reviews'] = $this->seedReviews($productSeed['byTenant']);
+            $counts['orders'] = $this->seedOrders($this->findMissingOrderTenants());
             $counts['job_runs'] = $this->seedJobRuns();
             $counts['ai_tasks'] = $this->seedAiTasks();
 
@@ -183,103 +184,195 @@ final class DemoDataSeeder
      */
     public function isSeeded(): bool
     {
-        return $this->categoryRepository->findBySlug('electronics') !== null
-            && $this->productRepository->findByTenant('acme', 1) !== []
-            && $this->reviewRepository->findAll(1) !== []
-            && $this->orderRepository->findAll(1) !== []
-            && $this->jobRunRepository->findByJobType('report_generation') !== []
-            && $this->aiTaskRepository->findByStatus('completed') !== [];
+        foreach (self::TENANTS as $tenant) {
+            if ($this->productRepository()->findByTenant($tenant, 1) === []) {
+                return false;
+            }
+        }
+
+        return $this->categoryRepository()->findBySlug('electronics') !== null
+            && $this->reviewRepository()->findAll(1) !== []
+            && $this->orderRepository()->findAll(1) !== []
+            && $this->jobRunRepository()->findByJobType('report_generation') !== []
+            && $this->aiTaskRepository()->findByStatus('completed') !== [];
     }
 
     /**
-     * @return array<string, string> slug → id
+     * @return array{ids: array<string, string>, created: int}
      */
     private function seedCategories(): array
     {
         $map = [];
+        $created = 0;
 
         foreach (self::CATEGORIES as $data) {
+            $existing = $this->categoryRepository()->findBySlug($data['slug']);
+            if ($existing !== null) {
+                $map[$data['slug']] = $existing->getId();
+                continue;
+            }
+
             $category = new DemoCategory();
             $category->setName($data['name']);
             $category->setSlug($data['slug']);
             $category->setDescription($data['description']);
 
-            $category = $this->categoryRepository->save($category);
+            $category = $this->categoryRepository()->save($category);
             $map[$data['slug']] = $category->getId();
+            $created++;
         }
 
-        return $map;
+        return [
+            'ids' => $map,
+            'created' => $created,
+        ];
     }
 
     /**
      * @param array<string, string> $categoryIds slug → id
-     * @return list<string> product IDs
+     * @param list<string> $tenantsToSeed
+     * @return array{
+     *     ids: list<string>,
+     *     byTenant: array<string, list<string>>,
+     *     created: int
+     * }
      */
-    private function seedProducts(array $categoryIds): array
+    private function seedProducts(array $categoryIds, array $tenantsToSeed): array
     {
         $productIds = [];
-        $tenants = self::TENANTS;
-        $tenantCount = count($tenants);
+        $productIdsByTenant = [];
+        $tenantLookup = array_fill_keys($tenantsToSeed, true);
+        $tenantCount = count(self::TENANTS);
+
+        if ($tenantLookup === []) {
+            return [
+                'ids' => [],
+                'byTenant' => [],
+                'created' => 0,
+            ];
+        }
 
         foreach (self::PRODUCTS as $i => $data) {
+            $tenantId = self::TENANTS[$i % $tenantCount];
+            if (!isset($tenantLookup[$tenantId])) {
+                continue;
+            }
+
             $product = new DemoProduct();
             $product->setName($data['name']);
             $product->setDescription($data['description']);
             $product->setPrice(number_format($data['price'], 2, '.', ''));
             $product->setStatus('active');
             $product->setCategoryId($categoryIds[$data['category']] ?? null);
-            $product->setTenantId($tenants[$i % $tenantCount]);
+            $product->setTenantId($tenantId);
 
-            $product = $this->productRepository->save($product);
+            $product = $this->productRepository()->save($product);
             $productIds[] = $product->getId();
+            $productIdsByTenant[$tenantId][] = $product->getId();
         }
 
-        return $productIds;
+        return [
+            'ids' => $productIds,
+            'byTenant' => $productIdsByTenant,
+            'created' => count($productIds),
+        ];
     }
 
     /**
-     * @param list<string> $productIds
+     * @param array<string, list<string>> $productIdsByTenant
      */
-    private function seedReviews(array $productIds): int
+    private function seedReviews(array $productIdsByTenant): int
     {
         $count = 0;
         $bodies = self::REVIEW_BODIES;
         $bodyCount = count($bodies);
-        $productCount = count($productIds);
-        $tenants = self::TENANTS;
-        $tenantCount = count($tenants);
+        $tenantCount = count(self::TENANTS);
+        $productOffsets = [];
+        $productIdsByTenant = $this->fillReviewProductIdsByTenant($productIdsByTenant);
+
+        if ($productIdsByTenant === []) {
+            return 0;
+        }
 
         for ($i = 0; $i < 200; $i++) {
+            $tenantId = self::TENANTS[$i % $tenantCount];
+            $tenantProductIds = $productIdsByTenant[$tenantId] ?? [];
+            if ($tenantProductIds === []) {
+                continue;
+            }
+
+            $productOffset = $productOffsets[$tenantId] ?? 0;
             $review = new DemoReview();
-            $review->setProductId($productIds[$i % $productCount]);
+            $review->setProductId($tenantProductIds[$productOffset % count($tenantProductIds)]);
             $review->setUserId(sprintf('demo-user-%03d', ($i % 20) + 1));
             $review->setRating(($i % 5) + 1);
             $review->setBody($bodies[$i % $bodyCount]);
-            $review->setTenantId($tenants[$i % $tenantCount]);
+            $review->setTenantId($tenantId);
 
-            $this->reviewRepository->save($review);
+            $this->reviewRepository()->save($review);
+            $productOffsets[$tenantId] = $productOffset + 1;
             $count++;
         }
 
         return $count;
     }
 
-    private function seedOrders(): int
+    /**
+     * @param array<string, list<string>> $productIdsByTenant
+     * @return array<string, list<string>>
+     */
+    private function fillReviewProductIdsByTenant(array $productIdsByTenant): array
+    {
+        foreach (self::TENANTS as $tenantId) {
+            if (($productIdsByTenant[$tenantId] ?? []) !== []) {
+                continue;
+            }
+
+            $existingProducts = $this->productRepository()->findByTenant($tenantId, count(self::PRODUCTS));
+            if ($existingProducts === []) {
+                continue;
+            }
+
+            $productIdsByTenant[$tenantId] = array_map(
+                static fn (DemoProduct $product): string => $product->getId(),
+                $existingProducts,
+            );
+        }
+
+        return array_filter(
+            $productIdsByTenant,
+            static fn (array $ids): bool => $ids !== [],
+        );
+    }
+
+    /**
+     * @param list<string> $tenantsToSeed
+     */
+    private function seedOrders(array $tenantsToSeed): int
     {
         $count = 0;
         $statuses = self::ORDER_STATUSES;
         $statusCount = count($statuses);
-        $tenants = self::TENANTS;
-        $tenantCount = count($tenants);
+        $tenantLookup = array_fill_keys($tenantsToSeed, true);
+        $tenantCount = count(self::TENANTS);
+
+        if ($tenantLookup === []) {
+            return 0;
+        }
 
         for ($i = 0; $i < 20; $i++) {
+            $tenantId = self::TENANTS[$i % $tenantCount];
+            if (!isset($tenantLookup[$tenantId])) {
+                continue;
+            }
+
             $order = new DemoOrder();
             $order->setUserId(sprintf('demo-user-%03d', ($i % 10) + 1));
             $order->setStatus($statuses[$i % $statusCount]);
             $order->setTotalAmount(number_format(19.99 + ($i * 15.50), 2, '.', ''));
-            $order->setTenantId($tenants[$i % $tenantCount]);
+            $order->setTenantId($tenantId);
 
-            $this->orderRepository->save($order);
+            $this->orderRepository()->save($order);
             $count++;
         }
 
@@ -293,6 +386,10 @@ final class DemoDataSeeder
 
         $count = 0;
         foreach ($jobTypes as $i => $type) {
+            if ($this->jobRunRepository()->findByJobType($type) !== []) {
+                continue;
+            }
+
             $run = new DemoJobRun();
             $run->setJobType($type);
             $run->setStatus($statuses[$i]);
@@ -310,7 +407,7 @@ final class DemoDataSeeder
             });
             $run->setAttemptNumber($statuses[$i] === 'failed' ? 3 : 1);
 
-            $this->jobRunRepository->save($run);
+            $this->jobRunRepository()->save($run);
             $count++;
         }
 
@@ -328,6 +425,10 @@ final class DemoDataSeeder
 
         $count = 0;
         foreach ($tasks as $i => $data) {
+            if ($this->aiTaskRepository()->findByStatus($data['status']) !== []) {
+                continue;
+            }
+
             $task = new DemoAiTask();
             $task->setInputText($data['input']);
             $task->setStatus($data['status']);
@@ -341,10 +442,62 @@ final class DemoDataSeeder
                 ], JSON_THROW_ON_ERROR));
             }
 
-            $this->aiTaskRepository->save($task);
+            $this->aiTaskRepository()->save($task);
             $count++;
         }
 
         return $count;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function findMissingProductTenants(): array
+    {
+        return array_values(array_filter(
+            self::TENANTS,
+            fn (string $tenantId): bool => $this->productRepository()->countByTenant($tenantId) === 0,
+        ));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function findMissingOrderTenants(): array
+    {
+        return array_values(array_filter(
+            self::TENANTS,
+            fn (string $tenantId): bool => $this->orderRepository()->findByTenant($tenantId, 1) === [],
+        ));
+    }
+
+    private function categoryRepository(): DemoCategoryRepositoryInterface
+    {
+        return $this->categoryRepository ?? throw new \LogicException('DemoCategoryRepositoryInterface is not available.');
+    }
+
+    private function productRepository(): DemoProductRepositoryInterface
+    {
+        return $this->productRepository ?? throw new \LogicException('DemoProductRepositoryInterface is not available.');
+    }
+
+    private function reviewRepository(): DemoReviewRepositoryInterface
+    {
+        return $this->reviewRepository ?? throw new \LogicException('DemoReviewRepositoryInterface is not available.');
+    }
+
+    private function orderRepository(): DemoOrderRepositoryInterface
+    {
+        return $this->orderRepository ?? throw new \LogicException('DemoOrderRepositoryInterface is not available.');
+    }
+
+    private function jobRunRepository(): DemoJobRunRepositoryInterface
+    {
+        return $this->jobRunRepository ?? throw new \LogicException('DemoJobRunRepositoryInterface is not available.');
+    }
+
+    private function aiTaskRepository(): DemoAiTaskRepositoryInterface
+    {
+        return $this->aiTaskRepository ?? throw new \LogicException('DemoAiTaskRepositoryInterface is not available.');
     }
 }
