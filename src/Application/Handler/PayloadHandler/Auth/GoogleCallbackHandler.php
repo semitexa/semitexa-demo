@@ -107,7 +107,12 @@ final class GoogleCallbackHandler implements TypedHandlerInterface
         $segment->clearLastError();
         $this->session->setPayload($segment);
 
-        $role = $segment->getDemoRole() ?? 'viewer';
+        $role = $segment->getDemoRole();
+        $role = is_string($role) ? trim($role) : '';
+        $role = in_array($role, ['admin', 'editor', 'viewer'], true) ? $role : 'viewer';
+        $segment->setDemoRole($role);
+        $this->session->setPayload($segment);
+
         $this->session->set('_auth_user_id', 'google:' . $subjectId . ':' . $role);
 
         $this->session->regenerate();
