@@ -183,8 +183,13 @@ final class DemoDataSeeder
      */
     public function isSeeded(): bool
     {
+        foreach (self::TENANTS as $tenant) {
+            if ($this->productRepository->findByTenant($tenant, 1) === []) {
+                return false;
+            }
+        }
+
         return $this->categoryRepository->findBySlug('electronics') !== null
-            && $this->productRepository->findByTenant('acme', 1) !== []
             && $this->reviewRepository->findAll(1) !== []
             && $this->orderRepository->findAll(1) !== []
             && $this->jobRunRepository->findByJobType('report_generation') !== []
