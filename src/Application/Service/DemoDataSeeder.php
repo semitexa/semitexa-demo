@@ -23,7 +23,7 @@ use Semitexa\Orm\Transaction\TransactionManager;
 #[AsService]
 final class DemoDataSeeder
 {
-    private const TENANTS = ['acme', 'globex', 'initech'];
+    private const TENANTS = ['acme', 'globex', 'initech', 'demo'];
 
     private const CATEGORIES = [
         ['name' => 'Electronics', 'slug' => 'electronics', 'description' => 'Gadgets, devices, and accessories'],
