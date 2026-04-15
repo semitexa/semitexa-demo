@@ -644,6 +644,11 @@ final class DemoCatalogService
             return null;
         }
 
+        $href = '/demo/' . $section . '/' . $slug;
+        if ($slug === 'parameterized') {
+            $href .= '/headphones';
+        }
+
         return [
             'section' => $section,
             'slug' => $slug,
@@ -651,7 +656,7 @@ final class DemoCatalogService
             'title' => $meta['title'],
             'summary' => $meta['summary'],
             'opensInNewTab' => $meta['opensInNewTab'] ?? false,
-            'href' => '/demo/' . $section . '/' . $slug,
+            'href' => $href,
         ];
     }
 
