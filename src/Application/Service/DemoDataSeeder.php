@@ -288,6 +288,7 @@ final class DemoDataSeeder
         $bodyCount = count($bodies);
         $tenantCount = count(self::TENANTS);
         $productOffsets = [];
+        $productIdsByTenant = $this->fillReviewProductIdsByTenant($productIdsByTenant);
 
         if ($productIdsByTenant === []) {
             return 0;
@@ -314,6 +315,34 @@ final class DemoDataSeeder
         }
 
         return $count;
+    }
+
+    /**
+     * @param array<string, list<string>> $productIdsByTenant
+     * @return array<string, list<string>>
+     */
+    private function fillReviewProductIdsByTenant(array $productIdsByTenant): array
+    {
+        foreach (self::TENANTS as $tenantId) {
+            if (($productIdsByTenant[$tenantId] ?? []) !== []) {
+                continue;
+            }
+
+            $existingProducts = $this->productRepository()->findByTenant($tenantId, count(self::PRODUCTS));
+            if ($existingProducts === []) {
+                continue;
+            }
+
+            $productIdsByTenant[$tenantId] = array_map(
+                static fn (DemoProduct $product): string => $product->getId(),
+                $existingProducts,
+            );
+        }
+
+        return array_filter(
+            $productIdsByTenant,
+            static fn (array $ids): bool => $ids !== [],
+        );
     }
 
     /**
