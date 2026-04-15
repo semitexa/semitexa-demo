@@ -33,6 +33,15 @@
   backdrop-filter: var(--demo-glass-blur);
 }
 
+.demo-layout__sidebar-scroll {
+  max-height: calc(100vh - 96px - 2rem);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding-right: 0.15rem;
+}
+
 html.demo-layout--nav-open,
 body.demo-layout--nav-open {
   overflow: hidden;
@@ -680,6 +689,12 @@ body.demo-layout--nav-open {
     box-shadow: var(--demo-shadow-lg);
   }
 
+  .demo-layout__sidebar-scroll {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
   :root[data-demo-theme="dark"] .demo-layout__sidebar {
     background: linear-gradient(180deg, rgba(14, 22, 31, 0.94), rgba(10, 17, 24, 0.9));
   }
@@ -751,6 +766,11 @@ body.demo-layout--nav-open {
     top: 0.5rem;
     bottom: 0.5rem;
     border-radius: 20px;
+  }
+
+  .demo-layout__sidebar-scroll {
+    max-height: none;
+    overflow: visible;
   }
 
   .demo-layout__main {

@@ -65,15 +65,17 @@
             data-demo-nav-close
           >&times;</button>
         </div>
-        {% block sidebar %}
-          {% include '@project-layouts-semitexa-demo/partials/sidebar.html.twig' with {
-            featureTree: featureTree|default(navSections|default(sections|default([]))),
-            currentSection: currentSection|default(null),
-            currentSlug: currentSlug|default(null),
-            navMode: navMode|default(null),
-            activeLayerKey: activeLayerKey|default(null),
-          } only %}
-        {% endblock %}
+        <div class="demo-layout__sidebar-scroll" data-demo-sidebar-scroll>
+          {% block sidebar %}
+            {% include '@project-layouts-semitexa-demo/partials/sidebar.html.twig' with {
+              featureTree: featureTree|default(navSections|default(sections|default([]))),
+              currentSection: currentSection|default(null),
+              currentSlug: currentSlug|default(null),
+              navMode: navMode|default(null),
+              activeLayerKey: activeLayerKey|default(null),
+            } only %}
+          {% endblock %}
+        </div>
       </aside>
 
       {# Main content area (fluid) #}
