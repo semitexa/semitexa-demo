@@ -662,7 +662,10 @@ body.demo-layout--nav-open {
     top: 0;
     left: 0;
     z-index: 220;
+    box-sizing: border-box;
     width: min(22rem, calc(100vw - 1.4rem));
+    max-width: calc(100vw - 1.4rem);
+    overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     height: auto;
@@ -743,6 +746,7 @@ body.demo-layout--nav-open {
 
   .demo-layout__sidebar {
     width: min(20rem, calc(100vw - 1rem));
+    max-width: calc(100vw - 1rem);
     margin: 0.5rem;
     top: 0.5rem;
     bottom: 0.5rem;

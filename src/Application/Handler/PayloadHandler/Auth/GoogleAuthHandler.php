@@ -14,6 +14,7 @@ use Semitexa\Demo\Application\Auth\GooglePrincipal;
 use Semitexa\Demo\Application\Handler\Auth\GoogleSessionAuthHandler;
 use Semitexa\Demo\Application\Payload\Request\Auth\GoogleAuthPayload;
 use Semitexa\Demo\Application\Payload\Session\GoogleAuthSessionSegment;
+use Semitexa\Demo\Application\Payload\Session\GoogleSessionIdentityPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoAuthMode;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
@@ -169,16 +170,19 @@ final class GoogleAuthHandler implements TypedHandlerInterface
 
         $subjectId = 'local-demo-' . $this->normalizeSubjectSuffix($host);
         $email = 'demo@' . $host;
+        $identity = new GoogleSessionIdentityPayload(
+            subjectId: $subjectId,
+            email: $email,
+            displayName: 'Local Demo Account',
+            emailVerified: true,
+            pictureUrl: null,
+            hostedDomain: $host,
+        );
 
         $segment = $this->session->getPayload(GoogleAuthSessionSegment::class);
         $segment->clear();
         $segment->setReturnTo($returnTo);
-        $segment->setSubjectId($subjectId);
-        $segment->setEmail($email);
-        $segment->setDisplayName('Local Demo Account');
-        $segment->setPictureUrl(null);
-        $segment->setHostedDomain($host);
-        $segment->setEmailVerified(true);
+        $segment->setIdentity($identity);
         $segment->setDemoRole('viewer');
         $segment->clearLastError();
         $this->session->setPayload($segment);
