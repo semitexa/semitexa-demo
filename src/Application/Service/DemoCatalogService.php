@@ -726,12 +726,18 @@ final class DemoCatalogService
     private function resolveFeatureMeta(string $section, string $slug): ?array
     {
         $key = $section . '/' . $slug;
+        $localMeta = self::FEATURE_META[$key] ?? null;
 
         if (in_array($section, self::DOCS_BACKED_SECTIONS, true)) {
-            return $this->loadDocsFeatureMeta()[$key] ?? null;
+            $docsMeta = $this->loadDocsFeatureMeta()[$key] ?? null;
+            if ($docsMeta === null) {
+                return $localMeta;
+            }
+
+            return $localMeta !== null ? [...$localMeta, ...$docsMeta] : $docsMeta;
         }
 
-        return self::FEATURE_META[$key] ?? null;
+        return $localMeta;
     }
 
     /**

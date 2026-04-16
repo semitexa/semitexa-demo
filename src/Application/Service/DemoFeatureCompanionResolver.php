@@ -11,10 +11,6 @@ final class DemoFeatureCompanionResolver
 {
     public function resolve(string $section, string $slug, ?DemoFeatureDocument $document): DemoFeatureCompanion
     {
-        if ($document === null) {
-            return new DemoFeatureCompanion();
-        }
-
         return match ($section . '/' . $slug) {
             'get-started/installation' => $this->installationCompanion(),
             'get-started/local-domain' => $this->localDomainCompanion(),
