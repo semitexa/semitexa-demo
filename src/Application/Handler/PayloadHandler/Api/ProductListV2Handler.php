@@ -13,6 +13,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoApiPresenter;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ProductListV2Payload::class, resource: DemoFeatureResource::class)]
@@ -30,8 +31,18 @@ final class ProductListV2Handler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(ProductListV2Payload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'api',
+            'active-version',
+            'Active Version',
+            'The current collection endpoint with a clean X-Api-Version header and no deprecation noise.',
+            ['#[ApiVersion]', 'X-Api-Version', 'active lifecycle'],
+        );
         $request = $payload->getHttpRequest() ?? new Request('GET', '/demo/api/v2/products', [], [], [], [], []);
         $body = $this->apiPresenter->buildCollection(request: $request, query: $payload->getQ());
         $explanation = $this->explanationProvider->getExplanation('api', 'active-version') ?? [];
@@ -45,23 +56,24 @@ final class ProductListV2Handler implements TypedHandlerInterface
         }
 
         return $resource
-            ->pageTitle('Active Version — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'api',
                 'currentSlug' => 'active-version',
-                'infoWhat' => $explanation['what'] ?? null,
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('api')
             ->withSlug('active-version')
-            ->withTitle('Active Version')
-            ->withSummary('The current collection endpoint with a clean X-Api-Version header and no deprecation noise.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('The active version should feel intentionally boring: same response shape, stable metadata, and no sunset chatter for clients to parse around.')
-            ->withHighlights(['#[ApiVersion]', 'X-Api-Version', 'active lifecycle'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('Inspect active response →')
             ->withDeepDiveLabel('Version contract internals →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/api-endpoint-demo.html.twig', [

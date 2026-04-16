@@ -14,6 +14,7 @@ use Semitexa\Demo\Application\Payload\Request\Testing\DescribeCommandsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Dev\Console\Command\DescribeProjectCommand;
 use Semitexa\Dev\Console\Command\DescribeRouteCommand;
@@ -28,30 +29,41 @@ final class DescribeCommandsHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(DescribeCommandsPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'cli',
+            'describe-commands',
+            'Project Describe Commands',
+            'Routes, modules, contracts, and handlers can be described directly from the CLI instead of reverse-engineering the framework graph by hand.',
+            ['describe:route', 'describe:project', 'routes:list', 'contracts:list', 'semitexa:lint:*'],
+        );
         $explanation = $this->explanationProvider->getExplanation('cli', 'describe-commands') ?? [];
 
         return $resource
-            ->pageTitle('Project Describe Commands — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'cli',
                 'currentSlug' => 'describe-commands',
-                'infoWhat' => $explanation['what'] ?? 'Semitexa can describe routes, modules, contracts, and bindings directly from the CLI instead of making engineers reconstruct the framework graph mentally.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('cli')
             ->withSlug('describe-commands')
-            ->withTitle('Project Describe Commands')
-            ->withSummary('Routes, modules, contracts, and handlers can be described directly from the CLI instead of reverse-engineering the framework graph by hand.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('A mature framework should explain itself under pressure. These commands turn route and container introspection into a first-class debugging surface.')
-            ->withHighlights(['describe:route', 'describe:project', 'routes:list', 'contracts:list', 'semitexa:lint:*'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the introspection workflow →')
             ->withDeepDiveLabel('How to use it in real debugging →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/cli-command-workbench.html.twig', [

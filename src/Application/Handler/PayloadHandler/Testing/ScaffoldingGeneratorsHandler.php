@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Testing\ScaffoldingGeneratorsPaylo
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Dev\Console\Command\MakeContractCommand;
 use Semitexa\Dev\Console\Command\MakeModuleCommand;
@@ -28,30 +29,41 @@ final class ScaffoldingGeneratorsHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(ScaffoldingGeneratorsPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'cli',
+            'scaffolding-generators',
+            'Scaffolding Generators',
+            'Scaffold modules, pages, payloads, services, and contracts through commands that already understand Semitexa structure and AI-friendly output modes.',
+            ['make:module', 'make:page', 'make:payload', 'make:service', 'make:contract', '--llm-hints'],
+        );
         $explanation = $this->explanationProvider->getExplanation('cli', 'scaffolding-generators') ?? [];
 
         return $resource
-            ->pageTitle('Scaffolding Generators — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'cli',
                 'currentSlug' => 'scaffolding-generators',
-                'infoWhat' => $explanation['what'] ?? 'Semitexa scaffolding commands encode framework conventions directly into generated files and hints.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('cli')
             ->withSlug('scaffolding-generators')
-            ->withTitle('Scaffolding Generators')
-            ->withSummary('Scaffold modules, pages, payloads, services, and contracts through commands that already understand Semitexa structure and AI-friendly output modes.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('The generator surface matters because it teaches the framework shape by producing the right files, not by asking the developer to remember ceremony.')
-            ->withHighlights(['make:module', 'make:page', 'make:payload', 'make:service', 'make:contract', '--llm-hints'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the generator workflow →')
             ->withDeepDiveLabel('Why this scaffolding is different →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/cli-command-workbench.html.twig', [

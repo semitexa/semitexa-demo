@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Api\GraphqlApiPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: GraphqlApiPayload::class, resource: DemoFeatureResource::class)]
@@ -25,28 +26,39 @@ final class GraphqlApiHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(GraphqlApiPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'api',
+            'graphql',
+            'GraphQL API',
+            'GraphQL-first Semitexa contracts built with typed payloads and typed output DTOs instead of resolver sprawl.',
+            ['POST /graphql', '#[ExposeAsGraphql]', 'typed output DTOs', 'GraphQL-first'],
+        );
         $explanation = $this->explanationProvider->getExplanation('api', 'graphql') ?? [];
 
         return $resource
-            ->pageTitle('GraphQL API — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'api',
                 'currentSlug' => 'graphql',
-                'infoWhat' => $explanation['what'] ?? 'GraphQL-first Semitexa APIs still use typed payloads and typed output DTOs.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('api')
             ->withSlug('graphql')
-            ->withTitle('GraphQL API')
-            ->withSummary('GraphQL-first Semitexa contracts built with typed payloads and typed output DTOs instead of resolver sprawl.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('If your public API is GraphQL-first, Semitexa still keeps the application layer explicit and typed.')
-            ->withHighlights(['POST /graphql', '#[ExposeAsGraphql]', 'typed output DTOs', 'GraphQL-first'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See a GraphQL-first payload →')
             ->withDeepDiveLabel('Why this is cleaner than resolver drift →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/graphql-api.html.twig', [

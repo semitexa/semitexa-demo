@@ -12,6 +12,7 @@ use Semitexa\Demo\Application\Payload\Request\Routing\EnvRouteOverridePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: EnvRouteOverridePayload::class, resource: DemoFeatureResource::class)]
@@ -27,10 +28,20 @@ final class EnvRouteOverrideHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(EnvRouteOverridePayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'routing',
+            'env-route-override',
+            'Env Route Override',
+            'Keep the payload as the route source of truth while allowing operations to remap the public URL through .env.',
+            ['env::VAR::/fallback', 'path override', '.env-driven routing', 'same payload boundary'],
+        );
         $explanation = $this->explanationProvider->getExplanation('routing', 'env-route-override') ?? [];
         $resolvedPath = trim((string) (Environment::getEnvValue(self::ENV_KEY) ?? ''));
         if ($resolvedPath === '') {
@@ -48,23 +59,24 @@ final class EnvRouteOverrideHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Env Route Override — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'routing',
                 'currentSlug' => 'env-route-override',
-                'infoWhat' => $explanation['what'] ?? 'The route contract stays on the payload DTO, but the public path can still be changed through .env.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('routing')
             ->withSlug('env-route-override')
-            ->withTitle('Env Route Override')
-            ->withSummary('Keep the payload as the route source of truth while allowing operations to remap the public URL through .env.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('The route still lives in PHP, but deployment can move the public URL without reopening the payload class.')
-            ->withHighlights(['env::VAR::/fallback', 'path override', '.env-driven routing', 'same payload boundary'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See env override pattern →')
             ->withDeepDiveLabel('How resolved route metadata works →')
             ->withSourceCode($sourceCode)

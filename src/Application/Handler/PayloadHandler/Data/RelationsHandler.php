@@ -17,6 +17,7 @@ use Semitexa\Demo\Application\Payload\Request\Data\RelationsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: RelationsPayload::class, resource: DemoFeatureResource::class)]
@@ -40,16 +41,26 @@ final class RelationsHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(RelationsPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'data',
+            'relations',
+            'Relations',
+            'Declare parent and child links on the resource itself, then read typed relations from the handler.',
+            ['#[HasMany]', '#[BelongsTo]', 'foreignKey', 'typed relations', 'batch loading'],
+        );
+        $explanation = $this->explanationProvider->getExplanation('data', 'relations') ?? [];
+
         $categories = array_slice($this->categoryRepository->findAllOrdered(), 0, 2);
         $products = $this->productRepository->findPage(3);
         $focusProduct = $products[0] ?? null;
         $focusCategory = $this->resolveProductCategory($focusProduct);
         $focusReviews = $focusProduct !== null ? $this->reviewRepository->findByProduct($focusProduct->getId()) : [];
         $firstReview = $focusReviews[0] ?? null;
-
-        $explanation = $this->explanationProvider->getExplanation('data', 'relations') ?? [];
 
         $sourceCode = [
             'Product Resource' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Data/Relations/ProductResource.example.php'),
@@ -59,23 +70,24 @@ final class RelationsHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Relations — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'data',
                 'currentSlug' => 'relations',
-                'infoWhat' => $explanation['what'] ?? 'Relations live on the resource fields themselves, so handlers read a typed object graph instead of rebuilding joins by hand.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('data')
             ->withSlug('relations')
-            ->withTitle('Relations')
-            ->withSummary('Declare parent and child links on the resource itself, then read typed relations from the handler.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Declare parent and child links on the resource itself, then read typed relations from the handler.')
-            ->withHighlights(['#[HasMany]', '#[BelongsTo]', 'foreignKey', 'typed relations', 'batch loading'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the relation attributes →')
             ->withDeepDiveLabel('How handler reads relations →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/data-table.html.twig', [

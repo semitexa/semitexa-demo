@@ -19,6 +19,7 @@ use Semitexa\Demo\Application\Payload\Request\Api\ApiErrorTriggerPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ApiErrorTriggerPayload::class, resource: DemoFeatureResource::class)]
@@ -33,8 +34,18 @@ final class ApiErrorTriggerHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(ApiErrorTriggerPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'api',
+            'structured-errors',
+            'Structured Errors',
+            'Throw domain exceptions and let semitexa-api map them into stable machine-readable error envelopes.',
+            ['ExternalApiExceptionMapper', 'DomainException', 'error.context', 'request_id'],
+        );
         $type = strtolower($payload->getType());
         $explanation = $this->explanationProvider->getExplanation('api', 'structured-errors') ?? [];
         $request = $payload->getHttpRequest() ?? new Request('GET', '/demo/api/errors/' . $type, [], [], [], [], []);
@@ -124,23 +135,24 @@ final class ApiErrorTriggerHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Structured Errors — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'api',
                 'currentSlug' => 'structured-errors',
-                'infoWhat' => $explanation['what'] ?? null,
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('api')
             ->withSlug('structured-errors')
-            ->withTitle('Structured Errors')
-            ->withSummary('Throw domain exceptions and let semitexa-api map them into stable machine-readable error envelopes.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('API failures should stay operationally useful. This page shows the exact error body a client would parse, not just the fact that the request failed.')
-            ->withHighlights(['ExternalApiExceptionMapper', 'DomainException', 'error.context', 'request_id'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('Inspect error envelope →')
             ->withDeepDiveLabel('Error mapping internals →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/api-endpoint-demo.html.twig', [

@@ -12,6 +12,7 @@ use Semitexa\Demo\Application\Payload\Request\Auth\RbacPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Rbac\Capability\CapabilityRegistry;
 use Semitexa\Rbac\Contract\PermissionProviderInterface;
@@ -38,6 +39,9 @@ final class RbacHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(RbacPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
@@ -53,6 +57,13 @@ final class RbacHandler implements TypedHandlerInterface
             $rows[] = $cells;
         }
 
+        $presentation = $this->documents->resolve(
+            'auth',
+            'rbac',
+            'RBAC',
+            'Hybrid RBAC with coarse-grained capabilities, exact permission slugs, and module-owned permission catalogs.',
+            ['#[RequiresCapability]', '#[RequiresPermission]', 'CapabilityRegistry', 'PermissionProviderInterface'],
+        );
         $explanation = $this->explanationProvider->getExplanation('auth', 'rbac') ?? [];
 
         $sourceCode = [
@@ -64,23 +75,24 @@ final class RbacHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('RBAC — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'auth',
                 'currentSlug' => 'rbac',
-                'infoWhat' => $explanation['what'] ?? 'Role-based access control — assign permissions to roles, assign roles to users.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('auth')
             ->withSlug('rbac')
-            ->withTitle('RBAC')
-            ->withSummary('Hybrid RBAC: bitmask-backed capabilities for broad checks, slug permissions for exact business rules, and module-owned catalogs behind one authorizer.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Semitexa separates coarse-grained capabilities from fine-grained permission slugs so modules can extend authorization without coupling themselves to one storage model.')
-            ->withHighlights(['#[RequiresCapability]', '#[RequiresPermission]', 'CapabilityRegistry', 'PermissionProviderInterface'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the hybrid permission model →')
             ->withDeepDiveLabel('How grant resolution and module extension work →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/permission-matrix.html.twig', [

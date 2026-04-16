@@ -15,6 +15,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoAuthMode;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: SseStreamPayload::class, resource: DemoFeatureResource::class)]
@@ -27,10 +28,20 @@ final class SseStreamHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(SseStreamPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'events',
+            'sse',
+            'SSE Stream',
+            'Real-time server push without WebSockets — connect once and receive real backend events over plain HTTP.',
+            ['SseEndpointHandler', 'AsyncResourceSseServer', 'EventSource', 'text/event-stream'],
+        );
         $auth = AuthManager::getInstance();
         $user = $auth->getUser();
         $googleUser = $user instanceof GooglePrincipal ? $user : null;
@@ -57,10 +68,11 @@ final class SseStreamHandler implements TypedHandlerInterface
             ])
             ->withSection('events')
             ->withSlug('sse')
-            ->withTitle('SSE Stream')
-            ->withSummary('Real-time server push without WebSockets — connect once and let the backend stream named events into the page.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('This demo now receives real backend-generated SSE messages over one long-lived HTTP connection, not client-side simulated updates.')
-            ->withHighlights(['SseEndpointHandler', 'AsyncResourceSseServer', 'EventSource', 'text/event-stream'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the SSE handler →')
             ->withDeepDiveLabel('SSE connection lifecycle →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/sse-stream.html.twig', [

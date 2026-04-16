@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Container\FactoryInjectionPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: FactoryInjectionPayload::class, resource: DemoFeatureResource::class)]
@@ -23,10 +24,20 @@ final class FactoryInjectionHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(FactoryInjectionPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'di',
+            'factory',
+            'Factory Injection',
+            'On-demand creation stays explicit — lazy instances without falling back to service locator habits.',
+            ['#[InjectAsFactory]', 'closed-world selection', 'on-demand', 'lazy instantiation'],
+        );
         $explanation = $this->explanationProvider->getExplanation('di', 'factory') ?? [];
 
         $sourceCode = [
@@ -34,23 +45,24 @@ final class FactoryInjectionHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Factory Injection — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'di',
                 'currentSlug' => 'factory',
-                'infoWhat' => $explanation['what'] ?? 'Factory injections expose a validated selection point for fresh instances without reopening the container model.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('di')
             ->withSlug('factory')
-            ->withTitle('Factory Injection')
-            ->withSummary('On-demand creation stays explicit — lazy instances without falling back to service locator habits.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('On-demand creation stays explicit — lazy instances without falling back to service locator habits.')
-            ->withHighlights(['#[InjectAsFactory]', 'closed-world selection', 'on-demand', 'lazy instantiation'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See factory injection →')
             ->withDeepDiveLabel('Lazy instantiation patterns →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [

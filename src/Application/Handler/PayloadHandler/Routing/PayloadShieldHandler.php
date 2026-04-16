@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Routing\PayloadShieldPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: PayloadShieldPayload::class, resource: DemoFeatureResource::class)]
@@ -23,30 +24,41 @@ final class PayloadShieldHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(PayloadShieldPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'routing',
+            'payload-shield',
+            'Payload As A Shield',
+            'Hydration happens before the handler, and each setter owns the normalization and guard logic for its own field.',
+            ['PayloadHydrator', 'ValidationException', 'setter guards', '422 before handler'],
+        );
         $explanation = $this->explanationProvider->getExplanation('routing', 'payload-shield') ?? [];
 
         return $resource
-            ->pageTitle('Payload As A Shield — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'routing',
                 'currentSlug' => 'payload-shield',
-                'infoWhat' => $explanation['what'] ?? 'A payload is the trusted boundary between raw HTTP input and application logic.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('routing')
             ->withSlug('payload-shield')
-            ->withTitle('Payload As A Shield')
-            ->withSummary('Hydration happens before the handler, and each setter owns the normalization and guard logic for its own field.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('A payload is the one trusted boundary: external data is normalized inside setters before application code runs.')
-            ->withHighlights(['PayloadHydrator', 'ValidationException', 'setter guards', '422 before handler'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the boundary in code →')
             ->withDeepDiveLabel('How the shield works →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/payload-shield-showcase.html.twig', [

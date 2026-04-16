@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Routing\PublicEndpointPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: PublicEndpointPayload::class, resource: DemoFeatureResource::class)]
@@ -23,10 +24,20 @@ final class PublicEndpointHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(PublicEndpointPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'routing',
+            'public-endpoint',
+            'Public Endpoint',
+            'Every endpoint is private by default. #[PublicEndpoint] is the explicit opt-in for anonymous access.',
+            ['#[PublicEndpoint]', 'default private', '401 Unauthorized', 'Authorizer'],
+        );
         $explanation = $this->explanationProvider->getExplanation('routing', 'public-endpoint') ?? [];
 
         $sourceCode = [
@@ -35,23 +46,24 @@ final class PublicEndpointHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Public Endpoint — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'routing',
                 'currentSlug' => 'public-endpoint',
-                'infoWhat' => $explanation['what'] ?? 'Every payload is protected by default. #[PublicEndpoint] is the explicit opt-in for anonymous access.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('routing')
             ->withSlug('public-endpoint')
-            ->withTitle('Public Endpoint')
-            ->withSummary('Every endpoint is private by default. #[PublicEndpoint] is the explicit opt-in for anonymous access.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Anonymous access is never accidental: without #[PublicEndpoint], Semitexa treats the route as protected.')
-            ->withHighlights(['#[PublicEndpoint]', 'default private', '401 Unauthorized', 'Authorizer'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the access contract →')
             ->withDeepDiveLabel('How the authorizer decides →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/permission-matrix.html.twig', [

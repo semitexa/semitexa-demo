@@ -10,6 +10,7 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\ProjectGraph\ProjectGraphInspectionPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ProjectGraphInspectionPayload::class, resource: DemoFeatureResource::class)]
@@ -21,8 +22,19 @@ final class ProjectGraphInspectionHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(ProjectGraphInspectionPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'project-graph',
+            'inspection',
+            'Inspecting the Graph',
+            'Explore modules, dependencies, usages, and capabilities directly from the graph instead of piecing them together from file-by-file searches.',
+            ['ai:review-graph:show', 'ai:review-graph:query', 'cross-module edges', 'capability manifest'],
+        );
+
         $explanation = [
             'what' => 'After generation, the graph becomes an exploration surface. You can render graph views, search nodes, inspect dependencies, trace usages, and expose cross-module edges without reconstructing the whole architecture manually.',
             'how' => 'Use `ai:review-graph:show` for summaries or exports, `ai:review-graph:query` for ad hoc structural questions, and `ai:review-graph:capabilities` when the goal is a command- and AI-oriented overview instead of raw edges.',
@@ -36,7 +48,7 @@ final class ProjectGraphInspectionHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Inspecting the Project Graph — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
@@ -50,10 +62,11 @@ final class ProjectGraphInspectionHandler implements TypedHandlerInterface
             ->withSection('project-graph')
             ->withSectionLabel('Project Graph')
             ->withSlug('inspection')
-            ->withTitle('Inspecting the Graph')
-            ->withSummary('Explore modules, dependencies, usages, and capabilities directly from the graph instead of piecing them together from file-by-file searches.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Once the graph is built, architectural questions become terminal queries instead of archaeology.')
-            ->withHighlights(['ai:review-graph:show', 'ai:review-graph:query', 'cross-module edges', 'capability manifest'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the inspection workflows →')
             ->withDeepDiveLabel('What this saves during real project work →')
             ->withSourceCode([

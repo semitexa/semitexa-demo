@@ -11,19 +11,22 @@ use Semitexa\Demo\Application\Payload\Request\Routing\ContentNegotiationPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
+use Semitexa\Demo\Application\Service\DemoFeaturePresentation;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ContentNegotiationPayload::class, resource: DemoFeatureResource::class)]
 final class ContentNegotiationHandler implements TypedHandlerInterface
 {
-    private const FEATURE_TITLE = 'Content Negotiation';
-    private const FEATURE_SUMMARY = 'One endpoint, multiple response formats — automatically.';
     private const FEATURE_ENTRY_LINE = 'One endpoint serves JSON or HTML depending on the Accept header — no branching in handler code.';
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
 
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
@@ -36,8 +39,15 @@ final class ContentNegotiationHandler implements TypedHandlerInterface
 
     public function handle(ContentNegotiationPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'routing',
+            'content-negotiation',
+            'Content Negotiation',
+            'One endpoint, multiple response formats — automatically.',
+            ['#[AsPayload(produces)]', 'Accept header', '?_format= override', 'ContentNegotiator'],
+        );
         $explanation = $this->explanationProvider->getExplanation('routing', 'content-negotiation') ?? [];
-        $shellContext = $this->buildShellContext($explanation);
+        $shellContext = $this->buildShellContext($explanation, $presentation);
 
         $sourceCode = [
             'Payload' => $this->sourceCodeReader->readClassSource(ContentNegotiationPayload::class),
@@ -46,22 +56,20 @@ final class ContentNegotiationHandler implements TypedHandlerInterface
 
         $jsonPreview = json_encode(['products' => self::PRODUCTS], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) ?: '{}';
 
-        $keywords = ['routing', 'content negotiation', 'html', 'json', 'payload'];
-
         return $resource
-            ->pageTitle(self::FEATURE_TITLE . ' — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->seoTag('description', self::FEATURE_ENTRY_LINE)
-            ->seoTag('keywords', implode(', ', $keywords))
-            ->seoTag('og:title', self::FEATURE_TITLE . ' — Semitexa Demo')
+            ->seoTag('og:title', $presentation->title . ' — Semitexa Demo')
             ->seoTag('og:description', self::FEATURE_ENTRY_LINE)
             ->seoTag('og:type', 'article')
             ->withDemoShellContext($shellContext)
             ->withSection('routing')
             ->withSlug('content-negotiation')
-            ->withTitle(self::FEATURE_TITLE)
-            ->withSummary(self::FEATURE_SUMMARY)
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine(self::FEATURE_ENTRY_LINE)
-            ->withHighlights(['#[AsPayload(produces)]', 'Accept header', '?_format= override', 'ContentNegotiator'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('Toggle formats →')
             ->withDeepDiveLabel('How negotiation works →')
             ->withSourceCode($sourceCode)
@@ -72,14 +80,14 @@ final class ContentNegotiationHandler implements TypedHandlerInterface
             ]);
     }
 
-    private function buildShellContext(array $explanation): array
+    private function buildShellContext(array $explanation, DemoFeaturePresentation $presentation): array
     {
         return [
             'navSections' => $this->catalog->getSections(),
             'featureTree' => $this->catalog->getFeatureTree(),
             'currentSection' => 'routing',
             'currentSlug' => 'content-negotiation',
-            'infoWhat' => $explanation['what'] ?? self::FEATURE_SUMMARY,
+            'infoWhat' => $explanation['what'] ?? $presentation->summary,
             'infoHow' => $explanation['how'] ?? null,
             'infoWhy' => $explanation['why'] ?? null,
             'infoKeywords' => $explanation['keywords'] ?? [],

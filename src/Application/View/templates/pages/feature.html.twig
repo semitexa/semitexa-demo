@@ -5,6 +5,13 @@
 {% block main %}
   {% set domKey = (section ~ '-' ~ slug)|lower|replace({' ': '-', '/': '-', '\\': '-', '_': '-'}) %}
   {% set resolvedSectionLabel = sectionLabel|default(section|title) %}
+  {% set hasInlineExplanation = (explanation is defined and (
+    (explanation.how is defined and explanation.how)
+    or (explanation.why is defined and explanation.why)
+    or (explanation.keywords is defined and explanation.keywords|length > 0)
+  )) %}
+  {% set hasL2 = (sourceCode is defined and sourceCode|length > 0) or (l2ContentTemplate is defined and l2ContentTemplate) or (l2Content is defined and l2Content) or (relatedPayloads is defined and relatedPayloads|length > 0) %}
+  {% set hasL3 = hasInlineExplanation or (l3ContentTemplate is defined and l3ContentTemplate) or (l3Content is defined and l3Content) %}
   {% set keywordDefinitions = {} %}
   {% if explanation is defined and explanation.keywords is defined %}
     {% for keyword in explanation.keywords %}
@@ -69,9 +76,15 @@
           } only %}
         </div>
       {% endif %}
+
+      {% if documentBodyHtml is defined and documentBodyHtml %}
+        <div class="feature-detail__document-body">
+          {{ documentBodyHtml|raw }}
+        </div>
+      {% endif %}
     </section>
 
-    {% if (sourceCode is defined and sourceCode|length > 0) or (l2ContentTemplate is defined and l2ContentTemplate) or (l2Content is defined and l2Content) or (relatedPayloads is defined and relatedPayloads|length > 0) %}
+    {% if hasL2 %}
       <section class="feature-detail__l2">
         {% if sourceCode is defined and sourceCode|length > 0 %}
           {{ component('demo-code-block', {
@@ -112,60 +125,64 @@
           </div>
         {% endif %}
 
-        {{ component('demo-disclosure-prompt', {
-          label: deepDiveLabel|default('Under the hood →'),
-          variant: 'deepDive',
-          target: 'l3-' ~ domKey,
-        }) }}
+        {% if hasL3 %}
+          {{ component('demo-disclosure-prompt', {
+            label: deepDiveLabel|default('Under the hood →'),
+            variant: 'deepDive',
+            target: 'l3-' ~ domKey,
+          }) }}
+        {% endif %}
       </section>
     {% endif %}
 
-    <div id="l3-{{ domKey }}" class="deep-dive-drawer" data-expanded="false" data-drawer>
-      <div class="deep-dive-drawer__overlay" data-drawer-close></div>
-      <div class="deep-dive-drawer__panel">
-        <button class="deep-dive-drawer__close" type="button" aria-label="Close details panel" data-drawer-close>&times;</button>
-        <div class="deep-dive-drawer__content">
-          <div class="feature-detail__l3">
-            {% if explanation is defined %}
-              {% if explanation.how is defined and explanation.how %}
-                <section class="feature-detail__l3-section">
-                  <h3>How it works</h3>
-                  <p>{{ explanation.how }}</p>
-                </section>
+    {% if hasL3 %}
+      <div id="l3-{{ domKey }}" class="deep-dive-drawer" data-expanded="false" data-drawer>
+        <div class="deep-dive-drawer__overlay" data-drawer-close></div>
+        <div class="deep-dive-drawer__panel">
+          <button class="deep-dive-drawer__close" type="button" aria-label="Close details panel" data-drawer-close>&times;</button>
+          <div class="deep-dive-drawer__content">
+            <div class="feature-detail__l3">
+              {% if explanation is defined %}
+                {% if explanation.how is defined and explanation.how %}
+                  <section class="feature-detail__l3-section">
+                    <h3>How it works</h3>
+                    <p>{{ explanation.how }}</p>
+                  </section>
+                {% endif %}
+                {% if explanation.why is defined and explanation.why %}
+                  <section class="feature-detail__l3-section">
+                    <h3>Why it matters</h3>
+                    <p>{{ explanation.why }}</p>
+                  </section>
+                {% endif %}
+                {% if explanation.keywords is defined and explanation.keywords|length > 0 %}
+                  <section class="feature-detail__l3-section">
+                    <h3>Key concepts</h3>
+                    <dl class="feature-detail__keywords">
+                      {% for kw in explanation.keywords %}
+                        <dt>{{ kw.term }}</dt>
+                        <dd>{{ kw.definition }}</dd>
+                      {% endfor %}
+                    </dl>
+                  </section>
+                {% endif %}
               {% endif %}
-              {% if explanation.why is defined and explanation.why %}
-                <section class="feature-detail__l3-section">
-                  <h3>Why it matters</h3>
-                  <p>{{ explanation.why }}</p>
-                </section>
-              {% endif %}
-              {% if explanation.keywords is defined and explanation.keywords|length > 0 %}
-                <section class="feature-detail__l3-section">
-                  <h3>Key concepts</h3>
-                  <dl class="feature-detail__keywords">
-                    {% for kw in explanation.keywords %}
-                      <dt>{{ kw.term }}</dt>
-                      <dd>{{ kw.definition }}</dd>
-                    {% endfor %}
-                  </dl>
-                </section>
-              {% endif %}
-            {% endif %}
 
-            {% if l3ContentTemplate is defined and l3ContentTemplate %}
-              <div class="feature-detail__l3-extra">
-                {% include l3ContentTemplate with l3ContentData|default({}) only %}
-              </div>
-            {% elseif l3Content is defined and l3Content %}
-              <div class="feature-detail__l3-extra">
-                {{ l3Content|raw }}
-              </div>
-            {% endif %}
+              {% if l3ContentTemplate is defined and l3ContentTemplate %}
+                <div class="feature-detail__l3-extra">
+                  {% include l3ContentTemplate with l3ContentData|default({}) only %}
+                </div>
+              {% elseif l3Content is defined and l3Content %}
+                <div class="feature-detail__l3-extra">
+                  {{ l3Content|raw }}
+                </div>
+              {% endif %}
 
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    {% endif %}
 
   </article>
 {% endblock %}

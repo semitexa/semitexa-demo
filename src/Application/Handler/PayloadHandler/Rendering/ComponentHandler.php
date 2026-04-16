@@ -14,6 +14,7 @@ use Semitexa\Demo\Application\Payload\Request\Rendering\ComponentPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ComponentPayload::class, resource: DemoFeatureResource::class)]
@@ -26,10 +27,20 @@ final class ComponentHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(ComponentPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'rendering',
+            'components',
+            'Components',
+            'Reusable, attribute-registered UI components — discovered automatically from the classmap.',
+            ['#[AsComponent]', 'event', 'triggers', 'component_event_attrs()', 'EventDispatcherInterface'],
+        );
         $explanation = $this->explanationProvider->getExplanation('rendering', 'components') ?? [];
 
         $sourceCode = [
@@ -42,23 +53,24 @@ final class ComponentHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Components — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'rendering',
                 'currentSlug' => 'components',
-                'infoWhat' => $explanation['what'] ?? 'Attribute-registered components are discovered at boot and rendered as reusable UI primitives.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('rendering')
             ->withSlug('components')
-            ->withTitle('Components')
-            ->withSummary('Attribute-registered SSR components with an explicit backend event contract, signed manifest, and one generic dispatch endpoint.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Open the component class and you can now see both the rendered UI primitive and the backend event contract it is allowed to trigger.')
-            ->withHighlights(['#[AsComponent]', 'event', 'triggers', 'component_event_attrs()', 'EventDispatcherInterface'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the event bridge in action →')
             ->withDeepDiveLabel('Inspect the signed manifest flow →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/component-event-bridge.html.twig', [])

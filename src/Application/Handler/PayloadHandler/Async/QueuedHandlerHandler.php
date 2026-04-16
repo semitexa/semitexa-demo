@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Async\QueuedHandlerPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: QueuedHandlerPayload::class, resource: DemoFeatureResource::class)]
@@ -23,10 +24,20 @@ final class QueuedHandlerHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(QueuedHandlerPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'events',
+            'queued',
+            'Queued Handler',
+            'Events survive restarts and scale across workers — backed by a durable message queue.',
+            ['EventExecution::Queued', 'queue transport', 'NATS', 'retry', 'DLQ'],
+        );
         $explanation = $this->explanationProvider->getExplanation('events', 'queued') ?? [];
 
         $sourceCode = [
@@ -47,10 +58,11 @@ final class QueuedHandlerHandler implements TypedHandlerInterface
             ])
             ->withSection('events')
             ->withSlug('queued')
-            ->withTitle('Queued Handler')
-            ->withSummary('Events survive restarts and scale across workers — backed by a durable message queue.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Events survive restarts and scale across workers — backed by a durable message queue.')
-            ->withHighlights(['EventExecution::Queued', 'queue transport', 'NATS', 'retry', 'DLQ'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the queue configuration →')
             ->withDeepDiveLabel('Queue driver internals →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [

@@ -12,6 +12,7 @@ use Semitexa\Demo\Application\Payload\Request\Async\DeferredHandlerPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: DeferredHandlerPayload::class, resource: DemoFeatureResource::class)]
@@ -24,10 +25,20 @@ final class DeferredHandlerHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(DeferredHandlerPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'events',
+            'deferred',
+            'Deferred Handler',
+            'Heavy work runs after the response is sent — the user gets instant feedback.',
+            ['EventExecution::Async', 'Swoole\\Event::defer()', 'post-response', 'non-blocking'],
+        );
         $explanation = $this->explanationProvider->getExplanation('events', 'deferred') ?? [];
 
         $sourceCode = [
@@ -49,10 +60,11 @@ final class DeferredHandlerHandler implements TypedHandlerInterface
             ])
             ->withSection('events')
             ->withSlug('deferred')
-            ->withTitle('Deferred Handler')
-            ->withSummary('Heavy work runs after the response is sent — the user gets instant feedback.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Heavy work runs after the response is sent — the user gets instant feedback.')
-            ->withHighlights(['EventExecution::Async', 'Swoole\\Event::defer()', 'post-response', 'non-blocking'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the deferred listener →')
             ->withDeepDiveLabel('How Swoole defer works →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [

@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Auth\RequiresPermissionPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: RequiresPermissionPayload::class, resource: DemoFeatureResource::class)]
@@ -23,10 +24,20 @@ final class RequiresPermissionHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(RequiresPermissionPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'auth',
+            'requires-permission',
+            'Requires Permission',
+            'Declare one permission slug on the payload and let the framework enforce it before your handler runs.',
+            ['#[RequiresPermission]', '401 Unauthorized', '403 Forbidden', 'guard chain'],
+        );
         $explanation = $this->explanationProvider->getExplanation('auth', 'requires-permission') ?? [];
 
         $sourceCode = [
@@ -35,23 +46,24 @@ final class RequiresPermissionHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Requires Permission — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'auth',
                 'currentSlug' => 'requires-permission',
-                'infoWhat' => $explanation['what'] ?? 'A permission slug on the payload is enough for the framework to protect the endpoint.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('auth')
             ->withSlug('requires-permission')
-            ->withTitle('Requires Permission')
-            ->withSummary('Declare one permission slug on the payload and let the framework enforce it before your handler runs.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Access control should be declarative: the payload names the required permission, and the framework enforces it automatically.')
-            ->withHighlights(['#[RequiresPermission]', '401 Unauthorized', '403 Forbidden', 'guard chain'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the guarded payload →')
             ->withDeepDiveLabel('How permission checks resolve →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/permission-matrix.html.twig', [

@@ -16,7 +16,9 @@ use Semitexa\Demo\Application\Payload\Request\Data\RepositoryWorkflowPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
+
 #[AsPayloadHandler(payload: RepositoryWorkflowPayload::class, resource: DemoFeatureResource::class)]
 final class RepositoryWorkflowHandler implements TypedHandlerInterface
 {
@@ -29,28 +31,39 @@ final class RepositoryWorkflowHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(RepositoryWorkflowPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'data',
+            'repository-workflow',
+            'Repository Workflow',
+            'The canonical Semitexa path: handlers depend on repository contracts, repositories return domain models, and persistence resources stay behind the boundary.',
+            ['repository contract', 'domain model', 'ResourceModel', 'mapper', '#[SatisfiesRepositoryContract]'],
+        );
         $explanation = $this->explanationProvider->getExplanation('data', 'repository-workflow') ?? [];
 
         return $resource
-            ->pageTitle('Repository Workflow — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'data',
                 'currentSlug' => 'repository-workflow',
-                'infoWhat' => $explanation['what'] ?? 'Handlers should depend on repository contracts and work with domain models, not persistence resources.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('data')
             ->withSlug('repository-workflow')
-            ->withTitle('Repository Workflow')
-            ->withSummary('The canonical Semitexa path: handlers depend on repository contracts, repositories return domain models, and persistence resource models stay behind the boundary.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Business code should work with domain models, while ResourceModel and mapper logic stay inside the persistence layer.')
-            ->withHighlights(['repository contract', 'domain model', 'ResourceModel', 'mapper', '#[SatisfiesRepositoryContract]'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the canonical flow →')
             ->withDeepDiveLabel('Where resource reads still belong →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/repository-workflow.html.twig', [

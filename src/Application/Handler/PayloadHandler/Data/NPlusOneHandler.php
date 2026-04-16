@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Data\NPlusOnePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Orm\Hydration\ResourceModelRelationLoader;
 
@@ -26,28 +27,39 @@ final class NPlusOneHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(NPlusOnePayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'data',
+            'n-plus-one',
+            'N+1 Without Magic',
+            'Semitexa avoids N+1 by using resource slices for the exact columns and relations each screen needs, instead of hiding database traffic behind implicit relation loading.',
+            ['ResourceModelRelationLoader', 'resource slice', 'no lazy loading', '#[FromTable]', 'batch relations'],
+        );
         $explanation = $this->explanationProvider->getExplanation('data', 'n-plus-one') ?? [];
 
         return $resource
-            ->pageTitle('N+1 Without Magic — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'data',
                 'currentSlug' => 'n-plus-one',
-                'infoWhat' => $explanation['what'] ?? 'Semitexa avoids N+1 by modeling the exact table slice each screen needs instead of leaning on lazy loading.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('data')
             ->withSlug('n-plus-one')
-            ->withTitle('N+1 Without Magic')
-            ->withSummary('Semitexa avoids N+1 by using resource slices for the exact columns and relations each screen needs, instead of hiding database traffic behind implicit relation loading.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('No magic, no lazy loading, no bloated entity graphs. A screen asks for one slice, the ORM hydrates exactly that slice.')
-            ->withHighlights(['ResourceModelRelationLoader', 'resource slice', 'no lazy loading', '#[FromTable]', 'batch relations'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('Compare the two ORM styles →')
             ->withDeepDiveLabel('How Semitexa avoids N+1 →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/n-plus-one-showcase.html.twig', [

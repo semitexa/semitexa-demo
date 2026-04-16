@@ -12,6 +12,7 @@ use Semitexa\Demo\Application\Payload\Request\Container\MutableInjectionPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: MutableInjectionPayload::class, resource: DemoFeatureResource::class)]
@@ -24,10 +25,20 @@ final class MutableInjectionHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(MutableInjectionPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'di',
+            'mutable',
+            'Mutable Injection',
+            'Execution-scoped services get a fresh clone every run — safe state without contaminating the worker.',
+            ['#[InjectAsMutable]', 'execution-scoped', 'clone', 'state isolation'],
+        );
         $explanation = $this->explanationProvider->getExplanation('di', 'mutable') ?? [];
 
         $sourceCode = [
@@ -35,23 +46,24 @@ final class MutableInjectionHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Mutable Injection — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'di',
                 'currentSlug' => 'mutable',
-                'infoWhat' => $explanation['what'] ?? 'Mutable injections clone a service per execution so handlers can keep transient state safely.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('di')
             ->withSlug('mutable')
-            ->withTitle('Mutable Injection')
-            ->withSummary('Execution-scoped services get a fresh clone every run — safe state without contaminating the worker.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Execution-scoped services get a fresh clone every run — safe state without contaminating the worker.')
-            ->withHighlights(['#[InjectAsMutable]', 'execution-scoped', 'clone', 'state isolation'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See mutable injection →')
             ->withDeepDiveLabel('Clone lifecycle under the hood →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [

@@ -10,7 +10,7 @@ use Semitexa\Ssr\Attribute\AsComponent;
  * Hover tooltip for framework keywords.
  *
  * Triggered by data-explain="..." attributes in rendered content.
- * Content is loaded from DemoExplanationProvider. Shows one-sentence
+ * Keyword definitions are passed from the current feature payload. Shows one-sentence
  * definitions only — never paragraphs. Tooltips are the only
  * explanation mechanism at L1.
  */

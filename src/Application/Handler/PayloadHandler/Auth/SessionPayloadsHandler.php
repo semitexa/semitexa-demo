@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Auth\SessionPayloadsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: SessionPayloadsPayload::class, resource: DemoFeatureResource::class)]
@@ -23,30 +24,41 @@ final class SessionPayloadsHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(SessionPayloadsPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'auth',
+            'session-payloads',
+            'Session Payloads',
+            'Semitexa forbids string-key session chaos: session state lives in typed Session Payloads or it does not exist.',
+            ['#[SessionSegment]', 'typed session contract', 'no string keys', 'SessionInterface::getPayload()'],
+        );
         $explanation = $this->explanationProvider->getExplanation('auth', 'session-payloads') ?? [];
 
         return $resource
-            ->pageTitle('Session Payloads — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'auth',
                 'currentSlug' => 'session-payloads',
-                'infoWhat' => $explanation['what'] ?? 'Semitexa treats session state as a typed contract, not as an unstructured key-value dump.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('auth')
             ->withSlug('session-payloads')
-            ->withTitle('Session Payloads')
-            ->withSummary('Semitexa forbids string-key session chaos: session state lives in typed Session Payloads or it does not exist.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Session state should be explicit, typed, and reviewable — not a bag of magic keys spread across handlers.')
-            ->withHighlights(['#[SessionSegment]', 'typed session contract', 'no string keys', 'SessionInterface::getPayload()'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the session contract →')
             ->withDeepDiveLabel('Why string-key sessions rot →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/session-payloads.html.twig', [

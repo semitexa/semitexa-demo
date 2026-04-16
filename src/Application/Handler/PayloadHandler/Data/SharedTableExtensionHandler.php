@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Data\SharedTableExtensionPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Orm\Schema\SchemaCollector;
 
@@ -26,8 +27,18 @@ final class SharedTableExtensionHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(SharedTableExtensionPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'data',
+            'table-extension',
+            'Shared Table Extension',
+            'Two modules can extend one table independently, and the ORM merges the schema without forcing either side to edit the other.',
+            ['#[FromTable]', 'SchemaCollector', 'Module isolation', '#[Column]', '#[TenantScoped]'],
+        );
         $explanation = $this->explanationProvider->getExplanation('data', 'table-extension') ?? [];
 
         $painPoints = [
@@ -66,23 +77,24 @@ final class SharedTableExtensionHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Shared Table Extension — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'data',
                 'currentSlug' => 'table-extension',
-                'infoWhat' => $explanation['what'] ?? 'Two modules can map to the same table and contribute their own columns independently.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('data')
             ->withSlug('table-extension')
-            ->withTitle('Shared Table Extension')
-            ->withSummary('Two modules can extend one table independently, and the ORM merges the schema without forcing either side to edit the other.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('This is the ORM painkiller: later modules add columns to an existing table without reopening the original resource class.')
-            ->withHighlights(['#[FromTable]', 'SchemaCollector', 'Module isolation', '#[Column]', '#[TenantScoped]'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See both modules side by side →')
             ->withDeepDiveLabel('Why this is a real ORM advantage →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/shared-table-extension.html.twig', [

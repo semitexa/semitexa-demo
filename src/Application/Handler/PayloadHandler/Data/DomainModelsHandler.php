@@ -16,7 +16,9 @@ use Semitexa\Demo\Application\Payload\Request\Data\DomainModelsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
+
 #[AsPayloadHandler(payload: DomainModelsPayload::class, resource: DemoFeatureResource::class)]
 final class DomainModelsHandler implements TypedHandlerInterface
 {
@@ -29,28 +31,39 @@ final class DomainModelsHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(DomainModelsPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'data',
+            'domain-models',
+            'Domain-Level Models',
+            'Semitexa separates persistence resources from business models. Resources map tables; domain models carry behavior and invariants.',
+            ['ResourceModel', 'mapper', '#[AsMapper]', '#[SatisfiesRepositoryContract]', 'DomainRepository'],
+        );
         $explanation = $this->explanationProvider->getExplanation('data', 'domain-models') ?? [];
 
         return $resource
-            ->pageTitle('Domain-Level Models — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'data',
                 'currentSlug' => 'domain-models',
-                'infoWhat' => $explanation['what'] ?? 'Resources map storage; domain models carry business meaning and behavior.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('data')
             ->withSlug('domain-models')
-            ->withTitle('Domain-Level Models')
-            ->withSummary('Semitexa separates persistence resource models from business models. Resource models map storage; domain models carry behavior and invariants.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Resource models exist for persistence. Domain models exist for business behavior. Explicit mappers and repositories bridge them instead of collapsing them into one class.')
-            ->withHighlights(['ResourceModel', 'mapper', '#[AsMapper]', '#[SatisfiesRepositoryContract]', 'DomainRepository'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See both layers side by side →')
             ->withDeepDiveLabel('How repositories bridge the layers →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/domain-models-showcase.html.twig', [

@@ -10,8 +10,8 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Platform\TenantConfigPayload;
 use Semitexa\Demo\Application\Resource\Platform\DemoTenantConfigResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoTenantConfigProvider;
-use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: TenantConfigPayload::class, resource: DemoTenantConfigResource::class)]
 final class TenantConfigHandler implements TypedHandlerInterface
@@ -20,13 +20,21 @@ final class TenantConfigHandler implements TypedHandlerInterface
     protected DemoTenantConfigProvider $tenantConfigProvider;
 
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
+    protected DemoFeatureDocumentPresenter $documents;
 
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(TenantConfigPayload $payload, DemoTenantConfigResource $resource): DemoTenantConfigResource
     {
+        $presentation = $this->documents->resolve(
+            'platform',
+            'tenancy-config',
+            'Per-Tenant Configuration',
+            'Three demo tenants with distinct branding — switch tenant, everything changes without if/else.',
+            ['TenantConfig', 'feature flags', 'branding', 'locale defaults', 'per-tenant'],
+        );
+
         $providerConfigs = $this->tenantConfigProvider->getAllConfigs();
         $tenantIds = $this->tenantConfigProvider->getTenantIds();
         $activeTenant = in_array($payload->getTenant(), $tenantIds, true)
@@ -146,7 +154,7 @@ final class TenantConfigHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Per-Tenant Configuration — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withNavSections($this->catalog->getSections())
             ->withFeatureTree($this->catalog->getFeatureTree())
             ->withCurrentSection('platform')
@@ -155,6 +163,7 @@ final class TenantConfigHandler implements TypedHandlerInterface
                 'This page demonstrates that tenancy is not only row isolation. The active tenant changes branding, locale defaults, pricing conventions, and visible features.',
                 'One tenant config is resolved once, then reused by rendering, component behavior, and downstream services.',
                 'The important platform promise is this: the same codebase can produce multiple product surfaces without sprinkling tenant-specific if/else logic everywhere.',
+                $presentation->highlights,
             )
             ->withTenantConfigs($configs)
             ->withActiveTenant($activeTenant)

@@ -14,6 +14,7 @@ use Semitexa\Demo\Application\Resource\Slot\Reactive\ReactiveAiTaskSlot;
 use Semitexa\Demo\Application\Service\DemoAiTextProcessor;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ReactiveAiTaskPayload::class, resource: DemoFeatureResource::class)]
@@ -30,6 +31,9 @@ final class ReactiveAiTaskHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
 
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
@@ -83,6 +87,13 @@ final class ReactiveAiTaskHandler implements TypedHandlerInterface
 
         $stageResultsJson = empty($stageResults) ? '{}' : (json_encode($stageResults) ?: '{}');
 
+        $presentation = $this->documents->resolve(
+            'rendering',
+            'reactive-ai',
+            'Reactive AI Task',
+            'Submit a task and watch the AI pipeline stages reveal one by one as the cron job processes it.',
+            ['DemoAiTask', 'stage-by-stage', 'refreshInterval: 2', 'user-triggered → cron pickup'],
+        );
         $explanation = $this->explanationProvider->getExplanation('rendering', 'reactive-ai') ?? [];
 
         $sourceCode = [
@@ -92,23 +103,24 @@ final class ReactiveAiTaskHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Reactive AI Task — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'rendering',
                 'currentSlug' => 'reactive-ai',
-                'infoWhat' => $explanation['what'] ?? 'The page stays SSR-first while background AI stages keep advancing on the server, so the sidebar and the live pipeline share one consistent page shell.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('rendering')
             ->withSlug('reactive-ai')
-            ->withTitle('Reactive AI Task')
-            ->withSummary('Submit a task and watch the AI pipeline stages reveal one by one as the cron job processes it.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Submit a task and watch the AI pipeline stages reveal one by one as the cron job processes it.')
-            ->withHighlights(['DemoAiTask', 'stage-by-stage', 'refreshInterval: 2', 'user-triggered → cron pickup'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See submit form →')
             ->withDeepDiveLabel('Processor architecture →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/ai-pipeline.html.twig', [

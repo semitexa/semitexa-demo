@@ -16,6 +16,7 @@ use Semitexa\Demo\Application\Payload\Request\Testing\RuntimeMaintenancePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: RuntimeMaintenancePayload::class, resource: DemoFeatureResource::class)]
@@ -28,30 +29,41 @@ final class RuntimeMaintenanceHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(RuntimeMaintenancePayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'cli',
+            'runtime-maintenance',
+            'Runtime Maintenance',
+            'Reload workers, clear stale cache, sync registries, lint architecture rules, and probe handler wiring without reaching for ad-hoc shell scripts.',
+            ['server:reload', 'cache:clear', 'registry:sync', 'semitexa:lint:*', 'test:handler'],
+        );
         $explanation = $this->explanationProvider->getExplanation('cli', 'runtime-maintenance') ?? [];
 
         return $resource
-            ->pageTitle('Runtime Maintenance — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'cli',
                 'currentSlug' => 'runtime-maintenance',
-                'infoWhat' => $explanation['what'] ?? 'Semitexa ships explicit maintenance commands for reload, cache hygiene, registry sync, linting, and dependency probing.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('cli')
             ->withSlug('runtime-maintenance')
-            ->withTitle('Runtime Maintenance')
-            ->withSummary('Reload workers, clear stale cache, sync registries, lint architecture rules, and probe handler wiring without reaching for ad-hoc shell scripts.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Strong CLI does not stop at code generation. It also gives operators and developers a disciplined way to refresh, validate, and diagnose a live Semitexa runtime.')
-            ->withHighlights(['server:reload', 'cache:clear', 'registry:sync', 'semitexa:lint:*', 'test:handler'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the maintenance workflow →')
             ->withDeepDiveLabel('How to use this safely in practice →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/cli-command-workbench.html.twig', [

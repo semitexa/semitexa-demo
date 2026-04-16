@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Api\GraphqlDerivedApiPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Graphql\Contract\GraphqlOperationRegistryInterface;
 use Semitexa\Graphql\Discovery\ResolvedGraphqlOperation;
@@ -30,8 +31,18 @@ final class GraphqlDerivedApiHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected GraphqlOperationRegistryInterface $operations;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(GraphqlDerivedApiPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'api',
+            'rest-graphql',
+            'REST + GraphQL',
+            'One Semitexa use case can serve both REST and GraphQL without duplicating handler logic into separate resolver classes.',
+            ['REST + GraphQL', '#[ExposeAsGraphql]', 'shared use case', 'no duplicated logic'],
+        );
         $explanation = $this->explanationProvider->getExplanation('api', 'rest-graphql') ?? [];
         $operations = array_map(
             fn (ResolvedGraphqlOperation $operation): array => $this->presentOperation($operation),
@@ -39,23 +50,24 @@ final class GraphqlDerivedApiHandler implements TypedHandlerInterface
         );
 
         return $resource
-            ->pageTitle('REST + GraphQL — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'api',
                 'currentSlug' => 'rest-graphql',
-                'infoWhat' => $explanation['what'] ?? 'Semitexa can derive GraphQL-ready operations from the same Payload DTO and Handler contracts already used by REST.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('api')
             ->withSlug('rest-graphql')
-            ->withTitle('REST + GraphQL')
-            ->withSummary('One Semitexa use case can serve both REST and GraphQL without duplicating handler logic into separate resolver classes.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Semitexa lets one use case answer both transports, so teams do not have to choose between REST and GraphQL too early.')
-            ->withHighlights(['REST + GraphQL', '#[ExposeAsGraphql]', 'shared use case', 'no duplicated logic'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See one use case with two transports →')
             ->withDeepDiveLabel('Why shared contracts matter here →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/graphql-derived-api.html.twig', [

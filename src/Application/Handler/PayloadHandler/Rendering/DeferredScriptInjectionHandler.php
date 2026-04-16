@@ -12,6 +12,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Resource\Slot\Deferred\DeferredChartWidgetSlot;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: DeferredScriptInjectionPayload::class, resource: DemoFeatureResource::class)]
@@ -24,10 +25,20 @@ final class DeferredScriptInjectionHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(DeferredScriptInjectionPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'rendering',
+            'deferred-scripts',
+            'Script Injection',
+            'Deferred blocks carry their own JS — injected once when the block arrives, never duplicated.',
+            ['clientModules', 'semitexa:block:rendered', 'auto-play', 'script isolation'],
+        );
         $explanation = $this->explanationProvider->getExplanation('rendering', 'deferred-scripts') ?? [];
 
         $sourceCode = [
@@ -36,23 +47,24 @@ final class DeferredScriptInjectionHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Script Injection — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'rendering',
                 'currentSlug' => 'deferred-scripts',
-                'infoWhat' => $explanation['what'] ?? 'Deferred slots can declare client modules that are injected once when the block lands.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('rendering')
             ->withSlug('deferred-scripts')
-            ->withTitle('Script Injection')
-            ->withSummary('Deferred blocks carry their own JS — injected once when the block arrives, never duplicated.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Deferred blocks carry their own JS — injected once when the block arrives, never duplicated.')
-            ->withHighlights(['clientModules', 'semitexa:block:rendered', 'auto-play', 'script isolation'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the clientModules pattern →')
             ->withDeepDiveLabel('Block lifecycle events →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [

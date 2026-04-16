@@ -10,7 +10,7 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Platform\TenantResolutionPayload;
 use Semitexa\Demo\Application\Resource\Platform\DemoTenantResolutionResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
-use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 
 #[AsPayloadHandler(payload: TenantResolutionPayload::class, resource: DemoTenantResolutionResource::class)]
 final class TenantResolutionHandler implements TypedHandlerInterface
@@ -59,13 +59,21 @@ final class TenantResolutionHandler implements TypedHandlerInterface
     ];
 
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
+    protected DemoFeatureDocumentPresenter $documents;
 
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(TenantResolutionPayload $payload, DemoTenantResolutionResource $resource): DemoTenantResolutionResource
     {
+        $presentation = $this->documents->resolve(
+            'platform',
+            'tenancy-resolution',
+            'Tenant Context Resolution',
+            'See how Semitexa resolves the active tenant from subdomain, header, path, or query input before the rest of the platform runs.',
+            ['HeaderStrategy', 'SubdomainStrategy', 'PathStrategy', 'QueryParamStrategy', 'resolver chain'],
+        );
+
         $activeTab = $payload->getTab() ?? 'header';
         $strategies = self::STRATEGIES;
 
@@ -83,7 +91,7 @@ final class TenantResolutionHandler implements TypedHandlerInterface
         $activeTab = $selected['id'];
 
         return $resource
-            ->pageTitle('Tenant Context Resolution — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withNavSections($this->catalog->getSections())
             ->withFeatureTree($this->catalog->getFeatureTree())
             ->withCurrentSection('platform')
@@ -92,6 +100,7 @@ final class TenantResolutionHandler implements TypedHandlerInterface
                 'Semitexa decides the active tenant before configuration, data access, queues, and rendering continue downstream.',
                 'The resolver chain tries the configured strategies in priority order. The first match wins and becomes the tenant context for the rest of the execution.',
                 'If tenant resolution is ambiguous, every “isolated” layer above it becomes unreliable. That is why this boundary deserves explicit design.',
+                $presentation->highlights,
             )
             ->withStrategies($strategies)
             ->withActiveTab($activeTab)

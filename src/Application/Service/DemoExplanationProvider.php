@@ -26,16 +26,6 @@ final class DemoExplanationProvider
         return self::EXPLANATIONS[$key] ?? null;
     }
 
-    /**
-     * @return list<array{term: string, definition: string}>
-     */
-    public function getKeywords(string $section, string $slug): array
-    {
-        $explanation = $this->getExplanation($section, $slug);
-
-        return $explanation['keywords'] ?? [];
-    }
-
     private const EXPLANATIONS = [
         // --- Routing section ---
         'routing/basic' => [

@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Testing\PayloadContractsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Testing\Attribute\TestablePayload;
 use Semitexa\Testing\Console\Command\TestInitCommand;
@@ -30,30 +31,41 @@ final class PayloadContractsHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(PayloadContractsPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'testing',
+            'payload-contracts',
+            'Payload Contract Testing',
+            'Scaffold one project-level contract test and let strategy profiles verify payload boundaries without hand-writing repetitive negative cases.',
+            ['#[TestablePayload]', 'test:init', 'test:run', 'StrictProfileStrategy', 'MonkeyTestingStrategy'],
+        );
         $explanation = $this->explanationProvider->getExplanation('testing', 'payload-contracts') ?? [];
 
         return $resource
-            ->pageTitle('Payload Contract Testing — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'testing',
                 'currentSlug' => 'payload-contracts',
-                'infoWhat' => $explanation['what'] ?? 'Payload testing is strategy-driven: mark the payload once, scaffold one contract suite, and verify the boundary automatically.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('testing')
             ->withSlug('payload-contracts')
-            ->withTitle('Payload Contract Testing')
-            ->withSummary('Scaffold one project-level contract test and let strategy profiles verify payload boundaries without hand-writing repetitive negative cases.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Testing in Semitexa can start from the transport boundary itself: payloads declare what should be verified, and the framework runs the strategy suite.')
-            ->withHighlights(['#[TestablePayload]', 'test:init', 'test:run', 'StrictProfileStrategy', 'MonkeyTestingStrategy'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the testing workflow →')
             ->withDeepDiveLabel('What the profiles actually buy you →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/cli-command-workbench.html.twig', [
