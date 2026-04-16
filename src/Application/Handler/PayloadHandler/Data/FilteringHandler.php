@@ -14,6 +14,7 @@ use Semitexa\Demo\Application\Payload\Request\Data\FilteringPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: FilteringPayload::class, resource: DemoFeatureResource::class)]
@@ -31,8 +32,20 @@ final class FilteringHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(FilteringPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'data',
+            'filtering',
+            'Filtering',
+            'Mark a property #[Filterable] and the ORM handles the rest — no manual WHERE clauses.',
+            ['#[Filterable]', 'FilterableTrait', 'FilterableResourceInterface', 'getFilterCriteria()'],
+        );
+        $explanation = $this->explanationProvider->getExplanation('data', 'filtering') ?? [];
+
         $hasFilters = $payload->getName() !== null
             || $payload->getStatus() !== null
             || $payload->getPriceMin() !== null
@@ -85,31 +98,30 @@ final class FilteringHandler implements TypedHandlerInterface
             $payload->getStatus() !== null ? 'status=' . $payload->getStatus() : null,
         ]);
 
-        $explanation = $this->explanationProvider->getExplanation('data', 'filtering') ?? [];
-
         $sourceCode = [
             'Model (Filterable)' => $this->sourceCodeReader->readClassSource(DemoProductResource::class),
             'Handler' => $this->sourceCodeReader->readClassSource(self::class),
         ];
 
         return $resource
-            ->pageTitle('Filtering — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'data',
                 'currentSlug' => 'filtering',
-                'infoWhat' => $explanation['what'] ?? 'Mark a property #[Filterable] and the ORM handles the rest — no manual WHERE clauses.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('data')
             ->withSlug('filtering')
-            ->withTitle('Filtering')
-            ->withSummary('Mark a property #[Filterable] and the ORM handles the rest — no manual WHERE clauses.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Mark a property #[Filterable] and the ORM handles the rest — no manual WHERE clauses.')
-            ->withHighlights(['#[Filterable]', 'FilterableTrait', 'FilterableResourceInterface', 'getFilterCriteria()'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the filter attributes →')
             ->withDeepDiveLabel('How filter criteria compile →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/data-table.html.twig', [

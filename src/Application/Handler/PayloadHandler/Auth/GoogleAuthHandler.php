@@ -19,6 +19,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoAuthMode;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\GoogleOAuthClient;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Core\Session\SessionInterface;
@@ -36,6 +37,9 @@ final class GoogleAuthHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
 
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
@@ -58,6 +62,13 @@ final class GoogleAuthHandler implements TypedHandlerInterface
             return $this->completeLocalTestSignIn($resource, $returnTo);
         }
 
+        $presentation = $this->documents->resolve(
+            'auth',
+            'google',
+            'Google Authorization',
+            'Authorization is required for demo SSE blocks that keep a long-lived backend connection open.',
+            ['Authorization is required', 'Google Account', 'session-backed login', 'persistent SSE'],
+        );
         $explanation = $this->explanationProvider->getExplanation('auth', 'google') ?? [];
 
         $sourceCode = [
@@ -67,23 +78,24 @@ final class GoogleAuthHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Google Authorization — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'auth',
                 'currentSlug' => 'google',
-                'infoWhat' => $explanation['what'] ?? 'Authorization is required for demo SSE blocks that keep a long-lived backend connection open.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('auth')
             ->withSlug('google')
-            ->withTitle('Google Authorization')
-            ->withSummary('Authorization is required for demo SSE blocks that keep a long-lived backend connection open.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('This demo gates long-lived SSE surfaces behind a Google Account so the stream cannot be opened by anonymous traffic.')
-            ->withHighlights(['Authorization is required', 'Google Account', 'session-backed login', 'persistent SSE'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the authorization gate →')
             ->withDeepDiveLabel('Why the demo stream is protected →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/google-auth.html.twig', [

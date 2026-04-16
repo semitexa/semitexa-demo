@@ -13,6 +13,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoApiPresenter;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ProductListV0Payload::class, resource: DemoFeatureResource::class)]
@@ -30,8 +31,18 @@ final class ProductListV0Handler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(ProductListV0Payload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'api',
+            'sunset-version',
+            'Sunset Version',
+            'A deprecated product endpoint that emits both Deprecation and Sunset headers.',
+            ['#[ApiVersion]', 'Deprecation', 'Sunset', 'X-Api-Version'],
+        );
         $request = $payload->getHttpRequest() ?? new Request('GET', '/demo/api/v0/products', [], [], [], [], []);
         $body = $this->apiPresenter->buildCollection(request: $request, query: $payload->getQ());
         $explanation = $this->explanationProvider->getExplanation('api', 'sunset-version') ?? [];
@@ -47,23 +58,24 @@ final class ProductListV0Handler implements TypedHandlerInterface
         }
 
         return $resource
-            ->pageTitle('Sunset Version — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'api',
                 'currentSlug' => 'sunset-version',
-                'infoWhat' => $explanation['what'] ?? null,
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('api')
             ->withSlug('sunset-version')
-            ->withTitle('Sunset Version')
-            ->withSummary('A deprecated product endpoint that emits both Deprecation and Sunset headers.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Deprecated API versions should still be understandable: the response body is intact, but the headers clearly say the contract is on the way out.')
-            ->withHighlights(['#[ApiVersion]', 'Deprecation', 'Sunset', 'X-Api-Version'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('Inspect sunset response →')
             ->withDeepDiveLabel('Version lifecycle internals →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/api-endpoint-demo.html.twig', [

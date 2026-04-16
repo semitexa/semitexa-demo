@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Testing\OrmConsolePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Orm\Console\Command\OrmDiffCommand;
 use Semitexa\Orm\Console\Command\OrmSeedCommand;
@@ -27,30 +28,41 @@ final class OrmConsoleHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(OrmConsolePayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'cli',
+            'orm-console',
+            'ORM Console Toolkit',
+            'The ORM ships with a practical CLI surface: status, diff, sync, and seed commands with dry-run safety and SQL plan export.',
+            ['orm:status', 'orm:diff', 'orm:sync', 'orm:seed', '--output'],
+        );
         $explanation = $this->explanationProvider->getExplanation('cli', 'orm-console') ?? [];
 
         return $resource
-            ->pageTitle('ORM Console Toolkit — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'cli',
                 'currentSlug' => 'orm-console',
-                'infoWhat' => $explanation['what'] ?? 'The ORM ships with a command surface for inspecting, diffing, syncing, and seeding schema safely.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('cli')
             ->withSlug('orm-console')
-            ->withTitle('ORM Console Toolkit')
-            ->withSummary('The ORM ships with a practical CLI surface: status, diff, sync, and seed commands with dry-run safety and SQL plan export.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Framework credibility also lives in operations. The ORM CLI should tell you what will change before it changes anything.')
-            ->withHighlights(['orm:status', 'orm:diff', 'orm:sync', 'orm:seed', '--output'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the command surface →')
             ->withDeepDiveLabel('What each command is for →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/orm-console-toolkit.html.twig', [

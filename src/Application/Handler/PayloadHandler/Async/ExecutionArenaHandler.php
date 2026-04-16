@@ -16,6 +16,7 @@ use Semitexa\Demo\Application\Payload\Request\Async\ExecutionArenaPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExecutionShowcaseService;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ExecutionArenaPayload::class, resource: DemoFeatureResource::class)]
@@ -28,10 +29,21 @@ final class ExecutionArenaHandler implements TypedHandlerInterface
     protected DemoSourceCodeReader $sourceCodeReader;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(ExecutionArenaPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'events',
+            'arena',
+            'Execution Arena',
+            'Launch the same backend intent in sync, Swoole async, and queued modes, then watch the proof arrive over SSE.',
+            ['EventExecution::Sync', 'EventExecution::Async', 'EventExecution::Queued', 'SSE proof stream'],
+        );
+
         $sourceCode = [
             'Event' => $this->sourceCodeReader->readClassSource(DemoExecutionShowcaseRequested::class),
             'Sync Listener' => $this->sourceCodeReader->readClassSource(DemoExecutionShowcaseSyncListener::class),
@@ -66,10 +78,11 @@ final class ExecutionArenaHandler implements TypedHandlerInterface
             ])
             ->withSection('events')
             ->withSlug('arena')
-            ->withTitle('Execution Arena')
-            ->withSummary('Launch the same backend intent in sync, Swoole async, and queued modes, then watch the proof arrive over SSE.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Press any lane. The arena measures request timing, streams backend milestones, and makes the execution model impossible to misread.')
-            ->withHighlights(['EventExecution::Sync', 'EventExecution::Async', 'EventExecution::Queued', 'SSE proof stream'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the execution arena code →')
             ->withDeepDiveLabel('Why this proves the async model →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/execution-arena.html.twig', [

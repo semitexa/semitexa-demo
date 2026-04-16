@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Rendering\AssetPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: AssetPayload::class, resource: DemoFeatureResource::class)]
@@ -35,6 +36,9 @@ final class AssetHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(AssetPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
@@ -49,6 +53,13 @@ final class AssetHandler implements TypedHandlerInterface
 }
 JSON;
 
+        $presentation = $this->documents->resolve(
+            'rendering',
+            'assets',
+            'Asset Pipeline',
+            'Declare assets with glob patterns in assets.json — served, versioned, and injected automatically.',
+            ['assets.json', 'asset_head()', 'asset_body()', 'glob patterns', 'versioning'],
+        );
         $explanation = $this->explanationProvider->getExplanation('rendering', 'assets') ?? [];
 
         $assetsPath = dirname(__DIR__, 5) . '/Static/assets.json';
@@ -59,23 +70,24 @@ JSON;
         ];
 
         return $resource
-            ->pageTitle('Asset Pipeline — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'rendering',
                 'currentSlug' => 'assets',
-                'infoWhat' => $explanation['what'] ?? 'The asset pipeline expands manifest globs, versions files, and injects them into head or body automatically.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('rendering')
             ->withSlug('assets')
-            ->withTitle('Asset Pipeline')
-            ->withSummary('Declare assets with glob patterns in assets.json — served, versioned, and injected automatically.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Declare assets with glob patterns in assets.json — served, versioned, and injected automatically.')
-            ->withHighlights(['assets.json', 'asset_head()', 'asset_body()', 'glob patterns', 'versioning'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the asset manifest →')
             ->withDeepDiveLabel('Asset pipeline internals →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [

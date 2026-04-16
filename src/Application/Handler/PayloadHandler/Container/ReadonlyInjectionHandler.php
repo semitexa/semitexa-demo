@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Container\ReadonlyInjectionPayload
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ReadonlyInjectionPayload::class, resource: DemoFeatureResource::class)]
@@ -23,10 +24,20 @@ final class ReadonlyInjectionHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(ReadonlyInjectionPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'di',
+            'readonly',
+            'Readonly Injection',
+            'One explicit DI path, one shared worker instance — fast at runtime and stable under reload.',
+            ['#[InjectAsReadonly]', 'worker-scoped', 'single-path DI', 'reload-stable'],
+        );
         $explanation = $this->explanationProvider->getExplanation('di', 'readonly') ?? [];
 
         $sourceCode = [
@@ -34,23 +45,24 @@ final class ReadonlyInjectionHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Readonly Injection — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'di',
                 'currentSlug' => 'readonly',
-                'infoWhat' => $explanation['what'] ?? 'Readonly injections are worker-scoped services resolved once and reused across executions.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('di')
             ->withSlug('readonly')
-            ->withTitle('Readonly Injection')
-            ->withSummary('One explicit DI path, one shared worker instance — fast at runtime and stable under reload.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('One explicit DI path, one shared worker instance — fast at runtime and stable under reload.')
-            ->withHighlights(['#[InjectAsReadonly]', 'worker-scoped', 'single-path DI', 'reload-stable'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the injection attribute →')
             ->withDeepDiveLabel('Container tiers explained →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [

@@ -98,6 +98,11 @@ class DemoFeatureResource extends HtmlResponse implements ResourceInterface
         return $this->with('relatedPayloads', $related);
     }
 
+    public function withDocumentBodyHtml(?string $html): self
+    {
+        return $this->with('documentBodyHtml', $html);
+    }
+
     public function withResultPreview(string $preview): self
     {
         return $this->with('resultPreview', $preview);

@@ -13,6 +13,7 @@ use Semitexa\Demo\Application\Payload\Request\Async\SyncEventPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: SyncEventPayload::class, resource: DemoFeatureResource::class)]
@@ -28,10 +29,20 @@ final class SyncEventHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(SyncEventPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'events',
+            'sync',
+            'Sync Events',
+            'Dispatch an event and all sync listeners run before the response is sent.',
+            ['#[AsEvent]', '#[Propagated]', '#[AsEventListener]', 'EventExecution::Sync', 'EventDispatcherInterface'],
+        );
         $fired = false;
         $eventLog = [];
 
@@ -73,10 +84,11 @@ final class SyncEventHandler implements TypedHandlerInterface
             ])
             ->withSection('events')
             ->withSlug('sync')
-            ->withTitle('Sync Events')
-            ->withSummary('Dispatch an event and all sync listeners run before the response is sent.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Dispatch an event and all sync listeners run before the response is sent.')
-            ->withHighlights(['#[AsEvent]', '#[Propagated]', '#[AsEventListener]', 'EventExecution::Sync', 'EventDispatcherInterface'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the event & listener code →')
             ->withDeepDiveLabel('Dispatcher execution modes →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [

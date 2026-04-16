@@ -10,6 +10,7 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Llm\LlmExecutionFlowPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: LlmExecutionFlowPayload::class, resource: DemoFeatureResource::class)]
@@ -21,19 +22,18 @@ final class LlmExecutionFlowHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(LlmExecutionFlowPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $explanation = [
-            'what' => 'The LLM execution path is intentionally staged: manifest, planner prompt, provider response, parsed decision, human confirmation when needed, and only then command execution.',
-            'how' => 'The assistant command builds a constrained system prompt from `SkillManifest`, sends the user request plus recent conversation history to the provider, parses the JSON decision into `PlannerResponse`, and passes approved proposals into `SkillExecutor`.',
-            'why' => 'This makes the path inspectable. When something goes wrong, you can tell whether the failure came from the provider, the planner decision, policy validation, or the underlying command itself.',
-            'keywords' => [
-                ['term' => 'Planner', 'definition' => 'Builds the constrained system prompt and parses the provider response back into a typed planner result.'],
-                ['term' => 'PlannerResponse', 'definition' => 'Typed decision object: answer, ask, propose_skill, or refuse.'],
-                ['term' => 'SkillExecutor', 'definition' => 'Validates manifest membership and arguments, then runs the underlying Symfony command.'],
-                ['term' => 'ConversationSession', 'definition' => 'Stores recent user and assistant messages for context and supports clearing the session.'],
-            ],
-        ];
+        $presentation = $this->documents->resolve(
+            'llm',
+            'execution-flow',
+            'Execution Flow',
+            'How a user request becomes a planner decision, a reviewed skill proposal, and finally a real console execution.',
+            ['Planner', 'PlannerResponse', 'SkillExecutor', 'ConversationSession'],
+        );
 
         return $resource
             ->pageTitle('LLM Execution Flow — Semitexa Demo')
@@ -42,18 +42,19 @@ final class LlmExecutionFlowHandler implements TypedHandlerInterface
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'llm',
                 'currentSlug' => 'execution-flow',
-                'infoWhat' => $explanation['what'],
-                'infoHow' => $explanation['how'],
-                'infoWhy' => $explanation['why'],
-                'infoKeywords' => $explanation['keywords'],
+                'infoWhat' => $presentation->summary,
+                'infoHow' => null,
+                'infoWhy' => null,
+                'infoKeywords' => [],
             ])
             ->withSection('llm')
             ->withSectionLabel('LLM Module')
             ->withSlug('execution-flow')
-            ->withTitle('Execution Flow')
-            ->withSummary('How a user request becomes a planner decision, a reviewed skill proposal, and finally a real console execution.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('The important part is not that the model can talk. The important part is that the path from intent to execution is structured, inspectable, and policy-gated.')
-            ->withHighlights(['Planner', 'PlannerResponse', 'SkillExecutor', 'ConversationSession'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the planning flow →')
             ->withDeepDiveLabel('Where the safety boundaries sit →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/data-table.html.twig', [
@@ -119,7 +120,6 @@ PHP,
                 'Planner' => $this->sourceCodeReader->readClassSource(\Semitexa\Llm\Planner\Planner::class),
                 'Skill Executor' => $this->sourceCodeReader->readClassSource(\Semitexa\Llm\Executor\SkillExecutor::class),
                 'Conversation Session' => $this->sourceCodeReader->readClassSource(\Semitexa\Llm\Session\ConversationSession::class),
-            ])
-            ->withExplanation($explanation);
+            ]);
     }
 }

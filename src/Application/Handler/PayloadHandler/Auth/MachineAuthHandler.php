@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Auth\MachineAuthPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: MachineAuthPayload::class, resource: DemoFeatureResource::class)]
@@ -25,10 +26,20 @@ final class MachineAuthHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(MachineAuthPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'auth',
+            'machine',
+            'Machine Auth',
+            'Service-to-service authentication via Bearer tokens — scoped, revocable, and audited.',
+            ['MachineAuthHandler', 'Bearer {id}:{secret}', 'MachineCredential', 'scopes', 'revocation'],
+        );
         $explanation = $this->explanationProvider->getExplanation('auth', 'machine') ?? [];
 
         $sourceCode = [
@@ -36,23 +47,24 @@ final class MachineAuthHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Machine Auth — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'auth',
                 'currentSlug' => 'machine',
-                'infoWhat' => $explanation['what'] ?? 'Service-to-service authentication via Bearer tokens — scoped, revocable, and audited.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('auth')
             ->withSlug('machine')
-            ->withTitle('Machine Auth')
-            ->withSummary('Service-to-service authentication via Bearer tokens — scoped, revocable, and audited.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Service-to-service authentication via Bearer tokens — scoped, revocable, and audited.')
-            ->withHighlights(['MachineAuthHandler', 'Bearer {id}:{secret}', 'MachineCredential', 'scopes', 'revocation'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the Bearer token format →')
             ->withDeepDiveLabel('Machine auth verification pipeline →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/machine-auth.html.twig', [

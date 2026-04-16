@@ -17,6 +17,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoAuthMode;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: SessionAuthPayload::class, resource: DemoFeatureResource::class)]
@@ -38,6 +39,9 @@ final class SessionAuthHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
 
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
@@ -70,6 +74,13 @@ final class SessionAuthHandler implements TypedHandlerInterface
         $roleMeta = self::ROLE_MATRIX[$currentRole] ?? self::ROLE_MATRIX[self::DEFAULT_ROLE];
         $permissions = $roleMeta['permissions'];
 
+        $presentation = $this->documents->resolve(
+            'auth',
+            'session',
+            'Session Auth',
+            'Google signs the user in, then the session stores the selected demo role and re-hydrates it on every request.',
+            ['Google OAuth', '#[SessionSegment]', 'AuthResult', '#[AsAuthHandler]'],
+        );
         $explanation = $this->explanationProvider->getExplanation('auth', 'session') ?? [];
 
         $sourceCode = [
@@ -80,27 +91,28 @@ final class SessionAuthHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Session Auth — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'auth',
                 'currentSlug' => 'session',
-                'infoWhat' => $explanation['what'] ?? 'Authenticate once per session — the framework stores identity and re-hydrates it on every request.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('auth')
             ->withSlug('session')
-            ->withTitle('Session Auth')
+            ->withTitle($presentation->title)
             ->withSummary(DemoAuthMode::isLocalLoginEnabled()
                 ? 'Local demo sign-in authorizes the user in dev mode; the session stores the selected demo role and re-hydrates it on every request.'
-                : 'Google signs the user in; the session stores the selected demo role and re-hydrates it on every request.')
+                : $presentation->summary)
             ->withEntryLine(DemoAuthMode::isLocalLoginEnabled()
                 ? 'Local sign-in is enabled in dev mode; once signed in, the demo can switch roles to show how permissions change.'
                 : 'Google is the only login path; once signed in, the demo can switch roles to show how permissions change.')
-            ->withHighlights(['Google OAuth', '#[SessionSegment]', 'AuthResult', '#[AsAuthHandler]'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the Google login flow →')
             ->withDeepDiveLabel('How role switching changes grants →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/session-auth.html.twig', [

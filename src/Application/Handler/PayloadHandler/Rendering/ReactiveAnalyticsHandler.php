@@ -13,6 +13,7 @@ use Semitexa\Demo\Application\Resource\Slot\Reactive\ReactiveAnalyticsSlot;
 use Semitexa\Demo\Application\Service\DemoAnalyticsAggregator;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ReactiveAnalyticsPayload::class, resource: DemoFeatureResource::class)]
@@ -26,6 +27,9 @@ final class ReactiveAnalyticsHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
 
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
@@ -58,6 +62,13 @@ final class ReactiveAnalyticsHandler implements TypedHandlerInterface
             ];
         }
 
+        $presentation = $this->documents->resolve(
+            'rendering',
+            'reactive-analytics',
+            'Reactive Analytics',
+            'Independent analytics jobs can light up one dashboard progressively, while the page stays server-rendered from the first byte.',
+            ['multi-job snapshots', 'independent panel refresh', 'refreshInterval: 5', 'SSR-first live UI'],
+        );
         $explanation = $this->explanationProvider->getExplanation('rendering', 'reactive-analytics') ?? [];
 
         $sourceCode = [
@@ -67,23 +78,24 @@ final class ReactiveAnalyticsHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Reactive Analytics — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'rendering',
                 'currentSlug' => 'reactive-analytics',
-                'infoWhat' => $explanation['what'] ?? 'A live dashboard can be assembled from independent server snapshots, so panels update progressively without one giant frontend state sync.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('rendering')
             ->withSlug('reactive-analytics')
-            ->withTitle('Reactive Analytics')
-            ->withSummary('Independent analytics jobs can light up one dashboard progressively, while the page stays server-rendered from the first byte.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Each panel updates when its own job finishes, so the dashboard feels live without turning into a client-side orchestration layer.')
-            ->withHighlights(['multi-job snapshots', 'independent panel refresh', 'refreshInterval: 5', 'SSR-first live UI'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the dashboard contract →')
             ->withDeepDiveLabel('How multi-job panels stay coherent →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/analytics-panels.html.twig', [

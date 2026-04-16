@@ -16,6 +16,7 @@ use Semitexa\Demo\Application\Payload\Session\LedgerDemoSessionSegment;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoLedgerInspector;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -35,6 +36,9 @@ final class LedgerDemoHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
 
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
@@ -64,6 +68,13 @@ final class LedgerDemoHandler implements TypedHandlerInterface
         $segment->rotateNonce();
         $this->session->setPayload($segment);
 
+        $presentation = $this->documents->resolve(
+            'events',
+            'ledger',
+            'Ledger Demo',
+            'Dispatch a protected demo event and inspect only the persisted demo ledger rows through a safe read-only view.',
+            ['#[Propagated]', '#[RequiresPermission]', 'typed session nonce', 'SQLite read-only view'],
+        );
         $inspection = $this->ledgerInspector->inspect();
         $explanation = $this->explanationProvider->getExplanation('events', 'ledger') ?? [];
 
@@ -89,10 +100,11 @@ final class LedgerDemoHandler implements TypedHandlerInterface
             ])
             ->withSection('events')
             ->withSlug('ledger')
-            ->withTitle('Ledger Demo')
-            ->withSummary('A protected demo route dispatches a fixed propagated event and then reads back only demo rows from the ledger file through a safe SQLite read-only query.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('This page is not public: authorization is required, the write action is fixed, and the inspection surface exposes only filtered demo events.')
-            ->withHighlights(['#[Propagated]', '#[RequiresPermission]', 'typed session nonce', 'SQLite read-only view'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the protected ledger flow →')
             ->withDeepDiveLabel('How the safe ledger inspector works →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [

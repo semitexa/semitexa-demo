@@ -12,6 +12,7 @@
   "require": {
     "php": ">=8.4",
     "semitexa/core": "*",
+    "semitexa/docs": "*",
     "semitexa/ssr": "*",
     "semitexa/orm": "*",
     "semitexa/auth": "*",

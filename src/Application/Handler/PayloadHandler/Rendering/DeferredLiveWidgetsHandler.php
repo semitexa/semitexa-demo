@@ -12,6 +12,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Resource\Slot\Deferred\DeferredNotificationSlot;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: DeferredLiveWidgetsPayload::class, resource: DemoFeatureResource::class)]
@@ -24,10 +25,20 @@ final class DeferredLiveWidgetsHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(DeferredLiveWidgetsPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'rendering',
+            'deferred-live',
+            'Live Widgets',
+            'A live slot can refresh itself on a timer while the page stays SSR-first — no SPA runtime and no handwritten polling layer.',
+            ['refreshInterval', 'auto-refresh', 'SSE reconnection', 'SSR-first live UI'],
+        );
         $explanation = $this->explanationProvider->getExplanation('rendering', 'deferred-live') ?? [];
 
         $sourceCode = [
@@ -36,23 +47,24 @@ final class DeferredLiveWidgetsHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Live Widgets — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'rendering',
                 'currentSlug' => 'deferred-live',
-                'infoWhat' => $explanation['what'] ?? 'Deferred slots can auto-refresh on a timer and recover SSE connections without custom polling code.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('rendering')
             ->withSlug('deferred-live')
-            ->withTitle('Live Widgets')
-            ->withSummary('A live slot can refresh itself on a timer while the page stays SSR-first — no SPA runtime and no handwritten polling layer.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Set refreshInterval and the server keeps re-rendering the widget for you. Live UI without converting the page into an app shell.')
-            ->withHighlights(['refreshInterval', 'auto-refresh', 'SSE reconnection', 'SSR-first live UI'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the live-slot contract →')
             ->withDeepDiveLabel('SSE reconnection strategy →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/ssr-live-ui-showcase.html.twig', [

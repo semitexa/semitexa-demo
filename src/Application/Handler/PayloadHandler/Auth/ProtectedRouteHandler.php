@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Auth\ProtectedRoutePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ProtectedRoutePayload::class, resource: DemoFeatureResource::class)]
@@ -23,10 +24,20 @@ final class ProtectedRouteHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(ProtectedRoutePayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'auth',
+            'protected',
+            'Protected Route',
+            'Add one attribute to any route and the framework enforces access — 403 returned automatically.',
+            ['#[RequiresPermission]', '#[PublicEndpoint]', 'guard chain', '403 response'],
+        );
         $explanation = $this->explanationProvider->getExplanation('auth', 'protected') ?? [];
 
         $sourceCode = [
@@ -34,23 +45,24 @@ final class ProtectedRouteHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Protected Route — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'auth',
                 'currentSlug' => 'protected',
-                'infoWhat' => $explanation['what'] ?? 'Add one attribute to any route and the framework enforces access — 403 returned automatically.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('auth')
             ->withSlug('protected')
-            ->withTitle('Protected Route')
-            ->withSummary('Add one attribute to any route and the framework enforces access — 403 returned automatically.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Add one attribute to any route and the framework enforces access — 403 returned automatically.')
-            ->withHighlights(['#[RequiresPermission]', '#[PublicEndpoint]', 'guard chain', '403 response'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the guard attributes →')
             ->withDeepDiveLabel('How the guard chain resolves →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/permission-matrix.html.twig', [

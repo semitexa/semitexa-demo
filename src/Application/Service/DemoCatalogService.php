@@ -5,10 +5,36 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Service;
 
 use Semitexa\Core\Attribute\AsService;
+use Semitexa\Core\Attribute\InjectAsReadonly;
+use Semitexa\Docs\Application\Service\DocumentManifestBuilder;
 
 #[AsService]
 final class DemoCatalogService
 {
+    #[InjectAsReadonly]
+    protected DocumentManifestBuilder $documentManifestBuilder;
+
+    /**
+     * Feature sections whose title/summary are now owned by Semitexa Docs.
+     *
+     * @var list<string>
+     */
+    private const DOCS_BACKED_SECTIONS = [
+        'get-started',
+        'project-graph',
+        'routing',
+        'di',
+        'data',
+        'auth',
+        'llm',
+        'platform',
+        'cli',
+        'testing',
+        'events',
+        'api',
+        'rendering',
+    ];
+
     private const NAVIGATION_LAYERS = [
         [
             'key' => 'start-here',
@@ -351,31 +377,6 @@ final class DemoCatalogService
      * @var array<string, array{title: string, summary: string, opensInNewTab?: true}>
      */
     private const FEATURE_META = [
-        // get-started
-        'get-started/module-structure' => ['title' => 'Module Structure', 'summary' => 'See the minimal Semitexa module spine first, then expand it into the full demo stack with catalog, shell, and SEO layers.'],
-        'get-started/installation' => ['title' => 'Installation', 'summary' => 'Create the project, prepare `.env`, and bring up the Semitexa runtime the supported way.'],
-        'get-started/local-domain' => ['title' => 'Local Domain', 'summary' => 'Register `.test` domains through the built-in local-domain helper instead of relying on ad-hoc host setup.'],
-        'get-started/base-tenant' => ['title' => 'Base Tenant', 'summary' => 'Define the first tenant through environment variables and resolve it through a real local host.'],
-        'get-started/locale-setup' => ['title' => 'Locale Setup', 'summary' => 'Configure the minimal Semitexa Locale contract: default locale, supported locales, JSON catalogs, and one Twig translation check.'],
-        'get-started/ai-console' => ['title' => 'AI Console', 'summary' => 'Use `bin/semitexa ai` as an alternative CLI entrypoint when you do not want to remember exact command names.'],
-        'get-started/beyond-controllers' => ['title' => 'Beyond Controllers', 'summary' => 'See why controller-first HTTP design collapses transport, use case, and rendering into one unstable class and why Semitexa keeps them apart.'],
-
-        // routing
-        'routing/basic' => ['title' => 'Basic Route', 'summary' => 'Define a route with one attribute — no XML, no YAML, no config files.'],
-        'routing/parameterized' => ['title' => 'Parameterized Route', 'summary' => 'Path parameters with regex constraints and typed injection.'],
-        'routing/env-route-override' => ['title' => 'Env Route Override', 'summary' => 'Keep the payload as the route source of truth while allowing operations to remap the public URL through .env.'],
-        'routing/payload-shield' => ['title' => 'Payload As A Shield', 'summary' => 'Hydration happens before the handler, and each setter owns the normalization and guard logic for its own field.'],
-        'routing/payload-parts' => ['title' => 'Payload Parts', 'summary' => 'One module owns the route, another module can extend the same payload contract without forking or reopening the base class.'],
-        'routing/content-negotiation' => ['title' => 'Content Negotiation', 'summary' => 'One endpoint, multiple response formats — automatically.'],
-        'routing/public-endpoint' => ['title' => 'Public Endpoint', 'summary' => 'Every endpoint is private by default. #[PublicEndpoint] is the explicit opt-in for anonymous access.'],
-
-        // di
-        'di/overview' => ['title' => 'DI Canon', 'summary' => 'One canonical DI path for container-managed classes: explicit properties, explicit lifecycles, deterministic boot.'],
-        'di/readonly' => ['title' => 'Readonly Injection', 'summary' => 'One explicit DI path, one shared worker instance — fast at runtime and stable under reload.'],
-        'di/mutable' => ['title' => 'Mutable Injection', 'summary' => 'Execution-scoped services get a fresh clone every run — safe state without contaminating the worker.'],
-        'di/factory' => ['title' => 'Factory Injection', 'summary' => 'On-demand creation stays explicit — lazy instances without falling back to service locator habits.'],
-        'di/contracts' => ['title' => 'Service Contracts', 'summary' => 'Depend on contracts, but keep ownership explicit — deterministic substitution instead of runtime magic.'],
-
         // data
         'data/domain-models' => ['title' => 'Domain-Level Models', 'summary' => 'Semitexa separates persistence resources from business models. Resources map tables; domain models carry behavior and invariants.'],
         'data/repository-workflow' => ['title' => 'Repository Workflow', 'summary' => 'The canonical Semitexa path: handlers depend on repository contracts, repositories return domain models, and persistence resources stay behind the boundary.'],
@@ -445,11 +446,6 @@ final class DemoCatalogService
         'cli/ai-tooling' => ['title' => 'AI Tooling Surface', 'summary' => 'Semitexa exposes AI-facing commands as explicit CLI contracts: capabilities, skills, log access, and a local assistant entrypoint.'],
         'cli/orm-console' => ['title' => 'ORM Console Toolkit', 'summary' => 'The ORM ships with a practical CLI surface: status, diff, sync, and seed commands with dry-run safety and SQL plan export.'],
 
-        // project-graph
-        'project-graph/overview' => ['title' => 'Project Graph Overview', 'summary' => 'Build a live structural map of the Semitexa codebase so both engineers and AI agents can start from real architecture instead of guesswork.'],
-        'project-graph/inspection' => ['title' => 'Inspecting the Graph', 'summary' => 'Use the graph to explore modules, dependencies, cross-module edges, and AI-relevant capabilities without reconstructing the architecture by hand.'],
-        'project-graph/impact' => ['title' => 'Impact, Context, and Watch Mode', 'summary' => 'Ask what a change will touch, package focused context for AI, and keep the graph fresh while the codebase evolves.'],
-
         // llm
         'llm/overview' => ['title' => 'Overview', 'summary' => 'What `semitexa/llm` adds to the framework and how your project can expose its own CLI skills to the assistant.'],
         'llm/providers' => ['title' => 'Providers & Backends', 'summary' => 'Provider contracts, backend resolution, local vs remote Ollama, and the environment knobs that shape LLM runtime behavior.'],
@@ -459,6 +455,11 @@ final class DemoCatalogService
         // testing
         'testing/payload-contracts' => ['title' => 'Payload Contract Testing', 'summary' => 'Scaffold one project-level contract test and let strategy profiles verify payload boundaries without hand-writing repetitive negative cases.'],
     ];
+
+    /**
+     * @var array<string, array{title: string, summary: string}>|null
+     */
+    private ?array $docsFeatureMeta = null;
 
     public function getSections(bool $includeEmpty = false): array
     {
@@ -637,8 +638,7 @@ final class DemoCatalogService
 
     private function getFeatureCard(string $section, string $slug): ?array
     {
-        $key = $section . '/' . $slug;
-        $meta = self::FEATURE_META[$key] ?? null;
+        $meta = $this->resolveFeatureMeta($section, $slug);
 
         if ($meta === null) {
             return null;
@@ -694,8 +694,7 @@ final class DemoCatalogService
 
         foreach ($groups as $group) {
             foreach ($group['slugs'] as $slug) {
-                $key = $section . '/' . $slug;
-                $meta = self::FEATURE_META[$key] ?? null;
+                $meta = $this->resolveFeatureMeta($section, $slug);
 
                 if ($meta === null) {
                     continue;
@@ -719,6 +718,55 @@ final class DemoCatalogService
         }
 
         return $features;
+    }
+
+    /**
+     * @return array{title: string, summary: string, opensInNewTab?: true}|null
+     */
+    private function resolveFeatureMeta(string $section, string $slug): ?array
+    {
+        $key = $section . '/' . $slug;
+        $localMeta = self::FEATURE_META[$key] ?? null;
+
+        if (in_array($section, self::DOCS_BACKED_SECTIONS, true)) {
+            $docsMeta = $this->loadDocsFeatureMeta()[$key] ?? null;
+            if ($docsMeta === null) {
+                return $localMeta;
+            }
+
+            return $localMeta !== null ? [...$localMeta, ...$docsMeta] : $docsMeta;
+        }
+
+        return $localMeta;
+    }
+
+    /**
+     * @return array<string, array{title: string, summary: string}>
+     */
+    private function loadDocsFeatureMeta(): array
+    {
+        if ($this->docsFeatureMeta !== null) {
+            return $this->docsFeatureMeta;
+        }
+
+        $meta = [];
+
+        foreach ($this->documentManifestBuilder->buildBySection() as $section => $items) {
+            if (!in_array($section, self::DOCS_BACKED_SECTIONS, true)) {
+                continue;
+            }
+
+            foreach ($items as $item) {
+                $meta[$item->id->toString()] = [
+                    'title' => $item->metadata->title,
+                    'summary' => $item->metadata->summary,
+                ];
+            }
+        }
+
+        $this->docsFeatureMeta = $meta;
+
+        return $this->docsFeatureMeta;
     }
 
     /**

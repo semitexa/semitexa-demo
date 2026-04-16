@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Rendering\SsrPhilosophyPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: SsrPhilosophyPayload::class, resource: DemoFeatureResource::class)]
@@ -23,30 +24,41 @@ final class SsrPhilosophyHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(SsrPhilosophyPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'rendering',
+            'philosophy',
+            'SSR Philosophy',
+            'Semitexa SSR is one continuous rendering architecture: page, slots, deferred regions, live refresh, and interactive components stay inside one server-owned story.',
+            ['one rendering story', 'HtmlResponse', 'Presentation boundary', 'Deferred SSR', 'Framework-free enhancement'],
+        );
         $explanation = $this->explanationProvider->getExplanation('rendering', 'philosophy') ?? [];
 
         return $resource
-            ->pageTitle('Semitexa SSR Philosophy — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'rendering',
                 'currentSlug' => 'philosophy',
-                'infoWhat' => $explanation['what'] ?? null,
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('rendering')
             ->withSlug('philosophy')
-            ->withTitle('Semitexa SSR Philosophy')
-            ->withSummary('Semitexa SSR is one continuous rendering architecture: page, slots, deferred regions, live refresh, and interactive components stay inside one server-owned story without templates turning into handlers and without a client-side UI framework acting as the second rendering layer.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Semitexa SSR is not “render once on the server and then improvise”. It is a coherent rendering system that refuses both kinds of drift: backend HTML plus frontend survival code, and fake “data vs presentation” separation where templates quietly become data loaders.')
-            ->withHighlights(['one rendering story', 'HtmlResponse', 'Presentation boundary', 'Deferred SSR', 'Framework-free enhancement'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the Semitexa SSR axioms →')
             ->withDeepDiveLabel('What Semitexa SSR refuses to become →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/ssr-manifesto.html.twig', [

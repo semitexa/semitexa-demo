@@ -14,6 +14,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoAiTextProcessor;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: AiTaskSubmitPayload::class, resource: DemoFeatureResource::class)]
@@ -30,6 +31,9 @@ final class AiTaskSubmitHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
 
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
@@ -57,6 +61,13 @@ final class AiTaskSubmitHandler implements TypedHandlerInterface
             }
         }
 
+        $presentation = $this->documents->resolve(
+            'rendering',
+            'reactive-ai',
+            'Reactive AI Task',
+            'Submit a task and watch the AI pipeline stages reveal one by one as the cron job processes it.',
+            ['DemoAiTask', 'stage-by-stage', 'refreshInterval: 2', 'user-triggered → cron pickup'],
+        );
         $explanation = $this->explanationProvider->getExplanation('rendering', 'reactive-ai') ?? [];
 
         $sourceCode = [
@@ -71,7 +82,7 @@ final class AiTaskSubmitHandler implements TypedHandlerInterface
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'rendering',
                 'currentSlug' => 'reactive-ai',
-                'infoWhat' => $explanation['what'] ?? 'The submit screen uses the same demo shell as the live pipeline page, so navigation and contextual framing stay intact before and after task creation.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
@@ -79,9 +90,10 @@ final class AiTaskSubmitHandler implements TypedHandlerInterface
             ->withSection('rendering')
             ->withSlug('reactive-ai')
             ->withTitle('Submit AI Task')
-            ->withSummary('Submit a task and watch the AI pipeline stages reveal one by one as the cron job processes it.')
+            ->withSummary($presentation->summary)
             ->withEntryLine('Enter text to process through the 4-stage AI pipeline.')
-            ->withHighlights(['DemoAiTask', 'pending → cron pickup', 'stage_results JSON', 'refreshInterval: 2'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('Watch the pipeline →')
             ->withDeepDiveLabel('Processor architecture →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/ai-task-submit.html.twig', [

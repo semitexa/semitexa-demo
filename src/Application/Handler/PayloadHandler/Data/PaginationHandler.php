@@ -7,11 +7,13 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Data;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
 use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
 use Semitexa\Demo\Application\Payload\Request\Data\PaginationPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: PaginationPayload::class, resource: DemoFeatureResource::class)]
@@ -29,8 +31,20 @@ final class PaginationHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(PaginationPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'data',
+            'pagination',
+            'Pagination',
+            'Offset and cursor pagination out of the box — switch modes with a single query parameter.',
+            ['PaginatedResult', 'limit()', 'offset()', 'cursor pagination', 'total count'],
+        );
+        $explanation = $this->explanationProvider->getExplanation('data', 'pagination') ?? [];
+
         $mode = $payload->getMode();
         $limit = $payload->getLimit();
         $page = $payload->getPage();
@@ -50,31 +64,30 @@ final class PaginationHandler implements TypedHandlerInterface
             ];
         }
 
-        $explanation = $this->explanationProvider->getExplanation('data', 'pagination') ?? [];
-
         $sourceCode = [
             'Handler' => $this->sourceCodeReader->readClassSource(self::class),
             'Repository' => $this->sourceCodeReader->readClassSource(DemoProductRepository::class),
         ];
 
         return $resource
-            ->pageTitle('Pagination — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'data',
                 'currentSlug' => 'pagination',
-                'infoWhat' => $explanation['what'] ?? 'Offset and cursor pagination out of the box — switch modes with a single query parameter.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('data')
             ->withSlug('pagination')
-            ->withTitle('Pagination')
-            ->withSummary('Offset and cursor pagination out of the box — switch modes with a single query parameter.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Offset and cursor pagination out of the box — switch modes with a single query parameter.')
-            ->withHighlights(['PaginatedResult', 'limit()', 'offset()', 'cursor pagination', 'total count'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See pagination in action →')
             ->withDeepDiveLabel('Offset vs cursor trade-offs →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/data-table.html.twig', [

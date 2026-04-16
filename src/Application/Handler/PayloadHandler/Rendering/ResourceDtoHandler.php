@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Rendering\ResourceDtoPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ResourceDtoPayload::class, resource: DemoFeatureResource::class)]
@@ -23,30 +24,41 @@ final class ResourceDtoHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(ResourceDtoPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'rendering',
+            'resource-dtos',
+            'Resource DTOs',
+            'A Resource DTO is the one typed source of presentation data: handlers shape it once, templates consume it everywhere, and no view has to dissect random arrays.',
+            ['#[AsResource]', 'HtmlResponse', 'with*() methods', 'typed view data', 'auto render'],
+        );
         $explanation = $this->explanationProvider->getExplanation('rendering', 'resource-dtos') ?? [];
 
         return $resource
-            ->pageTitle('Resource DTOs — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'rendering',
                 'currentSlug' => 'resource-dtos',
-                'infoWhat' => $explanation['what'] ?? 'A Resource DTO is the typed presentation boundary between handler code and templates.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('rendering')
             ->withSlug('resource-dtos')
-            ->withTitle('Resource DTOs')
-            ->withSummary('A Resource DTO is the one typed source of presentation data: handlers shape it once, templates consume it everywhere, and no view has to dissect random arrays.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Real separation means templates receive one explicit response object, not loose arrays and last-minute data surgery.')
-            ->withHighlights(['#[AsResource]', 'HtmlResponse', 'with*() methods', 'typed view data', 'auto render'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the response boundary →')
             ->withDeepDiveLabel('How the resource pipeline works →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/resource-dto-showcase.html.twig', [

@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Routing\BasicRoutePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: BasicRoutePayload::class, resource: DemoFeatureResource::class)]
@@ -23,10 +24,20 @@ final class BasicRouteHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(BasicRoutePayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'routing',
+            'basic',
+            'Basic Route',
+            'Define a route with one attribute — no XML, no YAML, no config files.',
+            ['#[AsPayload]', 'path', 'methods', 'responseWith'],
+        );
         $explanation = $this->explanationProvider->getExplanation('routing', 'basic') ?? [];
 
         $sourceCode = [
@@ -34,23 +45,24 @@ final class BasicRouteHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Basic Route — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'routing',
                 'currentSlug' => 'basic',
-                'infoWhat' => $explanation['what'] ?? 'Define a route with one attribute — no XML, no YAML, no config files.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('routing')
             ->withSlug('basic')
-            ->withTitle('Basic Route')
-            ->withSummary('Define a route with one attribute — no XML, no YAML, no config files.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('One small payload class defines the endpoint. One small handler fills the response resource.')
-            ->withHighlights(['#[AsPayload]', 'path', 'methods', 'responseWith'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the minimal code →')
             ->withDeepDiveLabel('How route compilation works →')
             ->withSourceCode($sourceCode)

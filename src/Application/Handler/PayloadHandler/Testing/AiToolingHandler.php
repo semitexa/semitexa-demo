@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Testing\AiToolingPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Dev\Console\Command\AiCapabilitiesCommand;
 use Semitexa\Dev\Console\Command\LogsAppCommand;
@@ -27,30 +28,41 @@ final class AiToolingHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(AiToolingPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'cli',
+            'ai-tooling',
+            'AI Tooling Surface',
+            'Semitexa exposes AI-facing commands as explicit CLI contracts: capabilities, skills, log access, and a local assistant entrypoint.',
+            ['ai:capabilities', 'ai:skills', 'logs:app', 'ai', '--json'],
+        );
         $explanation = $this->explanationProvider->getExplanation('cli', 'ai-tooling') ?? [];
 
         return $resource
-            ->pageTitle('AI Tooling Surface — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'cli',
                 'currentSlug' => 'ai-tooling',
-                'infoWhat' => $explanation['what'] ?? 'Semitexa exposes AI-facing capabilities through explicit CLI contracts instead of forcing agents to infer everything from docs and grep.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('cli')
             ->withSlug('ai-tooling')
-            ->withTitle('AI Tooling Surface')
-            ->withSummary('Semitexa exposes AI-facing commands as explicit CLI contracts: capabilities, skills, log access, and a local assistant entrypoint.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('If the framework wants to be AI-native, the console surface has to be machine-readable and operationally safe, not just human-friendly.')
-            ->withHighlights(['ai:capabilities', 'ai:skills', 'logs:app', 'ai', '--json'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the AI command surface →')
             ->withDeepDiveLabel('What makes it agent-friendly →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/cli-command-workbench.html.twig', [

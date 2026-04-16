@@ -16,6 +16,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoApiPresenter;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ApiSchemaDiscoveryPayload::class, resource: DemoFeatureResource::class)]
@@ -33,29 +34,40 @@ final class ApiSchemaDiscoveryHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoApiPresenter $apiPresenter;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(ApiSchemaDiscoveryPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'api',
+            'schema-discovery',
+            'Schema Discovery',
+            'A mini Swagger-style explorer for the live product API contract, schema endpoint, and response shapes.',
+            ['#[ExternalApi]', 'application/schema+json', 'JSON Schema', 'live explorer'],
+        );
         $explanation = $this->explanationProvider->getExplanation('api', 'schema-discovery') ?? [];
         $operations = $this->buildOperations();
 
         return $resource
-            ->pageTitle('Schema Discovery — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'api',
                 'currentSlug' => 'schema-discovery',
-                'infoWhat' => $explanation['what'] ?? 'A mini Swagger-style surface for poking the live Semitexa API contract and seeing real responses.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('api')
             ->withSlug('schema-discovery')
-            ->withTitle('Schema Discovery')
-            ->withSummary('A mini Swagger-style explorer for the live product API contract, schema endpoint, and response shapes.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('A machine-facing API should explain its own shape and let you exercise the contract without leaving the demo.')
-            ->withHighlights(['#[ExternalApi]', 'application/schema+json', 'JSON Schema', 'live explorer'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('Inspect the live contract →')
             ->withDeepDiveLabel('Schema generation notes →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/api-schema-explorer.html.twig', [

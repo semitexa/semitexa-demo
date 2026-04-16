@@ -11,9 +11,9 @@ use Semitexa\Core\Log\LoggerInterface;
 use Semitexa\Demo\Application\Payload\Request\Platform\TenantDataIsolationPayload;
 use Semitexa\Demo\Application\Resource\Platform\DemoTenantIsolationResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoTenantConfigProvider;
 use Semitexa\Demo\Application\Service\DemoTenantDataSeeder;
-use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Throwable;
 
 #[AsPayloadHandler(payload: TenantDataIsolationPayload::class, resource: DemoTenantIsolationResource::class)]
@@ -26,7 +26,7 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
     protected DemoTenantConfigProvider $tenantConfigProvider;
 
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
+    protected DemoFeatureDocumentPresenter $documents;
 
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
@@ -36,6 +36,14 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
 
     public function handle(TenantDataIsolationPayload $payload, DemoTenantIsolationResource $resource): DemoTenantIsolationResource
     {
+        $presentation = $this->documents->resolve(
+            'platform',
+            'tenancy-isolation',
+            'Data Isolation',
+            'Product listing scoped by tenant — switch tenant, list changes. Zero manual WHERE clauses.',
+            ['tenant_id', 'data isolation', 'automatic filtering', 'repository boundary', 'shared storage'],
+        );
+
         $configs = $this->tenantConfigProvider->getAllConfigs();
         $tenantIds = $this->tenantConfigProvider->getTenantIds();
         $activeTenant = in_array($payload->getTenant(), $tenantIds, true)
@@ -135,7 +143,7 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Data Isolation — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withNavSections($this->catalog->getSections())
             ->withFeatureTree($this->catalog->getFeatureTree())
             ->withCurrentSection('platform')
@@ -144,6 +152,7 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
                 'Switch tenant, and the same repository calls return a different dataset without hand-written WHERE clauses.',
                 'Tenant-scoped resources inject tenant filters automatically, so repository code stays focused on business queries.',
                 'This is the kind of platform guarantee that should be obvious in a demo, not hidden in docs.',
+                $presentation->highlights,
             )
             ->withDataUnavailable($dataUnavailable)
             ->withActiveTenant($activeTenant)

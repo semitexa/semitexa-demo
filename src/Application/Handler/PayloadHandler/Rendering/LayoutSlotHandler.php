@@ -13,6 +13,7 @@ use Semitexa\Demo\Application\Resource\Slot\DemoNavSlot;
 use Semitexa\Demo\Application\Resource\Slot\DemoSidebarSlot;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Ssr\Layout\SlotHandlerPipeline;
 use Semitexa\Ssr\Layout\SlotRenderer;
@@ -32,30 +33,41 @@ final class LayoutSlotHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(LayoutSlotPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'rendering',
+            'slots',
+            'Slot Resources',
+            'Each page region is its own resource pipeline with the same template system as the main page — no scattered partial glue, no mystery wiring.',
+            ['#[AsSlotResource]', 'HtmlSlotResponse', 'layout_slot()', 'SlotHandlerPipeline', 'shared Twig'],
+        );
         $explanation = $this->explanationProvider->getExplanation('rendering', 'slots') ?? [];
 
         return $resource
-            ->pageTitle('Slot Resources — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'rendering',
                 'currentSlug' => 'slots',
-                'infoWhat' => $explanation['what'] ?? 'Slot resources turn page regions into first-class response pipelines instead of informal partial includes.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('rendering')
             ->withSlug('slots')
-            ->withTitle('Slot Resources')
-            ->withSummary('Each page region is its own resource pipeline with the same template system as the main page — no scattered partial glue, no mystery wiring.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('A slot is not a fragment hack. It is a real resource with its own handler pipeline, template, and lifecycle.')
-            ->withHighlights(['#[AsSlotResource]', 'HtmlSlotResponse', 'layout_slot()', 'SlotHandlerPipeline', 'shared Twig'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the slot pipeline →')
             ->withDeepDiveLabel('Why unified templates matter →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/slot-resource-showcase.html.twig', [

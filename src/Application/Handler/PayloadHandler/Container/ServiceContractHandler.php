@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Container\ServiceContractPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ServiceContractPayload::class, resource: DemoFeatureResource::class)]
@@ -23,10 +24,20 @@ final class ServiceContractHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(ServiceContractPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'di',
+            'contracts',
+            'Service Contracts',
+            'Depend on contracts, but keep ownership explicit — deterministic substitution instead of runtime magic.',
+            ['#[SatisfiesServiceContract]', 'module-owned capability', 'closed-world factory', 'deterministic binding'],
+        );
         $explanation = $this->explanationProvider->getExplanation('di', 'contracts') ?? [];
 
         $sourceCode = [
@@ -34,23 +45,24 @@ final class ServiceContractHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Service Contracts — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'di',
                 'currentSlug' => 'contracts',
-                'infoWhat' => $explanation['what'] ?? 'Service contracts bind interfaces to explicit module-owned implementations at boot, keeping handlers deterministic and decoupled.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('di')
             ->withSlug('contracts')
-            ->withTitle('Service Contracts')
-            ->withSummary('Depend on contracts, but keep ownership explicit — deterministic substitution instead of runtime magic.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Depend on contracts, but keep ownership explicit — deterministic substitution instead of runtime magic.')
-            ->withHighlights(['#[SatisfiesServiceContract]', 'module-owned capability', 'closed-world factory', 'deterministic binding'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See contract attributes →')
             ->withDeepDiveLabel('How contract resolution works →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [

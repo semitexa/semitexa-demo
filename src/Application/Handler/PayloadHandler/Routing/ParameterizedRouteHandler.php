@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Routing\ParameterizedRoutePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ParameterizedRoutePayload::class, resource: DemoFeatureResource::class)]
@@ -21,6 +22,9 @@ final class ParameterizedRouteHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
 
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
@@ -36,6 +40,13 @@ final class ParameterizedRouteHandler implements TypedHandlerInterface
     {
         $slug = $payload->getSlug() ?: 'headphones';
         $product = self::PRODUCTS[$slug] ?? ['name' => 'Unknown Product', 'price' => 'N/A', 'category' => 'N/A'];
+        $presentation = $this->documents->resolve(
+            'routing',
+            'parameterized',
+            'Parameterized Route',
+            'Path parameters with regex constraints and typed injection.',
+            ['requirements', 'defaults', 'PayloadHydrator', 'setter injection'],
+        );
         $explanation = $this->explanationProvider->getExplanation('routing', 'parameterized') ?? [];
 
         $sourceCode = [
@@ -44,23 +55,24 @@ final class ParameterizedRouteHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Parameterized Route — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'routing',
                 'currentSlug' => 'parameterized',
-                'infoWhat' => $explanation['what'] ?? 'Path parameters with regex constraints and typed injection.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('routing')
             ->withSlug('parameterized')
-            ->withTitle('Parameterized Route')
-            ->withSummary('Path parameters with regex constraints and typed injection.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Path parameters like {slug} are extracted and injected via setters — with regex validation at the router level.')
-            ->withHighlights(['requirements', 'defaults', 'PayloadHydrator', 'setter injection'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('Try different slugs →')
             ->withDeepDiveLabel('How regex compilation works →')
             ->withSourceCode($sourceCode)

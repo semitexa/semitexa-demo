@@ -10,6 +10,7 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\ProjectGraph\ProjectGraphImpactPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ProjectGraphImpactPayload::class, resource: DemoFeatureResource::class)]
@@ -21,8 +22,19 @@ final class ProjectGraphImpactHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(ProjectGraphImpactPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'project-graph',
+            'impact',
+            'Impact, Context, and Watch Mode',
+            'Use the graph to estimate blast radius, package precise context for AI, and keep the architecture map current while the repository changes.',
+            ['ai:review-graph:impact', '--context', '--prompt', 'ai:review-graph:watch'],
+        );
+
         $explanation = [
             'what' => 'Project Graph can estimate change impact, package focused architectural context, and keep the graph fresh during active work. This turns the graph from a passive map into an active safety layer for refactors and AI-assisted edits.',
             'how' => 'Use `ai:review-graph:impact` on a class, file, or node, optionally add `--context` for snippet packaging or `--prompt` for formatted AI prompts, and run `ai:review-graph:watch` when you want the graph to stay current while the codebase changes.',
@@ -36,7 +48,7 @@ final class ProjectGraphImpactHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Impact, Context, and Watch Mode — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
@@ -50,10 +62,11 @@ final class ProjectGraphImpactHandler implements TypedHandlerInterface
             ->withSection('project-graph')
             ->withSectionLabel('Project Graph')
             ->withSlug('impact')
-            ->withTitle('Impact, Context, and Watch Mode')
-            ->withSummary('Use the graph to estimate blast radius, package precise context for AI, and keep the architecture map current while the repository changes.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('This is the shift from “interesting metadata” to “practical engineering safety”: impact analysis before edits, targeted context instead of giant prompts, and live graph freshness while work is in progress.')
-            ->withHighlights(['ai:review-graph:impact', '--context', '--prompt', 'ai:review-graph:watch'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the impact workflow →')
             ->withDeepDiveLabel('How it reduces risky refactors and vague prompts →')
             ->withSourceCode([

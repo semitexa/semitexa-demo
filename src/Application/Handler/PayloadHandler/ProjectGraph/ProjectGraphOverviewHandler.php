@@ -10,6 +10,7 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\ProjectGraph\ProjectGraphOverviewPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ProjectGraphOverviewPayload::class, resource: DemoFeatureResource::class)]
@@ -21,8 +22,19 @@ final class ProjectGraphOverviewHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(ProjectGraphOverviewPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'project-graph',
+            'overview',
+            'Project Graph Overview',
+            'Build a live structural map of the Semitexa codebase so engineers and AI agents can start from the real architecture, not from blind searching.',
+            ['ai:review-graph:generate', 'ai:review-graph:stats', 'ai:review-graph:capabilities', 'incremental graph'],
+        );
+
         $explanation = [
             'what' => 'The Project Graph package builds a live structural map of the current Semitexa codebase. That graph is persisted separately, can be refreshed incrementally, and gives both humans and AI a fast architectural starting point before deep changes.',
             'how' => 'Run `ai:review-graph:generate` to build or refresh the graph, `ai:review-graph:stats` to confirm health, and `ai:review-graph:capabilities` to turn the structural data into a practical manifest of commands and project capabilities.',
@@ -36,7 +48,7 @@ final class ProjectGraphOverviewHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Project Graph Overview — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
@@ -50,10 +62,11 @@ final class ProjectGraphOverviewHandler implements TypedHandlerInterface
             ->withSection('project-graph')
             ->withSectionLabel('Project Graph')
             ->withSlug('overview')
-            ->withTitle('Project Graph Overview')
-            ->withSummary('Build a live structural map of the Semitexa codebase so engineers and AI agents can start from the real architecture, not from blind searching.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('This is the fastest way to make a large Semitexa repository feel legible: generate the graph once, verify it, and inspect capabilities before deep edits or AI-assisted work.')
-            ->withHighlights(['ai:review-graph:generate', 'ai:review-graph:stats', 'ai:review-graph:capabilities', 'incremental graph'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the quick start →')
             ->withDeepDiveLabel('Why this becomes a real engineering advantage →')
             ->withSourceCode([

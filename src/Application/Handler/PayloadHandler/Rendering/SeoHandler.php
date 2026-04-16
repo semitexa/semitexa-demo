@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Rendering\SeoPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: SeoPayload::class, resource: DemoFeatureResource::class)]
@@ -23,13 +24,23 @@ final class SeoHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(SeoPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'rendering',
+            'seo',
+            'SEO',
+            'Set title, description, and Open Graph tags from your handler — no template hacks needed.',
+            ['pageTitle()', 'seoTag()', 'Open Graph', 'description', 'structured data'],
+        );
         $explanation = $this->explanationProvider->getExplanation('rendering', 'seo') ?? [];
         $description = 'Set title, description, and Open Graph tags from your handler without touching Twig templates.';
-        $title = 'SEO — Semitexa Demo';
+        $title = $presentation->title . ' — Semitexa Demo';
 
         $sourceCode = [
             'Handler' => $this->sourceCodeReader->readClassSource(self::class),
@@ -46,17 +57,18 @@ final class SeoHandler implements TypedHandlerInterface
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'rendering',
                 'currentSlug' => 'seo',
-                'infoWhat' => $explanation['what'] ?? 'Handlers can set title, Open Graph, and canonical metadata directly without template overrides.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('rendering')
             ->withSlug('seo')
-            ->withTitle('SEO')
-            ->withSummary($description)
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine($description)
-            ->withHighlights(['pageTitle()', 'seoTag()', 'Open Graph', 'description', 'structured data'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See SEO methods →')
             ->withDeepDiveLabel('SEO pipeline internals →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [

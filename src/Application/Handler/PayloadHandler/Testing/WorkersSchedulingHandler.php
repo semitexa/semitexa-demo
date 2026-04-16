@@ -12,6 +12,7 @@ use Semitexa\Demo\Application\Payload\Request\Testing\WorkersSchedulingPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Mail\Console\Command\MailWorkCommand;
 use Semitexa\Scheduler\Console\SchedulerListCommand;
@@ -32,30 +33,41 @@ final class WorkersSchedulingHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(WorkersSchedulingPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'cli',
+            'workers-scheduling',
+            'Workers & Scheduling',
+            'Run queues, scheduler pools, mail delivery, webhooks, and tenant-scoped commands from a coherent operator surface instead of bespoke daemons.',
+            ['queue:work', 'scheduler:list', 'scheduler:plan', 'scheduler:work', 'webhook:work', 'tenant:run'],
+        );
         $explanation = $this->explanationProvider->getExplanation('cli', 'workers-scheduling') ?? [];
 
         return $resource
-            ->pageTitle('Workers & Scheduling — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'cli',
                 'currentSlug' => 'workers-scheduling',
-                'infoWhat' => $explanation['what'] ?? 'The CLI also owns the long-running workers, scheduled jobs, webhooks, and tenant-scoped operator flows around the framework.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('cli')
             ->withSlug('workers-scheduling')
-            ->withTitle('Workers & Scheduling')
-            ->withSummary('Run queues, scheduler pools, mail delivery, webhooks, and tenant-scoped commands from a coherent operator surface instead of bespoke daemons.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Semitexa is not only request-response code. The CLI also owns the long-running workers and operator interventions that keep the platform moving.')
-            ->withHighlights(['queue:work', 'scheduler:list', 'scheduler:plan', 'scheduler:work', 'webhook:work', 'tenant:run'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the worker topology →')
             ->withDeepDiveLabel('Operational patterns behind the commands →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/cli-command-workbench.html.twig', [

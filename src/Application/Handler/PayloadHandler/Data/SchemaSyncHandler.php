@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Data\SchemaSyncPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Orm\Console\Command\OrmSyncCommand;
 use Semitexa\Orm\OrmManager;
@@ -29,28 +30,39 @@ final class SchemaSyncHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(SchemaSyncPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'data',
+            'schema-sync',
+            'Schema Sync, Not Migration Churn',
+            'Semitexa creates SQL only when the real schema changed, blocks destructive drops by default, and logs the exact DDL plan as SQL and JSON.',
+            ['orm:sync', '--dry-run', '--allow-destructive', 'two-phase drop', 'AuditLogger'],
+        );
         $explanation = $this->explanationProvider->getExplanation('data', 'schema-sync') ?? [];
 
         return $resource
-            ->pageTitle('Schema Sync, Not Migration Churn — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'data',
                 'currentSlug' => 'schema-sync',
-                'infoWhat' => $explanation['what'] ?? 'The ORM computes schema changes from code and database state instead of forcing constant manual migration churn.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('data')
             ->withSlug('schema-sync')
-            ->withTitle('Schema Sync, Not Migration Churn')
-            ->withSummary('Semitexa creates SQL only when the real schema changed, blocks destructive drops by default, and logs the exact DDL plan as SQL and JSON.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('You do not hand-write busywork migrations all day. The ORM derives the plan, blocks dangerous drops by default, and records the exact SQL it ran.')
-            ->withHighlights(['orm:sync', '--dry-run', '--allow-destructive', 'two-phase drop', 'AuditLogger'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the sync plan →')
             ->withDeepDiveLabel('Why destructive changes are delayed →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/schema-sync-showcase.html.twig', [

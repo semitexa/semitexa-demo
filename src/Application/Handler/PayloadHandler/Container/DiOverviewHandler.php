@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Container\DiOverviewPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: DiOverviewPayload::class, resource: DemoFeatureResource::class)]
@@ -23,10 +24,20 @@ final class DiOverviewHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(DiOverviewPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'di',
+            'overview',
+            'DI Canon',
+            'One canonical DI path for container-managed classes: explicit properties, explicit lifecycles, deterministic boot.',
+            ['single-path DI', '#[InjectAsReadonly]', '#[InjectAsMutable]', 'boot-time validation'],
+        );
         $explanation = $this->explanationProvider->getExplanation('di', 'overview') ?? [];
 
         $sourceCode = [
@@ -35,23 +46,24 @@ final class DiOverviewHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('DI Canon — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'di',
                 'currentSlug' => 'overview',
-                'infoWhat' => $explanation['what'] ?? 'Semitexa uses one canonical DI path for container-managed framework objects.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('di')
             ->withSlug('overview')
-            ->withTitle('DI Canon')
-            ->withSummary('One canonical DI path for container-managed classes: explicit properties, explicit lifecycles, deterministic boot.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('One canonical DI path for container-managed classes: explicit properties, explicit lifecycles, deterministic boot.')
-            ->withHighlights(['single-path DI', '#[InjectAsReadonly]', '#[InjectAsMutable]', 'boot-time validation'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the Semitexa canon →')
             ->withDeepDiveLabel('Why mixed DI fails →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [

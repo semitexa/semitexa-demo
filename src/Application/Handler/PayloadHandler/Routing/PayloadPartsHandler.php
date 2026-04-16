@@ -11,6 +11,7 @@ use Semitexa\Demo\Application\Payload\Request\Routing\PayloadPartsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: PayloadPartsPayload::class, resource: DemoFeatureResource::class)]
@@ -23,10 +24,20 @@ final class PayloadPartsHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(PayloadPartsPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'routing',
+            'payload-parts',
+            'Payload Parts',
+            'One module owns the route, another module can extend the same payload contract without forking or reopening the base class.',
+            ['#[AsPayloadPart]', 'trait composition', 'module extension', 'field-level guards'],
+        );
         $explanation = $this->explanationProvider->getExplanation('routing', 'payload-parts') ?? [];
 
         $sourceCode = [
@@ -37,23 +48,24 @@ final class PayloadPartsHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Payload Parts — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'routing',
                 'currentSlug' => 'payload-parts',
-                'infoWhat' => $explanation['what'] ?? 'A base payload can be extended by another module without reopening the original route class.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('routing')
             ->withSlug('payload-parts')
-            ->withTitle('Payload Parts')
-            ->withSummary('One module owns the route, another module can extend the same payload contract without forking or reopening the base class.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('A payload can stay the single trusted boundary even when multiple modules need to extend it and guard their own fields.')
-            ->withHighlights(['#[AsPayloadPart]', 'trait composition', 'module extension', 'field-level guards'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See modular composition →')
             ->withDeepDiveLabel('How wrapper composition works →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [

@@ -10,8 +10,8 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Platform\TenantQueuePayload;
 use Semitexa\Demo\Application\Resource\Platform\DemoTenantQueueResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoTenantConfigProvider;
-use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: TenantQueuePayload::class, resource: DemoTenantQueueResource::class)]
 final class TenantQueueHandler implements TypedHandlerInterface
@@ -20,13 +20,21 @@ final class TenantQueueHandler implements TypedHandlerInterface
     protected DemoTenantConfigProvider $tenantConfigProvider;
 
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
+    protected DemoFeatureDocumentPresenter $documents;
 
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(TenantQueuePayload $payload, DemoTenantQueueResource $resource): DemoTenantQueueResource
     {
+        $presentation = $this->documents->resolve(
+            'platform',
+            'tenancy-queue',
+            'Queue Tenant Propagation',
+            'Tenant context travels with queued jobs — _tenant key injected automatically, restored by worker.',
+            ['TenantAwareJobSerializer', '_tenant envelope', 'queue propagation', 'worker context', 'background isolation'],
+        );
+
         $tenantIds = $this->tenantConfigProvider->getTenantIds();
         $activeTenant = in_array($payload->getTenant(), $tenantIds, true)
             ? $payload->getTenant()
@@ -56,7 +64,7 @@ final class TenantQueueHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Queue Tenant Propagation — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withNavSections($this->catalog->getSections())
             ->withFeatureTree($this->catalog->getFeatureTree())
             ->withCurrentSection('platform')
@@ -65,6 +73,7 @@ final class TenantQueueHandler implements TypedHandlerInterface
                 'Queued jobs keep tenant context attached so background work stays scoped after the HTTP request is gone.',
                 'The serializer wraps the message with a tenant envelope, and the worker restores that context before executing the job.',
                 'Without this, multi-tenant background processing quietly becomes dangerous.',
+                $presentation->highlights,
             )
             ->withSerializedPayload($serializedPayload)
             ->withTenantContext($tenantContext)

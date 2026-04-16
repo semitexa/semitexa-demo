@@ -10,8 +10,8 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Platform\TenantLayersPayload;
 use Semitexa\Demo\Application\Resource\Platform\DemoTenantLayersResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoTenantConfigProvider;
-use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: TenantLayersPayload::class, resource: DemoTenantLayersResource::class)]
 final class TenantLayersHandler implements TypedHandlerInterface
@@ -51,13 +51,21 @@ final class TenantLayersHandler implements TypedHandlerInterface
     protected DemoTenantConfigProvider $tenantConfigProvider;
 
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
+    protected DemoFeatureDocumentPresenter $documents;
 
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(TenantLayersPayload $payload, DemoTenantLayersResource $resource): DemoTenantLayersResource
     {
+        $presentation = $this->documents->resolve(
+            'platform',
+            'tenancy-layers',
+            'Multi-Layer Tenancy',
+            'Organization, Locale, Theme, Environment — four independent layers compose into one TenantContext.',
+            ['OrganizationLayer', 'LocaleLayer', 'ThemeLayer', 'EnvironmentLayer', 'TenantContext'],
+        );
+
         $configs = $this->tenantConfigProvider->getAllConfigs();
 
         // Build Organization × Theme matrix
@@ -114,7 +122,7 @@ final class TenantLayersHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Multi-Layer Tenancy — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withNavSections($this->catalog->getSections())
             ->withFeatureTree($this->catalog->getFeatureTree())
             ->withCurrentSection('platform')
@@ -123,6 +131,7 @@ final class TenantLayersHandler implements TypedHandlerInterface
                 'Tenant context is not one switch. It is a composed stack of organization, locale, theme, and environment decisions.',
                 'Each layer resolves independently, then merges into the final context consumed by the rest of the app.',
                 'Showing the layers separately makes the platform model understandable instead of mystical.',
+                $presentation->highlights,
             )
             ->withLayers(self::LAYERS)
             ->withMatrix($matrix)

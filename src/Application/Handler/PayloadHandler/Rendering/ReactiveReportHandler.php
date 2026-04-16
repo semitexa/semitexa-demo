@@ -13,6 +13,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Resource\Slot\Reactive\ReactiveReportSlot;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoReportBuilder;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -32,6 +33,9 @@ final class ReactiveReportHandler implements TypedHandlerInterface
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
+    #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
     public function handle(ReactiveReportPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
@@ -43,6 +47,13 @@ final class ReactiveReportHandler implements TypedHandlerInterface
         $progress = $latestRun?->getProgressPercent() ?? 0;
         $message = $latestRun?->getProgressMessage() ?? 'Waiting for next scheduled run…';
 
+        $presentation = $this->documents->resolve(
+            'rendering',
+            'reactive-report',
+            'Reactive Report',
+            'Background work updates an SSR-first slot in place, so the UI feels live without falling back to SPA state orchestration.',
+            ['refreshInterval', '#[AsScheduledJob]', 'DemoJobRun', 'SSR-first live UI'],
+        );
         $explanation = $this->explanationProvider->getExplanation('rendering', 'reactive-report') ?? [];
 
         $sourceCode = [
@@ -52,23 +63,24 @@ final class ReactiveReportHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Reactive Report — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'rendering',
                 'currentSlug' => 'reactive-report',
-                'infoWhat' => $explanation['what'] ?? 'A scheduled report job updates deferred UI state as its progress changes.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('rendering')
             ->withSlug('reactive-report')
-            ->withTitle('Reactive Report')
-            ->withSummary('Background work updates an SSR-first slot in place, so the UI feels live without falling back to SPA state orchestration.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('A scheduled job changes server state, and the slot keeps reflecting that state live with no page reload and no client-side state machine.')
-            ->withHighlights(['refreshInterval', '#[AsScheduledJob]', 'DemoJobRun', 'SSR-first live UI'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the live-report flow →')
             ->withDeepDiveLabel('LeaseHeartbeat & retry →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/ssr-live-ui-showcase.html.twig', [

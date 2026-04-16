@@ -14,6 +14,7 @@ use Semitexa\Demo\Application\Payload\Request\Data\QueryBuilderPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Demo\Domain\Model\DemoProduct;
 
@@ -32,8 +33,20 @@ final class QueryBuilderHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(QueryBuilderPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $presentation = $this->documents->resolve(
+            'data',
+            'query',
+            'Query Builder',
+            'Compose type-safe queries with a fluent API — no raw SQL, no magic strings.',
+            ['ResourceModelQuery', 'where()', 'orderBy()', 'limit()', 'fetchAll()', 'fetchOne()'],
+        );
+        $explanation = $this->explanationProvider->getExplanation('data', 'query') ?? [];
+
         $products = $this->productRepository->findFiltered(
             status: $payload->getStatus(),
             minPrice: $payload->getMinPrice(),
@@ -61,8 +74,6 @@ final class QueryBuilderHandler implements TypedHandlerInterface
             . sprintf("    ->limit(%d)\n", $payload->getLimit())
             . '    ->fetchAllAs(DemoProduct::class, $orm->getMapperRegistry());';
 
-        $explanation = $this->explanationProvider->getExplanation('data', 'query') ?? [];
-
         $sourceCode = [
             'Catalog Repository' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Orm/QueryBuilder/ProductReadRepository.example.php'),
             'Admin Repository' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Orm/QueryBuilder/ProductAdminRepository.example.php'),
@@ -71,23 +82,24 @@ final class QueryBuilderHandler implements TypedHandlerInterface
         ];
 
         return $resource
-            ->pageTitle('Query Builder — Semitexa Demo')
+            ->pageTitle($presentation->title . ' — Semitexa Demo')
             ->withDemoShellContext([
                 'navSections' => $this->catalog->getSections(),
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'data',
                 'currentSlug' => 'query',
-                'infoWhat' => $explanation['what'] ?? 'Compose type-safe queries with a fluent API — no raw SQL, no magic strings.',
+                'infoWhat' => $explanation['what'] ?? $presentation->summary,
                 'infoHow' => $explanation['how'] ?? null,
                 'infoWhy' => $explanation['why'] ?? null,
                 'infoKeywords' => $explanation['keywords'] ?? [],
             ])
             ->withSection('data')
             ->withSlug('query')
-            ->withTitle('Query Builder')
-            ->withSummary('Compose type-safe queries with a fluent API — no raw SQL, no magic strings.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('Compose type-safe queries with a fluent API — no raw SQL, no magic strings.')
-            ->withHighlights(['ResourceModelQuery', 'where()', 'orderBy()', 'limit()', 'fetchAll()', 'fetchOne()'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the query builder →')
             ->withDeepDiveLabel('How ResourceModelQuery compiles SQL →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/data-table.html.twig', [

@@ -10,6 +10,7 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\Llm\LlmSkillsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
+use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: LlmSkillsPayload::class, resource: DemoFeatureResource::class)]
@@ -21,19 +22,18 @@ final class LlmSkillsHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
+    #[InjectAsReadonly]
+    protected DemoFeatureDocumentPresenter $documents;
+
     public function handle(LlmSkillsPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $explanation = [
-            'what' => 'A Semitexa AI skill is just a normal console command that also carries `#[AsAiSkill]` metadata. That second attribute is what makes the command discoverable and governable for the assistant.',
-            'how' => 'You add `#[AsAiSkill]` to a real command class, choose the confirmation and argument policy that matches the command, and optionally gate the skill through `.env` with `allowed: \'env::VAR::false\'` when the command should not always be exposed.',
-            'why' => 'This keeps AI operations grounded in the same command system humans already use. Teams do not need a second hidden automation layer just for agents.',
-            'keywords' => [
-                ['term' => '#[AsAiSkill]', 'definition' => 'Marks a console command as AI-discoverable and attaches execution metadata.'],
-                ['term' => '#[AsCommand]', 'definition' => 'The underlying Symfony console command that the skill ultimately executes.'],
-                ['term' => 'argumentPolicy', 'definition' => 'Controls whether the assistant may pass no arguments, an allowlisted subset, or all options.'],
-                ['term' => 'env-gated skill', 'definition' => 'A skill that is exposed only when an environment flag resolves `allowed` to true.'],
-            ],
-        ];
+        $presentation = $this->documents->resolve(
+            'llm',
+            'skills',
+            'Adding Skills',
+            'How a console command becomes AI-executable through `#[AsAiSkill]`, metadata policy, and registry discovery.',
+            ['#[AsAiSkill]', '#[AsCommand]', 'argumentPolicy', 'env::AI_ENABLE_*'],
+        );
 
         return $resource
             ->pageTitle('Adding Skills — Semitexa Demo')
@@ -42,18 +42,19 @@ final class LlmSkillsHandler implements TypedHandlerInterface
                 'featureTree' => $this->catalog->getFeatureTree(),
                 'currentSection' => 'llm',
                 'currentSlug' => 'skills',
-                'infoWhat' => $explanation['what'],
-                'infoHow' => $explanation['how'],
-                'infoWhy' => $explanation['why'],
-                'infoKeywords' => $explanation['keywords'],
+                'infoWhat' => $presentation->summary,
+                'infoHow' => null,
+                'infoWhy' => null,
+                'infoKeywords' => [],
             ])
             ->withSection('llm')
             ->withSectionLabel('LLM Module')
             ->withSlug('skills')
-            ->withTitle('Adding Skills')
-            ->withSummary('How a console command becomes AI-executable through `#[AsAiSkill]`, metadata policy, and registry discovery.')
+            ->withTitle($presentation->title)
+            ->withSummary($presentation->summary)
             ->withEntryLine('A Semitexa skill is not a prompt trick. It is a normal console command with explicit AI metadata attached to it.')
-            ->withHighlights(['#[AsAiSkill]', '#[AsCommand]', 'argumentPolicy', 'env::AI_ENABLE_*'])
+            ->withHighlights($presentation->highlights)
+            ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the skill authoring path →')
             ->withDeepDiveLabel('What metadata the registry extracts →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/data-table.html.twig', [
@@ -112,7 +113,6 @@ PHP,
                 'Read-Only Skill Example' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Llm/ReadOnlySkill.example.php'),
                 'Mutating Skill Example' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Llm/MutatingSkill.example.php'),
                 'Env-Controlled Skill Example' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Llm/EnvControlledSkill.example.php'),
-            ])
-            ->withExplanation($explanation);
+            ]);
     }
 }
