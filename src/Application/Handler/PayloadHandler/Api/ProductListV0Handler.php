@@ -36,6 +36,7 @@ final class ProductListV0Handler implements TypedHandlerInterface
 
     public function handle(ProductListV0Payload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $endpointPath = '/demo/api/sunset-version';
         $presentation = $this->documents->resolve(
             'api',
             'sunset-version',
@@ -43,7 +44,7 @@ final class ProductListV0Handler implements TypedHandlerInterface
             'A deprecated product endpoint that emits both Deprecation and Sunset headers.',
             ['#[ApiVersion]', 'Deprecation', 'Sunset', 'X-Api-Version'],
         );
-        $request = $payload->getHttpRequest() ?? new Request('GET', '/demo/api/v0/products', [], [], [], [], []);
+        $request = $payload->getHttpRequest() ?? new Request('GET', $endpointPath, [], [], [], [], []);
         $body = $this->apiPresenter->buildCollection(request: $request, query: $payload->getQ());
         $explanation = $this->explanationProvider->getExplanation('api', 'sunset-version') ?? [];
         $contentType = $this->apiPresenter->getContentType($request, $payload->getFormat());
@@ -83,7 +84,7 @@ final class ProductListV0Handler implements TypedHandlerInterface
                 'title' => 'Deprecated collection endpoint with explicit retirement headers',
                 'summary' => 'The page keeps the actual JSON payload visible, but the important story is in the lifecycle metadata wrapped around it.',
                 'method' => 'GET',
-                'url' => '/demo/api/v0/products',
+                'url' => $endpointPath,
                 'statusCode' => 200,
                 'contentType' => 'application/json',
                 'headers' => [
@@ -92,7 +93,7 @@ final class ProductListV0Handler implements TypedHandlerInterface
                     'Deprecation' => '2025-06-01',
                     'Sunset' => '2026-06-01',
                 ],
-                'curlExample' => 'curl -i -H "Accept: application/json" http://localhost:9502/demo/api/v0/products',
+                'curlExample' => 'curl -i -H "Accept: application/json" "http://localhost:9502' . $endpointPath . '"',
                 'bodyLabel' => 'Deprecated version payload',
                 'body' => $this->encodeJson($body),
             ])

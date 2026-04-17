@@ -10,7 +10,7 @@ use Semitexa\Demo\Application\Resource\Platform\DemoTenantConfigResource;
 
 #[PublicEndpoint]
 #[AsPayload(
-    path: '/demo/platform/tenancy/config',
+    path: '/demo/platform/tenancy-config',
     methods: ['GET'],
     responseWith: DemoTenantConfigResource::class,
     produces: ['application/json', 'text/html'],

@@ -13,9 +13,8 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 
 #[PublicEndpoint]
 #[AsPayload(
-    path: '/demo/api/errors/{type}',
+    path: '/demo/api/structured-errors',
     methods: ['GET', 'POST'],
-    requirements: ['type' => '[a-z-]+'],
     defaults: ['type' => 'not-found'],
     responseWith: DemoFeatureResource::class,
     produces: ['application/json', 'text/html'],
@@ -31,7 +30,11 @@ final class ApiErrorTriggerPayload
     public function getHttpRequest(): ?Request { return $this->httpRequest; }
     public function setHttpRequest(Request $httpRequest): void { $this->httpRequest = $httpRequest; }
     public function getType(): string { return $this->type; }
-    public function setType(string $type): void { $this->type = trim($type); }
+    public function setType(string $type): void
+    {
+        $type = strtolower(trim($type));
+        $this->type = preg_match('/^[a-z-]+$/', $type) === 1 ? $type : 'not-found';
+    }
     public function getFormat(): ?string { return $this->format; }
     public function setFormat(?string $format): void { $this->format = $format !== null ? trim($format) : null; }
 }

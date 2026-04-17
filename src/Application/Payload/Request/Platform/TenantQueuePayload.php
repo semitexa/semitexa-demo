@@ -10,7 +10,7 @@ use Semitexa\Demo\Application\Resource\Platform\DemoTenantQueueResource;
 
 #[PublicEndpoint]
 #[AsPayload(
-    path: '/demo/platform/tenancy/queue',
+    path: '/demo/platform/tenancy-queue',
     methods: ['GET'],
     responseWith: DemoTenantQueueResource::class,
     produces: ['application/json', 'text/html'],

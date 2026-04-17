@@ -36,6 +36,7 @@ final class ProductListV2Handler implements TypedHandlerInterface
 
     public function handle(ProductListV2Payload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
+        $endpointPath = '/demo/api/active-version';
         $presentation = $this->documents->resolve(
             'api',
             'active-version',
@@ -43,7 +44,7 @@ final class ProductListV2Handler implements TypedHandlerInterface
             'The current collection endpoint with a clean X-Api-Version header and no deprecation noise.',
             ['#[ApiVersion]', 'X-Api-Version', 'active lifecycle'],
         );
-        $request = $payload->getHttpRequest() ?? new Request('GET', '/demo/api/v2/products', [], [], [], [], []);
+        $request = $payload->getHttpRequest() ?? new Request('GET', $endpointPath, [], [], [], [], []);
         $body = $this->apiPresenter->buildCollection(request: $request, query: $payload->getQ());
         $explanation = $this->explanationProvider->getExplanation('api', 'active-version') ?? [];
         $contentType = $this->apiPresenter->getContentType($request, $payload->getFormat());
@@ -81,14 +82,14 @@ final class ProductListV2Handler implements TypedHandlerInterface
                 'title' => 'Current collection endpoint without lifecycle warnings',
                 'summary' => 'This is the clean path Semitexa wants machine consumers to target when there is no migration pressure to communicate.',
                 'method' => 'GET',
-                'url' => '/demo/api/v2/products',
+                'url' => $endpointPath,
                 'statusCode' => 200,
                 'contentType' => 'application/json',
                 'headers' => [
                     'Content-Type' => $contentType,
                     'X-Api-Version' => '2.0.0',
                 ],
-                'curlExample' => 'curl -i -H "Accept: application/json" http://localhost:9502/demo/api/v2/products',
+                'curlExample' => 'curl -i -H "Accept: application/json" "http://localhost:9502' . $endpointPath . '"',
                 'bodyLabel' => 'Active version payload',
                 'body' => $this->encodeJson($body),
             ])

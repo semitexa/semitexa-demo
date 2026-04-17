@@ -59,7 +59,7 @@ final class TenantConfigHandler implements TypedHandlerInterface
                 'supportedLocales' => $config->getSupportedLocales(),
                 'defaultLocale'   => $config->getDefaultLocale(),
                 'isActive'        => $config->getTenantId() === $activeTenant,
-                'href'            => '/demo/platform/tenancy/config?tenant=' . $config->getTenantId(),
+                'href'            => '/demo/platform/tenancy-config?tenant=' . $config->getTenantId(),
                 'narrative'       => $tenantNarratives[$config->getTenantId()] ?? 'Tenant-specific configuration changes the product surface without branching handlers.',
             ],
             $providerConfigs
