@@ -10,7 +10,7 @@ use Semitexa\Demo\Application\Resource\Platform\DemoTenantLayersResource;
 
 #[PublicEndpoint]
 #[AsPayload(
-    path: '/demo/platform/tenancy/layers',
+    path: '/demo/platform/tenancy-layers',
     methods: ['GET'],
     responseWith: DemoTenantLayersResource::class,
     produces: ['application/json', 'text/html'],

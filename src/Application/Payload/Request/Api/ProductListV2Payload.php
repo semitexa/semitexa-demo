@@ -13,7 +13,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 
 #[PublicEndpoint]
 #[AsPayload(
-    path: '/demo/api/v2/products',
+    path: '/demo/api/active-version',
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
     produces: ['application/json', 'text/html'],

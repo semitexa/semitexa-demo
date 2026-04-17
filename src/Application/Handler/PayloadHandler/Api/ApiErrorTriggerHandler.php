@@ -48,7 +48,8 @@ final class ApiErrorTriggerHandler implements TypedHandlerInterface
         );
         $type = strtolower($payload->getType());
         $explanation = $this->explanationProvider->getExplanation('api', 'structured-errors') ?? [];
-        $request = $payload->getHttpRequest() ?? new Request('GET', '/demo/api/errors/' . $type, [], [], [], [], []);
+        $previewUrl = '/demo/api/structured-errors?type=' . urlencode($type);
+        $request = $payload->getHttpRequest() ?? new Request('GET', $previewUrl, [], [], [], [], []);
         $exception = $this->buildException($type);
 
         if ($this->wantsJson($request, $payload->getFormat())) {
@@ -160,11 +161,11 @@ final class ApiErrorTriggerHandler implements TypedHandlerInterface
                 'title' => $title,
                 'summary' => $summary,
                 'method' => 'GET',
-                'url' => '/demo/api/errors/' . $type,
+                'url' => $previewUrl,
                 'statusCode' => $statusCode,
                 'contentType' => 'application/json',
                 'headers' => $headers,
-                'curlExample' => 'curl -H "Accept: application/json" http://localhost:9502/demo/api/errors/' . $type,
+                'curlExample' => 'curl -H "Accept: application/json" "http://localhost:9502' . $previewUrl . '"',
                 'bodyLabel' => 'Machine-readable error body',
                 'body' => $this->encodeJson($body),
             ])

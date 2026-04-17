@@ -10,7 +10,7 @@ use Semitexa\Demo\Application\Resource\Platform\DemoTenantResolutionResource;
 
 #[PublicEndpoint]
 #[AsPayload(
-    path: '/demo/platform/tenancy/resolution',
+    path: '/demo/platform/tenancy-resolution',
     methods: ['GET'],
     responseWith: DemoTenantResolutionResource::class,
     produces: ['application/json', 'text/html'],
