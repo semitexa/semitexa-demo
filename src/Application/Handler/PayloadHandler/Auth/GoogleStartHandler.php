@@ -95,22 +95,14 @@ final class GoogleStartHandler implements TypedHandlerInterface
     private function getRequestHost(): string
     {
         if ($this->httpRequest !== null) {
-            $host = trim((string) $this->httpRequest->getHost());
+            $host = $this->normalizeHost((string) $this->httpRequest->getHost());
 
             if ($host !== '') {
-                return strtolower($host);
+                return $host;
             }
         }
 
-        $serverHost = trim((string) ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? ''));
-        if ($serverHost === '') {
-            return '';
-        }
-
-        $serverHost = strtolower($serverHost);
-        $serverHost = explode(':', $serverHost, 2)[0];
-
-        return trim($serverHost);
+        return $this->normalizeHost((string) ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? ''));
     }
 
     private function normalizeSubjectSuffix(string $value): string
@@ -119,5 +111,21 @@ final class GoogleStartHandler implements TypedHandlerInterface
         $value = preg_replace('/[^a-z0-9.-]+/', '-', $value);
 
         return trim((string) $value, '-');
+    }
+
+    private function normalizeHost(string $host): string
+    {
+        $host = strtolower(trim($host));
+        if ($host === '') {
+            return '';
+        }
+
+        if (str_starts_with($host, '[')) {
+            $end = strpos($host, ']');
+
+            return $end === false ? trim($host, '[]') : substr($host, 1, $end - 1);
+        }
+
+        return trim(explode(':', $host, 2)[0]);
     }
 }
