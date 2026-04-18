@@ -79,7 +79,12 @@
                 if (mutations[i].attributeName === 'data-demo-theme') {
                     document.querySelectorAll('.chart-canvas[data-chart-data]').forEach(renderCanvas);
                     break;
-        }
+                }
+            }
+        }).observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-demo-theme']
+        });
     }
 
     function initBlock(block) {
@@ -115,10 +120,9 @@
             summary.textContent = chart.summary || 'Backend metrics snapshot refreshed from the shared kiss stream.';
         }
     }
-        }).observe(document.documentElement, {
-            attributes: true,
-            attributeFilter: ['data-demo-theme']
-        });
+
+    function initExisting() {
+        document.querySelectorAll('[data-block="chart-widget"]').forEach(initBlock);
     }
 
     document.addEventListener('semitexa:block:rendered', function (e) {
@@ -140,8 +144,12 @@
     });
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initThemeObserver);
+        document.addEventListener('DOMContentLoaded', function () {
+            initThemeObserver();
+            initExisting();
+        });
     } else {
         initThemeObserver();
+        initExisting();
     }
 }());

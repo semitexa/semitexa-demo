@@ -1,8 +1,9 @@
 # Review Graph Capabilities
 
 ## Graph
-- `ai:review-graph:generate` builds or refreshes the graph.
-- `ai:review-graph:stats` verifies graph health and freshness.
+- `ai:task` is the task-first entry point when available.
+- `ai:review-graph:generate` builds or refreshes the graph when fresh graph context is needed.
+- `ai:review-graph:stats` verifies graph health and freshness after an explicit refresh.
 - `ai:review-graph:show` exports focused graph views.
 
 ## Introspection
