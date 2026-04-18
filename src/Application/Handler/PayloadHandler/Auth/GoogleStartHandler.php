@@ -95,15 +95,10 @@ final class GoogleStartHandler implements TypedHandlerInterface
     private function getRequestHost(): string
     {
         if ($this->httpRequest !== null) {
-            $host = trim((string) $this->httpRequest->getServer('HTTP_HOST'));
-            if ($host === '') {
-                $host = trim((string) $this->httpRequest->getHeader('Host'));
-            }
+            $host = trim((string) $this->httpRequest->getHost());
 
             if ($host !== '') {
-                $host = strtolower($host);
-                $host = explode(':', $host, 2)[0];
-                return trim($host);
+                return strtolower($host);
             }
         }
 
