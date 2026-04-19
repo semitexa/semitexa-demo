@@ -1,5 +1,8 @@
-bin/semitexa ai:task "describe the task you want to work on"
-# Refresh the graph only if task-scoped graph answers are needed and may be stale.
+bin/semitexa ai:task "trace checkout architecture"
+# The next commands require semitexa-project-graph to be installed and enabled.
+# Refresh only when the stored graph may be stale.
 bin/semitexa ai:review-graph:generate --json
 bin/semitexa ai:review-graph:stats --json
-bin/semitexa ai:review-graph:capabilities --markdown
+# Then choose the narrowest structural surface that answers the task.
+bin/semitexa ai:review-graph:context "trace checkout architecture" --format=json
+bin/semitexa ai:review-graph:show --format=markdown --module=Demo

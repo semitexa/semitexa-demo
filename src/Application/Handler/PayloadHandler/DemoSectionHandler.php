@@ -56,9 +56,9 @@ final class DemoSectionHandler implements TypedHandlerInterface
             $infoHow = 'Read it in module order: first the assistant surface, then how commands become skills, then the execution flow, and finally the provider layer under the assistant.';
             $infoWhy = 'AI features are easy to oversell and hard to trust. This section keeps the package grounded in concrete framework contracts instead of vague product copy.';
         } elseif ($section === 'project-graph') {
-            $infoWhat = 'Project Graph turns a real Semitexa codebase into a queryable structural map: files, classes, modules, dependencies, and framework capabilities become explicit data instead of tribal knowledge.';
-            $infoHow = 'Start by generating the graph once, then use the dedicated commands to inspect health, query dependencies, export views, and pack focused context before code changes or AI-assisted edits.';
-            $infoWhy = 'This is one of the most practical Semitexa differentiators. It shortens onboarding, reduces blind searching, gives AI agents a safer starting point, and makes risky refactors reviewable before they become expensive.';
+            $infoWhat = 'Project Graph is the package-level architecture memory for a Semitexa repository: structural facts, module boundaries, hotspots, event lifecycles, and impact surfaces become reusable data instead of rediscovery work.';
+            $infoHow = 'Read the section as a task-first workflow. Start from the task, use graph-backed context only when structure matters, refresh the stored graph when answers are stale, then choose the smallest command surface that answers the question.';
+            $infoWhy = 'This is one of the most practical Semitexa differentiators because it improves decision quality, not just introspection aesthetics. Onboarding gets faster, reviews get sharper, AI prompts get smaller, and risky changes become easier to scope before they go wrong.';
         }
 
         $keywords = [$meta['label'], $meta['summary'], 'Semitexa Demo'];

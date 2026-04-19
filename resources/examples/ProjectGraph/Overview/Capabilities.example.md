@@ -1,15 +1,15 @@
-# Review Graph Capabilities
+# Project Graph Surface
 
-## Graph
-- `ai:task` is the task-first entry point when available.
-- `ai:review-graph:generate` builds or refreshes the graph when fresh graph context is needed.
-- `ai:review-graph:stats` verifies graph health and freshness after an explicit refresh.
-- `ai:review-graph:show` exports focused graph views.
+## Task-first
+- `ai:task` is still the best first step when the install provides it.
+- `ai:review-graph:context` adds graph-backed context only when the task actually needs structural understanding.
 
-## Introspection
+## Structural inspection
+- `ai:review-graph:show` renders focused graph views.
 - `ai:review-graph:query` answers dependency and usage questions.
-- `ai:review-graph:capabilities` projects graph data into an AI-friendly manifest.
+- `ai:review-graph:module` packages a module-level overview with optional flows and event details.
 
-## Operations
+## Intelligence and safety
+- `ai:review-graph:intelligence` exposes hotspots, doc gaps, event lifecycles, and natural-language structural answers.
 - `ai:review-graph:impact` scopes the blast radius before edits.
 - `ai:review-graph:watch` keeps the graph current during active work.

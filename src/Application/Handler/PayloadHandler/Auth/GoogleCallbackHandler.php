@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Handler\PayloadHandler\Auth;
 
+use Semitexa\Auth\Session\AuthSessionWriter;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsMutable;
 use Semitexa\Core\Attribute\InjectAsReadonly;
@@ -18,11 +19,16 @@ use Semitexa\Demo\Application\Service\GoogleOAuthClient;
 #[AsPayloadHandler(payload: GoogleCallbackPayload::class, resource: ResourceResponse::class)]
 final class GoogleCallbackHandler implements TypedHandlerInterface
 {
+    private const string PROVIDER = 'google';
+
     #[InjectAsMutable]
     protected ?SessionInterface $session = null;
 
     #[InjectAsReadonly]
     protected GoogleOAuthClient $oauthClient;
+
+    #[InjectAsReadonly]
+    protected AuthSessionWriter $authWriter;
 
     public function handle(GoogleCallbackPayload $payload, ResourceResponse $resource): ResourceResponse
     {
@@ -113,7 +119,11 @@ final class GoogleCallbackHandler implements TypedHandlerInterface
         $segment->setDemoRole($role);
         $this->session->setPayload($segment);
 
-        $this->session->set('_auth_user_id', 'google:' . $subjectId . ':' . $role);
+        $this->authWriter->setAuthenticated(
+            $this->session,
+            'google:' . $subjectId . ':' . $role,
+            self::PROVIDER,
+        );
 
         $this->session->regenerate();
 

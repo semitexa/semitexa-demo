@@ -18,6 +18,9 @@ use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
 )]
 final class DeferredReviewFeedSlot extends HtmlSlotResponse
 {
+    /**
+     * @param list<array{rating: int, body: string}> $reviews
+     */
     public function withReviews(array $reviews): static
     {
         return $this->with('reviews', $reviews);

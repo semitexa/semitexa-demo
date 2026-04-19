@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Handler\PayloadHandler\Auth;
 
 use Semitexa\Auth\Context\AuthManager;
+use Semitexa\Auth\Session\AuthSessionWriter;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsMutable;
 use Semitexa\Core\Attribute\InjectAsReadonly;
@@ -46,6 +47,11 @@ final class GoogleAuthHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected GoogleOAuthClient $oauthClient;
+
+    #[InjectAsReadonly]
+    protected AuthSessionWriter $authWriter;
+
+    private const string PROVIDER = 'google';
 
     public function handle(GoogleAuthPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
@@ -104,7 +110,7 @@ final class GoogleAuthHandler implements TypedHandlerInterface
                 'email' => $googleUser?->getEmail(),
                 'pictureUrl' => $googleUser?->getPictureUrl(),
                 'hostedDomain' => $googleUser?->getHostedDomain(),
-                'emailVerified' => $googleUser?->emailVerified ?? false,
+                'emailVerified' => $googleUser?->getEmailVerified() ?? false,
                 'returnTo' => $returnTo,
                 'startUrl' => '/demo/auth/google/start?return_to=' . rawurlencode($returnTo),
                 'logoutUrl' => '/demo/auth/google/logout?return_to=' . rawurlencode($returnTo),
@@ -153,7 +159,9 @@ final class GoogleAuthHandler implements TypedHandlerInterface
             }
         }
 
-        return $this->normalizeHost((string) ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? ''));
+        $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+
+        return $this->normalizeHost(is_string($host) ? $host : '');
     }
 
     private function completeLocalTestSignIn(DemoFeatureResource $resource, string $returnTo): DemoFeatureResource
@@ -185,19 +193,22 @@ final class GoogleAuthHandler implements TypedHandlerInterface
         $segment->setDemoRole('viewer');
         $segment->clearLastError();
         $this->session->setPayload($segment);
-        $this->session->set('_auth_user_id', 'google:' . $subjectId . ':' . $segment->getDemoRole());
+        $this->authWriter->setAuthenticated(
+            $this->session,
+            'google:' . $subjectId . ':' . $segment->getDemoRole(),
+            self::PROVIDER,
+        );
         $this->session->regenerate();
 
         $resource->setRedirect($returnTo);
         return $resource;
     }
-
     private function normalizeSubjectSuffix(string $value): string
     {
         $value = strtolower(trim($value));
-        $value = preg_replace('/[^a-z0-9.-]+/', '-', $value);
+        $value = preg_replace('/[^a-z0-9.-]+/', '-', $value) ?? '';
 
-        return trim((string) $value, '-');
+        return trim($value, '-');
     }
 
     private function normalizeHost(string $host): string

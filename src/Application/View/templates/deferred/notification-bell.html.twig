@@ -14,10 +14,10 @@
         {% endif %}
     </div>
     <p class="deferred-block__summary" data-notification-summary>Waiting for the next backend heartbeat event.</p>
-    {% if notifications|length > 0 %}
+    {% if count > 0 %}
     <ul class="notification-list" data-notification-list>
         {% for notification in notifications %}
-        <li class="notification-list__item notification-list__item--{{ notification.level|default('info') }}">
+        <li class="notification-list__item notification-list__item--{{ notification.level }}">
             {{ notification.message }}
         </li>
         {% endfor %}
