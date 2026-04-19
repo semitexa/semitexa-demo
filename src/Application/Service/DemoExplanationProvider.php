@@ -23,8 +23,12 @@ final class DemoExplanationProvider
     {
         $key = $section . '/' . $slug;
 
-        return self::EXPLANATIONS[$key] ?? null;
+        return self::EXPLANATIONS[self::ALIASES[$key] ?? $key] ?? null;
     }
+
+    private const ALIASES = [
+        'cli/project-graph' => 'cli/describe-commands',
+    ];
 
     private const EXPLANATIONS = [
         // --- Routing section ---

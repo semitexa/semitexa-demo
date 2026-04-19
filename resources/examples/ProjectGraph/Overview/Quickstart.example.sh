@@ -1,5 +1,6 @@
 bin/semitexa ai:task "trace checkout architecture"
-# If semitexa-project-graph is enabled and the stored graph may be stale, refresh it.
+# The next commands require semitexa-project-graph to be installed and enabled.
+# Refresh only when the stored graph may be stale.
 bin/semitexa ai:review-graph:generate --json
 bin/semitexa ai:review-graph:stats --json
 # Then choose the narrowest structural surface that answers the task.

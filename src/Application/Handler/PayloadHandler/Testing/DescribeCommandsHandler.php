@@ -44,7 +44,7 @@ final class DescribeCommandsHandler implements TypedHandlerInterface
             'Routes, modules, contracts, and handlers can be introspected directly from the CLI instead of reverse-engineering the framework graph by hand.',
             ['ai:ask', 'dev:graph:route', 'dev:graph:project', 'routes:list', 'contracts:list', 'semitexa:lint:*'],
         );
-        $explanation = $this->explanationProvider->getExplanation('cli', 'describe-commands') ?? [];
+        $explanation = $this->explanationProvider->getExplanation('cli', 'project-graph') ?? [];
 
         return $resource
             ->pageTitle($presentation->title . ' — Semitexa Demo')

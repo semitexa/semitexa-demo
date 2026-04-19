@@ -73,7 +73,7 @@ final class ProjectGraphOverviewHandler implements TypedHandlerInterface
                 'Demo Package README' => $this->sourceCodeReader->readProjectRelativeSource('README.md'),
                 'Package Workflow Notes' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Overview/Capabilities.example.md'),
                 'Quickstart Commands' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Overview/Quickstart.example.sh'),
-                'Command Surface Example' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Overview/Capabilities.example.md'),
+                'Command Surface Example' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Overview/CommandSurface.example.md'),
             ])
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/get-started-playbook.html.twig', [
                 'eyebrow' => 'Package Workflow',

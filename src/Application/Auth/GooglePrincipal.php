@@ -76,4 +76,9 @@ final readonly class GooglePrincipal implements AuthenticatableInterface
     {
         return $this->hostedDomain;
     }
+
+    public function getEmailVerified(): bool
+    {
+        return $this->emailVerified;
+    }
 }

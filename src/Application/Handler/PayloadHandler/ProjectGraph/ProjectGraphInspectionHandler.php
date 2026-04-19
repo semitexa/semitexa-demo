@@ -32,18 +32,19 @@ final class ProjectGraphInspectionHandler implements TypedHandlerInterface
             'inspection',
             'Inspecting the Graph',
             'Use Project Graph queries and intelligence views to inspect modules, dependencies, flows, events, and hotspots without reconstructing the repository manually.',
-            ['ai:review-graph:show', 'ai:review-graph:query', 'ai:review-graph:module', 'ai:review-graph:intelligence'],
+            ['ai:review-graph:show', 'ai:review-graph:query', 'ai:review-graph:module', 'ai:review-graph:intelligence', 'ai:review-graph:context'],
         );
 
         $explanation = [
             'what' => 'Once the package is enabled and the graph exists, inspection becomes a set of explicit structural views instead of improvised archaeology. You can render slices, query dependencies, inspect whole modules, and ask the intelligence layer for hotspots, doc gaps, or event lifecycles.',
-            'how' => 'Use `ai:review-graph:show` for readable slices, `ai:review-graph:query` for targeted dependency questions, `ai:review-graph:module` for a module-level overview, and `ai:review-graph:intelligence` when the right answer is not just raw edges but a higher-level structural explanation.',
+            'how' => 'Use `ai:review-graph:show` for readable slices, `ai:review-graph:query` for targeted dependency questions, `ai:review-graph:module` for a module-level overview, `ai:review-graph:intelligence` for higher-level structural explanations, and `ai:review-graph:context` when the task needs a review- or AI-ready context package.',
             'why' => 'This is where the package becomes operationally useful. Reviews get faster, onboarding becomes less fragile, and AI tools can start from architecture-backed answers instead of broad guesses assembled from random files.',
             'keywords' => [
                 ['term' => 'ai:review-graph:show', 'definition' => 'Renders summary, markdown, JSON, or DOT graph views for a chosen focus, module, or node type.'],
                 ['term' => 'ai:review-graph:query', 'definition' => 'Runs structural lookups such as search, usages, dependencies, and cross-module edge inspection.'],
                 ['term' => 'ai:review-graph:module', 'definition' => 'Builds a module overview with summary counts, domain context, hotspots, and optional flows or event details.'],
                 ['term' => 'ai:review-graph:intelligence', 'definition' => 'Queries the higher-level intelligence layer for hotspots, documentation gaps, flows, event lifecycles, intent, and natural-language structural answers.'],
+                ['term' => 'ai:review-graph:context', 'definition' => 'Builds task-scoped structural context for review, refactor, debugging, or AI-assisted work.'],
             ],
         ];
 

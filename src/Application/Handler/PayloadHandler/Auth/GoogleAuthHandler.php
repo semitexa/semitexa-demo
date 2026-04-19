@@ -110,7 +110,7 @@ final class GoogleAuthHandler implements TypedHandlerInterface
                 'email' => $googleUser?->getEmail(),
                 'pictureUrl' => $googleUser?->getPictureUrl(),
                 'hostedDomain' => $googleUser?->getHostedDomain(),
-                'emailVerified' => $googleUser !== null ? $googleUser->emailVerified : false,
+                'emailVerified' => $googleUser?->getEmailVerified() ?? false,
                 'returnTo' => $returnTo,
                 'startUrl' => '/demo/auth/google/start?return_to=' . rawurlencode($returnTo),
                 'logoutUrl' => '/demo/auth/google/logout?return_to=' . rawurlencode($returnTo),
