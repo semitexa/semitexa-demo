@@ -31,19 +31,19 @@ final class ProjectGraphInspectionHandler implements TypedHandlerInterface
             'project-graph',
             'inspection',
             'Inspecting the Graph',
-            'Explore modules, dependencies, usages, and capabilities directly from the graph instead of piecing them together from file-by-file searches.',
-            ['ai:review-graph:show', 'ai:review-graph:query', 'cross-module edges', 'capability manifest'],
+            'Use Project Graph queries and intelligence views to inspect modules, dependencies, flows, events, and hotspots without reconstructing the repository manually.',
+            ['ai:review-graph:show', 'ai:review-graph:query', 'ai:review-graph:module', 'ai:review-graph:intelligence'],
         );
 
         $explanation = [
-            'what' => 'After generation, the graph becomes an exploration surface. You can render graph views, search nodes, inspect dependencies, trace usages, and expose cross-module edges without reconstructing the whole architecture manually.',
-            'how' => 'Use `ai:review-graph:show` for summaries or exports, `ai:review-graph:query` for ad hoc structural questions, and `ai:review-graph:capabilities` when the goal is a command- and AI-oriented overview instead of raw edges.',
-            'why' => 'This is where the usability payoff becomes obvious. Engineers can answer architectural questions in seconds, reviewers can verify module coupling directly, and AI tooling can consume project capabilities as structured output instead of loose prose.',
+            'what' => 'Once the package is enabled and the graph exists, inspection becomes a set of explicit structural views instead of improvised archaeology. You can render slices, query dependencies, inspect whole modules, and ask the intelligence layer for hotspots, doc gaps, or event lifecycles.',
+            'how' => 'Use `ai:review-graph:show` for readable slices, `ai:review-graph:query` for targeted dependency questions, `ai:review-graph:module` for a module-level overview, and `ai:review-graph:intelligence` when the right answer is not just raw edges but a higher-level structural explanation.',
+            'why' => 'This is where the package becomes operationally useful. Reviews get faster, onboarding becomes less fragile, and AI tools can start from architecture-backed answers instead of broad guesses assembled from random files.',
             'keywords' => [
-                ['term' => 'ai:review-graph:show', 'definition' => 'Displays or exports graph views in summary, JSON, DOT, or Markdown formats.'],
-                ['term' => 'ai:review-graph:query', 'definition' => 'Runs ad hoc graph queries such as search, usages, dependencies, and cross-module edge inspection.'],
-                ['term' => 'cross-module edges', 'definition' => 'Dependencies that cross module boundaries and often matter most during review and architecture cleanup.'],
-                ['term' => 'capability manifest', 'definition' => 'A graph-derived summary of project commands and capabilities that is easier for AI and operators to consume than raw graph storage.'],
+                ['term' => 'ai:review-graph:show', 'definition' => 'Renders summary, markdown, JSON, or DOT graph views for a chosen focus, module, or node type.'],
+                ['term' => 'ai:review-graph:query', 'definition' => 'Runs structural lookups such as search, usages, dependencies, and cross-module edge inspection.'],
+                ['term' => 'ai:review-graph:module', 'definition' => 'Builds a module overview with summary counts, domain context, hotspots, and optional flows or event details.'],
+                ['term' => 'ai:review-graph:intelligence', 'definition' => 'Queries the higher-level intelligence layer for hotspots, documentation gaps, flows, event lifecycles, intent, and natural-language structural answers.'],
             ],
         ];
 
@@ -64,7 +64,7 @@ final class ProjectGraphInspectionHandler implements TypedHandlerInterface
             ->withSlug('inspection')
             ->withTitle($presentation->title)
             ->withSummary($presentation->summary)
-            ->withEntryLine('Once the graph is built, architectural questions become terminal queries instead of archaeology.')
+            ->withEntryLine('Once Project Graph is enabled, structural questions stop being archaeology. You can ask for exactly the slice, dependency, hotspot, or module view you need.')
             ->withHighlights($presentation->highlights)
             ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the inspection workflows →')
@@ -72,27 +72,27 @@ final class ProjectGraphInspectionHandler implements TypedHandlerInterface
             ->withSourceCode([
                 'Inspection Commands' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Inspection/Queries.example.sh'),
                 'Show Formats' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Inspection/ShowFormats.example.sh'),
-                'Capabilities Markdown' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Inspection/Capabilities.example.md'),
+                'Intelligence Notes' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Inspection/Capabilities.example.md'),
             ])
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/get-started-playbook.html.twig', [
                 'eyebrow' => 'Inspection Flow',
-                'title' => 'Move from “what is in this repo?” to “show me the exact structural answer”',
-                'summary' => 'This workflow is about convenience with substance. The graph does not replace engineering judgment; it removes needless discovery friction so judgment can start earlier.',
+                'title' => 'Move from “what is in this repo?” to a focused structural answer',
+                'summary' => 'Inspection is not one command. It is a small family of surfaces that let you choose the right answer shape for the question: rendered slice, query result, module overview, or intelligence-backed explanation.',
                 'steps' => [
                     [
                         'eyebrow' => 'Step 1',
-                        'title' => 'Render the current graph view',
-                        'summary' => 'Start broad: summary for a quick scan, Markdown for reviewable output, or DOT when you want export-oriented visualization.',
+                        'title' => 'Render the slice you need',
+                        'summary' => 'Start broad when you need a structural snapshot, then narrow by module, node type, or focus target when the question is localized.',
                         'commands' => [
-                            'bin/semitexa ai:review-graph:show',
                             'bin/semitexa ai:review-graph:show --format=markdown --module=Demo',
+                            'bin/semitexa ai:review-graph:show --format=json --type=service,handler',
                             'bin/semitexa ai:review-graph:show --format=dot Demo',
                         ],
                     ],
                     [
                         'eyebrow' => 'Step 2',
-                        'title' => 'Ask dependency questions directly',
-                        'summary' => 'Search nodes, trace usages, inspect dependencies, or isolate cross-module edges when you want to understand coupling.',
+                        'title' => 'Ask focused structural questions',
+                        'summary' => 'When the question is about coupling, usage, or module boundaries, query directly instead of reconstructing the answer from imports and memory.',
                         'commands' => [
                             'bin/semitexa ai:review-graph:query --search=DemoCatalogService',
                             'bin/semitexa ai:review-graph:query --dependencies=Semitexa\\\\Demo\\\\Application\\\\Service\\\\DemoCatalogService',
@@ -101,66 +101,72 @@ final class ProjectGraphInspectionHandler implements TypedHandlerInterface
                     ],
                     [
                         'eyebrow' => 'Step 3',
-                        'title' => 'Project the graph into capability language',
-                        'summary' => 'When the goal is operator or AI understanding, capability output is often more useful than raw nodes and edges.',
+                        'title' => 'Reach for intelligence when edges are not enough',
+                        'summary' => 'Some questions need richer answers than a node list: hotspots, event lifecycles, module summaries, inferred intent, and task context.',
                         'commands' => [
-                            'bin/semitexa ai:review-graph:capabilities --markdown',
-                            'bin/semitexa ai:review-graph:capabilities --module=Demo --category=introspection',
+                            'bin/semitexa ai:review-graph:module Demo --include-events --include-flows --format=json',
+                            'bin/semitexa ai:review-graph:intelligence --hotspots',
+                            'bin/semitexa ai:review-graph:context "review Demo module coupling" --format=json',
                         ],
                     ],
                 ],
                 'callout' => [
                     'eyebrow' => 'Practical Benefit',
                     'rules' => [
-                        'Reviewers can spot module leaks earlier by asking for cross-module edges directly.',
-                        'Onboarding gets easier because people can ask architectural questions in the terminal without already knowing the answer.',
-                        'AI prompts improve when capability output replaces vague guesses about what the project supports.',
-                        'Teams save time because common dependency questions stop triggering another full round of grep and tab-hopping.',
+                        'Reviewers can spot module leaks and hotspots from explicit graph-backed answers instead of architectural intuition alone.',
+                        'Onboarding gets easier because new engineers can ask structural questions without already knowing where to look.',
+                        'AI workflows improve because module and context views are narrower and more defensible than arbitrary file dumps.',
+                        'Teams save time because common dependency and module questions stop triggering another round of grep and tab-hopping.',
                     ],
                 ],
             ])
             ->withL2ContentTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
                 'eyebrow' => 'Query Surface',
-                'title' => 'The graph supports several kinds of exploration, each useful at a different stage',
-                'summary' => 'Not every question needs the same output. Project Graph provides summary, raw query, and capability-oriented views so engineers can choose the right level of detail.',
+                'title' => 'Different inspection questions deserve different answer shapes',
+                'summary' => 'The graph is more useful when teams stop treating it as one generic command. Broad slices, direct queries, module views, intelligence helpers, and task context each serve a distinct inspection job.',
                 'columns' => ['Need', 'Best command', 'Why it is useful'],
                 'rows' => [
                     [
-                        ['text' => 'Quick health and size check'],
-                        ['text' => 'ai:review-graph:stats'],
-                        ['text' => 'Confirms the graph is current enough to trust.', 'variant' => 'success'],
-                    ],
-                    [
-                        ['text' => 'Module or focus-node view'],
+                        ['text' => 'Broad structural slice'],
                         ['text' => 'ai:review-graph:show'],
-                        ['text' => 'Gives a readable structural slice without writing custom queries.', 'variant' => 'success'],
+                        ['text' => 'Renders a readable view without inventing custom queries first.', 'variant' => 'success'],
                     ],
                     [
-                        ['text' => 'Dependency or usage tracing'],
+                        ['text' => 'Dependency, usage, or search question'],
                         ['text' => 'ai:review-graph:query'],
-                        ['text' => 'Answers targeted architectural questions fast.', 'variant' => 'success'],
+                        ['text' => 'Answers targeted structural questions fast.', 'variant' => 'success'],
                     ],
                     [
-                        ['text' => 'AI/operator command surface'],
-                        ['text' => 'ai:review-graph:capabilities'],
-                        ['text' => 'Turns structure into a practical manifest instead of raw edges.', 'variant' => 'success'],
+                        ['text' => 'Whole-module understanding'],
+                        ['text' => 'ai:review-graph:module'],
+                        ['text' => 'Packages counts, context, hotspots, and optional flows or event details in one response.', 'variant' => 'success'],
+                    ],
+                    [
+                        ['text' => 'Higher-level structural explanation'],
+                        ['text' => 'ai:review-graph:intelligence'],
+                        ['text' => 'Surfaces hotspots, doc gaps, event lifecycles, and natural-language answers.', 'variant' => 'success'],
+                    ],
+                    [
+                        ['text' => 'Task-scoped prep for review or AI work'],
+                        ['text' => 'ai:review-graph:context'],
+                        ['text' => 'Builds a tighter structural package than random file sampling.', 'variant' => 'success'],
                     ],
                 ],
                 'paragraphs' => [
-                    'This flexibility is part of the convenience story: the same stored graph supports several different high-value workflows.',
-                    'That means one investment in graph generation pays off across review, onboarding, operations, and AI assistance.',
+                    'This is part of the real value proposition: one stored graph can power several very different inspection workflows without forcing teams back into archaeology.',
+                    'That means one structural artifact can pay off across onboarding, debugging, review, refactors, and AI assistance.',
                 ],
-                'note' => 'The right question should determine the output format, not the other way around.',
+                'note' => 'The right structural question should determine the command surface, not the other way around.',
             ])
             ->withL3ContentTemplate('@project-layouts-semitexa-demo/components/previews/checklist-panel.html.twig', [
                 'eyebrow' => 'When This Shines',
                 'title' => 'High-friction situations that become much easier',
                 'summary' => 'The graph is especially valuable when normal repository familiarity breaks down.',
                 'rules' => [
-                    'Use graph queries when a class or module name is familiar but its actual coupling is not.',
-                    'Use cross-module inspection before “small” cleanup tasks that might secretly cross boundaries.',
-                    'Use Markdown or JSON output when you need to share or automate the result instead of reading it once in a terminal.',
-                    'Use capability manifests for AI and operator workflows where concise, structured project understanding matters more than raw implementation detail.',
+                    'Start with `show` or `module` when you need a readable slice, then drop to `query` only when the question is specific.',
+                    'Use cross-module and dependency inspection before “small” cleanup tasks that might secretly cross boundaries.',
+                    'Use JSON or Markdown output when the result needs to be shared, reviewed, or consumed by automation.',
+                    'Use `intelligence` or `context` when the goal is explanation or task preparation rather than raw graph edges.',
                 ],
             ])
             ->withRelatedPayloads([

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Handler\PayloadHandler\Auth;
 
+use Semitexa\Auth\Session\AuthSessionWriter;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsMutable;
 use Semitexa\Core\Attribute\InjectAsReadonly;
@@ -23,6 +24,9 @@ final class GoogleLogoutHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected GoogleOAuthClient $oauthClient;
 
+    #[InjectAsReadonly]
+    protected ?AuthSessionWriter $authWriter = null;
+
     public function handle(GoogleLogoutPayload $payload, ResourceResponse $resource): ResourceResponse
     {
         if ($this->session === null) {
@@ -32,12 +36,23 @@ final class GoogleLogoutHandler implements TypedHandlerInterface
         $segment = $this->session->getPayload(GoogleAuthSessionSegment::class);
         $segment->clear();
         $this->session->setPayload($segment);
-        $this->session->remove('_auth_user_id');
+
+        $this->resolveAuthWriter()->clear($this->session);
+
         $this->session->regenerate();
 
         $returnTo = $this->oauthClient->sanitizeReturnTo($payload->getReturnTo() ?? '/demo/rendering/deferred');
 
         $resource->setRedirect($returnTo);
         return $resource;
+    }
+
+    private function resolveAuthWriter(): AuthSessionWriter
+    {
+        if ($this->authWriter === null) {
+            $this->authWriter = new AuthSessionWriter();
+        }
+
+        return $this->authWriter;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Handler\PayloadHandler\Auth;
 
+use Semitexa\Auth\Session\AuthSessionWriter;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsMutable;
 use Semitexa\Core\Attribute\InjectAsReadonly;
@@ -20,6 +21,8 @@ use Semitexa\Demo\Application\Service\GoogleOAuthClient;
 #[AsPayloadHandler(payload: GoogleStartPayload::class, resource: ResourceResponse::class)]
 final class GoogleStartHandler implements TypedHandlerInterface
 {
+    private const string PROVIDER = 'google';
+
     #[InjectAsMutable]
     protected ?SessionInterface $session = null;
 
@@ -27,6 +30,9 @@ final class GoogleStartHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected GoogleOAuthClient $oauthClient;
+
+    #[InjectAsReadonly]
+    protected ?AuthSessionWriter $authWriter = null;
 
     public function handle(GoogleStartPayload $payload, ResourceResponse $resource): ResourceResponse
     {
@@ -89,7 +95,20 @@ final class GoogleStartHandler implements TypedHandlerInterface
         $segment->setDemoRole('viewer');
         $segment->clearLastError();
 
-        $this->session->set('_auth_user_id', 'google:' . $subjectId . ':' . $segment->getDemoRole());
+        $this->resolveAuthWriter()->setAuthenticated(
+            $this->session,
+            'google:' . $subjectId . ':' . $segment->getDemoRole(),
+            self::PROVIDER,
+        );
+    }
+
+    private function resolveAuthWriter(): AuthSessionWriter
+    {
+        if ($this->authWriter === null) {
+            $this->authWriter = new AuthSessionWriter();
+        }
+
+        return $this->authWriter;
     }
 
     private function getRequestHost(): string

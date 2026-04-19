@@ -344,7 +344,7 @@ final class DemoCatalogService
         'project-graph' => [
             'key' => 'project-graph',
             'label' => 'Project Graph',
-            'summary' => 'A live structural map of the codebase for AI agents and engineers: generate the graph once, inspect dependencies fast, and ask impact questions before risky edits.',
+            'summary' => 'The `semitexa-project-graph` package: stored structural graph, intelligence layer, impact analysis, and task-scoped context for serious repository work.',
             'icon' => 'PG',
             'eyebrow' => 'AI Accelerator',
             'starter' => true,

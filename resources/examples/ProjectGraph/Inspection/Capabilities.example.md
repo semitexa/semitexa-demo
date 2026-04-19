@@ -1,10 +1,11 @@
-## Capability slices
+## Intelligence-first inspection
 
 ```bash
-bin/semitexa ai:review-graph:capabilities --category=graph
-bin/semitexa ai:review-graph:capabilities --category=introspection --module=Demo
+bin/semitexa ai:review-graph:module Demo --include-events --include-flows --format=json
+bin/semitexa ai:review-graph:intelligence --hotspots
+bin/semitexa ai:review-graph:context "review Demo module coupling" --format=json
 ```
 
-Use the graph category when you want lifecycle commands for the stored graph itself.
+Use `module` when you need one packageable view of a subsystem instead of several small queries.
 
-Use the introspection category when you want the project to describe its discoverable operational surface in a way that AI or operators can consume quickly.
+Use `intelligence` and `context` when the right answer is explanatory or task-scoped rather than a raw edge list.

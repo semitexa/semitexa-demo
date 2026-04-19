@@ -6,8 +6,10 @@ namespace Semitexa\Demo\Application\Handler\Auth;
 
 use Semitexa\Auth\Attribute\AsAuthHandler;
 use Semitexa\Auth\Handler\AuthHandlerInterface;
+use Semitexa\Auth\Session\AuthSessionWriter;
 use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsMutable;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Auth\AuthResult;
 use Semitexa\Core\Session\SessionInterface;
 use Semitexa\Demo\Application\Auth\GooglePrincipal;
@@ -18,9 +20,13 @@ use Semitexa\Demo\Application\Payload\Session\GoogleAuthSessionSegment;
 final class GoogleSessionAuthHandler implements AuthHandlerInterface
 {
     private const string DEFAULT_ROLE = 'viewer';
+    private const string PROVIDER = 'google';
 
     #[InjectAsMutable]
     protected ?SessionInterface $session = null;
+
+    #[InjectAsReadonly]
+    protected ?AuthSessionWriter $authWriter = null;
 
     public function handle(object $payload): ?AuthResult
     {
@@ -47,7 +53,11 @@ final class GoogleSessionAuthHandler implements AuthHandlerInterface
 
         $principal = GooglePrincipal::fromSessionIdentity($identity, $role);
 
-        $this->session->set('_auth_user_id', $principal->getId());
+        $this->resolveAuthWriter()->setAuthenticated(
+            $this->session,
+            $principal->getId(),
+            self::PROVIDER,
+        );
 
         return AuthResult::success($principal);
     }
@@ -60,5 +70,14 @@ final class GoogleSessionAuthHandler implements AuthHandlerInterface
         }
 
         return in_array($role, ['admin', 'editor', 'viewer'], true) ? $role : self::DEFAULT_ROLE;
+    }
+
+    private function resolveAuthWriter(): AuthSessionWriter
+    {
+        if ($this->authWriter === null) {
+            $this->authWriter = new AuthSessionWriter();
+        }
+
+        return $this->authWriter;
     }
 }

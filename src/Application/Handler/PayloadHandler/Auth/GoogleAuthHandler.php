@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Handler\PayloadHandler\Auth;
 
 use Semitexa\Auth\Context\AuthManager;
+use Semitexa\Auth\Session\AuthSessionWriter;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsMutable;
 use Semitexa\Core\Attribute\InjectAsReadonly;
@@ -46,6 +47,11 @@ final class GoogleAuthHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected GoogleOAuthClient $oauthClient;
+
+    #[InjectAsReadonly]
+    protected ?AuthSessionWriter $authWriter = null;
+
+    private const string PROVIDER = 'google';
 
     public function handle(GoogleAuthPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
@@ -185,11 +191,24 @@ final class GoogleAuthHandler implements TypedHandlerInterface
         $segment->setDemoRole('viewer');
         $segment->clearLastError();
         $this->session->setPayload($segment);
-        $this->session->set('_auth_user_id', 'google:' . $subjectId . ':' . $segment->getDemoRole());
+        $this->resolveAuthWriter()->setAuthenticated(
+            $this->session,
+            'google:' . $subjectId . ':' . $segment->getDemoRole(),
+            self::PROVIDER,
+        );
         $this->session->regenerate();
 
         $resource->setRedirect($returnTo);
         return $resource;
+    }
+
+    private function resolveAuthWriter(): AuthSessionWriter
+    {
+        if ($this->authWriter === null) {
+            $this->authWriter = new AuthSessionWriter();
+        }
+
+        return $this->authWriter;
     }
 
     private function normalizeSubjectSuffix(string $value): string

@@ -31,19 +31,19 @@ final class ProjectGraphImpactHandler implements TypedHandlerInterface
             'project-graph',
             'impact',
             'Impact, Context, and Watch Mode',
-            'Use the graph to estimate blast radius, package precise context for AI, and keep the architecture map current while the repository changes.',
+            'Use impact analysis, context packing, and watch mode to scope risky changes and keep graph-backed answers current during long work sessions.',
             ['ai:review-graph:impact', '--context', '--prompt', 'ai:review-graph:watch'],
         );
 
         $explanation = [
-            'what' => 'Project Graph can estimate change impact, package focused architectural context, and keep the graph fresh during active work. This turns the graph from a passive map into an active safety layer for refactors and AI-assisted edits.',
-            'how' => 'Use `ai:review-graph:impact` on a class, file, or node, optionally add `--context` for snippet packaging or `--prompt` for formatted AI prompts, and run `ai:review-graph:watch` when you want the graph to stay current while the codebase changes.',
-            'why' => 'This is where the profit becomes obvious: fewer accidental blast-radius mistakes, less prompt bloat, faster review preparation, and a more disciplined path through risky changes.',
+            'what' => 'Impact mode is where Project Graph becomes a change-safety tool. It estimates blast radius, groups affected modules by depth, and can package only the snippets and context that actually belong in a review or AI prompt.',
+            'how' => 'Use `ai:review-graph:impact` on a class, file path, or node id, add `--context` when you want a focused context package, add `--prompt` when that package should be shaped for review or refactor work, and use `ai:review-graph:watch` when a long session would otherwise leave graph-backed answers stale.',
+            'why' => 'This matters because risky work usually fails before the patch is done: teams underestimate blast radius, overfeed AI prompts, and keep editing while structural assumptions drift. Project Graph makes those failure modes explicit and reviewable.',
             'keywords' => [
-                ['term' => 'ai:review-graph:impact', 'definition' => 'Analyzes downstream impact for a class, file path, or graph node and groups affected nodes by distance and module.'],
-                ['term' => '--context', 'definition' => 'Adds focused source snippets and context packaging so the result can feed review or AI workflows directly.'],
-                ['term' => '--prompt', 'definition' => 'Formats the context into a review, refactor, or test-oriented AI prompt scaffold.'],
-                ['term' => 'ai:review-graph:watch', 'definition' => 'Polls for file changes and incrementally updates the graph so structural data stays current during active development.'],
+                ['term' => 'ai:review-graph:impact', 'definition' => 'Analyzes downstream impact for a class, file path, or node id and groups affected nodes by depth and module.'],
+                ['term' => '--context', 'definition' => 'Packages focused source snippets and graph-backed context so review or AI work starts from the impacted structure instead of random file dumps.'],
+                ['term' => '--prompt', 'definition' => 'Formats the context package into a review-, refactor-, or test-oriented prompt scaffold.'],
+                ['term' => 'ai:review-graph:watch', 'definition' => 'Keeps the stored graph fresh during active development so later graph-backed answers match the current codebase.'],
             ],
         ];
 
@@ -64,7 +64,7 @@ final class ProjectGraphImpactHandler implements TypedHandlerInterface
             ->withSlug('impact')
             ->withTitle($presentation->title)
             ->withSummary($presentation->summary)
-            ->withEntryLine('This is the shift from “interesting metadata” to “practical engineering safety”: impact analysis before edits, targeted context instead of giant prompts, and live graph freshness while work is in progress.')
+            ->withEntryLine('This is the shift from structural knowledge to structural safety: impact before edits, focused context instead of giant prompts, and graph freshness during long work sessions.')
             ->withHighlights($presentation->highlights)
             ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the impact workflow →')
@@ -77,7 +77,7 @@ final class ProjectGraphImpactHandler implements TypedHandlerInterface
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/get-started-playbook.html.twig', [
                 'eyebrow' => 'Change Safety Flow',
                 'title' => 'Check the blast radius before you edit, then package only the context you actually need',
-                'summary' => 'This workflow is convenient because it reduces wasted work, but it is valuable because it reduces wrong work. Engineers and AI can start with the impact surface instead of discovering consequences after the patch is already half-written.',
+                'summary' => 'This matters because the expensive mistakes usually happen before the final patch exists: the blast radius was guessed, the prompt was too broad, or the graph-backed answer was already stale. Impact mode puts those risks on the surface early.',
                 'steps' => [
                     [
                         'eyebrow' => 'Step 1',
@@ -100,7 +100,7 @@ final class ProjectGraphImpactHandler implements TypedHandlerInterface
                     [
                         'eyebrow' => 'Step 3',
                         'title' => 'Keep the graph current during active work',
-                        'summary' => 'Watch mode reduces the chance that a long editing session drifts away from the graph that later commands depend on.',
+                        'summary' => 'Watch mode is useful when a long editing or review-fix session would otherwise drift away from the graph that later impact answers depend on.',
                         'commands' => [
                             'bin/semitexa ai:review-graph:watch --full-on-start',
                             'bin/semitexa ai:review-graph:watch --interval=2',
@@ -110,10 +110,10 @@ final class ProjectGraphImpactHandler implements TypedHandlerInterface
                 'callout' => [
                     'eyebrow' => 'Where The Profit Shows Up',
                     'rules' => [
-                        'Risky refactors become easier to scope before they start.',
-                        'AI prompts become smaller, more relevant, and less hallucination-prone because context is selected structurally.',
-                        'Review comments can be grounded in actual downstream impact instead of intuition alone.',
-                        'Long work sessions stay safer because watch mode keeps the graph aligned with the current codebase.',
+                        'Risky refactors become easier to scope before they start instead of after the first surprising breakage.',
+                        'AI prompts become smaller and more defensible because context is selected from the impacted structure.',
+                        'Review comments can be grounded in downstream effect instead of intuition alone.',
+                        'Long work sessions stay safer because watch mode keeps graph-backed answers aligned with the changing repository.',
                     ],
                 ],
             ])
@@ -140,17 +140,17 @@ final class ProjectGraphImpactHandler implements TypedHandlerInterface
                     ],
                 ],
                 'paragraphs' => [
-                    'This is a rare tooling surface that helps both cautious humans and aggressive AI workflows at the same time.',
-                    'It does that by turning “what might this break?” and “what context should I include?” into explicit commands instead of improvised judgment every single time.',
+                    'This is one of the package surfaces where humans and AI benefit from exactly the same discipline.',
+                    'It turns “what might this break?” and “what context actually belongs here?” into explicit, reviewable commands instead of improvised judgment.',
                 ],
-                'note' => 'The deeper advantage is decision quality: smaller prompts, clearer scope, and fewer accidental side effects.',
+                'note' => 'The deeper advantage is decision quality: clearer scope, smaller prompts, and fewer accidental side effects.',
             ])
             ->withL3ContentTemplate('@project-layouts-semitexa-demo/components/previews/checklist-panel.html.twig', [
                 'eyebrow' => 'Recommended Habit',
                 'title' => 'A disciplined graph-first change workflow',
                 'summary' => 'Treat Project Graph as part of serious change preparation, not as an optional afterthought.',
                 'rules' => [
-                    'Refresh the graph before substantial edits so impact results reflect the current repository.',
+                    'Refresh or verify the graph before substantial edits when impact results need to reflect the current repository state.',
                     'Run impact analysis before touching shared services, handlers, repositories, or framework infrastructure.',
                     'Prefer `--context` and prompt packaging over manually assembling giant AI prompts from arbitrary files.',
                     'Use watch mode during long-running refactors or review-fix sessions where the codebase changes repeatedly.',
