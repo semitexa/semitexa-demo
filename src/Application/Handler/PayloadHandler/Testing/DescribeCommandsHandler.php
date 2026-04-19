@@ -16,8 +16,9 @@ use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Dev\Console\Command\DescribeProjectCommand;
-use Semitexa\Dev\Console\Command\DescribeRouteCommand;
+use Semitexa\Dev\Console\Command\AiAskCommand;
+use Semitexa\Dev\Console\Command\DevGraph\DevGraphProjectCommand;
+use Semitexa\Dev\Console\Command\DevGraph\DevGraphRouteCommand;
 
 #[AsPayloadHandler(payload: DescribeCommandsPayload::class, resource: DemoFeatureResource::class)]
 final class DescribeCommandsHandler implements TypedHandlerInterface
@@ -39,9 +40,9 @@ final class DescribeCommandsHandler implements TypedHandlerInterface
         $presentation = $this->documents->resolve(
             'cli',
             'describe-commands',
-            'Project Describe Commands',
-            'Routes, modules, contracts, and handlers can be described directly from the CLI instead of reverse-engineering the framework graph by hand.',
-            ['describe:route', 'describe:project', 'routes:list', 'contracts:list', 'semitexa:lint:*'],
+            'Project Graph Introspection',
+            'Routes, modules, contracts, and handlers can be introspected directly from the CLI instead of reverse-engineering the framework graph by hand.',
+            ['ai:ask', 'dev:graph:route', 'dev:graph:project', 'routes:list', 'contracts:list', 'semitexa:lint:*'],
         );
         $explanation = $this->explanationProvider->getExplanation('cli', 'describe-commands') ?? [];
 
@@ -73,11 +74,11 @@ final class DescribeCommandsHandler implements TypedHandlerInterface
                 'pillars' => [
                     [
                         'title' => 'Route chain visibility.',
-                        'summary' => 'describe:route shows payload, handlers, resource, template, and auth posture for one endpoint.',
+                        'summary' => 'ai:ask route (backed by dev:graph:route) shows payload, handlers, resource, template, and auth posture for one endpoint.',
                     ],
                     [
                         'title' => 'Project-level map.',
-                        'summary' => 'describe:project and routes:list expose modules, counts, and discovered request surfaces.',
+                        'summary' => 'ai:ask project and routes:list expose modules, counts, and discovered request surfaces.',
                     ],
                     [
                         'title' => 'Binding and rule checks.',
@@ -86,12 +87,12 @@ final class DescribeCommandsHandler implements TypedHandlerInterface
                 ],
                 'commands' => [
                     [
-                        'name' => 'bin/semitexa describe:route --path=/demo/api/schema-discovery --json',
+                        'name' => 'bin/semitexa ai:ask route --path=/demo/api/schema-discovery --json',
                         'purpose' => 'Explain the full execution chain for one route.',
                         'value' => 'Ideal when a page behaves unexpectedly and you need the exact payload → handler → resource path.',
                     ],
                     [
-                        'name' => 'bin/semitexa describe:project --json',
+                        'name' => 'bin/semitexa ai:ask project --json',
                         'purpose' => 'Emit a high-level project overview with modules, routes, and listeners.',
                         'value' => 'Useful for onboarding, architecture review, and AI navigation of unfamiliar projects.',
                     ],
@@ -114,11 +115,11 @@ final class DescribeCommandsHandler implements TypedHandlerInterface
                 'snippets' => [
                     [
                         'label' => 'Inspect one route end to end',
-                        'code' => "bin/semitexa describe:route --path=/demo/rendering/reactive-ai --method=GET\nbin/semitexa describe:route --path=/demo/rendering/reactive-ai --json",
+                        'code' => "bin/semitexa ai:ask route --path=/demo/rendering/reactive-ai --method=GET\nbin/semitexa ai:ask route --path=/demo/rendering/reactive-ai --json",
                     ],
                     [
                         'label' => 'Map the project and routes',
-                        'code' => "bin/semitexa describe:project --json\nbin/semitexa routes:list --json",
+                        'code' => "bin/semitexa ai:ask project --json\nbin/semitexa routes:list --json",
                     ],
                     [
                         'label' => 'Check DI and handler invariants',
@@ -131,15 +132,16 @@ final class DescribeCommandsHandler implements TypedHandlerInterface
                 'title' => 'Where these commands save real time',
                 'summary' => 'The biggest gain is not convenience. It is shortening the distance between “something feels wrong” and “here is the exact part of the system that explains it.”',
                 'rules' => [
-                    'Reach for describe:route before you start manually tracing attributes across payloads, handlers, and resources.',
-                    'Use routes:list and describe:project to orient both humans and agents in larger installations or modular monorepos.',
+                    'Reach for ai:ask route before you start manually tracing attributes across payloads, handlers, and resources.',
+                    'Use routes:list and ai:ask project to orient both humans and agents in larger installations or modular monorepos.',
                     'Use contracts:list when interface resolution is ambiguous, especially in module override scenarios.',
                     'Run lints as architectural guardrails, not only as a last-minute CI formality.',
                 ],
             ])
             ->withSourceCode([
-                'describe:route Command' => $this->sourceCodeReader->readClassSource(DescribeRouteCommand::class),
-                'describe:project Command' => $this->sourceCodeReader->readClassSource(DescribeProjectCommand::class),
+                'ai:ask Command' => $this->sourceCodeReader->readClassSource(AiAskCommand::class),
+                'dev:graph:route Command' => $this->sourceCodeReader->readClassSource(DevGraphRouteCommand::class),
+                'dev:graph:project Command' => $this->sourceCodeReader->readClassSource(DevGraphProjectCommand::class),
                 'routes:list Command' => $this->sourceCodeReader->readClassSource(RoutesListCommand::class),
                 'contracts:list Command' => $this->sourceCodeReader->readClassSource(ContractsListCommand::class),
                 'semitexa:lint:handlers Command' => $this->sourceCodeReader->readClassSource(LintHandlersCommand::class),

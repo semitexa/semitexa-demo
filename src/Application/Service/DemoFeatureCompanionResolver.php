@@ -79,7 +79,7 @@ final class DemoFeatureCompanionResolver
                 'rules' => [
                     'Run `bin/semitexa self-test` when startup feels suspicious instead of debugging blind.',
                     'Use `bin/semitexa logs:errors` as the first log command when the runtime did not boot cleanly.',
-                    'Inspect `bin/semitexa describe:project --json` and `bin/semitexa contracts:list --json` early so you know what the project discovered.',
+                    'Inspect `bin/semitexa ai:ask project --json` and `bin/semitexa contracts:list --json` early so you know what the project discovered.',
                     'If ORM-backed modules are active, treat `bin/semitexa orm:sync --dry-run` as part of the normal first setup path.',
                 ],
             ],
@@ -93,7 +93,7 @@ final class DemoFeatureCompanionResolver
                     'If Semitexa Demo was installed, open `http://localhost:9502/demo` and confirm the demo home renders before you explore deeper pages.',
                     'Run `bin/semitexa self-test` and expect a clean health check before you start debugging application code.',
                     'Run `bin/semitexa routes:list --json` so route discovery is visible instead of assumed.',
-                    'Use `bin/semitexa describe:project --json` when you need to inspect what the scaffold and installed modules actually registered.',
+                    'Use `bin/semitexa ai:ask project --json` when you need to inspect what the scaffold and installed modules actually registered.',
                 ],
             ],
         );

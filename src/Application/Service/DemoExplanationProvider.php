@@ -620,21 +620,21 @@ final class DemoExplanationProvider
         ],
         'cli/ai-tooling' => [
             'what' => 'Semitexa treats AI operations as part of the CLI contract: capabilities, skills, logs, and assistant entrypoints are exposed deliberately.',
-            'how' => 'ai:capabilities publishes command metadata, ai:skills exports the executable skill registry, logs:app supports structured filtering, and the ai command opens the local assistant surface.',
+            'how' => 'ai:ask capabilities (backed by dev:graph:capabilities) publishes command metadata, ai:skills exports the executable skill registry, logs:app supports structured filtering, and the ai command opens the local assistant surface.',
             'why' => 'AI-native workflow is not about sprinkling chat features onto the product. It is about giving agents stable, inspectable operational seams so they can act with less guesswork and less scraping.',
             'keywords' => [
-                ['term' => 'ai:capabilities', 'definition' => 'Lists command capabilities with usage guidance, inputs, and output shape for AI tooling.'],
+                ['term' => 'ai:ask capabilities', 'definition' => 'Lists command capabilities with usage guidance, inputs, and output shape for AI tooling.'],
                 ['term' => 'ai:skills', 'definition' => 'Exports AI-executable skills with risk, confirmation, and dry-run metadata.'],
                 ['term' => 'logs:app', 'definition' => 'Structured application log reader designed to be usable by both humans and LLM agents.'],
             ],
         ],
         'cli/describe-commands' => [
             'what' => 'The CLI can describe the framework graph directly: routes, modules, bindings, and handler invariants are queryable artifacts.',
-            'how' => 'describe:route renders the payload-to-template chain, describe:project summarizes modules and listeners, routes:list inventories discovered endpoints, and contracts:list exposes DI bindings.',
+            'how' => 'ai:ask route (backed by dev:graph:route) renders the payload-to-template chain, ai:ask project summarizes modules and listeners, routes:list inventories discovered endpoints, and contracts:list exposes DI bindings.',
             'why' => 'This shortens debugging and onboarding dramatically. Instead of reconstructing framework state by reading scattered attributes and registrations, you ask the system to explain itself.',
             'keywords' => [
-                ['term' => 'describe:route', 'definition' => 'Explains one route from payload through handlers, resource, template, and auth posture.'],
-                ['term' => 'describe:project', 'definition' => 'Summarizes modules, routes, listeners, and structural counts for the current project.'],
+                ['term' => 'ai:ask route', 'definition' => 'Explains one route from payload through handlers, resource, template, and auth posture.'],
+                ['term' => 'ai:ask project', 'definition' => 'Summarizes modules, routes, listeners, and structural counts for the current project.'],
                 ['term' => 'contracts:list', 'definition' => 'Shows which implementation is active for each registered service contract.'],
             ],
         ],

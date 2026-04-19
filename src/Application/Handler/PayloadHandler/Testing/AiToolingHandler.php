@@ -13,7 +13,8 @@ use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Dev\Console\Command\AiCapabilitiesCommand;
+use Semitexa\Dev\Console\Command\AiAskCommand;
+use Semitexa\Dev\Console\Command\DevGraph\DevGraphCapabilitiesCommand;
 use Semitexa\Dev\Console\Command\LogsAppCommand;
 use Semitexa\Llm\Console\Command\AiAssistantCommand;
 use Semitexa\Llm\Console\Command\AiSkillsCommand;
@@ -40,7 +41,7 @@ final class AiToolingHandler implements TypedHandlerInterface
             'ai-tooling',
             'AI Tooling Surface',
             'Semitexa exposes AI-facing commands as explicit CLI contracts: capabilities, skills, log access, and a local assistant entrypoint.',
-            ['ai:capabilities', 'ai:skills', 'logs:app', 'ai', '--json'],
+            ['ai:ask', 'ai:skills', 'logs:app', 'ai', '--json'],
         );
         $explanation = $this->explanationProvider->getExplanation('cli', 'ai-tooling') ?? [];
 
@@ -72,7 +73,7 @@ final class AiToolingHandler implements TypedHandlerInterface
                 'pillars' => [
                     [
                         'title' => 'Capability manifest.',
-                        'summary' => 'ai:capabilities lists generator-style commands with intended use, required inputs, and avoid-when guidance.',
+                        'summary' => 'ai:ask capabilities lists generator and introspection commands with intended use, required inputs, and avoid-when guidance.',
                     ],
                     [
                         'title' => 'Skill registry.',
@@ -85,7 +86,7 @@ final class AiToolingHandler implements TypedHandlerInterface
                 ],
                 'commands' => [
                     [
-                        'name' => 'bin/semitexa ai:capabilities --json',
+                        'name' => 'bin/semitexa ai:ask capabilities --json',
                         'purpose' => 'Export the command capability manifest for generators and structured tooling.',
                         'value' => 'Lets agents choose the right command with explicit input/output metadata.',
                     ],
@@ -108,7 +109,7 @@ final class AiToolingHandler implements TypedHandlerInterface
                 'snippets' => [
                     [
                         'label' => 'Export machine-readable capability metadata',
-                        'code' => "bin/semitexa ai:capabilities --json\nbin/semitexa ai:skills --json",
+                        'code' => "bin/semitexa ai:ask capabilities --json\nbin/semitexa ai:skills --json",
                     ],
                     [
                         'label' => 'Inspect app logs without grep gymnastics',
@@ -132,7 +133,8 @@ final class AiToolingHandler implements TypedHandlerInterface
                 ],
             ])
             ->withSourceCode([
-                'ai:capabilities Command' => $this->sourceCodeReader->readClassSource(AiCapabilitiesCommand::class),
+                'ai:ask Command' => $this->sourceCodeReader->readClassSource(AiAskCommand::class),
+                'dev:graph:capabilities Command' => $this->sourceCodeReader->readClassSource(DevGraphCapabilitiesCommand::class),
                 'ai:skills Command' => $this->sourceCodeReader->readClassSource(AiSkillsCommand::class),
                 'ai Command' => $this->sourceCodeReader->readClassSource(AiAssistantCommand::class),
                 'logs:app Command' => $this->sourceCodeReader->readClassSource(LogsAppCommand::class),

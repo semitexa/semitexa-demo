@@ -22,4 +22,9 @@ final class DeferredReviewFeedSlot extends HtmlSlotResponse
     {
         return $this->with('reviews', $reviews);
     }
+
+    public function withReviewCount(int $reviewCount): static
+    {
+        return $this->with('reviewCount', $reviewCount);
+    }
 }

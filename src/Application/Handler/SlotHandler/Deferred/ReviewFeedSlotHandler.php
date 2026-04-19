@@ -15,10 +15,14 @@ final class ReviewFeedSlotHandler implements TypedSlotHandlerInterface
     {
         DemoDeferredSlotDelay::sleepFor('deferred_review_feed');
 
-        return $slot->withReviews([
+        $reviews = [
             ['rating' => 5, 'body' => 'Blazing fast — the SSE approach is seamless.'],
             ['rating' => 4, 'body' => 'Deferred loading feels instant to the user.'],
             ['rating' => 5, 'body' => 'Skeleton screens make the wait painless.'],
-        ]);
+        ];
+
+        return $slot
+            ->withReviews($reviews)
+            ->withReviewCount(count($reviews));
     }
 }
