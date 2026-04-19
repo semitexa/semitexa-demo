@@ -70,8 +70,8 @@ final class ProjectGraphOverviewHandler implements TypedHandlerInterface
             ->withLearnMoreLabel('See the package workflow →')
             ->withDeepDiveLabel('Why this matters for humans and AI →')
             ->withSourceCode([
-                'Package README' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-project-graph/README.md'),
-                'AI Integration Workflow' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-project-graph/docs/AI_INTEGRATION.md'),
+                'Demo Package README' => $this->sourceCodeReader->readProjectRelativeSource('README.md'),
+                'Package Workflow Notes' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Overview/Capabilities.example.md'),
                 'Quickstart Commands' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Overview/Quickstart.example.sh'),
                 'Command Surface Example' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Overview/Capabilities.example.md'),
             ])

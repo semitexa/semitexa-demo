@@ -32,7 +32,7 @@ final class GoogleStartHandler implements TypedHandlerInterface
     protected GoogleOAuthClient $oauthClient;
 
     #[InjectAsReadonly]
-    protected ?AuthSessionWriter $authWriter = null;
+    protected AuthSessionWriter $authWriter;
 
     public function handle(GoogleStartPayload $payload, ResourceResponse $resource): ResourceResponse
     {
@@ -40,13 +40,14 @@ final class GoogleStartHandler implements TypedHandlerInterface
             throw new \RuntimeException('Session service is required for Google OAuth start.');
         }
 
+        $session = $this->session;
         $returnTo = $this->oauthClient->sanitizeReturnTo($payload->getReturnTo() ?? '/demo/rendering/deferred');
-        $segment = $this->session->getPayload(GoogleAuthSessionSegment::class);
+        $segment = $session->getPayload(GoogleAuthSessionSegment::class);
 
         if (DemoAuthMode::isLocalLoginEnabled()) {
             $this->completeLocalTestSignIn($segment, $returnTo);
-            $this->session->setPayload($segment);
-            $this->session->regenerate();
+            $session->setPayload($segment);
+            $session->regenerate();
             $resource->setRedirect($returnTo);
             return $resource;
         }
@@ -56,14 +57,14 @@ final class GoogleStartHandler implements TypedHandlerInterface
             $segment->setState($state);
             $segment->setReturnTo($returnTo);
             $segment->clearLastError();
-            $this->session->setPayload($segment);
+            $session->setPayload($segment);
 
             $resource->setRedirect($this->oauthClient->buildAuthorizationUrl($state));
         } catch (\Throwable $e) {
             $segment->clear();
             $segment->setReturnTo($returnTo);
             $segment->setLastError($e->getMessage());
-            $this->session->setPayload($segment);
+            $session->setPayload($segment);
             $resource->setRedirect('/demo/auth/google?google_error=' . rawurlencode($e->getMessage()) . '&return_to=' . rawurlencode($returnTo));
         }
 
@@ -72,6 +73,10 @@ final class GoogleStartHandler implements TypedHandlerInterface
 
     private function completeLocalTestSignIn(GoogleAuthSessionSegment $segment, string $returnTo): void
     {
+        if ($this->session === null) {
+            throw new \RuntimeException('Session service is required for local Google OAuth bypass.');
+        }
+
         $host = $this->getRequestHost();
         if ($host === '') {
             $host = 'semitexa.test';
@@ -95,20 +100,11 @@ final class GoogleStartHandler implements TypedHandlerInterface
         $segment->setDemoRole('viewer');
         $segment->clearLastError();
 
-        $this->resolveAuthWriter()->setAuthenticated(
+        $this->authWriter->setAuthenticated(
             $this->session,
             'google:' . $subjectId . ':' . $segment->getDemoRole(),
             self::PROVIDER,
         );
-    }
-
-    private function resolveAuthWriter(): AuthSessionWriter
-    {
-        if ($this->authWriter === null) {
-            $this->authWriter = new AuthSessionWriter();
-        }
-
-        return $this->authWriter;
     }
 
     private function getRequestHost(): string
@@ -121,15 +117,17 @@ final class GoogleStartHandler implements TypedHandlerInterface
             }
         }
 
-        return $this->normalizeHost((string) ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? ''));
+        $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+
+        return $this->normalizeHost(is_string($host) ? $host : '');
     }
 
     private function normalizeSubjectSuffix(string $value): string
     {
         $value = strtolower(trim($value));
-        $value = preg_replace('/[^a-z0-9.-]+/', '-', $value);
+        $value = preg_replace('/[^a-z0-9.-]+/', '-', $value) ?? '';
 
-        return trim((string) $value, '-');
+        return trim($value, '-');
     }
 
     private function normalizeHost(string $host): string

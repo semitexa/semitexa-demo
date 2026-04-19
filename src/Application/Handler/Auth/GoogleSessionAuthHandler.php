@@ -26,7 +26,7 @@ final class GoogleSessionAuthHandler implements AuthHandlerInterface
     protected ?SessionInterface $session = null;
 
     #[InjectAsReadonly]
-    protected ?AuthSessionWriter $authWriter = null;
+    protected AuthSessionWriter $authWriter;
 
     public function handle(object $payload): ?AuthResult
     {
@@ -53,7 +53,7 @@ final class GoogleSessionAuthHandler implements AuthHandlerInterface
 
         $principal = GooglePrincipal::fromSessionIdentity($identity, $role);
 
-        $this->resolveAuthWriter()->setAuthenticated(
+        $this->authWriter->setAuthenticated(
             $this->session,
             $principal->getId(),
             self::PROVIDER,
@@ -70,14 +70,5 @@ final class GoogleSessionAuthHandler implements AuthHandlerInterface
         }
 
         return in_array($role, ['admin', 'editor', 'viewer'], true) ? $role : self::DEFAULT_ROLE;
-    }
-
-    private function resolveAuthWriter(): AuthSessionWriter
-    {
-        if ($this->authWriter === null) {
-            $this->authWriter = new AuthSessionWriter();
-        }
-
-        return $this->authWriter;
     }
 }

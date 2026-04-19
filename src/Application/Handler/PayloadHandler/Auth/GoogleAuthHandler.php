@@ -49,7 +49,7 @@ final class GoogleAuthHandler implements TypedHandlerInterface
     protected GoogleOAuthClient $oauthClient;
 
     #[InjectAsReadonly]
-    protected ?AuthSessionWriter $authWriter = null;
+    protected AuthSessionWriter $authWriter;
 
     private const string PROVIDER = 'google';
 
@@ -110,7 +110,7 @@ final class GoogleAuthHandler implements TypedHandlerInterface
                 'email' => $googleUser?->getEmail(),
                 'pictureUrl' => $googleUser?->getPictureUrl(),
                 'hostedDomain' => $googleUser?->getHostedDomain(),
-                'emailVerified' => $googleUser?->emailVerified ?? false,
+                'emailVerified' => $googleUser !== null ? $googleUser->emailVerified : false,
                 'returnTo' => $returnTo,
                 'startUrl' => '/demo/auth/google/start?return_to=' . rawurlencode($returnTo),
                 'logoutUrl' => '/demo/auth/google/logout?return_to=' . rawurlencode($returnTo),
@@ -159,7 +159,9 @@ final class GoogleAuthHandler implements TypedHandlerInterface
             }
         }
 
-        return $this->normalizeHost((string) ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? ''));
+        $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+
+        return $this->normalizeHost(is_string($host) ? $host : '');
     }
 
     private function completeLocalTestSignIn(DemoFeatureResource $resource, string $returnTo): DemoFeatureResource
@@ -191,7 +193,7 @@ final class GoogleAuthHandler implements TypedHandlerInterface
         $segment->setDemoRole('viewer');
         $segment->clearLastError();
         $this->session->setPayload($segment);
-        $this->resolveAuthWriter()->setAuthenticated(
+        $this->authWriter->setAuthenticated(
             $this->session,
             'google:' . $subjectId . ':' . $segment->getDemoRole(),
             self::PROVIDER,
@@ -201,22 +203,12 @@ final class GoogleAuthHandler implements TypedHandlerInterface
         $resource->setRedirect($returnTo);
         return $resource;
     }
-
-    private function resolveAuthWriter(): AuthSessionWriter
-    {
-        if ($this->authWriter === null) {
-            $this->authWriter = new AuthSessionWriter();
-        }
-
-        return $this->authWriter;
-    }
-
     private function normalizeSubjectSuffix(string $value): string
     {
         $value = strtolower(trim($value));
-        $value = preg_replace('/[^a-z0-9.-]+/', '-', $value);
+        $value = preg_replace('/[^a-z0-9.-]+/', '-', $value) ?? '';
 
-        return trim((string) $value, '-');
+        return trim($value, '-');
     }
 
     private function normalizeHost(string $host): string

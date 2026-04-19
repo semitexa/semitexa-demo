@@ -28,7 +28,7 @@ final class GoogleCallbackHandler implements TypedHandlerInterface
     protected GoogleOAuthClient $oauthClient;
 
     #[InjectAsReadonly]
-    protected ?AuthSessionWriter $authWriter = null;
+    protected AuthSessionWriter $authWriter;
 
     public function handle(GoogleCallbackPayload $payload, ResourceResponse $resource): ResourceResponse
     {
@@ -119,7 +119,7 @@ final class GoogleCallbackHandler implements TypedHandlerInterface
         $segment->setDemoRole($role);
         $this->session->setPayload($segment);
 
-        $this->resolveAuthWriter()->setAuthenticated(
+        $this->authWriter->setAuthenticated(
             $this->session,
             'google:' . $subjectId . ':' . $role,
             self::PROVIDER,
@@ -130,14 +130,5 @@ final class GoogleCallbackHandler implements TypedHandlerInterface
         $resource->setRedirect($returnTo);
 
         return $resource;
-    }
-
-    private function resolveAuthWriter(): AuthSessionWriter
-    {
-        if ($this->authWriter === null) {
-            $this->authWriter = new AuthSessionWriter();
-        }
-
-        return $this->authWriter;
     }
 }

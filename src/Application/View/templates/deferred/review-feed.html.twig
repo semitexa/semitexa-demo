@@ -8,22 +8,17 @@
     </div>
     <p class="deferred-block__summary">This block arrives as <code>mode: template</code>, then keeps layering fresh backend reactions from the shared kiss stream on top of the initial template render.</p>
     <ul class="review-feed" data-review-feed>
-        {% if reviewCount <= 0 %}
-        <li class="deferred-block__empty">No reviews yet.</li>
-        {% endif %}
-        {% if reviewCount > 0 %}
         {% for review in reviews %}
         <li class="review-feed__item">
             <div class="review-feed__rating">
-                <span class="star {% if 1 <= review.rating %}star--filled{% endif %}">★</span>
-                <span class="star {% if 2 <= review.rating %}star--filled{% endif %}">★</span>
-                <span class="star {% if 3 <= review.rating %}star--filled{% endif %}">★</span>
-                <span class="star {% if 4 <= review.rating %}star--filled{% endif %}">★</span>
-                <span class="star {% if 5 <= review.rating %}star--filled{% endif %}">★</span>
+                {% for i in 1..5 %}
+                <span class="star {% if i <= review.rating %}star--filled{% endif %}">★</span>
+                {% endfor %}
             </div>
             <p class="review-feed__body">{{ review.body }}</p>
         </li>
+        {% else %}
+        <li class="deferred-block__empty">No reviews yet.</li>
         {% endfor %}
-        {% endif %}
     </ul>
 </div>

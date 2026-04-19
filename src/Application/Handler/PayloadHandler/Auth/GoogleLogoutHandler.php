@@ -25,7 +25,7 @@ final class GoogleLogoutHandler implements TypedHandlerInterface
     protected GoogleOAuthClient $oauthClient;
 
     #[InjectAsReadonly]
-    protected ?AuthSessionWriter $authWriter = null;
+    protected AuthSessionWriter $authWriter;
 
     public function handle(GoogleLogoutPayload $payload, ResourceResponse $resource): ResourceResponse
     {
@@ -37,7 +37,7 @@ final class GoogleLogoutHandler implements TypedHandlerInterface
         $segment->clear();
         $this->session->setPayload($segment);
 
-        $this->resolveAuthWriter()->clear($this->session);
+        $this->authWriter->clear($this->session);
 
         $this->session->regenerate();
 
@@ -45,14 +45,5 @@ final class GoogleLogoutHandler implements TypedHandlerInterface
 
         $resource->setRedirect($returnTo);
         return $resource;
-    }
-
-    private function resolveAuthWriter(): AuthSessionWriter
-    {
-        if ($this->authWriter === null) {
-            $this->authWriter = new AuthSessionWriter();
-        }
-
-        return $this->authWriter;
     }
 }
