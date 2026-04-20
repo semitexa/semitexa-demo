@@ -80,7 +80,7 @@ final class DiOverviewHandler implements TypedHandlerInterface
                     [
                         ['text' => 'Scalar config'],
                         ['text' => '#[Config]', 'code' => true],
-                        ['text' => 'Configuration stops leaking through constructors or magic env reads.'],
+                        ['text' => 'Configuration stops leaking in through constructor arguments or magic env reads — values arrive on typed #[Config] properties instead.'],
                     ],
                     [
                         ['text' => 'Lifecycle'],

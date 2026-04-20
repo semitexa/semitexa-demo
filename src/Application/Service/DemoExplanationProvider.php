@@ -115,13 +115,13 @@ final class DemoExplanationProvider
             ],
         ],
         'di/basic-injection' => [
-            'what' => 'Semitexa uses one canonical DI path for container-managed framework objects: explicit property attributes, no constructor wiring, no hidden service lookup.',
+            'what' => 'Semitexa uses one canonical DI path for container-managed framework objects: dependencies flow through explicit property attributes. Constructor-based injection is not the DI channel here (constructors themselves remain allowed for local initialization and for non-container-managed types like DTOs and value objects). There is no hidden service lookup either.',
             'how' => 'The container instantiates the object first, then hydrates protected properties marked with #[InjectAsReadonly], #[InjectAsMutable], #[InjectAsFactory], or #[Config]. Because every dependency enters through one visible channel, boot validation and static analysis can reject ambiguity before runtime.',
             'why' => 'This is not just stylistic consistency. In a long-running worker, mixed DI styles create boot fragility. A single-path model makes the dependency graph locally readable, easier for LLMs to modify correctly, and much more stable during large refactors and graceful reloads.',
             'keywords' => [
                 ['term' => '#[InjectAsReadonly]', 'definition' => 'Injects a service that is built once per worker and shared across executions.'],
                 ['term' => '#[InjectAsMutable]', 'definition' => 'Injects an execution-scoped service clone, safe for per-execution state.'],
-                ['term' => 'single-path DI', 'definition' => 'Container-managed classes receive dependencies through one explicit attribute-based property model, not a mix of constructors, service locators, and magic context.'],
+                ['term' => 'single-path DI', 'definition' => 'Container-managed classes receive dependencies through one explicit attribute-based property model, not a mix of constructor-based injection, service locators, and magic context. Constructors remain available for non-DI uses (local initialization, value objects).'],
                 ['term' => 'boot fragility', 'definition' => 'A failure mode where one ambiguous or legacy DI pattern breaks container boot, CLI tooling, or worker reload after large changes.'],
             ],
         ],
