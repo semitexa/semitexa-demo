@@ -145,6 +145,11 @@ class DemoFeatureResource extends HtmlResponse implements ResourceInterface
         return $this->with('deepDiveLabel', $label);
     }
 
+    public function withExplanationData(array $explanation): self
+    {
+        return $this->with('explanation', $explanation);
+    }
+
     public function withSourceCode(array $sourceCode): self
     {
         return $this->with('sourceCode', $sourceCode);
@@ -167,7 +172,7 @@ class DemoFeatureResource extends HtmlResponse implements ResourceInterface
             $this->seoKeywords(FeatureDescriptor::normalizeKeywords($keywords));
         }
 
-        return $this->with('explanation', $explanation);
+        return $this->withExplanationData($explanation);
     }
 
     public function withRelatedPayloads(array $related): self

@@ -17,7 +17,8 @@ use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
  * repeat:
  *
  *   1. Resolve the docs-backed presentation (title, summary, highlights, body).
- *   2. Enrich the spec with catalog data (section label, related-link titles + hrefs).
+ *   2. Enrich the spec with catalog-backed navigation data (related-link titles + hrefs,
+ *      plus the section label when the handler leaves it implicit).
  *   3. Apply the resulting {@see FeatureDescriptor} to the resource and attach the
  *      demo shell context for the page.
  *
@@ -45,14 +46,15 @@ final class DemoFeaturePageProjector
      */
     public function project(DemoFeatureResource $resource, FeatureSpec $spec): DemoFeatureResource
     {
+        $explanation = $this->normalizeExplanation($spec->explanation);
         $descriptor = $this->describe($spec);
 
         $resource
             ->applyFeature($descriptor)
-            ->withDemoShellContext($this->shellContextFor($descriptor, $spec->explanation));
+            ->withDemoShellContext($this->shellContextFor($descriptor, $explanation));
 
-        if ($spec->explanation !== null) {
-            $resource->withExplanation($spec->explanation);
+        if ($explanation !== null) {
+            $resource->withExplanationData($explanation);
         }
 
         return $resource;
@@ -67,9 +69,11 @@ final class DemoFeaturePageProjector
      */
     public function describe(FeatureSpec $spec): FeatureDescriptor
     {
+        $section = $this->catalog->getSection($spec->section);
+
         return new FeatureDescriptor(
             section: $spec->section,
-            sectionLabel: $spec->sectionLabel,
+            sectionLabel: $spec->sectionLabel ?? (is_string($section['label'] ?? null) ? $section['label'] : null),
             slug: $spec->slug,
             entryLine: $spec->entryLine,
             learnMoreLabel: $spec->learnMoreLabel,
@@ -130,7 +134,12 @@ final class DemoFeaturePageProjector
     }
 
     /**
-     * @param array{what?: string|null, how?: string|null, why?: string|null, keywords?: list<array<string, mixed>>}|null $explanation
+     * @param array{
+     *     what?: string|null,
+     *     how?: string|null,
+     *     why?: string|null,
+     *     keywords?: list<string|array{term?: string, title?: string, label?: string, name?: string}>
+     * }|null $explanation
      * @return array<string, mixed>
      */
     private function shellContextFor(FeatureDescriptor $feature, ?array $explanation): array
@@ -145,5 +154,42 @@ final class DemoFeaturePageProjector
             'infoWhy' => $explanation['why'] ?? null,
             'infoKeywords' => $explanation['keywords'] ?? [],
         ];
+    }
+
+    /**
+     * @param array{
+     *     what?: string|null,
+     *     how?: string|null,
+     *     why?: string|null,
+     *     keywords?: list<string|array{term?: string, title?: string, label?: string, name?: string}>
+     * }|null $explanation
+     * @return array{
+     *     what?: string|null,
+     *     how?: string|null,
+     *     why?: string|null,
+     *     keywords?: list<string|array{term?: string, title?: string, label?: string, name?: string}>
+     * }|null
+     */
+    private function normalizeExplanation(?array $explanation): ?array
+    {
+        if ($explanation === null) {
+            return null;
+        }
+
+        $normalized = [];
+
+        foreach (['what', 'how', 'why'] as $key) {
+            $value = $explanation[$key] ?? null;
+            if (is_string($value) && trim($value) !== '') {
+                $normalized[$key] = $value;
+            }
+        }
+
+        $keywords = $explanation['keywords'] ?? null;
+        if (is_array($keywords) && $keywords !== []) {
+            $normalized['keywords'] = $keywords;
+        }
+
+        return $normalized === [] ? null : $normalized;
     }
 }
