@@ -5,67 +5,47 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Handler\PayloadHandler\Container;
 
 use Semitexa\Core\Attribute\AsPayloadHandler;
-use Semitexa\Core\Attribute\InjectAsMutable;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Container\MutableInjectionPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: MutableInjectionPayload::class, resource: DemoFeatureResource::class)]
 final class MutableInjectionHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
-    #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(MutableInjectionPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'di',
-            'mutable',
-            'Mutable Injection',
-            'Execution-scoped services get a fresh clone every run — safe state without contaminating the worker.',
-            ['#[InjectAsMutable]', 'execution-scoped', 'clone', 'state isolation'],
+        $spec = new FeatureSpec(
+            section: 'di',
+            slug: 'mutable',
+            entryLine: 'Execution-scoped services get a fresh clone every run — safe state without contaminating the worker.',
+            learnMoreLabel: 'See mutable injection →',
+            deepDiveLabel: 'Clone lifecycle under the hood →',
+            relatedSlugs: [],
+            fallbackTitle: 'Mutable Injection',
+            fallbackSummary: 'Execution-scoped services get a fresh clone every run — safe state without contaminating the worker.',
+            fallbackHighlights: ['#[InjectAsMutable]', 'execution-scoped', 'clone', 'state isolation'],
+            explanation: $this->explanationProvider->getExplanation('di', 'mutable') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('di', 'mutable') ?? [];
 
-        $sourceCode = [
-            'Handler' => $this->sourceCodeReader->readClassSource(self::class),
-        ];
-
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'di',
-                'currentSlug' => 'mutable',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'Handler' => $this->sourceCodeReader->readClassSource(self::class),
             ])
-            ->withSection('di')
-            ->withSlug('mutable')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('Execution-scoped services get a fresh clone every run — safe state without contaminating the worker.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See mutable injection →')
-            ->withDeepDiveLabel('Clone lifecycle under the hood →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
                 'eyebrow' => 'Execution Scope',
                 'title' => 'Fresh clone for every execution',
@@ -75,8 +55,6 @@ final class MutableInjectionHandler implements TypedHandlerInterface
                 ],
                 'codeSnippet' => "#[InjectAsMutable]\nprotected ExecutionBag \$bag;\n\n// Each execution gets a fresh clone:\n// \$this->bag !== <previous execution\\'s bag>",
                 'note' => 'Use mutable injection for execution-specific context objects, not for shared worker services.',
-            ])
-            ->withSourceCode($sourceCode)
-            ->withExplanation($explanation);
+            ]);
     }
 }

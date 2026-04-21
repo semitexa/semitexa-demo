@@ -7,67 +7,42 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Routing;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Routing\PayloadPartsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: PayloadPartsPayload::class, resource: DemoFeatureResource::class)]
 final class PayloadPartsHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
-    #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(PayloadPartsPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'routing',
-            'payload-parts',
-            'Payload Parts',
-            'One module owns the route, another module can extend the same payload contract without forking or reopening the base class.',
-            ['#[AsPayloadPart]', 'trait composition', 'module extension', 'field-level guards'],
+        $spec = new FeatureSpec(
+            section: 'routing',
+            slug: 'payload-parts',
+            entryLine: 'A payload can stay the single trusted boundary even when multiple modules need to extend it and guard their own fields.',
+            learnMoreLabel: 'See modular composition →',
+            deepDiveLabel: 'How wrapper composition works →',
+            relatedSlugs: [],
+            fallbackTitle: 'Payload Parts',
+            fallbackSummary: 'One module owns the route, another module can extend the same payload contract without forking or reopening the base class.',
+            fallbackHighlights: ['#[AsPayloadPart]', 'trait composition', 'module extension', 'field-level guards'],
+            explanation: $this->explanationProvider->getExplanation('routing', 'payload-parts') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('routing', 'payload-parts') ?? [];
 
-        $sourceCode = [
-            'Base Payload' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Routing/PayloadParts/BaseSearchPayload.example.php'),
-            'Module A Handler' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Routing/PayloadParts/ModuleAHandler.example.php'),
-            'Module Trait' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Routing/PayloadParts/SearchTrackingPart.example.php'),
-            'Module B Handler' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Routing/PayloadParts/ModuleBHandler.example.php'),
-        ];
-
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'routing',
-                'currentSlug' => 'payload-parts',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
-            ])
-            ->withSection('routing')
-            ->withSlug('payload-parts')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('A payload can stay the single trusted boundary even when multiple modules need to extend it and guard their own fields.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See modular composition →')
-            ->withDeepDiveLabel('How wrapper composition works →')
+        return $this->projector->project($resource, $spec)
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
                 'eyebrow' => 'Modular Route Contract',
                 'title' => 'One payload, more than one module',
@@ -97,7 +72,11 @@ final class PayloadPartsHandler implements TypedHandlerInterface
                 ],
                 'note' => 'The important part is not the trait itself. The important part is that both modules still work with one payload boundary after composition, while each added field keeps its own normalization and guard logic.',
             ])
-            ->withSourceCode($sourceCode)
-            ->withExplanation($explanation);
+            ->withSourceCode([
+                'Base Payload' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Routing/PayloadParts/BaseSearchPayload.example.php'),
+                'Module A Handler' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Routing/PayloadParts/ModuleAHandler.example.php'),
+                'Module Trait' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Routing/PayloadParts/SearchTrackingPart.example.php'),
+                'Module B Handler' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Routing/PayloadParts/ModuleBHandler.example.php'),
+            ]);
     }
 }

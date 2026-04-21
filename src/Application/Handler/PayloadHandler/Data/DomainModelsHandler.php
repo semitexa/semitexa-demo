@@ -12,18 +12,18 @@ use Semitexa\Api\Domain\Model\MachineCredential;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Data\DomainModelsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: DomainModelsPayload::class, resource: DemoFeatureResource::class)]
 final class DomainModelsHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
@@ -31,41 +31,30 @@ final class DomainModelsHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
-    #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
     public function handle(DomainModelsPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'data',
-            'domain-models',
-            'Domain-Level Models',
-            'Semitexa separates persistence resources from business models. Resources map tables; domain models carry behavior and invariants.',
-            ['ResourceModel', 'mapper', '#[AsMapper]', '#[SatisfiesRepositoryContract]', 'DomainRepository'],
+        $spec = new FeatureSpec(
+            section: 'data',
+            slug: 'domain-models',
+            entryLine: 'Resource models exist for persistence. Domain models exist for business behavior. Explicit mappers and repositories bridge them instead of collapsing them into one class.',
+            learnMoreLabel: 'See both layers side by side →',
+            deepDiveLabel: 'How repositories bridge the layers →',
+            relatedSlugs: [],
+            fallbackTitle: 'Domain-Level Models',
+            fallbackSummary: 'Semitexa separates persistence resources from business models. Resources map tables; domain models carry behavior and invariants.',
+            fallbackHighlights: ['ResourceModel', 'mapper', '#[AsMapper]', '#[SatisfiesRepositoryContract]', 'DomainRepository'],
+            explanation: $this->explanationProvider->getExplanation('data', 'domain-models') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('data', 'domain-models') ?? [];
 
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'data',
-                'currentSlug' => 'domain-models',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'Domain Model' => $this->sourceCodeReader->readClassSource(MachineCredential::class),
+                'ResourceModel' => $this->sourceCodeReader->readClassSource(MachineCredentialResourceModel::class),
+                'Mapper' => $this->sourceCodeReader->readClassSource(MachineCredentialMapper::class),
+                'Repository Contract' => $this->sourceCodeReader->readClassSource(MachineCredentialRepositoryInterface::class),
+                'ORM Repository Implementation' => $this->sourceCodeReader->readClassSource(MachineCredentialRepository::class),
             ])
-            ->withSection('data')
-            ->withSlug('domain-models')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('Resource models exist for persistence. Domain models exist for business behavior. Explicit mappers and repositories bridge them instead of collapsing them into one class.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See both layers side by side →')
-            ->withDeepDiveLabel('How repositories bridge the layers →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/domain-models-showcase.html.twig', [
                 'painPoints' => [
                     'When one class is both ORM mapping and business model, storage concerns leak into business code immediately.',
@@ -118,14 +107,6 @@ final class DomainModelsHandler implements TypedHandlerInterface
                     'When a workflow truly needs raw persistence shape, keep that path explicit and infrastructure-scoped.',
                     'The canonical repository read path should remain ResourceModel -> mapper -> domain model.',
                 ],
-            ])
-            ->withSourceCode([
-                'Domain Model' => $this->sourceCodeReader->readClassSource(MachineCredential::class),
-                'ResourceModel' => $this->sourceCodeReader->readClassSource(MachineCredentialResourceModel::class),
-                'Mapper' => $this->sourceCodeReader->readClassSource(MachineCredentialMapper::class),
-                'Repository Contract' => $this->sourceCodeReader->readClassSource(MachineCredentialRepositoryInterface::class),
-                'ORM Repository Implementation' => $this->sourceCodeReader->readClassSource(MachineCredentialRepository::class),
-            ])
-            ->withExplanation($explanation);
+            ]);
     }
 }

@@ -7,68 +7,49 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\ProjectGraph;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\ProjectGraph\ProjectGraphImpactPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ProjectGraphImpactPayload::class, resource: DemoFeatureResource::class)]
 final class ProjectGraphImpactHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
-    #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
     public function handle(ProjectGraphImpactPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'project-graph',
-            'impact',
-            'Impact, Context, and Watch Mode',
-            'Use impact analysis, context packing, and watch mode to scope risky changes and keep graph-backed answers current during long work sessions.',
-            ['ai:review-graph:impact', '--context', '--prompt', 'ai:review-graph:watch'],
+        $spec = new FeatureSpec(
+            section: 'project-graph',
+            slug: 'impact',
+            entryLine: 'This is the shift from structural knowledge to structural safety: impact before edits, focused context instead of giant prompts, and graph freshness during long work sessions.',
+            learnMoreLabel: 'See the impact workflow →',
+            deepDiveLabel: 'How it reduces risky refactors and vague prompts →',
+            relatedSlugs: ['overview', 'inspection'],
+            fallbackTitle: 'Impact, Context, and Watch Mode',
+            fallbackSummary: 'Use impact analysis, context packing, and watch mode to scope risky changes and keep graph-backed answers current during long work sessions.',
+            fallbackHighlights: ['ai:review-graph:impact', '--context', '--prompt', 'ai:review-graph:watch'],
+            explanation: [
+                'what' => 'Impact mode is where Project Graph becomes a change-safety tool. It estimates blast radius, groups affected modules by depth, and can package only the snippets and context that actually belong in a review or AI prompt.',
+                'how' => 'Use `ai:review-graph:impact` on a class, file path, or node id, add `--context` when you want a focused context package, add `--prompt` when that package should be shaped for review or refactor work, and use `ai:review-graph:watch` when a long session would otherwise leave graph-backed answers stale.',
+                'why' => 'This matters because risky work usually fails before the patch is done: teams underestimate blast radius, overfeed AI prompts, and keep editing while structural assumptions drift. Project Graph makes those failure modes explicit and reviewable.',
+                'keywords' => [
+                    ['term' => 'ai:review-graph:impact', 'definition' => 'Analyzes downstream impact for a class, file path, or node id and groups affected nodes by depth and module.'],
+                    ['term' => '--context', 'definition' => 'Packages focused source snippets and graph-backed context so review or AI work starts from the impacted structure instead of random file dumps.'],
+                    ['term' => '--prompt', 'definition' => 'Formats the context package into a review-, refactor-, or test-oriented prompt scaffold.'],
+                    ['term' => 'ai:review-graph:watch', 'definition' => 'Keeps the stored graph fresh during active development so later graph-backed answers match the current codebase.'],
+                ],
+            ],
+            pageTitleSuffix: ' — Semitexa Demo',
+            sectionLabel: 'Project Graph',
         );
 
-        $explanation = [
-            'what' => 'Impact mode is where Project Graph becomes a change-safety tool. It estimates blast radius, groups affected modules by depth, and can package only the snippets and context that actually belong in a review or AI prompt.',
-            'how' => 'Use `ai:review-graph:impact` on a class, file path, or node id, add `--context` when you want a focused context package, add `--prompt` when that package should be shaped for review or refactor work, and use `ai:review-graph:watch` when a long session would otherwise leave graph-backed answers stale.',
-            'why' => 'This matters because risky work usually fails before the patch is done: teams underestimate blast radius, overfeed AI prompts, and keep editing while structural assumptions drift. Project Graph makes those failure modes explicit and reviewable.',
-            'keywords' => [
-                ['term' => 'ai:review-graph:impact', 'definition' => 'Analyzes downstream impact for a class, file path, or node id and groups affected nodes by depth and module.'],
-                ['term' => '--context', 'definition' => 'Packages focused source snippets and graph-backed context so review or AI work starts from the impacted structure instead of random file dumps.'],
-                ['term' => '--prompt', 'definition' => 'Formats the context package into a review-, refactor-, or test-oriented prompt scaffold.'],
-                ['term' => 'ai:review-graph:watch', 'definition' => 'Keeps the stored graph fresh during active development so later graph-backed answers match the current codebase.'],
-            ],
-        ];
-
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'project-graph',
-                'currentSlug' => 'impact',
-                'infoWhat' => $explanation['what'],
-                'infoHow' => $explanation['how'],
-                'infoWhy' => $explanation['why'],
-                'infoKeywords' => $explanation['keywords'],
-            ])
-            ->withSection('project-graph')
-            ->withSectionLabel('Project Graph')
-            ->withSlug('impact')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('This is the shift from structural knowledge to structural safety: impact before edits, focused context instead of giant prompts, and graph freshness during long work sessions.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See the impact workflow →')
-            ->withDeepDiveLabel('How it reduces risky refactors and vague prompts →')
+        return $this->projector->project($resource, $spec)
             ->withSourceCode([
                 'Impact Commands' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Impact/Impact.example.sh'),
                 'Prompt Packaging' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Impact/Prompt.example.md'),
@@ -123,21 +104,9 @@ final class ProjectGraphImpactHandler implements TypedHandlerInterface
                 'summary' => 'One feature estimates what a change could touch. The other controls how much of that reality you expose to AI or reviewers.',
                 'columns' => ['Problem', 'Project Graph response', 'Result'],
                 'rows' => [
-                    [
-                        ['text' => 'I do not know the blast radius yet'],
-                        ['text' => 'Run `ai:review-graph:impact` on the target'],
-                        ['text' => 'Change planning starts with affected modules and dependency depth.', 'variant' => 'success'],
-                    ],
-                    [
-                        ['text' => 'My AI prompt is too broad'],
-                        ['text' => 'Add `--context` or `--prompt`'],
-                        ['text' => 'The prompt stays focused on impacted structure and snippets.', 'variant' => 'success'],
-                    ],
-                    [
-                        ['text' => 'The graph may be stale while I edit'],
-                        ['text' => 'Run `ai:review-graph:watch`'],
-                        ['text' => 'Later graph-driven commands stay aligned with ongoing changes.', 'variant' => 'success'],
-                    ],
+                    [['text' => 'I do not know the blast radius yet'], ['text' => 'Run `ai:review-graph:impact` on the target'], ['text' => 'Change planning starts with affected modules and dependency depth.', 'variant' => 'success']],
+                    [['text' => 'My AI prompt is too broad'], ['text' => 'Add `--context` or `--prompt`'], ['text' => 'The prompt stays focused on impacted structure and snippets.', 'variant' => 'success']],
+                    [['text' => 'The graph may be stale while I edit'], ['text' => 'Run `ai:review-graph:watch`'], ['text' => 'Later graph-driven commands stay aligned with ongoing changes.', 'variant' => 'success']],
                 ],
                 'paragraphs' => [
                     'This is one of the package surfaces where humans and AI benefit from exactly the same discipline.',
@@ -155,11 +124,6 @@ final class ProjectGraphImpactHandler implements TypedHandlerInterface
                     'Prefer `--context` and prompt packaging over manually assembling giant AI prompts from arbitrary files.',
                     'Use watch mode during long-running refactors or review-fix sessions where the codebase changes repeatedly.',
                 ],
-            ])
-            ->withRelatedPayloads([
-                ['href' => '/demo/project-graph/overview', 'label' => 'Project Graph Overview'],
-                ['href' => '/demo/project-graph/inspection', 'label' => 'Inspecting the Graph'],
-            ])
-            ->withExplanation($explanation);
+            ]);
     }
 }

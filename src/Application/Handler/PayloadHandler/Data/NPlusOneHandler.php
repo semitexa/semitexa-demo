@@ -7,11 +7,11 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Data;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Data\NPlusOnePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Orm\Hydration\ResourceModelRelationLoader;
 
@@ -19,7 +19,7 @@ use Semitexa\Orm\Hydration\ResourceModelRelationLoader;
 final class NPlusOneHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
@@ -27,41 +27,30 @@ final class NPlusOneHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
-    #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
     public function handle(NPlusOnePayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'data',
-            'n-plus-one',
-            'N+1 Without Magic',
-            'Semitexa avoids N+1 by using resource slices for the exact columns and relations each screen needs, instead of hiding database traffic behind implicit relation loading.',
-            ['ResourceModelRelationLoader', 'resource slice', 'no lazy loading', '#[FromTable]', 'batch relations'],
+        $spec = new FeatureSpec(
+            section: 'data',
+            slug: 'n-plus-one',
+            entryLine: 'No magic, no lazy loading, no bloated entity graphs. A screen asks for one slice, the ORM hydrates exactly that slice.',
+            learnMoreLabel: 'Compare the two ORM styles →',
+            deepDiveLabel: 'How Semitexa avoids N+1 →',
+            relatedSlugs: [],
+            fallbackTitle: 'N+1 Without Magic',
+            fallbackSummary: 'Semitexa avoids N+1 by using resource slices for the exact columns and relations each screen needs, instead of hiding database traffic behind implicit relation loading.',
+            fallbackHighlights: ['ResourceModelRelationLoader', 'resource slice', 'no lazy loading', '#[FromTable]', 'batch relations'],
+            explanation: $this->explanationProvider->getExplanation('data', 'n-plus-one') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('data', 'n-plus-one') ?? [];
 
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'data',
-                'currentSlug' => 'n-plus-one',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'Fat Entity' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Orm/NPlusOne/FatProductEntity.example.php'),
+                'Card Slice' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Orm/NPlusOne/ProductCardResource.example.php'),
+                'Card + Reviews' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Orm/NPlusOne/ProductCardWithReviewsResource.example.php'),
+                'Relation Loader' => $this->sourceCodeReader->readClassSource(ResourceModelRelationLoader::class),
+                'Handler' => $this->sourceCodeReader->readClassSource(self::class),
             ])
-            ->withSection('data')
-            ->withSlug('n-plus-one')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('No magic, no lazy loading, no bloated entity graphs. A screen asks for one slice, the ORM hydrates exactly that slice.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('Compare the two ORM styles →')
-            ->withDeepDiveLabel('How Semitexa avoids N+1 →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/n-plus-one-showcase.html.twig', [
                 'painPoints' => [
                     'In other ORMs, fat-entity models often over-fetch columns first, then hide follow-up queries behind property access.',
@@ -103,14 +92,6 @@ final class NPlusOneHandler implements TypedHandlerInterface
                     'If relations are needed, the ResourceModel relation loader batch-loads them for the whole result set instead of firing lookups row by row.',
                     'Because there is no lazy loading, the fetch plan is visible in the code review and stable in production.',
                 ],
-            ])
-            ->withSourceCode([
-                'Fat Entity' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Orm/NPlusOne/FatProductEntity.example.php'),
-                'Card Slice' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Orm/NPlusOne/ProductCardResource.example.php'),
-                'Card + Reviews' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Orm/NPlusOne/ProductCardWithReviewsResource.example.php'),
-                'Relation Loader' => $this->sourceCodeReader->readClassSource(ResourceModelRelationLoader::class),
-                'Handler' => $this->sourceCodeReader->readClassSource(self::class),
-            ])
-            ->withExplanation($explanation);
+            ]);
     }
 }

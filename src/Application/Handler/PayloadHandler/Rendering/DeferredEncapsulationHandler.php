@@ -7,66 +7,47 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Rendering;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Rendering\DeferredEncapsulationPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Resource\Slot\Deferred\DeferredCountdownSlot;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: DeferredEncapsulationPayload::class, resource: DemoFeatureResource::class)]
 final class DeferredEncapsulationHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
-    #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(DeferredEncapsulationPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'rendering',
-            'deferred-encapsulation',
-            'Block Isolation',
-            'Two identical blocks on the same page run independently — scoped DOM, scoped JS, no conflicts.',
-            ['DOM scoping', 'data-instance', 'block isolation', 'independent timers'],
+        $spec = new FeatureSpec(
+            section: 'rendering',
+            slug: 'deferred-encapsulation',
+            entryLine: 'Two identical blocks on the same page run independently — scoped DOM, scoped JS, no conflicts.',
+            learnMoreLabel: 'See the isolation pattern →',
+            deepDiveLabel: 'DOM scoping mechanism →',
+            relatedSlugs: [],
+            fallbackTitle: 'Block Isolation',
+            fallbackSummary: 'Two identical blocks on the same page run independently — scoped DOM, scoped JS, no conflicts.',
+            fallbackHighlights: ['DOM scoping', 'data-instance', 'block isolation', 'independent timers'],
+            explanation: $this->explanationProvider->getExplanation('rendering', 'deferred-encapsulation') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('rendering', 'deferred-encapsulation') ?? [];
 
-        $sourceCode = [
-            'Countdown Slot' => $this->sourceCodeReader->readClassSource(DeferredCountdownSlot::class),
-            'Handler' => $this->sourceCodeReader->readClassSource(self::class),
-        ];
-
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'rendering',
-                'currentSlug' => 'deferred-encapsulation',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'Countdown Slot' => $this->sourceCodeReader->readClassSource(DeferredCountdownSlot::class),
+                'Handler' => $this->sourceCodeReader->readClassSource(self::class),
             ])
-            ->withSection('rendering')
-            ->withSlug('deferred-encapsulation')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('Two identical blocks on the same page run independently — scoped DOM, scoped JS, no conflicts.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See the isolation pattern →')
-            ->withDeepDiveLabel('DOM scoping mechanism →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/countdown-comparison.html.twig', [
                 'eyebrow' => 'Scoped Instances',
                 'title' => 'Same slot class, separate runtime state',
@@ -75,8 +56,6 @@ final class DeferredEncapsulationHandler implements TypedHandlerInterface
                     ['label' => 'Timer A', 'duration' => 30, 'instanceId' => 'timer-a'],
                     ['label' => 'Timer B', 'duration' => 60, 'instanceId' => 'timer-b'],
                 ],
-            ])
-            ->withSourceCode($sourceCode)
-            ->withExplanation($explanation);
+            ]);
     }
 }

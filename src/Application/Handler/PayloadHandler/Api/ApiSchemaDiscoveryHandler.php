@@ -8,22 +8,22 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Request;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Api\ApiSchemaDiscoveryPayload;
 use Semitexa\Demo\Application\Payload\Request\Api\ProductDetailPayload;
 use Semitexa\Demo\Application\Payload\Request\Api\ProductListPayload;
 use Semitexa\Demo\Application\Payload\Request\Api\ProductSchemaPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoApiPresenter;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ApiSchemaDiscoveryPayload::class, resource: DemoFeatureResource::class)]
 final class ApiSchemaDiscoveryHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
@@ -34,46 +34,25 @@ final class ApiSchemaDiscoveryHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoApiPresenter $apiPresenter;
 
-    #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
     public function handle(ApiSchemaDiscoveryPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'api',
-            'schema-discovery',
-            'Schema Discovery',
-            'A mini Swagger-style explorer for the live product API contract, schema endpoint, and response shapes.',
-            ['#[ExternalApi]', 'application/schema+json', 'JSON Schema', 'live explorer'],
+        $spec = new FeatureSpec(
+            section: 'api',
+            slug: 'schema-discovery',
+            entryLine: 'A machine-facing API should explain its own shape and let you exercise the contract without leaving the demo.',
+            learnMoreLabel: 'Inspect the live contract →',
+            deepDiveLabel: 'Schema generation notes →',
+            relatedSlugs: [],
+            fallbackTitle: 'Schema Discovery',
+            fallbackSummary: 'A mini Swagger-style explorer for the live product API contract, schema endpoint, and response shapes.',
+            fallbackHighlights: ['#[ExternalApi]', 'application/schema+json', 'JSON Schema', 'live explorer'],
+            explanation: $this->explanationProvider->getExplanation('api', 'schema-discovery') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('api', 'schema-discovery') ?? [];
+
         $operations = $this->buildOperations();
 
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'api',
-                'currentSlug' => 'schema-discovery',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
-            ])
-            ->withSection('api')
-            ->withSlug('schema-discovery')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('A machine-facing API should explain its own shape and let you exercise the contract without leaving the demo.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('Inspect the live contract →')
-            ->withDeepDiveLabel('Schema generation notes →')
-            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/api-schema-explorer.html.twig', [
-                'operations' => $operations,
-                'initialOperation' => $operations[0] ?? null,
-            ])
+        return $this->projector->project($resource, $spec)
             ->withSourceCode([
                 'Schema Discovery Handler' => $this->sourceCodeReader->readClassSource(self::class),
                 'Schema Discovery Page Payload' => $this->sourceCodeReader->readClassSource(ApiSchemaDiscoveryPayload::class),
@@ -82,7 +61,10 @@ final class ApiSchemaDiscoveryHandler implements TypedHandlerInterface
                 'Product Detail Payload' => $this->sourceCodeReader->readClassSource(ProductDetailPayload::class),
                 'DemoApiPresenter' => $this->sourceCodeReader->readClassSource(DemoApiPresenter::class),
             ])
-            ->withExplanation($explanation)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/api-schema-explorer.html.twig', [
+                'operations' => $operations,
+                'initialOperation' => $operations[0] ?? null,
+            ])
             ->withL2ContentTemplate('@project-layouts-semitexa-demo/components/previews/api-schema-notes.html.twig', [
                 'operations' => $operations,
             ]);
@@ -107,17 +89,8 @@ final class ApiSchemaDiscoveryHandler implements TypedHandlerInterface
         $slimRequest = new Request('GET', '/demo/api/v1/products/wireless-headphones?fields=slug,name,price', [], [], [], [], []);
         $fullRequest = new Request('GET', '/demo/api/v1/products/wireless-headphones?profile=full&expand=category,reviews', ['X-Response-Profile' => 'full'], [], [], [], []);
 
-        $slimBody = $this->apiPresenter->buildDetail(
-            request: $slimRequest,
-            slug: 'wireless-headphones',
-            fields: 'slug,name,price',
-        );
-        $fullBody = $this->apiPresenter->buildDetail(
-            request: $fullRequest,
-            slug: 'wireless-headphones',
-            expand: 'category,reviews',
-            profile: 'full',
-        );
+        $slimBody = $this->apiPresenter->buildDetail(request: $slimRequest, slug: 'wireless-headphones', fields: 'slug,name,price');
+        $fullBody = $this->apiPresenter->buildDetail(request: $fullRequest, slug: 'wireless-headphones', expand: 'category,reviews', profile: 'full');
 
         return [
             [

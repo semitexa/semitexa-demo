@@ -8,11 +8,11 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Environment;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Routing\EnvRouteOverridePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: EnvRouteOverridePayload::class, resource: DemoFeatureResource::class)]
@@ -22,65 +22,45 @@ final class EnvRouteOverrideHandler implements TypedHandlerInterface
     private const FALLBACK_PATH = '/demo/routing/env-route-override';
 
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
-    #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(EnvRouteOverridePayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'routing',
-            'env-route-override',
-            'Env Route Override',
-            'Keep the payload as the route source of truth while allowing operations to remap the public URL through .env.',
-            ['env::VAR::/fallback', 'path override', '.env-driven routing', 'same payload boundary'],
+        $spec = new FeatureSpec(
+            section: 'routing',
+            slug: 'env-route-override',
+            entryLine: 'The route still lives in PHP, but deployment can move the public URL without reopening the payload class.',
+            learnMoreLabel: 'See env override pattern →',
+            deepDiveLabel: 'How resolved route metadata works →',
+            relatedSlugs: [],
+            fallbackTitle: 'Env Route Override',
+            fallbackSummary: 'Keep the payload as the route source of truth while allowing operations to remap the public URL through .env.',
+            fallbackHighlights: ['env::VAR::/fallback', 'path override', '.env-driven routing', 'same payload boundary'],
+            explanation: $this->explanationProvider->getExplanation('routing', 'env-route-override') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('routing', 'env-route-override') ?? [];
+
         $resolvedPath = trim((string) (Environment::getEnvValue(self::ENV_KEY) ?? ''));
         if ($resolvedPath === '') {
             $resolvedPath = self::FALLBACK_PATH;
         }
 
-        $sourceCode = [
-            'Payload Example' => $this->sourceCodeReader->readProjectRelativeSource(
-                'resources/examples/Routing/EnvRouteOverride/EnvRouteOverridePayload.example.php',
-            ),
-            'Handler Example' => $this->sourceCodeReader->readProjectRelativeSource(
-                'resources/examples/Routing/EnvRouteOverride/EnvRouteOverrideHandler.example.php',
-            ),
-            'Docs' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-core/docs/PAYLOAD_ENV_ROUTE_OVERRIDES.md'),
-        ];
-
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'routing',
-                'currentSlug' => 'env-route-override',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'Payload Example' => $this->sourceCodeReader->readProjectRelativeSource(
+                    'resources/examples/Routing/EnvRouteOverride/EnvRouteOverridePayload.example.php',
+                ),
+                'Handler Example' => $this->sourceCodeReader->readProjectRelativeSource(
+                    'resources/examples/Routing/EnvRouteOverride/EnvRouteOverrideHandler.example.php',
+                ),
+                'Docs' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-core/docs/PAYLOAD_ENV_ROUTE_OVERRIDES.md'),
             ])
-            ->withSection('routing')
-            ->withSlug('env-route-override')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('The route still lives in PHP, but deployment can move the public URL without reopening the payload class.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See env override pattern →')
-            ->withDeepDiveLabel('How resolved route metadata works →')
-            ->withSourceCode($sourceCode)
-            ->withExplanation($explanation)
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
                 'eyebrow' => 'Operational Flexibility',
                 'title' => 'One payload, environment-specific URL',

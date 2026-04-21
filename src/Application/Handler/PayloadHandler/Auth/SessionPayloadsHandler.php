@@ -7,60 +7,48 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Auth;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Auth\SessionPayloadsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: SessionPayloadsPayload::class, resource: DemoFeatureResource::class)]
 final class SessionPayloadsHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
-    #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(SessionPayloadsPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'auth',
-            'session-payloads',
-            'Session Payloads',
-            'Semitexa forbids string-key session chaos: session state lives in typed Session Payloads or it does not exist.',
-            ['#[SessionSegment]', 'typed session contract', 'no string keys', 'SessionInterface::getPayload()'],
+        $spec = new FeatureSpec(
+            section: 'auth',
+            slug: 'session-payloads',
+            entryLine: 'Session state should be explicit, typed, and reviewable — not a bag of magic keys spread across handlers.',
+            learnMoreLabel: 'See the session contract →',
+            deepDiveLabel: 'Why string-key sessions rot →',
+            relatedSlugs: [],
+            fallbackTitle: 'Session Payloads',
+            fallbackSummary: 'Semitexa forbids string-key session chaos: session state lives in typed Session Payloads or it does not exist.',
+            fallbackHighlights: ['#[SessionSegment]', 'typed session contract', 'no string keys', 'SessionInterface::getPayload()'],
+            explanation: $this->explanationProvider->getExplanation('auth', 'session-payloads') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('auth', 'session-payloads') ?? [];
 
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'auth',
-                'currentSlug' => 'session-payloads',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'Legacy Session Access' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/LegacySessionAccess.example.php'),
+                'Session Payload' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/BrowserSessionSegment.example.php'),
+                'Typed Login Flow' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/LoginHandler.example.php'),
+                'Typed Restore Flow' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/SessionAuthHandler.example.php'),
             ])
-            ->withSection('auth')
-            ->withSlug('session-payloads')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('Session state should be explicit, typed, and reviewable — not a bag of magic keys spread across handlers.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See the session contract →')
-            ->withDeepDiveLabel('Why string-key sessions rot →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/session-payloads.html.twig', [
                 'painPoints' => [
                     'String keys like current_user, auth_user, or user_id drift across handlers, middleware, and listeners until nobody knows the real contract anymore.',
@@ -94,13 +82,6 @@ final class SessionPayloadsHandler implements TypedHandlerInterface
                     'Meaningful methods such as requireUserId() or clear() belong on the payload itself.',
                     'If no Session Payload exists for a concern, that concern should not be writing random session keys.',
                 ],
-            ])
-            ->withSourceCode([
-                'Legacy Session Access' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/LegacySessionAccess.example.php'),
-                'Session Payload' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/BrowserSessionSegment.example.php'),
-                'Typed Login Flow' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/LoginHandler.example.php'),
-                'Typed Restore Flow' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Auth/Session/SessionAuthHandler.example.php'),
-            ])
-            ->withExplanation($explanation);
+            ]);
     }
 }

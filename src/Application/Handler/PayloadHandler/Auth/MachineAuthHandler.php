@@ -7,11 +7,11 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Auth;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Auth\MachineAuthPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: MachineAuthPayload::class, resource: DemoFeatureResource::class)]
@@ -20,53 +20,34 @@ final class MachineAuthHandler implements TypedHandlerInterface
     private const DEMO_TOKEN = 'demo-client-id:demo-secret-key-abc123';
 
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
-    #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(MachineAuthPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'auth',
-            'machine',
-            'Machine Auth',
-            'Service-to-service authentication via Bearer tokens — scoped, revocable, and audited.',
-            ['MachineAuthHandler', 'Bearer {id}:{secret}', 'MachineCredential', 'scopes', 'revocation'],
+        $spec = new FeatureSpec(
+            section: 'auth',
+            slug: 'machine',
+            entryLine: 'Documented bearer-token recipe. This page is reference material — the token shown below is a placeholder and is NOT validated by this handler. Real verification belongs to the semitexa/api package.',
+            learnMoreLabel: 'See the Bearer token format →',
+            deepDiveLabel: 'Machine auth verification pipeline →',
+            relatedSlugs: [],
+            fallbackTitle: 'Machine Auth',
+            fallbackSummary: 'Service-to-service authentication via Bearer tokens — scoped, revocable, and audited.',
+            fallbackHighlights: ['MachineAuthHandler', 'Bearer {id}:{secret}', 'MachineCredential', 'scopes', 'revocation'],
+            explanation: $this->explanationProvider->getExplanation('auth', 'machine') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('auth', 'machine') ?? [];
 
-        $sourceCode = [
-            'Handler' => $this->sourceCodeReader->readClassSource(self::class),
-        ];
-
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'auth',
-                'currentSlug' => 'machine',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'Handler' => $this->sourceCodeReader->readClassSource(self::class),
             ])
-            ->withSection('auth')
-            ->withSlug('machine')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('Documented bearer-token recipe. This page is reference material — the token shown below is a placeholder and is NOT validated by this handler. Real verification belongs to the semitexa/api package.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See the Bearer token format →')
-            ->withDeepDiveLabel('Machine auth verification pipeline →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/machine-auth.html.twig', [
                 'curlExample' => "# Reference format only — this demo page does not validate tokens.\n# Real verification lives in the semitexa/api package.\ncurl -H \"Authorization: Bearer " . self::DEMO_TOKEN . "\" \\\n  https://your-app.com/api/products",
                 'rows' => [
@@ -78,8 +59,6 @@ final class MachineAuthHandler implements TypedHandlerInterface
                     ['label' => 'Revocation', 'value' => 'Set revoked_at for immediate effect'],
                     ['label' => 'Audit', 'value' => 'Credential ID + timestamp logged per request'],
                 ],
-            ])
-            ->withSourceCode($sourceCode)
-            ->withExplanation($explanation);
+            ]);
     }
 }

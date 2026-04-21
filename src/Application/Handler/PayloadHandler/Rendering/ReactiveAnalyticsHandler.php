@@ -7,97 +7,54 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Rendering;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Rendering\ReactiveAnalyticsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Resource\Slot\Reactive\ReactiveAnalyticsSlot;
 use Semitexa\Demo\Application\Service\DemoAnalyticsAggregator;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ReactiveAnalyticsPayload::class, resource: DemoFeatureResource::class)]
 final class ReactiveAnalyticsHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoAnalyticsAggregator $analyticsAggregator;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
+    protected DemoAnalyticsAggregator $analyticsAggregator;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
-    #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(ReactiveAnalyticsPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $snapshots = $this->analyticsAggregator->getLatestSnapshots('acme');
-        $metricTypes = $this->analyticsAggregator->getMetricTypes();
-
-        $panels = [];
-        foreach ($metricTypes as $type) {
-            $snapshot = $snapshots[$type] ?? null;
-            $value = $snapshot?->getValue() ?? null;
-            $label = match ($type) {
-                'pageviews'    => 'Page Views',
-                'conversions'  => 'Conversion Rate',
-                'top_products' => 'Top Products',
-                default        => ucfirst($type),
-            };
-            $display = $value !== null
-                ? ($type === 'conversions' ? number_format((float)$value * 100, 2) . '%' : number_format((int)$value))
-                : '—';
-
-            $panels[] = [
-                'label' => $label,
-                'value' => $display,
-                'updated' => $snapshot !== null
-                    ? 'Last snapshot: ' . ($snapshot->getPeriodEnd()?->format('Y-m-d H:i:s') ?? 'unknown')
-                    : 'No data yet',
-            ];
-        }
-
-        $presentation = $this->documents->resolve(
-            'rendering',
-            'reactive-analytics',
-            'Reactive Analytics',
-            'Independent analytics jobs can light up one dashboard progressively, while the page stays server-rendered from the first byte.',
-            ['multi-job snapshots', 'independent panel refresh', 'refreshInterval: 5', 'SSR-first live UI'],
+        $spec = new FeatureSpec(
+            section: 'rendering',
+            slug: 'reactive-analytics',
+            entryLine: 'Each panel updates when its own job finishes, so the dashboard feels live without turning into a client-side orchestration layer.',
+            learnMoreLabel: 'See the dashboard contract →',
+            deepDiveLabel: 'How multi-job panels stay coherent →',
+            relatedSlugs: [],
+            fallbackTitle: 'Reactive Analytics',
+            fallbackSummary: 'Independent analytics jobs can light up one dashboard progressively, while the page stays server-rendered from the first byte.',
+            fallbackHighlights: ['multi-job snapshots', 'independent panel refresh', 'refreshInterval: 5', 'SSR-first live UI'],
+            explanation: $this->explanationProvider->getExplanation('rendering', 'reactive-analytics') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('rendering', 'reactive-analytics') ?? [];
 
-        $sourceCode = [
-            'ReactiveAnalyticsSlot' => $this->sourceCodeReader->readClassSource(ReactiveAnalyticsSlot::class),
-            'DemoAnalyticsAggregator' => $this->sourceCodeReader->readClassSource(DemoAnalyticsAggregator::class),
-            'Handler' => $this->sourceCodeReader->readClassSource(self::class),
-        ];
+        $panels = $this->buildPanels();
 
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'rendering',
-                'currentSlug' => 'reactive-analytics',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'ReactiveAnalyticsSlot' => $this->sourceCodeReader->readClassSource(ReactiveAnalyticsSlot::class),
+                'DemoAnalyticsAggregator' => $this->sourceCodeReader->readClassSource(DemoAnalyticsAggregator::class),
+                'Handler' => $this->sourceCodeReader->readClassSource(self::class),
             ])
-            ->withSection('rendering')
-            ->withSlug('reactive-analytics')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('Each panel updates when its own job finishes, so the dashboard feels live without turning into a client-side orchestration layer.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See the dashboard contract →')
-            ->withDeepDiveLabel('How multi-job panels stay coherent →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/analytics-panels.html.twig', [
                 'eyebrow' => 'Progressive Dashboard',
                 'title' => 'Panels wake up as their own server snapshots arrive',
@@ -108,8 +65,39 @@ final class ReactiveAnalyticsHandler implements TypedHandlerInterface
                     ['value' => '0', 'label' => 'client merge layer required'],
                     ['value' => 'SSR', 'label' => 'rendering model from first byte to live refresh'],
                 ],
-            ])
-            ->withSourceCode($sourceCode)
-            ->withExplanation($explanation);
+            ]);
+    }
+
+    /**
+     * @return list<array{label: string, value: string, updated: string}>
+     */
+    private function buildPanels(): array
+    {
+        $snapshots = $this->analyticsAggregator->getLatestSnapshots('acme');
+        $panels = [];
+
+        foreach ($this->analyticsAggregator->getMetricTypes() as $type) {
+            $snapshot = $snapshots[$type] ?? null;
+            $value = $snapshot?->getValue();
+
+            $panels[] = [
+                'label' => match ($type) {
+                    'pageviews'    => 'Page Views',
+                    'conversions'  => 'Conversion Rate',
+                    'top_products' => 'Top Products',
+                    default        => ucfirst($type),
+                },
+                'value' => $value === null
+                    ? '—'
+                    : ($type === 'conversions'
+                        ? number_format((float) $value * 100, 2) . '%'
+                        : number_format((int) $value)),
+                'updated' => $snapshot !== null
+                    ? 'Last snapshot: ' . ($snapshot->getPeriodEnd()?->format('Y-m-d H:i:s') ?? 'unknown')
+                    : 'No data yet',
+            ];
+        }
+
+        return $panels;
     }
 }

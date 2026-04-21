@@ -7,72 +7,51 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Container;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Container\FactoryInjectionPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: FactoryInjectionPayload::class, resource: DemoFeatureResource::class)]
 final class FactoryInjectionHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
-    #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(FactoryInjectionPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'di',
-            'factory',
-            'Factory Injection',
-            'On-demand creation stays explicit — lazy instances without falling back to service locator habits.',
-            ['#[InjectAsFactory]', 'closed-world selection', 'on-demand', 'lazy instantiation'],
+        $spec = new FeatureSpec(
+            section: 'di',
+            slug: 'factory',
+            entryLine: 'On-demand creation stays explicit — lazy instances without falling back to service locator habits.',
+            learnMoreLabel: 'See factory injection →',
+            deepDiveLabel: 'Lazy instantiation patterns →',
+            relatedSlugs: [],
+            fallbackTitle: 'Factory Injection',
+            fallbackSummary: 'On-demand creation stays explicit — lazy instances without falling back to service locator habits.',
+            fallbackHighlights: ['#[InjectAsFactory]', 'closed-world selection', 'on-demand', 'lazy instantiation'],
+            explanation: $this->explanationProvider->getExplanation('di', 'factory') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('di', 'factory') ?? [];
 
-        $sourceCode = [
-            'Handler' => $this->sourceCodeReader->readClassSource(self::class),
-        ];
-
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'di',
-                'currentSlug' => 'factory',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'Handler' => $this->sourceCodeReader->readClassSource(self::class),
             ])
-            ->withSection('di')
-            ->withSlug('factory')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('On-demand creation stays explicit — lazy instances without falling back to service locator habits.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See factory injection →')
-            ->withDeepDiveLabel('Lazy instantiation patterns →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
                 'eyebrow' => 'On-Demand Creation',
                 'title' => 'Shared factory, fresh product',
                 'summary' => 'The factory is injected explicitly by the container. The object it returns is new on every call, but the creation path remains reviewable.',
                 'codeSnippet' => "#[InjectAsFactory]\nprotected \\Closure \$mailerFactory;\n\npublic function handle(...): ... {\n    \$mailer = (\$this->mailerFactory)();\n    // New instance, still from an explicit DI path\n}",
                 'note' => 'Use factories when creation must stay lazy. Do not fall back to ad-hoc container access inside services.',
-            ])
-            ->withSourceCode($sourceCode)
-            ->withExplanation($explanation);
+            ]);
     }
 }

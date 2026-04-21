@@ -7,11 +7,11 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Api;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Api\GraphqlDerivedApiPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Graphql\Contract\GraphqlOperationRegistryInterface;
 use Semitexa\Graphql\Discovery\ResolvedGraphqlOperation;
@@ -20,7 +20,7 @@ use Semitexa\Graphql\Discovery\ResolvedGraphqlOperation;
 final class GraphqlDerivedApiHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
@@ -31,71 +31,44 @@ final class GraphqlDerivedApiHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected GraphqlOperationRegistryInterface $operations;
 
-    #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
     public function handle(GraphqlDerivedApiPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'api',
-            'rest-graphql',
-            'REST + GraphQL',
-            'One Semitexa use case can serve both REST and GraphQL without duplicating handler logic into separate resolver classes.',
-            ['REST + GraphQL', '#[ExposeAsGraphql]', 'shared use case', 'no duplicated logic'],
+        $spec = new FeatureSpec(
+            section: 'api',
+            slug: 'rest-graphql',
+            entryLine: 'Semitexa lets one use case answer both transports, so teams do not have to choose between REST and GraphQL too early.',
+            learnMoreLabel: 'See one use case with two transports →',
+            deepDiveLabel: 'Why shared contracts matter here →',
+            relatedSlugs: [],
+            fallbackTitle: 'REST + GraphQL',
+            fallbackSummary: 'One Semitexa use case can serve both REST and GraphQL without duplicating handler logic into separate resolver classes.',
+            fallbackHighlights: ['REST + GraphQL', '#[ExposeAsGraphql]', 'shared use case', 'no duplicated logic'],
+            explanation: $this->explanationProvider->getExplanation('api', 'rest-graphql') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('api', 'rest-graphql') ?? [];
+
         $operations = array_map(
             fn (ResolvedGraphqlOperation $operation): array => $this->presentOperation($operation),
             $this->operations->all(),
         );
 
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'api',
-                'currentSlug' => 'rest-graphql',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
-            ])
-            ->withSection('api')
-            ->withSlug('rest-graphql')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('Semitexa lets one use case answer both transports, so teams do not have to choose between REST and GraphQL too early.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See one use case with two transports →')
-            ->withDeepDiveLabel('Why shared contracts matter here →')
-            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/graphql-derived-api.html.twig', [
-                'operations' => $operations,
-                'schemaPreview' => $this->buildSchemaPreview($operations),
-            ])
+        return $this->projector->project($resource, $spec)
             ->withSourceCode([
                 'REST + GraphQL Payload' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Api/Graphql/ProductDetailPayload.example.php'),
                 'REST + GraphQL Output' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Api/Graphql/ProductGraphqlView.example.php'),
                 'POST /graphql Query' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Api/Graphql/ProductsQuery.example.graphql'),
             ])
-            ->withExplanation($explanation)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/graphql-derived-api.html.twig', [
+                'operations' => $operations,
+                'schemaPreview' => $this->buildSchemaPreview($operations),
+            ])
             ->withL2ContentTemplate('@project-layouts-semitexa-demo/components/previews/graphql-derived-notes.html.twig', [
                 'operations' => $operations,
             ]);
     }
 
     /**
-     * @return array{
-     *   field: string,
-     *   rootType: string,
-     *   outputClass: string,
-     *   outputLabel: string,
-     *   path: string,
-     *   httpMethods: string,
-     *   description: string,
-     *   queryPreview: string
-     * }
+     * @return array{field: string, rootType: string, outputClass: string, outputLabel: string, path: string, httpMethods: string, description: string, queryPreview: string}
      */
     private function presentOperation(ResolvedGraphqlOperation $operation): array
     {
@@ -122,26 +95,18 @@ final class GraphqlDerivedApiHandler implements TypedHandlerInterface
         $mutations = [];
 
         foreach ($operations as $operation) {
-            $line = sprintf(
-                '  %s: %s',
-                $operation['field'],
-                $this->shortClassName($operation['outputClass']),
-            );
-
+            $line = sprintf('  %s: %s', $operation['field'], $this->shortClassName($operation['outputClass']));
             if ($operation['rootType'] === 'mutation') {
                 $mutations[] = $line;
                 continue;
             }
-
             $queries[] = $line;
         }
 
         $blocks = [];
-
         if ($queries !== []) {
             $blocks[] = "type Query {\n" . implode("\n", $queries) . "\n}";
         }
-
         if ($mutations !== []) {
             $blocks[] = "type Mutation {\n" . implode("\n", $mutations) . "\n}";
         }
@@ -181,6 +146,7 @@ query {
 }
 GRAPHQL;
     }
+
     private function shortClassName(string $className): string
     {
         if (!str_contains($className, '\\')) {

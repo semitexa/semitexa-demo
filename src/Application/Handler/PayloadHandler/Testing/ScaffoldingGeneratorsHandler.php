@@ -7,11 +7,11 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Testing;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Testing\ScaffoldingGeneratorsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Dev\Console\Command\MakeContractCommand;
 use Semitexa\Dev\Console\Command\MakeModuleCommand;
@@ -23,102 +23,57 @@ use Semitexa\Dev\Console\Command\MakeServiceCommand;
 final class ScaffoldingGeneratorsHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
-
-    #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
 
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(ScaffoldingGeneratorsPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'cli',
-            'scaffolding-generators',
-            'Scaffolding Generators',
-            'Scaffold modules, pages, payloads, services, and contracts through commands that already understand Semitexa structure and AI-friendly output modes.',
-            ['make:module', 'make:page', 'make:payload', 'make:service', 'make:contract', '--llm-hints'],
+        $spec = new FeatureSpec(
+            section: 'cli',
+            slug: 'scaffolding-generators',
+            entryLine: 'The generator surface matters because it teaches the framework shape by producing the right files, not by asking the developer to remember ceremony.',
+            learnMoreLabel: 'See the generator workflow →',
+            deepDiveLabel: 'Why this scaffolding is different →',
+            relatedSlugs: [],
+            fallbackTitle: 'Scaffolding Generators',
+            fallbackSummary: 'Scaffold modules, pages, payloads, services, and contracts through commands that already understand Semitexa structure and AI-friendly output modes.',
+            fallbackHighlights: ['make:module', 'make:page', 'make:payload', 'make:service', 'make:contract', '--llm-hints'],
+            explanation: $this->explanationProvider->getExplanation('cli', 'scaffolding-generators') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('cli', 'scaffolding-generators') ?? [];
 
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'cli',
-                'currentSlug' => 'scaffolding-generators',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'make:module Command' => $this->sourceCodeReader->readClassSource(MakeModuleCommand::class),
+                'make:page Command' => $this->sourceCodeReader->readClassSource(MakePageCommand::class),
+                'make:payload Command' => $this->sourceCodeReader->readClassSource(MakePayloadCommand::class),
+                'make:service Command' => $this->sourceCodeReader->readClassSource(MakeServiceCommand::class),
+                'make:contract Command' => $this->sourceCodeReader->readClassSource(MakeContractCommand::class),
             ])
-            ->withSection('cli')
-            ->withSlug('scaffolding-generators')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('The generator surface matters because it teaches the framework shape by producing the right files, not by asking the developer to remember ceremony.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See the generator workflow →')
-            ->withDeepDiveLabel('Why this scaffolding is different →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/cli-command-workbench.html.twig', [
                 'eyebrow' => 'Code Generation',
                 'title' => 'Scaffolding that already knows Semitexa conventions',
                 'summary' => 'These commands do not just dump stubs. They encode module structure, naming, response boundaries, and even AI-oriented follow-up hints, so the generated result starts aligned with the framework.',
                 'pillars' => [
-                    [
-                        'title' => 'Structure-aware.',
-                        'summary' => 'make:module and make:page know the expected module, payload, handler, resource, and template layout without asking the developer to assemble it manually.',
-                    ],
-                    [
-                        'title' => 'Machine-readable when needed.',
-                        'summary' => 'Dry-run, JSON, and --llm-hints modes let both humans and agents inspect the plan before committing files.',
-                    ],
-                    [
-                        'title' => 'Teaches the shape.',
-                        'summary' => 'Good scaffolding shortens onboarding because the produced files demonstrate the intended Semitexa architecture directly.',
-                    ],
+                    ['title' => 'Structure-aware.', 'summary' => 'make:module and make:page know the expected module, payload, handler, resource, and template layout without asking the developer to assemble it manually.'],
+                    ['title' => 'Machine-readable when needed.', 'summary' => 'Dry-run, JSON, and --llm-hints modes let both humans and agents inspect the plan before committing files.'],
+                    ['title' => 'Teaches the shape.', 'summary' => 'Good scaffolding shortens onboarding because the produced files demonstrate the intended Semitexa architecture directly.'],
                 ],
                 'commands' => [
-                    [
-                        'name' => 'bin/semitexa make:module --name=Catalog',
-                        'purpose' => 'Create a new module with standard directories already in place.',
-                        'value' => 'Removes the need to remember directory conventions or Composer changes.',
-                    ],
-                    [
-                        'name' => 'bin/semitexa make:page --module=Catalog --name=Pricing --path=/pricing --method=GET',
-                        'purpose' => 'Scaffold a full SSR page boundary in one step.',
-                        'value' => 'Creates the payload, handler, resource, and template as a coherent unit.',
-                    ],
-                    [
-                        'name' => 'bin/semitexa make:payload --module=Catalog --name=CreateProduct --path=/products --method=POST --response=CreateProduct',
-                        'purpose' => 'Generate only the transport boundary when you need a narrower step.',
-                        'value' => 'Useful when the payload contract should be reviewed before the rest of the implementation.',
-                    ],
-                    [
-                        'name' => 'bin/semitexa make:contract --module=Catalog --name=PriceFeed --implementation=ApiPriceFeed --llm-hints',
-                        'purpose' => 'Scaffold a DI contract plus implementation and emit follow-up hints.',
-                        'value' => 'Great fit for AI-assisted workflows because the command can describe what to fill next.',
-                    ],
+                    ['name' => 'bin/semitexa make:module --name=Catalog', 'purpose' => 'Create a new module with standard directories already in place.', 'value' => 'Removes the need to remember directory conventions or Composer changes.'],
+                    ['name' => 'bin/semitexa make:page --module=Catalog --name=Pricing --path=/pricing --method=GET', 'purpose' => 'Scaffold a full SSR page boundary in one step.', 'value' => 'Creates the payload, handler, resource, and template as a coherent unit.'],
+                    ['name' => 'bin/semitexa make:payload --module=Catalog --name=CreateProduct --path=/products --method=POST --response=CreateProduct', 'purpose' => 'Generate only the transport boundary when you need a narrower step.', 'value' => 'Useful when the payload contract should be reviewed before the rest of the implementation.'],
+                    ['name' => 'bin/semitexa make:contract --module=Catalog --name=PriceFeed --implementation=ApiPriceFeed --llm-hints', 'purpose' => 'Scaffold a DI contract plus implementation and emit follow-up hints.', 'value' => 'Great fit for AI-assisted workflows because the command can describe what to fill next.'],
                 ],
                 'snippets' => [
-                    [
-                        'label' => 'Preview a new page without writing files',
-                        'code' => "bin/semitexa make:page --module=Catalog --name=Pricing --path=/pricing --method=GET --dry-run",
-                    ],
-                    [
-                        'label' => 'Generate a payload with agent-friendly hints',
-                        'code' => "bin/semitexa make:payload --module=Catalog --name=CreateProduct --path=/products --method=POST --response=CreateProduct --llm-hints",
-                    ],
-                    [
-                        'label' => 'Scaffold a contract and verify it after generation',
-                        'code' => "bin/semitexa make:contract --module=Catalog --name=PriceFeed --implementation=ApiPriceFeed\nbin/semitexa contracts:list --json",
-                    ],
+                    ['label' => 'Preview a new page without writing files', 'code' => "bin/semitexa make:page --module=Catalog --name=Pricing --path=/pricing --method=GET --dry-run"],
+                    ['label' => 'Generate a payload with agent-friendly hints', 'code' => "bin/semitexa make:payload --module=Catalog --name=CreateProduct --path=/products --method=POST --response=CreateProduct --llm-hints"],
+                    ['label' => 'Scaffold a contract and verify it after generation', 'code' => "bin/semitexa make:contract --module=Catalog --name=PriceFeed --implementation=ApiPriceFeed\nbin/semitexa contracts:list --json"],
                 ],
             ])
             ->withL2ContentTemplate('@project-layouts-semitexa-demo/components/previews/checklist-panel.html.twig', [
@@ -131,14 +86,6 @@ final class ScaffoldingGeneratorsHandler implements TypedHandlerInterface
                     'Treat generated files as architectural starting points, not as final code that excuses design thinking.',
                     'A scaffold is successful when it reduces wrong framework patterns, not only when it saves typing.',
                 ],
-            ])
-            ->withSourceCode([
-                'make:module Command' => $this->sourceCodeReader->readClassSource(MakeModuleCommand::class),
-                'make:page Command' => $this->sourceCodeReader->readClassSource(MakePageCommand::class),
-                'make:payload Command' => $this->sourceCodeReader->readClassSource(MakePayloadCommand::class),
-                'make:service Command' => $this->sourceCodeReader->readClassSource(MakeServiceCommand::class),
-                'make:contract Command' => $this->sourceCodeReader->readClassSource(MakeContractCommand::class),
-            ])
-            ->withExplanation($explanation);
+            ]);
     }
 }

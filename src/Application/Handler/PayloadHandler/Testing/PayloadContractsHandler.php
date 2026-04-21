@@ -7,11 +7,11 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Testing;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Testing\PayloadContractsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Testing\Attribute\TestablePayload;
 use Semitexa\Testing\Console\Command\TestInitCommand;
@@ -25,83 +25,53 @@ use Semitexa\Testing\Strategy\Profile\StrictProfileStrategy;
 final class PayloadContractsHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
-
-    #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
 
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(PayloadContractsPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'testing',
-            'payload-contracts',
-            'Payload Contract Testing',
-            'Scaffold one project-level contract test and let strategy profiles verify payload boundaries without hand-writing repetitive negative cases.',
-            ['#[TestablePayload]', 'test:init', 'test:run', 'StrictProfileStrategy', 'MonkeyTestingStrategy'],
+        $spec = new FeatureSpec(
+            section: 'testing',
+            slug: 'payload-contracts',
+            entryLine: 'Testing in Semitexa can start from the transport boundary itself: payloads declare what should be verified, and the framework runs the strategy suite.',
+            learnMoreLabel: 'See the testing workflow →',
+            deepDiveLabel: 'What the profiles actually buy you →',
+            relatedSlugs: [],
+            fallbackTitle: 'Payload Contract Testing',
+            fallbackSummary: 'Scaffold one project-level contract test and let strategy profiles verify payload boundaries without hand-writing repetitive negative cases.',
+            fallbackHighlights: ['#[TestablePayload]', 'test:init', 'test:run', 'StrictProfileStrategy', 'MonkeyTestingStrategy'],
+            explanation: $this->explanationProvider->getExplanation('testing', 'payload-contracts') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('testing', 'payload-contracts') ?? [];
 
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'testing',
-                'currentSlug' => 'payload-contracts',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                '#[TestablePayload]' => $this->sourceCodeReader->readClassSource(TestablePayload::class),
+                'PayloadContractTester' => $this->sourceCodeReader->readClassSource(PayloadContractTester::class),
+                'test:init Command' => $this->sourceCodeReader->readClassSource(TestInitCommand::class),
+                'test:run Command' => $this->sourceCodeReader->readClassSource(TestRunCommand::class),
+                'StrictProfileStrategy' => $this->sourceCodeReader->readClassSource(StrictProfileStrategy::class),
+                'ParanoidProfileStrategy' => $this->sourceCodeReader->readClassSource(ParanoidProfileStrategy::class),
+                'MonkeyTestingStrategy' => $this->sourceCodeReader->readClassSource(MonkeyTestingStrategy::class),
             ])
-            ->withSection('testing')
-            ->withSlug('payload-contracts')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('Testing in Semitexa can start from the transport boundary itself: payloads declare what should be verified, and the framework runs the strategy suite.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See the testing workflow →')
-            ->withDeepDiveLabel('What the profiles actually buy you →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/cli-command-workbench.html.twig', [
                 'eyebrow' => 'Contract Testing',
                 'title' => 'One scaffolded suite can exercise every testable payload',
                 'summary' => 'Instead of hand-writing the same validation and bad-input cases for every endpoint, Semitexa lets payloads declare their testing strategies and runs the composed suite through a shared transport.',
                 'pillars' => [
-                    [
-                        'title' => 'Scaffold once.',
-                        'summary' => 'test:init creates the universal ProjectPayloadsContractTest that auto-discovers payloads marked with #[TestablePayload].',
-                    ],
-                    [
-                        'title' => 'Choose a profile.',
-                        'summary' => 'Strict and Paranoid profiles expand into concrete strategies like method checks, type mutation, security assertions, and monkey input.',
-                    ],
-                    [
-                        'title' => 'Run through real transport.',
-                        'summary' => 'The contract tester sends actual requests and reports which strategy or generated case failed instead of hiding everything in custom helpers.',
-                    ],
+                    ['title' => 'Scaffold once.', 'summary' => 'test:init creates the universal ProjectPayloadsContractTest that auto-discovers payloads marked with #[TestablePayload].'],
+                    ['title' => 'Choose a profile.', 'summary' => 'Strict and Paranoid profiles expand into concrete strategies like method checks, type mutation, security assertions, and monkey input.'],
+                    ['title' => 'Run through real transport.', 'summary' => 'The contract tester sends actual requests and reports which strategy or generated case failed instead of hiding everything in custom helpers.'],
                 ],
                 'commands' => [
-                    [
-                        'name' => 'bin/semitexa test:init',
-                        'purpose' => 'Scaffold the universal payload contract test into tests/Payload.',
-                        'value' => 'Gives the project one canonical entrypoint for payload boundary verification.',
-                    ],
-                    [
-                        'name' => 'bin/semitexa test:run -- --filter ProjectPayloadsContractTest',
-                        'purpose' => 'Run only the generated contract suite inside the dev Docker stack.',
-                        'value' => 'Keeps feedback focused while expanding coverage across all marked payloads.',
-                    ],
-                    [
-                        'name' => 'bin/semitexa test:run -- --testdox',
-                        'purpose' => 'Forward normal PHPUnit flags through the Semitexa wrapper.',
-                        'value' => 'Developers keep PHPUnit ergonomics while preserving the project container setup.',
-                    ],
+                    ['name' => 'bin/semitexa test:init', 'purpose' => 'Scaffold the universal payload contract test into tests/Payload.', 'value' => 'Gives the project one canonical entrypoint for payload boundary verification.'],
+                    ['name' => 'bin/semitexa test:run -- --filter ProjectPayloadsContractTest', 'purpose' => 'Run only the generated contract suite inside the dev Docker stack.', 'value' => 'Keeps feedback focused while expanding coverage across all marked payloads.'],
+                    ['name' => 'bin/semitexa test:run -- --testdox', 'purpose' => 'Forward normal PHPUnit flags through the Semitexa wrapper.', 'value' => 'Developers keep PHPUnit ergonomics while preserving the project container setup.'],
                 ],
                 'snippets' => [
                     [
@@ -115,10 +85,7 @@ final class PayloadContractsHandler implements TypedHandlerInterface
 final class PaymentPayload {}
 PHP,
                     ],
-                    [
-                        'label' => 'Scaffold and run the suite',
-                        'code' => "bin/semitexa test:init\nbin/semitexa test:run -- --filter ProjectPayloadsContractTest",
-                    ],
+                    ['label' => 'Scaffold and run the suite', 'code' => "bin/semitexa test:init\nbin/semitexa test:run -- --filter ProjectPayloadsContractTest"],
                     [
                         'label' => 'What Paranoid profile expands to',
                         'code' => <<<'PHP'
@@ -142,16 +109,6 @@ PHP,
                     'Prefer one generated suite plus strategy profiles over dozens of repetitive “422 when field is missing” tests.',
                     'Let the contract suite complement domain tests, not replace them; payload robustness and business behavior are different concerns.',
                 ],
-            ])
-            ->withSourceCode([
-                '#[TestablePayload]' => $this->sourceCodeReader->readClassSource(TestablePayload::class),
-                'PayloadContractTester' => $this->sourceCodeReader->readClassSource(PayloadContractTester::class),
-                'test:init Command' => $this->sourceCodeReader->readClassSource(TestInitCommand::class),
-                'test:run Command' => $this->sourceCodeReader->readClassSource(TestRunCommand::class),
-                'StrictProfileStrategy' => $this->sourceCodeReader->readClassSource(StrictProfileStrategy::class),
-                'ParanoidProfileStrategy' => $this->sourceCodeReader->readClassSource(ParanoidProfileStrategy::class),
-                'MonkeyTestingStrategy' => $this->sourceCodeReader->readClassSource(MonkeyTestingStrategy::class),
-            ])
-            ->withExplanation($explanation);
+            ]);
     }
 }

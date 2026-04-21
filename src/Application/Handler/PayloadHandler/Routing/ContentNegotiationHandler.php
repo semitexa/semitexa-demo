@@ -7,29 +7,17 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Routing;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Routing\ContentNegotiationPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
-use Semitexa\Demo\Application\Service\DemoFeaturePresentation;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ContentNegotiationPayload::class, resource: DemoFeatureResource::class)]
 final class ContentNegotiationHandler implements TypedHandlerInterface
 {
-    private const FEATURE_ENTRY_LINE = 'One endpoint serves JSON or HTML depending on the Accept header — no branching in handler code.';
-    #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
-
-    #[InjectAsReadonly]
-    protected DemoExplanationProvider $explanationProvider;
-
-    #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
-    #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    private const ENTRY_LINE = 'One endpoint serves JSON or HTML depending on the Accept header — no branching in handler code.';
 
     private const PRODUCTS = [
         ['id' => '1', 'name' => 'Wireless Headphones', 'price' => 79.99],
@@ -37,60 +25,44 @@ final class ContentNegotiationHandler implements TypedHandlerInterface
         ['id' => '3', 'name' => 'Ultra-wide Monitor', 'price' => 549.99],
     ];
 
+    #[InjectAsReadonly]
+    protected DemoFeaturePageProjector $projector;
+
+    #[InjectAsReadonly]
+    protected DemoExplanationProvider $explanationProvider;
+
+    #[InjectAsReadonly]
+    protected DemoSourceCodeReader $sourceCodeReader;
+
     public function handle(ContentNegotiationPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'routing',
-            'content-negotiation',
-            'Content Negotiation',
-            'One endpoint, multiple response formats — automatically.',
-            ['#[AsPayload(produces)]', 'Accept header', '?_format= override', 'ContentNegotiator'],
+        $spec = new FeatureSpec(
+            section: 'routing',
+            slug: 'content-negotiation',
+            entryLine: self::ENTRY_LINE,
+            learnMoreLabel: 'Toggle formats →',
+            deepDiveLabel: 'How negotiation works →',
+            relatedSlugs: [],
+            fallbackTitle: 'Content Negotiation',
+            fallbackSummary: 'One endpoint, multiple response formats — automatically.',
+            fallbackHighlights: ['#[AsPayload(produces)]', 'Accept header', '?_format= override', 'ContentNegotiator'],
+            explanation: $this->explanationProvider->getExplanation('routing', 'content-negotiation') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('routing', 'content-negotiation') ?? [];
-        $shellContext = $this->buildShellContext($explanation, $presentation);
 
-        $sourceCode = [
-            'Payload' => $this->sourceCodeReader->readClassSource(ContentNegotiationPayload::class),
-            'Handler' => $this->sourceCodeReader->readClassSource(self::class),
-        ];
+        $pageTitle = $this->projector->describe($spec)->pageTitle();
 
-        $jsonPreview = json_encode(['products' => self::PRODUCTS], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) ?: '{}';
-
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->seoTag('description', self::FEATURE_ENTRY_LINE)
-            ->seoTag('og:title', $presentation->title . ' — Semitexa Demo')
-            ->seoTag('og:description', self::FEATURE_ENTRY_LINE)
+        return $this->projector->project($resource, $spec)
+            ->seoTag('og:title', $pageTitle)
+            ->seoTag('og:description', self::ENTRY_LINE)
             ->seoTag('og:type', 'article')
-            ->withDemoShellContext($shellContext)
-            ->withSection('routing')
-            ->withSlug('content-negotiation')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine(self::FEATURE_ENTRY_LINE)
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('Toggle formats →')
-            ->withDeepDiveLabel('How negotiation works →')
-            ->withSourceCode($sourceCode)
-            ->withExplanation($explanation)
+            ->withSourceCode([
+                'Payload' => $this->sourceCodeReader->readClassSource(ContentNegotiationPayload::class),
+                'Handler' => $this->sourceCodeReader->readClassSource(self::class),
+            ])
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/content-negotiation.html.twig', [
-                'jsonPreview' => $jsonPreview,
+                'jsonPreview' => json_encode(['products' => self::PRODUCTS], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) ?: '{}',
                 'products' => self::PRODUCTS,
             ]);
-    }
-
-    private function buildShellContext(array $explanation, DemoFeaturePresentation $presentation): array
-    {
-        return [
-            'navSections' => $this->catalog->getSections(),
-            'featureTree' => $this->catalog->getFeatureTree(),
-            'currentSection' => 'routing',
-            'currentSlug' => 'content-negotiation',
-            'infoWhat' => $explanation['what'] ?? $presentation->summary,
-            'infoHow' => $explanation['how'] ?? null,
-            'infoWhy' => $explanation['why'] ?? null,
-            'infoKeywords' => $explanation['keywords'] ?? [],
-        ];
     }
 }

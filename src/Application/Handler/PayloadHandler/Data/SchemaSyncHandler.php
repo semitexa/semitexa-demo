@@ -7,11 +7,11 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Data;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Data\SchemaSyncPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Orm\Console\Command\OrmSyncCommand;
 use Semitexa\Orm\OrmManager;
@@ -22,7 +22,7 @@ use Semitexa\Orm\Sync\SyncEngine;
 final class SchemaSyncHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
@@ -30,41 +30,29 @@ final class SchemaSyncHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
-    #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
     public function handle(SchemaSyncPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'data',
-            'schema-sync',
-            'Schema Sync, Not Migration Churn',
-            'Semitexa creates SQL only when the real schema changed, blocks destructive drops by default, and logs the exact DDL plan as SQL and JSON.',
-            ['orm:sync', '--dry-run', '--allow-destructive', 'two-phase drop', 'AuditLogger'],
+        $spec = new FeatureSpec(
+            section: 'data',
+            slug: 'schema-sync',
+            entryLine: 'You do not hand-write busywork migrations all day. The ORM derives the plan, blocks dangerous drops by default, and records the exact SQL it ran.',
+            learnMoreLabel: 'See the sync plan →',
+            deepDiveLabel: 'Why destructive changes are delayed →',
+            relatedSlugs: [],
+            fallbackTitle: 'Schema Sync, Not Migration Churn',
+            fallbackSummary: 'Semitexa creates SQL only when the real schema changed, blocks destructive drops by default, and logs the exact DDL plan as SQL and JSON.',
+            fallbackHighlights: ['orm:sync', '--dry-run', '--allow-destructive', 'two-phase drop', 'AuditLogger'],
+            explanation: $this->explanationProvider->getExplanation('data', 'schema-sync') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('data', 'schema-sync') ?? [];
 
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'data',
-                'currentSlug' => 'schema-sync',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'orm:sync Command' => $this->sourceCodeReader->readClassSource(OrmSyncCommand::class),
+                'SyncEngine' => $this->sourceCodeReader->readClassSource(SyncEngine::class),
+                'AuditLogger' => $this->sourceCodeReader->readClassSource(AuditLogger::class),
+                'OrmManager' => $this->sourceCodeReader->readClassSource(OrmManager::class),
             ])
-            ->withSection('data')
-            ->withSlug('schema-sync')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('You do not hand-write busywork migrations all day. The ORM derives the plan, blocks dangerous drops by default, and records the exact SQL it ran.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See the sync plan →')
-            ->withDeepDiveLabel('Why destructive changes are delayed →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/schema-sync-showcase.html.twig', [
                 'painPoints' => [
                     'Teams waste time writing empty or obvious migrations just to mirror what the code already says.',
@@ -114,13 +102,6 @@ final class SchemaSyncHandler implements TypedHandlerInterface
                     'The executed plan is logged as both structured JSON and plain SQL for review, audit, and DevOps handoff.',
                     'If code and database already match, there is nothing to write and nothing to execute.',
                 ],
-            ])
-            ->withSourceCode([
-                'orm:sync Command' => $this->sourceCodeReader->readClassSource(OrmSyncCommand::class),
-                'SyncEngine' => $this->sourceCodeReader->readClassSource(SyncEngine::class),
-                'AuditLogger' => $this->sourceCodeReader->readClassSource(AuditLogger::class),
-                'OrmManager' => $this->sourceCodeReader->readClassSource(OrmManager::class),
-            ])
-            ->withExplanation($explanation);
+            ]);
     }
 }

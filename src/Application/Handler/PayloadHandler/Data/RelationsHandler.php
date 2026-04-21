@@ -7,22 +7,25 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Data;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
-use Semitexa\Demo\Domain\Repository\DemoCategoryRepositoryInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
+use Semitexa\Demo\Application\Payload\Request\Data\RelationsPayload;
+use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+use Semitexa\Demo\Application\Service\DemoExplanationProvider;
+use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Demo\Domain\Model\DemoCategory;
 use Semitexa\Demo\Domain\Model\DemoProduct;
 use Semitexa\Demo\Domain\Model\DemoReview;
+use Semitexa\Demo\Domain\Repository\DemoCategoryRepositoryInterface;
 use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
 use Semitexa\Demo\Domain\Repository\DemoReviewRepositoryInterface;
-use Semitexa\Demo\Application\Payload\Request\Data\RelationsPayload;
-use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
-use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
-use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: RelationsPayload::class, resource: DemoFeatureResource::class)]
 final class RelationsHandler implements TypedHandlerInterface
 {
+    #[InjectAsReadonly]
+    protected DemoFeaturePageProjector $projector;
+
     #[InjectAsReadonly]
     protected DemoCategoryRepositoryInterface $categoryRepository;
 
@@ -33,27 +36,26 @@ final class RelationsHandler implements TypedHandlerInterface
     protected DemoReviewRepositoryInterface $reviewRepository;
 
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
-
-    #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
-
-    #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
+    protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(RelationsPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'data',
-            'relations',
-            'Relations',
-            'Declare parent and child links on the resource itself, then read typed relations from the handler.',
-            ['#[HasMany]', '#[BelongsTo]', 'foreignKey', 'typed relations', 'batch loading'],
+        $spec = new FeatureSpec(
+            section: 'data',
+            slug: 'relations',
+            entryLine: 'Declare parent and child links on the resource itself, then read typed relations from the handler.',
+            learnMoreLabel: 'See the relation attributes →',
+            deepDiveLabel: 'How handler reads relations →',
+            relatedSlugs: [],
+            fallbackTitle: 'Relations',
+            fallbackSummary: 'Declare parent and child links on the resource itself, then read typed relations from the handler.',
+            fallbackHighlights: ['#[HasMany]', '#[BelongsTo]', 'foreignKey', 'typed relations', 'batch loading'],
+            explanation: $this->explanationProvider->getExplanation('data', 'relations') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('data', 'relations') ?? [];
 
         $categories = array_slice($this->categoryRepository->findAllOrdered(), 0, 2);
         $products = $this->productRepository->findPage(3);
@@ -62,34 +64,13 @@ final class RelationsHandler implements TypedHandlerInterface
         $focusReviews = $focusProduct !== null ? $this->reviewRepository->findByProduct($focusProduct->getId()) : [];
         $firstReview = $focusReviews[0] ?? null;
 
-        $sourceCode = [
-            'Product Resource' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Data/Relations/ProductResource.example.php'),
-            'Category Resource' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Data/Relations/CategoryResource.example.php'),
-            'Review Resource' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Data/Relations/ReviewResource.example.php'),
-            'Handler Read Flow' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Data/Relations/RelationsHandler.example.php'),
-        ];
-
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'data',
-                'currentSlug' => 'relations',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'Product Resource' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Data/Relations/ProductResource.example.php'),
+                'Category Resource' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Data/Relations/CategoryResource.example.php'),
+                'Review Resource' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Data/Relations/ReviewResource.example.php'),
+                'Handler Read Flow' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Data/Relations/RelationsHandler.example.php'),
             ])
-            ->withSection('data')
-            ->withSlug('relations')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('Declare parent and child links on the resource itself, then read typed relations from the handler.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See the relation attributes →')
-            ->withDeepDiveLabel('How handler reads relations →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/data-table.html.twig', [
                 'eyebrow' => 'Relation Map',
                 'title' => 'How links are declared',
@@ -167,9 +148,7 @@ PHP,
                     ],
                 ],
                 'emptyMessage' => 'No relation reads available.',
-            ])
-            ->withSourceCode($sourceCode)
-            ->withExplanation($explanation);
+            ]);
     }
 
     private function resolveProductCategory(?DemoProduct $product): ?DemoCategory

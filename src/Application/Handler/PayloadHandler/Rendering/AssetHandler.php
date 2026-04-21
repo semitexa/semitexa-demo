@@ -7,16 +7,25 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Rendering;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Rendering\AssetPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
-use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: AssetPayload::class, resource: DemoFeatureResource::class)]
 final class AssetHandler implements TypedHandlerInterface
 {
+    private const MANIFEST_SNIPPET = <<<'JSON'
+    {
+      "$schema": "semitexa://asset-manifest/v2",
+      "include": [
+        { "glob": "css/**/*.css", "inject": "head" },
+        { "glob": "js/**/*.js",   "inject": "body" }
+      ]
+    }
+    JSON;
+
     private const DEMO_ASSETS = [
         ['file' => 'css/demo.css',              'inject' => 'head',  'purpose' => 'Core layout, typography, cards'],
         ['file' => 'css/disclosure.css',        'inject' => 'head',  'purpose' => 'Expandable sections, drawers, tooltips'],
@@ -30,71 +39,39 @@ final class AssetHandler implements TypedHandlerInterface
     ];
 
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
-    #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
-    #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
-
     public function handle(AssetPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $manifestSnippet = <<<'JSON'
-{
-  "$schema": "semitexa://asset-manifest/v2",
-  "include": [
-    { "glob": "css/**/*.css", "inject": "head" },
-    { "glob": "js/**/*.js",   "inject": "body" }
-  ]
-}
-JSON;
-
-        $presentation = $this->documents->resolve(
-            'rendering',
-            'assets',
-            'Asset Pipeline',
-            'Declare assets with glob patterns in assets.json — served, versioned, and injected automatically.',
-            ['assets.json', 'asset_head()', 'asset_body()', 'glob patterns', 'versioning'],
+        $spec = new FeatureSpec(
+            section: 'rendering',
+            slug: 'assets',
+            entryLine: 'Declare assets with glob patterns in assets.json — served, versioned, and injected automatically.',
+            learnMoreLabel: 'See the asset manifest →',
+            deepDiveLabel: 'Asset pipeline internals →',
+            relatedSlugs: [],
+            fallbackTitle: 'Asset Pipeline',
+            fallbackSummary: 'Declare assets with glob patterns in assets.json — served, versioned, and injected automatically.',
+            fallbackHighlights: ['assets.json', 'asset_head()', 'asset_body()', 'glob patterns', 'versioning'],
+            explanation: $this->explanationProvider->getExplanation('rendering', 'assets') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('rendering', 'assets') ?? [];
 
         $assetsPath = dirname(__DIR__, 5) . '/Static/assets.json';
         $assetsContent = is_readable($assetsPath) ? file_get_contents($assetsPath) : false;
 
-        $sourceCode = [
-            'assets.json' => $assetsContent !== false ? $assetsContent : '// assets.json not found',
-        ];
-
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'rendering',
-                'currentSlug' => 'assets',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'assets.json' => $assetsContent !== false ? $assetsContent : '// assets.json not found',
             ])
-            ->withSection('rendering')
-            ->withSlug('assets')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('Declare assets with glob patterns in assets.json — served, versioned, and injected automatically.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See the asset manifest →')
-            ->withDeepDiveLabel('Asset pipeline internals →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
                 'eyebrow' => 'Asset Manifest',
                 'title' => sprintf('%d assets wired automatically', count(self::DEMO_ASSETS)),
                 'summary' => 'The framework resolves manifest globs, versions files, and injects them into the correct head or body slot.',
-                'codeSnippet' => $manifestSnippet,
+                'codeSnippet' => self::MANIFEST_SNIPPET,
                 'columns' => ['File', 'Inject point', 'Purpose'],
                 'rows' => array_map(
                     static fn (array $asset): array => [
@@ -104,8 +81,6 @@ JSON;
                     ],
                     self::DEMO_ASSETS,
                 ),
-            ])
-            ->withSourceCode($sourceCode)
-            ->withExplanation($explanation);
+            ]);
     }
 }
