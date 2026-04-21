@@ -8,22 +8,25 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Request;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Api\ProductListV2Payload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoApiPresenter;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ProductListV2Payload::class, resource: DemoFeatureResource::class)]
 final class ProductListV2Handler implements TypedHandlerInterface
 {
-    #[InjectAsReadonly]
-    protected DemoApiPresenter $apiPresenter;
+    private const ENDPOINT_PATH = '/demo/api/active-version';
+    private const API_VERSION = '2.0.0';
 
     #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoFeaturePageProjector $projector;
+
+    #[InjectAsReadonly]
+    protected DemoApiPresenter $apiPresenter;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
@@ -31,74 +34,56 @@ final class ProductListV2Handler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
-    #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
     public function handle(ProductListV2Payload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $endpointPath = '/demo/api/active-version';
-        $presentation = $this->documents->resolve(
-            'api',
-            'active-version',
-            'Active Version',
-            'The current collection endpoint with a clean X-Api-Version header and no deprecation noise.',
-            ['#[ApiVersion]', 'X-Api-Version', 'active lifecycle'],
-        );
-        $request = $payload->getHttpRequest() ?? new Request('GET', $endpointPath, [], [], [], [], []);
+        $request = $payload->getHttpRequest() ?? new Request('GET', self::ENDPOINT_PATH, [], [], [], [], []);
         $body = $this->apiPresenter->buildCollection(request: $request, query: $payload->getQ());
-        $explanation = $this->explanationProvider->getExplanation('api', 'active-version') ?? [];
         $contentType = $this->apiPresenter->getContentType($request, $payload->getFormat());
 
+        // JSON clients bypass page rendering and receive the collection with the active-version header.
         if ($this->wantsJson($request, $payload->getFormat())) {
             return $this->jsonResponse($resource, $body, [
                 'Content-Type' => $contentType,
-                'X-Api-Version' => '2.0.0',
+                'X-Api-Version' => self::API_VERSION,
             ]);
         }
 
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'api',
-                'currentSlug' => 'active-version',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
-            ])
-            ->withSection('api')
-            ->withSlug('active-version')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('The active version should feel intentionally boring: same response shape, stable metadata, and no sunset chatter for clients to parse around.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('Inspect active response →')
-            ->withDeepDiveLabel('Version contract internals →')
-            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/api-endpoint-demo.html.twig', [
-                'eyebrow' => 'Stable Contract',
-                'title' => 'Current collection endpoint without lifecycle warnings',
-                'summary' => 'This is the clean path Semitexa wants machine consumers to target when there is no migration pressure to communicate.',
-                'method' => 'GET',
-                'url' => $endpointPath,
-                'statusCode' => 200,
-                'contentType' => 'application/json',
-                'headers' => [
-                    'Content-Type' => $contentType,
-                    'X-Api-Version' => '2.0.0',
-                ],
-                'curlExample' => 'curl -i -H "Accept: application/json" "http://localhost:9502' . $endpointPath . '"',
-                'bodyLabel' => 'Active version payload',
-                'body' => $this->encodeJson($body),
-            ])
+        $spec = new FeatureSpec(
+            section: 'api',
+            slug: 'active-version',
+            entryLine: 'The active version should feel intentionally boring: same response shape, stable metadata, and no sunset chatter for clients to parse around.',
+            learnMoreLabel: 'Inspect active response →',
+            deepDiveLabel: 'Version contract internals →',
+            relatedSlugs: [],
+            fallbackTitle: 'Active Version',
+            fallbackSummary: 'The current collection endpoint with a clean X-Api-Version header and no deprecation noise.',
+            fallbackHighlights: ['#[ApiVersion]', 'X-Api-Version', 'active lifecycle'],
+            explanation: $this->explanationProvider->getExplanation('api', 'active-version') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
+        );
+
+        return $this->projector->project($resource, $spec)
             ->withSourceCode([
                 'Active Version Handler' => $this->sourceCodeReader->readClassSource(self::class),
                 'Active Version Payload' => $this->sourceCodeReader->readClassSource(ProductListV2Payload::class),
                 'DemoApiPresenter' => $this->sourceCodeReader->readClassSource(DemoApiPresenter::class),
             ])
-            ->withExplanation($explanation)
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/api-endpoint-demo.html.twig', [
+                'eyebrow' => 'Stable Contract',
+                'title' => 'Current collection endpoint without lifecycle warnings',
+                'summary' => 'This is the clean path Semitexa wants machine consumers to target when there is no migration pressure to communicate.',
+                'method' => 'GET',
+                'url' => self::ENDPOINT_PATH,
+                'statusCode' => 200,
+                'contentType' => 'application/json',
+                'headers' => [
+                    'Content-Type' => $contentType,
+                    'X-Api-Version' => self::API_VERSION,
+                ],
+                'curlExample' => 'curl -i -H "Accept: application/json" "http://localhost:9502' . self::ENDPOINT_PATH . '"',
+                'bodyLabel' => 'Active version payload',
+                'body' => $this->encodeJson($body),
+            ])
             ->withL2ContentTemplate('@project-layouts-semitexa-demo/components/previews/api-endpoint-notes.html.twig', [
                 'eyebrow' => 'Version Notes',
                 'title' => 'What this endpoint is proving',

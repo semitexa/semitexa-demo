@@ -7,68 +7,56 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\ProjectGraph;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\ProjectGraph\ProjectGraphOverviewPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ProjectGraphOverviewPayload::class, resource: DemoFeatureResource::class)]
 final class ProjectGraphOverviewHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
-    #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
     public function handle(ProjectGraphOverviewPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'project-graph',
-            'overview',
-            'Project Graph Overview',
-            'Understand what `semitexa-project-graph` adds: a stored structural map, an intelligence layer, and task-scoped context for large-codebase work.',
-            ['semitexa-project-graph', 'task-first workflow', 'intelligence layer', 'stored structural graph'],
+        $spec = new FeatureSpec(
+            section: 'project-graph',
+            slug: 'overview',
+            entryLine: 'Project Graph is not a mandatory startup ritual. It is a package-level structural memory that you reach for when a task needs real architecture answers instead of guesses.',
+            learnMoreLabel: 'See the package workflow →',
+            deepDiveLabel: 'Why this matters for humans and AI →',
+            relatedSlugs: [],
+            fallbackTitle: 'Project Graph Overview',
+            fallbackSummary: 'Understand what `semitexa-project-graph` adds: a stored structural map, an intelligence layer, and task-scoped context for large-codebase work.',
+            fallbackHighlights: ['semitexa-project-graph', 'task-first workflow', 'intelligence layer', 'stored structural graph'],
+            explanation: [
+                'what' => 'Project Graph is a package-level architecture memory for Semitexa repositories. It persists structural facts about modules, handlers, services, events, flows, and dependencies so engineers and AI can work from the actual system shape instead of rediscovering it repeatedly.',
+                'how' => 'Use it on demand. Start from the task, fetch graph-backed context when structure matters, refresh the stored graph only when answers are stale, and then choose the narrowest command that answers the question: show, query, module, intelligence, impact, or context.',
+                'why' => 'This matters because large repositories do not become easier just by adding more docs. Project Graph turns architecture into a reusable artifact: onboarding accelerates, impact analysis gets safer, AI prompts shrink, and structural questions stop triggering another round of blind grep.',
+                'keywords' => [
+                    ['term' => 'task-first workflow', 'definition' => 'A graph-assisted workflow that starts from the task and only reaches for structural commands when the task actually needs them.'],
+                    ['term' => 'stored structural graph', 'definition' => 'A persisted architecture map of nodes and edges that can be reused across onboarding, review, and AI-assisted work.'],
+                    ['term' => 'intelligence layer', 'definition' => 'Higher-level answers built on top of the graph: hotspots, domain context, event lifecycles, inferred intent, and natural-language structural queries.'],
+                    ['term' => 'package-level capability', 'definition' => 'The graph surface belongs to the `semitexa-project-graph` package and is available where that package is installed and enabled.'],
+                ],
+            ],
+            pageTitleSuffix: ' — Semitexa Demo',
+            sectionLabel: 'Project Graph',
         );
 
-        $explanation = [
-            'what' => 'Project Graph is a package-level architecture memory for Semitexa repositories. It persists structural facts about modules, handlers, services, events, flows, and dependencies so engineers and AI can work from the actual system shape instead of rediscovering it repeatedly.',
-            'how' => 'Use it on demand. Start from the task, fetch graph-backed context when structure matters, refresh the stored graph only when answers are stale, and then choose the narrowest command that answers the question: show, query, module, intelligence, impact, or context.',
-            'why' => 'This matters because large repositories do not become easier just by adding more docs. Project Graph turns architecture into a reusable artifact: onboarding accelerates, impact analysis gets safer, AI prompts shrink, and structural questions stop triggering another round of blind grep.',
-            'keywords' => [
-                ['term' => 'task-first workflow', 'definition' => 'A graph-assisted workflow that starts from the task and only reaches for structural commands when the task actually needs them.'],
-                ['term' => 'stored structural graph', 'definition' => 'A persisted architecture map of nodes and edges that can be reused across onboarding, review, and AI-assisted work.'],
-                ['term' => 'intelligence layer', 'definition' => 'Higher-level answers built on top of the graph: hotspots, domain context, event lifecycles, inferred intent, and natural-language structural queries.'],
-                ['term' => 'package-level capability', 'definition' => 'The graph surface belongs to the `semitexa-project-graph` package and is available where that package is installed and enabled.'],
-            ],
-        ];
-
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'project-graph',
-                'currentSlug' => 'overview',
-                'infoWhat' => $explanation['what'],
-                'infoHow' => $explanation['how'],
-                'infoWhy' => $explanation['why'],
-                'infoKeywords' => $explanation['keywords'],
+        // Related list crosses sections (cli/ai-tooling alongside same-section peers), which is
+        // outside the FeatureSpec same-section-slugs contract. Chain an explicit list instead.
+        return $this->projector->project($resource, $spec)
+            ->withRelatedPayloads([
+                ['href' => '/demo/project-graph/inspection', 'label' => 'Inspecting the Graph'],
+                ['href' => '/demo/project-graph/impact', 'label' => 'Impact, Context, and Watch Mode'],
+                ['href' => '/demo/cli/ai-tooling', 'label' => 'AI Tooling Surface'],
             ])
-            ->withSection('project-graph')
-            ->withSectionLabel('Project Graph')
-            ->withSlug('overview')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('Project Graph is not a mandatory startup ritual. It is a package-level structural memory that you reach for when a task needs real architecture answers instead of guesses.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See the package workflow →')
-            ->withDeepDiveLabel('Why this matters for humans and AI →')
             ->withSourceCode([
                 'Demo Package README' => $this->sourceCodeReader->readProjectRelativeSource('README.md'),
                 'Package Workflow Notes' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Overview/Capabilities.example.md'),
@@ -125,26 +113,10 @@ final class ProjectGraphOverviewHandler implements TypedHandlerInterface
                 'summary' => 'Search still matters for local text facts. Project Graph matters when the question is architectural: what depends on this, what flows through here, what is high-risk, and what context actually belongs in the next review or AI prompt.',
                 'columns' => ['Question', 'Without Project Graph', 'With Project Graph'],
                 'rows' => [
-                    [
-                        ['text' => 'Do I need the graph for every task?'],
-                        ['text' => 'Usually the team invents a ritual and runs it blindly.'],
-                        ['text' => 'No. Start from the task and use graph commands only when structure matters.', 'variant' => 'success'],
-                    ],
-                    [
-                        ['text' => 'What changes once the package is enabled?'],
-                        ['text' => 'Architecture stays scattered across files, docs, and oral explanations.'],
-                        ['text' => 'The repository gains a stored graph plus intelligence and context-packing surfaces.', 'variant' => 'success'],
-                    ],
-                    [
-                        ['text' => 'What can it answer beyond node lists?'],
-                        ['text' => 'Engineers must improvise with grep, memory, and assumption chains.'],
-                        ['text' => 'Flows, events, hotspots, impact, module context, and AI-ready packages become explicit.', 'variant' => 'success'],
-                    ],
-                    [
-                        ['text' => 'Why is this better than plain repository search?'],
-                        ['text' => 'Search answers local text matches but not system shape.'],
-                        ['text' => 'Graph-backed answers are structural, reusable, and safer for review or AI work.', 'variant' => 'success'],
-                    ],
+                    [['text' => 'Do I need the graph for every task?'], ['text' => 'Usually the team invents a ritual and runs it blindly.'], ['text' => 'No. Start from the task and use graph commands only when structure matters.', 'variant' => 'success']],
+                    [['text' => 'What changes once the package is enabled?'], ['text' => 'Architecture stays scattered across files, docs, and oral explanations.'], ['text' => 'The repository gains a stored graph plus intelligence and context-packing surfaces.', 'variant' => 'success']],
+                    [['text' => 'What can it answer beyond node lists?'], ['text' => 'Engineers must improvise with grep, memory, and assumption chains.'], ['text' => 'Flows, events, hotspots, impact, module context, and AI-ready packages become explicit.', 'variant' => 'success']],
+                    [['text' => 'Why is this better than plain repository search?'], ['text' => 'Search answers local text matches but not system shape.'], ['text' => 'Graph-backed answers are structural, reusable, and safer for review or AI work.', 'variant' => 'success']],
                 ],
                 'paragraphs' => [
                     'The practical gain is not just speed. It is that onboarding, refactors, code review, and AI work stop starting from zero every time.',
@@ -162,12 +134,6 @@ final class ProjectGraphOverviewHandler implements TypedHandlerInterface
                     'Treat refresh as conditional: rebuild or verify freshness when graph-backed answers are stale, not as a startup ritual for every task.',
                     'Be explicit that `ai:review-graph:*` commands belong to installs where `semitexa-project-graph` is enabled.',
                 ],
-            ])
-            ->withRelatedPayloads([
-                ['href' => '/demo/project-graph/inspection', 'label' => 'Inspecting the Graph'],
-                ['href' => '/demo/project-graph/impact', 'label' => 'Impact, Context, and Watch Mode'],
-                ['href' => '/demo/cli/ai-tooling', 'label' => 'AI Tooling Surface'],
-            ])
-            ->withExplanation($explanation);
+            ]);
     }
 }

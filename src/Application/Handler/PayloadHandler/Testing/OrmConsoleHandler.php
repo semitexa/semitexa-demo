@@ -7,11 +7,11 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Testing;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Testing\OrmConsolePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Orm\Console\Command\OrmDiffCommand;
 use Semitexa\Orm\Console\Command\OrmSeedCommand;
@@ -22,90 +22,49 @@ use Semitexa\Orm\Console\Command\OrmSyncCommand;
 final class OrmConsoleHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
-
-    #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
 
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(OrmConsolePayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'cli',
-            'orm-console',
-            'ORM Console Toolkit',
-            'The ORM ships with a practical CLI surface: status, diff, sync, and seed commands with dry-run safety and SQL plan export.',
-            ['orm:status', 'orm:diff', 'orm:sync', 'orm:seed', '--output'],
+        $spec = new FeatureSpec(
+            section: 'cli',
+            slug: 'orm-console',
+            entryLine: 'Framework credibility also lives in operations. The ORM CLI should tell you what will change before it changes anything.',
+            learnMoreLabel: 'See the command surface →',
+            deepDiveLabel: 'What each command is for →',
+            relatedSlugs: [],
+            fallbackTitle: 'ORM Console Toolkit',
+            fallbackSummary: 'The ORM ships with a practical CLI surface: status, diff, sync, and seed commands with dry-run safety and SQL plan export.',
+            fallbackHighlights: ['orm:status', 'orm:diff', 'orm:sync', 'orm:seed', '--output'],
+            explanation: $this->explanationProvider->getExplanation('cli', 'orm-console') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('cli', 'orm-console') ?? [];
 
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'cli',
-                'currentSlug' => 'orm-console',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'orm:status Command' => $this->sourceCodeReader->readClassSource(OrmStatusCommand::class),
+                'orm:diff Command' => $this->sourceCodeReader->readClassSource(OrmDiffCommand::class),
+                'orm:sync Command' => $this->sourceCodeReader->readClassSource(OrmSyncCommand::class),
+                'orm:seed Command' => $this->sourceCodeReader->readClassSource(OrmSeedCommand::class),
             ])
-            ->withSection('cli')
-            ->withSlug('orm-console')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('Framework credibility also lives in operations. The ORM CLI should tell you what will change before it changes anything.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See the command surface →')
-            ->withDeepDiveLabel('What each command is for →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/orm-console-toolkit.html.twig', [
                 'commands' => [
-                    [
-                        'name' => 'bin/semitexa orm:status',
-                        'purpose' => 'Show DB/server capabilities and whether schema is in sync.',
-                        'value' => 'Gives fast operational context before any change.',
-                    ],
-                    [
-                        'name' => 'bin/semitexa orm:diff',
-                        'purpose' => 'List code-vs-database differences.',
-                        'value' => 'Lets reviewers see pending table, column, index, and FK changes.',
-                    ],
-                    [
-                        'name' => 'bin/semitexa orm:sync --dry-run',
-                        'purpose' => 'Build the execution plan without executing it.',
-                        'value' => 'Safe default for CI, review, and local inspection.',
-                    ],
-                    [
-                        'name' => 'bin/semitexa orm:sync --output plan.sql',
-                        'purpose' => 'Export the SQL plan to a file.',
-                        'value' => 'Useful for audit trails and DevOps handoff.',
-                    ],
-                    [
-                        'name' => 'bin/semitexa orm:seed',
-                        'purpose' => 'Run defaults() upserts for seedable resources.',
-                        'value' => 'Makes local/demo environments reproducible quickly.',
-                    ],
+                    ['name' => 'bin/semitexa orm:status', 'purpose' => 'Show DB/server capabilities and whether schema is in sync.', 'value' => 'Gives fast operational context before any change.'],
+                    ['name' => 'bin/semitexa orm:diff', 'purpose' => 'List code-vs-database differences.', 'value' => 'Lets reviewers see pending table, column, index, and FK changes.'],
+                    ['name' => 'bin/semitexa orm:sync --dry-run', 'purpose' => 'Build the execution plan without executing it.', 'value' => 'Safe default for CI, review, and local inspection.'],
+                    ['name' => 'bin/semitexa orm:sync --output plan.sql', 'purpose' => 'Export the SQL plan to a file.', 'value' => 'Useful for audit trails and DevOps handoff.'],
+                    ['name' => 'bin/semitexa orm:seed', 'purpose' => 'Run defaults() upserts for seedable resources.', 'value' => 'Makes local/demo environments reproducible quickly.'],
                 ],
                 'snippets' => [
-                    [
-                        'label' => 'Inspect current sync state',
-                        'code' => "bin/semitexa orm:status\nbin/semitexa orm:diff",
-                    ],
-                    [
-                        'label' => 'Review SQL before execution',
-                        'code' => "bin/semitexa orm:sync --dry-run -vv\nbin/semitexa orm:sync --dry-run --output var/migrations/history/review.sql",
-                    ],
-                    [
-                        'label' => 'Apply safe changes, then seed',
-                        'code' => "bin/semitexa orm:sync\nbin/semitexa orm:seed",
-                    ],
+                    ['label' => 'Inspect current sync state', 'code' => "bin/semitexa orm:status\nbin/semitexa orm:diff"],
+                    ['label' => 'Review SQL before execution', 'code' => "bin/semitexa orm:sync --dry-run -vv\nbin/semitexa orm:sync --dry-run --output var/migrations/history/review.sql"],
+                    ['label' => 'Apply safe changes, then seed', 'code' => "bin/semitexa orm:sync\nbin/semitexa orm:seed"],
                 ],
             ])
             ->withL2ContentTemplate('@project-layouts-semitexa-demo/components/previews/orm-console-rules.html.twig', [
@@ -115,13 +74,6 @@ final class OrmConsoleHandler implements TypedHandlerInterface
                     'Use --allow-destructive only when the team intentionally wants to include DROP and narrowing operations.',
                     'Export plans with --output when another human or deployment system needs the exact SQL artifact.',
                 ],
-            ])
-            ->withSourceCode([
-                'orm:status Command' => $this->sourceCodeReader->readClassSource(OrmStatusCommand::class),
-                'orm:diff Command' => $this->sourceCodeReader->readClassSource(OrmDiffCommand::class),
-                'orm:sync Command' => $this->sourceCodeReader->readClassSource(OrmSyncCommand::class),
-                'orm:seed Command' => $this->sourceCodeReader->readClassSource(OrmSeedCommand::class),
-            ])
-            ->withExplanation($explanation);
+            ]);
     }
 }

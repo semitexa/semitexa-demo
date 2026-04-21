@@ -12,18 +12,18 @@ use Semitexa\Api\Domain\Model\MachineCredential;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Data\RepositoryWorkflowPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: RepositoryWorkflowPayload::class, resource: DemoFeatureResource::class)]
 final class RepositoryWorkflowHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
@@ -31,41 +31,30 @@ final class RepositoryWorkflowHandler implements TypedHandlerInterface
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
-    #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
     public function handle(RepositoryWorkflowPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'data',
-            'repository-workflow',
-            'Repository Workflow',
-            'The canonical Semitexa path: handlers depend on repository contracts, repositories return domain models, and persistence resources stay behind the boundary.',
-            ['repository contract', 'domain model', 'ResourceModel', 'mapper', '#[SatisfiesRepositoryContract]'],
+        $spec = new FeatureSpec(
+            section: 'data',
+            slug: 'repository-workflow',
+            entryLine: 'Business code should work with domain models, while ResourceModel and mapper logic stay inside the persistence layer.',
+            learnMoreLabel: 'See the canonical flow →',
+            deepDiveLabel: 'Where resource reads still belong →',
+            relatedSlugs: [],
+            fallbackTitle: 'Repository Workflow',
+            fallbackSummary: 'The canonical Semitexa path: handlers depend on repository contracts, repositories return domain models, and persistence resources stay behind the boundary.',
+            fallbackHighlights: ['repository contract', 'domain model', 'ResourceModel', 'mapper', '#[SatisfiesRepositoryContract]'],
+            explanation: $this->explanationProvider->getExplanation('data', 'repository-workflow') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('data', 'repository-workflow') ?? [];
 
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'data',
-                'currentSlug' => 'repository-workflow',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'Repository Contract' => $this->sourceCodeReader->readClassSource(MachineCredentialRepositoryInterface::class),
+                'Domain Model' => $this->sourceCodeReader->readClassSource(MachineCredential::class),
+                'ORM Repository Implementation' => $this->sourceCodeReader->readClassSource(MachineCredentialRepository::class),
+                'ResourceModel' => $this->sourceCodeReader->readClassSource(MachineCredentialResourceModel::class),
+                'Mapper' => $this->sourceCodeReader->readClassSource(MachineCredentialMapper::class),
             ])
-            ->withSection('data')
-            ->withSlug('repository-workflow')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('Business code should work with domain models, while ResourceModel and mapper logic stay inside the persistence layer.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See the canonical flow →')
-            ->withDeepDiveLabel('Where resource reads still belong →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/repository-workflow.html.twig', [
                 'principles' => [
                     'Handlers should ask for repository contracts, not ORM implementations.',
@@ -113,14 +102,6 @@ final class RepositoryWorkflowHandler implements TypedHandlerInterface
                     'Mapper and ResourceModel code should stay clearly visible, but behind the repository boundary.',
                     'If a feature is mostly about domain behavior, the source tabs should foreground the domain model and contract before the persistence model.',
                 ],
-            ])
-            ->withSourceCode([
-                'Repository Contract' => $this->sourceCodeReader->readClassSource(MachineCredentialRepositoryInterface::class),
-                'Domain Model' => $this->sourceCodeReader->readClassSource(MachineCredential::class),
-                'ORM Repository Implementation' => $this->sourceCodeReader->readClassSource(MachineCredentialRepository::class),
-                'ResourceModel' => $this->sourceCodeReader->readClassSource(MachineCredentialResourceModel::class),
-                'Mapper' => $this->sourceCodeReader->readClassSource(MachineCredentialMapper::class),
-            ])
-            ->withExplanation($explanation);
+            ]);
     }
 }

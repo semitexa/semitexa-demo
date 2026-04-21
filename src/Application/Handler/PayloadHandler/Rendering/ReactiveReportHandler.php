@@ -8,12 +8,12 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Domain\Repository\DemoJobRunRepositoryInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Rendering\ReactiveReportPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Resource\Slot\Reactive\ReactiveReportSlot;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoReportBuilder;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
@@ -21,68 +21,47 @@ use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 final class ReactiveReportHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
+    protected DemoFeaturePageProjector $projector;
+
+    #[InjectAsReadonly]
     protected DemoJobRunRepositoryInterface $jobRunRepository;
 
     #[InjectAsReadonly]
     protected DemoReportBuilder $reportBuilder;
 
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
-
-    #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
-    #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(ReactiveReportPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $runs = $this->jobRunRepository->findByJobType('report_generation');
-        $latestRun = $runs[0] ?? null;
+        $spec = new FeatureSpec(
+            section: 'rendering',
+            slug: 'reactive-report',
+            entryLine: 'A scheduled job changes server state, and the slot keeps reflecting that state live with no page reload and no client-side state machine.',
+            learnMoreLabel: 'See the live-report flow →',
+            deepDiveLabel: 'LeaseHeartbeat & retry →',
+            relatedSlugs: [],
+            fallbackTitle: 'Reactive Report',
+            fallbackSummary: 'Background work updates an SSR-first slot in place, so the UI feels live without falling back to SPA state orchestration.',
+            fallbackHighlights: ['refreshInterval', '#[AsScheduledJob]', 'DemoJobRun', 'SSR-first live UI'],
+            explanation: $this->explanationProvider->getExplanation('rendering', 'reactive-report') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
+        );
 
+        $latestRun = $this->jobRunRepository->findByJobType('report_generation')[0] ?? null;
         $status = $latestRun?->getStatus() ?? 'idle';
         $progress = $latestRun?->getProgressPercent() ?? 0;
         $message = $latestRun?->getProgressMessage() ?? 'Waiting for next scheduled run…';
 
-        $presentation = $this->documents->resolve(
-            'rendering',
-            'reactive-report',
-            'Reactive Report',
-            'Background work updates an SSR-first slot in place, so the UI feels live without falling back to SPA state orchestration.',
-            ['refreshInterval', '#[AsScheduledJob]', 'DemoJobRun', 'SSR-first live UI'],
-        );
-        $explanation = $this->explanationProvider->getExplanation('rendering', 'reactive-report') ?? [];
-
-        $sourceCode = [
-            'ReactiveReportSlot' => $this->sourceCodeReader->readClassSource(ReactiveReportSlot::class),
-            'DemoReportBuilder' => $this->sourceCodeReader->readClassSource(DemoReportBuilder::class),
-            'Handler' => $this->sourceCodeReader->readClassSource(self::class),
-        ];
-
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'rendering',
-                'currentSlug' => 'reactive-report',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'ReactiveReportSlot' => $this->sourceCodeReader->readClassSource(ReactiveReportSlot::class),
+                'DemoReportBuilder' => $this->sourceCodeReader->readClassSource(DemoReportBuilder::class),
+                'Handler' => $this->sourceCodeReader->readClassSource(self::class),
             ])
-            ->withSection('rendering')
-            ->withSlug('reactive-report')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('A scheduled job changes server state, and the slot keeps reflecting that state live with no page reload and no client-side state machine.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See the live-report flow →')
-            ->withDeepDiveLabel('LeaseHeartbeat & retry →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/ssr-live-ui-showcase.html.twig', [
                 'eyebrow' => 'Server State -> Live Slot',
                 'title' => 'Scheduled work reflected as live HTML',
@@ -128,8 +107,6 @@ final class ReactiveReportHandler implements TypedHandlerInterface
                     ['label' => 'DemoJobRun', 'detail' => 'Stores live job state that the slot turns into HTML.'],
                     ['label' => 'ReactiveReportSlot', 'detail' => 'Owns the live region contract separately from the main page resource.'],
                 ],
-            ])
-            ->withSourceCode($sourceCode)
-            ->withExplanation($explanation);
+            ]);
     }
 }

@@ -7,69 +7,50 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\ProjectGraph;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\ProjectGraph\ProjectGraphInspectionPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ProjectGraphInspectionPayload::class, resource: DemoFeatureResource::class)]
 final class ProjectGraphInspectionHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
 
-    #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
     public function handle(ProjectGraphInspectionPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'project-graph',
-            'inspection',
-            'Inspecting the Graph',
-            'Use Project Graph queries and intelligence views to inspect modules, dependencies, flows, events, and hotspots without reconstructing the repository manually.',
-            ['ai:review-graph:show', 'ai:review-graph:query', 'ai:review-graph:module', 'ai:review-graph:intelligence', 'ai:review-graph:context'],
+        $spec = new FeatureSpec(
+            section: 'project-graph',
+            slug: 'inspection',
+            entryLine: 'Once Project Graph is enabled, structural questions stop being archaeology. You can ask for exactly the slice, dependency, hotspot, or module view you need.',
+            learnMoreLabel: 'See the inspection workflows →',
+            deepDiveLabel: 'What this saves during real project work →',
+            relatedSlugs: ['overview', 'impact'],
+            fallbackTitle: 'Inspecting the Graph',
+            fallbackSummary: 'Use Project Graph queries and intelligence views to inspect modules, dependencies, flows, events, and hotspots without reconstructing the repository manually.',
+            fallbackHighlights: ['ai:review-graph:show', 'ai:review-graph:query', 'ai:review-graph:module', 'ai:review-graph:intelligence', 'ai:review-graph:context'],
+            explanation: [
+                'what' => 'Once the package is enabled and the graph exists, inspection becomes a set of explicit structural views instead of improvised archaeology. You can render slices, query dependencies, inspect whole modules, and ask the intelligence layer for hotspots, doc gaps, or event lifecycles.',
+                'how' => 'Use `ai:review-graph:show` for readable slices, `ai:review-graph:query` for targeted dependency questions, `ai:review-graph:module` for a module-level overview, `ai:review-graph:intelligence` for higher-level structural explanations, and `ai:review-graph:context` when the task needs a review- or AI-ready context package.',
+                'why' => 'This is where the package becomes operationally useful. Reviews get faster, onboarding becomes less fragile, and AI tools can start from architecture-backed answers instead of broad guesses assembled from random files.',
+                'keywords' => [
+                    ['term' => 'ai:review-graph:show', 'definition' => 'Renders summary, markdown, JSON, or DOT graph views for a chosen focus, module, or node type.'],
+                    ['term' => 'ai:review-graph:query', 'definition' => 'Runs structural lookups such as search, usages, dependencies, and cross-module edge inspection.'],
+                    ['term' => 'ai:review-graph:module', 'definition' => 'Builds a module overview with summary counts, domain context, hotspots, and optional flows or event details.'],
+                    ['term' => 'ai:review-graph:intelligence', 'definition' => 'Queries the higher-level intelligence layer for hotspots, documentation gaps, flows, event lifecycles, intent, and natural-language structural answers.'],
+                    ['term' => 'ai:review-graph:context', 'definition' => 'Builds task-scoped structural context for review, refactor, debugging, or AI-assisted work.'],
+                ],
+            ],
+            pageTitleSuffix: ' — Semitexa Demo',
+            sectionLabel: 'Project Graph',
         );
 
-        $explanation = [
-            'what' => 'Once the package is enabled and the graph exists, inspection becomes a set of explicit structural views instead of improvised archaeology. You can render slices, query dependencies, inspect whole modules, and ask the intelligence layer for hotspots, doc gaps, or event lifecycles.',
-            'how' => 'Use `ai:review-graph:show` for readable slices, `ai:review-graph:query` for targeted dependency questions, `ai:review-graph:module` for a module-level overview, `ai:review-graph:intelligence` for higher-level structural explanations, and `ai:review-graph:context` when the task needs a review- or AI-ready context package.',
-            'why' => 'This is where the package becomes operationally useful. Reviews get faster, onboarding becomes less fragile, and AI tools can start from architecture-backed answers instead of broad guesses assembled from random files.',
-            'keywords' => [
-                ['term' => 'ai:review-graph:show', 'definition' => 'Renders summary, markdown, JSON, or DOT graph views for a chosen focus, module, or node type.'],
-                ['term' => 'ai:review-graph:query', 'definition' => 'Runs structural lookups such as search, usages, dependencies, and cross-module edge inspection.'],
-                ['term' => 'ai:review-graph:module', 'definition' => 'Builds a module overview with summary counts, domain context, hotspots, and optional flows or event details.'],
-                ['term' => 'ai:review-graph:intelligence', 'definition' => 'Queries the higher-level intelligence layer for hotspots, documentation gaps, flows, event lifecycles, intent, and natural-language structural answers.'],
-                ['term' => 'ai:review-graph:context', 'definition' => 'Builds task-scoped structural context for review, refactor, debugging, or AI-assisted work.'],
-            ],
-        ];
-
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'project-graph',
-                'currentSlug' => 'inspection',
-                'infoWhat' => $explanation['what'],
-                'infoHow' => $explanation['how'],
-                'infoWhy' => $explanation['why'],
-                'infoKeywords' => $explanation['keywords'],
-            ])
-            ->withSection('project-graph')
-            ->withSectionLabel('Project Graph')
-            ->withSlug('inspection')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('Once Project Graph is enabled, structural questions stop being archaeology. You can ask for exactly the slice, dependency, hotspot, or module view you need.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See the inspection workflows →')
-            ->withDeepDiveLabel('What this saves during real project work →')
+        return $this->projector->project($resource, $spec)
             ->withSourceCode([
                 'Inspection Commands' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Inspection/Queries.example.sh'),
                 'Show Formats' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/ProjectGraph/Inspection/ShowFormats.example.sh'),
@@ -127,31 +108,11 @@ final class ProjectGraphInspectionHandler implements TypedHandlerInterface
                 'summary' => 'The graph is more useful when teams stop treating it as one generic command. Broad slices, direct queries, module views, intelligence helpers, and task context each serve a distinct inspection job.',
                 'columns' => ['Need', 'Best command', 'Why it is useful'],
                 'rows' => [
-                    [
-                        ['text' => 'Broad structural slice'],
-                        ['text' => 'ai:review-graph:show'],
-                        ['text' => 'Renders a readable view without inventing custom queries first.', 'variant' => 'success'],
-                    ],
-                    [
-                        ['text' => 'Dependency, usage, or search question'],
-                        ['text' => 'ai:review-graph:query'],
-                        ['text' => 'Answers targeted structural questions fast.', 'variant' => 'success'],
-                    ],
-                    [
-                        ['text' => 'Whole-module understanding'],
-                        ['text' => 'ai:review-graph:module'],
-                        ['text' => 'Packages counts, context, hotspots, and optional flows or event details in one response.', 'variant' => 'success'],
-                    ],
-                    [
-                        ['text' => 'Higher-level structural explanation'],
-                        ['text' => 'ai:review-graph:intelligence'],
-                        ['text' => 'Surfaces hotspots, doc gaps, event lifecycles, and natural-language answers.', 'variant' => 'success'],
-                    ],
-                    [
-                        ['text' => 'Task-scoped prep for review or AI work'],
-                        ['text' => 'ai:review-graph:context'],
-                        ['text' => 'Builds a tighter structural package than random file sampling.', 'variant' => 'success'],
-                    ],
+                    [['text' => 'Broad structural slice'], ['text' => 'ai:review-graph:show'], ['text' => 'Renders a readable view without inventing custom queries first.', 'variant' => 'success']],
+                    [['text' => 'Dependency, usage, or search question'], ['text' => 'ai:review-graph:query'], ['text' => 'Answers targeted structural questions fast.', 'variant' => 'success']],
+                    [['text' => 'Whole-module understanding'], ['text' => 'ai:review-graph:module'], ['text' => 'Packages counts, context, hotspots, and optional flows or event details in one response.', 'variant' => 'success']],
+                    [['text' => 'Higher-level structural explanation'], ['text' => 'ai:review-graph:intelligence'], ['text' => 'Surfaces hotspots, doc gaps, event lifecycles, and natural-language answers.', 'variant' => 'success']],
+                    [['text' => 'Task-scoped prep for review or AI work'], ['text' => 'ai:review-graph:context'], ['text' => 'Builds a tighter structural package than random file sampling.', 'variant' => 'success']],
                 ],
                 'paragraphs' => [
                     'This is part of the real value proposition: one stored graph can power several very different inspection workflows without forcing teams back into archaeology.',
@@ -169,11 +130,6 @@ final class ProjectGraphInspectionHandler implements TypedHandlerInterface
                     'Use JSON or Markdown output when the result needs to be shared, reviewed, or consumed by automation.',
                     'Use `intelligence` or `context` when the goal is explanation or task preparation rather than raw graph edges.',
                 ],
-            ])
-            ->withRelatedPayloads([
-                ['href' => '/demo/project-graph/overview', 'label' => 'Project Graph Overview'],
-                ['href' => '/demo/project-graph/impact', 'label' => 'Impact, Context, and Watch Mode'],
-            ])
-            ->withExplanation($explanation);
+            ]);
     }
 }

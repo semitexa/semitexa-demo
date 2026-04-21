@@ -7,60 +7,46 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Rendering;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Rendering\ResourceDtoPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ResourceDtoPayload::class, resource: DemoFeatureResource::class)]
 final class ResourceDtoHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
-    #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(ResourceDtoPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'rendering',
-            'resource-dtos',
-            'Resource DTOs',
-            'A Resource DTO is the one typed source of presentation data: handlers shape it once, templates consume it everywhere, and no view has to dissect random arrays.',
-            ['#[AsResource]', 'HtmlResponse', 'with*() methods', 'typed view data', 'auto render'],
+        $spec = new FeatureSpec(
+            section: 'rendering',
+            slug: 'resource-dtos',
+            entryLine: 'Real separation means templates receive one explicit response object, not loose arrays and last-minute data surgery.',
+            learnMoreLabel: 'See the response boundary →',
+            deepDiveLabel: 'How the resource pipeline works →',
+            relatedSlugs: [],
+            fallbackTitle: 'Resource DTOs',
+            fallbackSummary: 'A Resource DTO is the one typed source of presentation data: handlers shape it once, templates consume it everywhere, and no view has to dissect random arrays.',
+            fallbackHighlights: ['#[AsResource]', 'HtmlResponse', 'with*() methods', 'typed view data', 'auto render'],
+            explanation: $this->explanationProvider->getExplanation('rendering', 'resource-dtos') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('rendering', 'resource-dtos') ?? [];
 
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'rendering',
-                'currentSlug' => 'resource-dtos',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'Resource DTO' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/ResourceDto/ProductShowcaseResource.example.php'),
+                'Handler -> Resource DTO' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/ResourceDto/ProductShowcaseHandler.example.php'),
             ])
-            ->withSection('rendering')
-            ->withSlug('resource-dtos')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('Real separation means templates receive one explicit response object, not loose arrays and last-minute data surgery.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See the response boundary →')
-            ->withDeepDiveLabel('How the resource pipeline works →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/resource-dto-showcase.html.twig', [
                 'flow' => [
                     ['step' => '1', 'title' => 'Handler receives a typed resource', 'detail' => 'The payload declares `responseWith`, so the handler gets a concrete Resource DTO instead of assembling loose arrays.'],
@@ -86,11 +72,6 @@ final class ResourceDtoHandler implements TypedHandlerInterface
                     ['label' => 'with*() methods', 'detail' => 'Create one explicit vocabulary for everything the template is allowed to consume.'],
                     ['label' => 'HtmlResponse', 'detail' => 'Provides render context accumulation and automatic template rendering after the handler pipeline.'],
                 ],
-            ])
-            ->withSourceCode([
-                'Resource DTO' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/ResourceDto/ProductShowcaseResource.example.php'),
-                'Handler -> Resource DTO' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/ResourceDto/ProductShowcaseHandler.example.php'),
-            ])
-            ->withExplanation($explanation);
+            ]);
     }
 }

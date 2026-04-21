@@ -7,70 +7,52 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Rendering;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Rendering\SeoPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: SeoPayload::class, resource: DemoFeatureResource::class)]
 final class SeoHandler implements TypedHandlerInterface
 {
+    private const ENTRY_LINE = 'Set title, description, and Open Graph tags from your handler without touching Twig templates.';
+
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
-    #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(SeoPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'rendering',
-            'seo',
-            'SEO',
-            'Set title, description, and Open Graph tags from your handler — no template hacks needed.',
-            ['pageTitle()', 'seoTag()', 'Open Graph', 'description', 'structured data'],
+        $spec = new FeatureSpec(
+            section: 'rendering',
+            slug: 'seo',
+            entryLine: self::ENTRY_LINE,
+            learnMoreLabel: 'See SEO methods →',
+            deepDiveLabel: 'SEO pipeline internals →',
+            relatedSlugs: [],
+            fallbackTitle: 'SEO',
+            fallbackSummary: 'Set title, description, and Open Graph tags from your handler — no template hacks needed.',
+            fallbackHighlights: ['pageTitle()', 'seoTag()', 'Open Graph', 'description', 'structured data'],
+            explanation: $this->explanationProvider->getExplanation('rendering', 'seo') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('rendering', 'seo') ?? [];
-        $description = 'Set title, description, and Open Graph tags from your handler without touching Twig templates.';
-        $title = $presentation->title . ' — Semitexa Demo';
 
-        $sourceCode = [
-            'Handler' => $this->sourceCodeReader->readClassSource(self::class),
-        ];
+        $pageTitle = $this->projector->describe($spec)->pageTitle();
 
-        return $resource
-            ->pageTitle($title)
-            ->seoTag('description', $description)
-            ->seoTag('og:title', $title)
-            ->seoTag('og:description', $description)
+        return $this->projector->project($resource, $spec)
+            ->seoTag('og:title', $pageTitle)
+            ->seoTag('og:description', self::ENTRY_LINE)
             ->seoTag('og:type', 'website')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'rendering',
-                'currentSlug' => 'seo',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+            ->withSourceCode([
+                'Handler' => $this->sourceCodeReader->readClassSource(self::class),
             ])
-            ->withSection('rendering')
-            ->withSlug('seo')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine($description)
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See SEO methods →')
-            ->withDeepDiveLabel('SEO pipeline internals →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/concept-preview.html.twig', [
                 'eyebrow' => 'Metadata Control',
                 'title' => 'SEO tags come from the handler',
@@ -84,8 +66,6 @@ final class SeoHandler implements TypedHandlerInterface
                     [['text' => 'og:type', 'code' => true], ['text' => 'seoTag()', 'code' => true], ['text' => 'website']],
                 ],
                 'codeSnippet' => "return \$resource\n    ->pageTitle('SEO — Semitexa Demo')\n    ->seoTag('description', 'Set title, description, and Open Graph tags…')\n    ->seoTag('og:title', 'SEO — Semitexa Demo');",
-            ])
-            ->withSourceCode($sourceCode)
-            ->withExplanation($explanation);
+            ]);
     }
 }

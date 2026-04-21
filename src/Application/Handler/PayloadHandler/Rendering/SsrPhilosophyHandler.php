@@ -7,60 +7,49 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Rendering;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Rendering\SsrPhilosophyPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: SsrPhilosophyPayload::class, resource: DemoFeatureResource::class)]
 final class SsrPhilosophyHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
-    #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(SsrPhilosophyPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'rendering',
-            'philosophy',
-            'SSR Philosophy',
-            'Semitexa SSR is one continuous rendering architecture: page, slots, deferred regions, live refresh, and interactive components stay inside one server-owned story.',
-            ['one rendering story', 'HtmlResponse', 'Presentation boundary', 'Deferred SSR', 'Framework-free enhancement'],
+        $spec = new FeatureSpec(
+            section: 'rendering',
+            slug: 'philosophy',
+            entryLine: 'Semitexa SSR is not “render once on the server and then improvise”. It is a coherent rendering system that refuses both kinds of drift: backend HTML plus frontend survival code, and fake “data vs presentation” separation where templates quietly become data loaders.',
+            learnMoreLabel: 'See the Semitexa SSR axioms →',
+            deepDiveLabel: 'What Semitexa SSR refuses to become →',
+            relatedSlugs: [],
+            fallbackTitle: 'SSR Philosophy',
+            fallbackSummary: 'Semitexa SSR is one continuous rendering architecture: page, slots, deferred regions, live refresh, and interactive components stay inside one server-owned story.',
+            fallbackHighlights: ['one rendering story', 'HtmlResponse', 'Presentation boundary', 'Deferred SSR', 'Framework-free enhancement'],
+            explanation: $this->explanationProvider->getExplanation('rendering', 'philosophy') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('rendering', 'philosophy') ?? [];
 
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'rendering',
-                'currentSlug' => 'philosophy',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'Page Resource' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/Philosophy/PageResource.example.php'),
+                'Slot Resource' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/Philosophy/SlotResource.example.php'),
+                'Deferred Slot' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/Philosophy/DeferredSlot.example.php'),
+                'Reactive Slot' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/Philosophy/ReactiveSlot.example.php'),
+                'Interactive Component' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/Philosophy/EventComponent.example.php'),
             ])
-            ->withSection('rendering')
-            ->withSlug('philosophy')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('Semitexa SSR is not “render once on the server and then improvise”. It is a coherent rendering system that refuses both kinds of drift: backend HTML plus frontend survival code, and fake “data vs presentation” separation where templates quietly become data loaders.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See the Semitexa SSR axioms →')
-            ->withDeepDiveLabel('What Semitexa SSR refuses to become →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/ssr-manifesto.html.twig', [
                 'painPoints' => [
                     '“SSR” usually means the first paint is server-rendered, but the moment the page becomes dynamic, teams quietly switch to a second frontend architecture.',
@@ -134,14 +123,6 @@ final class SsrPhilosophyHandler implements TypedHandlerInterface
                     ['anti' => '“Once the page becomes interactive, we obviously need React, Alpine, or another client UI framework.”', 'answer' => 'Semitexa rejects that as a default assumption. Small component-owned scripts are enough when the server still owns rendering truth.'],
                     ['anti' => '“SEO, assets, scripts, templates, and live behavior all belong to different systems.”', 'answer' => 'Semitexa treats them as one rendering surface owned by one framework model.'],
                 ],
-            ])
-            ->withSourceCode([
-                'Page Resource' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/Philosophy/PageResource.example.php'),
-                'Slot Resource' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/Philosophy/SlotResource.example.php'),
-                'Deferred Slot' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/Philosophy/DeferredSlot.example.php'),
-                'Reactive Slot' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/Philosophy/ReactiveSlot.example.php'),
-                'Interactive Component' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Rendering/Philosophy/EventComponent.example.php'),
-            ])
-            ->withExplanation($explanation);
+            ]);
     }
 }

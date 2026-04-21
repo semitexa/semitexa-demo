@@ -6,17 +6,14 @@ namespace Semitexa\Demo\Application\Resource\Platform;
 
 use Semitexa\Core\Attribute\AsResource;
 use Semitexa\Core\Contract\ResourceInterface;
-use Semitexa\Demo\Application\Resource\Response\HasDemoShell;
-use Semitexa\Ssr\Http\Response\HtmlResponse;
+use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 
 #[AsResource(
     handle: 'demo_tenant_resolution',
     template: '@project-layouts-semitexa-demo/platform/tenancy-resolution.html.twig',
 )]
-class DemoTenantResolutionResource extends HtmlResponse implements ResourceInterface
+class DemoTenantResolutionResource extends DemoFeatureResource implements ResourceInterface
 {
-    use HasDemoShell;
-
     public function withStrategies(array $strategies): static { return $this->with('strategies', $strategies); }
     public function withResolvedTenant(string $tenant): static { return $this->with('resolvedTenant', $tenant); }
     public function withResolvedBy(string $strategyName): static { return $this->with('resolvedBy', $strategyName); }

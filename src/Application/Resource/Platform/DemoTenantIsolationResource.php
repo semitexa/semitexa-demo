@@ -6,17 +6,14 @@ namespace Semitexa\Demo\Application\Resource\Platform;
 
 use Semitexa\Core\Attribute\AsResource;
 use Semitexa\Core\Contract\ResourceInterface;
-use Semitexa\Demo\Application\Resource\Response\HasDemoShell;
-use Semitexa\Ssr\Http\Response\HtmlResponse;
+use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 
 #[AsResource(
     handle: 'demo_tenant_isolation',
     template: '@project-layouts-semitexa-demo/platform/tenancy-isolation.html.twig',
 )]
-class DemoTenantIsolationResource extends HtmlResponse implements ResourceInterface
+class DemoTenantIsolationResource extends DemoFeatureResource implements ResourceInterface
 {
-    use HasDemoShell;
-
     public function withDataUnavailable(bool $state): static { return $this->with('dataUnavailable', $state); }
     public function withActiveTenant(string $tenant): static { return $this->with('activeTenant', $tenant); }
     public function withActiveTenantSummary(array $summary): static { return $this->with('activeTenantSummary', $summary); }

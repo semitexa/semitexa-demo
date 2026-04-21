@@ -7,64 +7,45 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Auth;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
+use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Auth\ProtectedRoutePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
-use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 
 #[AsPayloadHandler(payload: ProtectedRoutePayload::class, resource: DemoFeatureResource::class)]
 final class ProtectedRouteHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
-    protected DemoSourceCodeReader $sourceCodeReader;
+    protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
 
     #[InjectAsReadonly]
-    protected DemoFeatureDocumentPresenter $documents;
-
-    #[InjectAsReadonly]
-    protected DemoCatalogService $catalog;
+    protected DemoSourceCodeReader $sourceCodeReader;
 
     public function handle(ProtectedRoutePayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        $presentation = $this->documents->resolve(
-            'auth',
-            'protected',
-            'Protected Route',
-            'Add one attribute to any route and the framework enforces access — 403 returned automatically.',
-            ['#[RequiresPermission]', '#[PublicEndpoint]', 'guard chain', '403 response'],
+        $spec = new FeatureSpec(
+            section: 'auth',
+            slug: 'protected',
+            entryLine: 'Add one attribute to any route and the framework enforces access — 403 returned automatically.',
+            learnMoreLabel: 'See the guard attributes →',
+            deepDiveLabel: 'How the guard chain resolves →',
+            relatedSlugs: [],
+            fallbackTitle: 'Protected Route',
+            fallbackSummary: 'Add one attribute to any route and the framework enforces access — 403 returned automatically.',
+            fallbackHighlights: ['#[RequiresPermission]', '#[PublicEndpoint]', 'guard chain', '403 response'],
+            explanation: $this->explanationProvider->getExplanation('auth', 'protected') ?? [],
+            pageTitleSuffix: ' — Semitexa Demo',
         );
-        $explanation = $this->explanationProvider->getExplanation('auth', 'protected') ?? [];
 
-        $sourceCode = [
-            'Handler' => $this->sourceCodeReader->readClassSource(self::class),
-        ];
-
-        return $resource
-            ->pageTitle($presentation->title . ' — Semitexa Demo')
-            ->withDemoShellContext([
-                'navSections' => $this->catalog->getSections(),
-                'featureTree' => $this->catalog->getFeatureTree(),
-                'currentSection' => 'auth',
-                'currentSlug' => 'protected',
-                'infoWhat' => $explanation['what'] ?? $presentation->summary,
-                'infoHow' => $explanation['how'] ?? null,
-                'infoWhy' => $explanation['why'] ?? null,
-                'infoKeywords' => $explanation['keywords'] ?? [],
+        return $this->projector->project($resource, $spec)
+            ->withSourceCode([
+                'Handler' => $this->sourceCodeReader->readClassSource(self::class),
             ])
-            ->withSection('auth')
-            ->withSlug('protected')
-            ->withTitle($presentation->title)
-            ->withSummary($presentation->summary)
-            ->withEntryLine('Add one attribute to any route and the framework enforces access — 403 returned automatically.')
-            ->withHighlights($presentation->highlights)
-            ->withDocumentBodyHtml($presentation->documentBodyHtml)
-            ->withLearnMoreLabel('See the guard attributes →')
-            ->withDeepDiveLabel('How the guard chain resolves →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/permission-matrix.html.twig', [
                 'eyebrow' => 'Route Guards',
                 'title' => 'Access is enforced before the handler runs',
@@ -77,8 +58,6 @@ final class ProtectedRouteHandler implements TypedHandlerInterface
                     [['text' => '#[PublicEndpoint]', 'code' => true], ['text' => '200 OK (no auth check)', 'variant' => 'success']],
                 ],
                 'codeSnippet' => "// Protected: only admin can access\n#[RequiresPermission('users.manage')]\n#[AsPayload(path: '/admin/users', methods: ['GET'])]\nclass UserListPayload { ... }\n\n// Public: no auth required\n#[PublicEndpoint]\n#[AsPayload(path: '/demo/routing/basic', methods: ['GET'])]\nclass BasicRoutePayload { ... }",
-            ])
-            ->withSourceCode($sourceCode)
-            ->withExplanation($explanation);
+            ]);
     }
 }
