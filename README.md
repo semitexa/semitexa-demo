@@ -4,7 +4,7 @@ Official showcase module demonstrating Semitexa framework capabilities.
 
 ## Purpose
 
-Provides working examples of framework features across all major packages. Each demo is registered with the `#[DemoFeature]` attribute and demonstrates best practices for building with Semitexa.
+Provides working examples of framework features across all major packages. Each demo is a standard Semitexa page — `#[AsPayload]` on the request DTO, `#[AsPayloadHandler]` on the handler — and demonstrates best practices for building with Semitexa.
 
 ## Role in Semitexa
 
@@ -12,7 +12,6 @@ Depends on all major packages including Core, SSR, ORM, Auth, Authorization, RBA
 
 ## Key Features
 
-- `#[DemoFeature]` attribute for demo registration and discovery
 - UI components: ExpandableSection, CodeBlock, FeatureCard, ExplanationTooltip
 - Full payload/handler/response examples for each package
 - Cross-package integration demonstrations

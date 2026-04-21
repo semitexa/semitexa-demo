@@ -6,7 +6,7 @@
         </div>
         <span class="deferred-block__badge">SSE template payload</span>
     </div>
-    <p class="deferred-block__summary">This card arrives as <code>mode: template</code>, then keeps appending real backend heartbeat events from the shared kiss stream without opening a second connection.</p>
+    <p class="deferred-block__summary">This card arrives as <code>mode: template</code> over a real SSE stream, then keeps appending backend heartbeat events from the shared kiss stream without opening a second connection. The initial notification payload is static demo content — the <em>transport</em> is live, the initial <em>content</em> is fixed.</p>
     <div class="notification-bell" data-notification-bell>
         <span class="notification-bell__icon">🔔</span>
         {% if count > 0 %}

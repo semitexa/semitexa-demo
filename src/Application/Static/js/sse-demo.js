@@ -150,7 +150,7 @@
             source = new EventSource(
                 SSE_ENDPOINT
                 + '?session_id=' + encodeURIComponent(currentSessionId)
-                + '&demo_stream=' + encodeURIComponent(DEMO_STREAM)
+                + '&demo_stream=' + encodeURIComponent(streamMode)
             );
             setStatus('Connecting…', 'warning');
             connectBtn.style.display = 'none';
