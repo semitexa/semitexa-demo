@@ -62,14 +62,16 @@ final class MachineAuthHandler implements TypedHandlerInterface
             ->withSlug('machine')
             ->withTitle($presentation->title)
             ->withSummary($presentation->summary)
-            ->withEntryLine('Service-to-service authentication via Bearer tokens — scoped, revocable, and audited.')
+            ->withEntryLine('Documented bearer-token recipe. This page is reference material — the token shown below is a placeholder and is NOT validated by this handler. The real verification lives in Semitexa\\Api\\Auth\\MachineAuthHandler.')
             ->withHighlights($presentation->highlights)
             ->withDocumentBodyHtml($presentation->documentBodyHtml)
             ->withLearnMoreLabel('See the Bearer token format →')
             ->withDeepDiveLabel('Machine auth verification pipeline →')
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/machine-auth.html.twig', [
-                'curlExample' => "# Try this in your terminal:\ncurl -H \"Authorization: Bearer " . self::DEMO_TOKEN . "\" \\\n  https://your-app.com/api/products",
+                'curlExample' => "# Reference format only — this demo page does not validate tokens.\n# Real verification: packages/semitexa-api/src/Auth/MachineAuthHandler.php\ncurl -H \"Authorization: Bearer " . self::DEMO_TOKEN . "\" \\\n  https://your-app.com/api/products",
                 'rows' => [
+                    ['label' => 'Status on this page', 'value' => 'Reference only — tokens are not verified here'],
+                    ['label' => 'Real verifier', 'value' => 'Semitexa\\Api\\Auth\\MachineAuthHandler (packages/semitexa-api)'],
                     ['label' => 'Format', 'value' => 'Bearer {client_id}:{secret}'],
                     ['label' => 'Handler priority', 'value' => '50 (runs before session auth)'],
                     ['label' => 'Scopes', 'value' => 'Stored on MachineCredential, checked per route'],

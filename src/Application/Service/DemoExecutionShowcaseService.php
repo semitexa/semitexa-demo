@@ -100,13 +100,17 @@ final class DemoExecutionShowcaseService
         }
 
         $startedAt = microtime(true);
+        // Staged timeline: the arena does not do real work. Each step is a fixed
+        // delay + canned title that proves the envelope (event → listener → SSE)
+        // runs end-to-end. The point of the demo is the *timing shape* of sync
+        // vs async vs queued modes, not the work itself.
         $steps = [
-            ['progress' => 14, 'title' => 'Intent accepted', 'message' => 'The domain event is alive on the backend and has entered the execution pipeline.', 'delayMs' => 650],
-            ['progress' => 46, 'title' => 'Heavy side effect running', 'message' => 'The demo simulates the expensive part of the workflow so the timing difference becomes visible.', 'delayMs' => 1150],
-            ['progress' => 78, 'title' => 'Backend artifact sealed', 'message' => 'The worker persists the final snapshot and prepares the SSE confirmation payload.', 'delayMs' => 850],
+            ['progress' => 14, 'title' => 'Step 1/3 — listener accepted the event', 'message' => 'The dispatched domain event has entered the execution pipeline. No real work is running — this timeline is scripted.', 'delayMs' => 650],
+            ['progress' => 46, 'title' => 'Step 2/3 — simulated side effect', 'message' => 'The service pauses on purpose so the timing difference between sync/async/queued modes is visible to the viewer.', 'delayMs' => 1150],
+            ['progress' => 78, 'title' => 'Step 3/3 — scripted completion marker', 'message' => 'The listener writes a job-run snapshot and prepares the SSE confirmation. The persistence and transport are real; the staged steps are for illustration.', 'delayMs' => 850],
         ];
 
-        $this->setRunState($runId, 'running', 3, 'Backend worker accepted the ticket.');
+        $this->setRunState($runId, 'running', 3, 'Backend worker accepted the ticket (scripted demo timeline).');
         $this->emit($sessionId, [
             'event' => 'demo.execution.accepted',
             'run_id' => $runId,
@@ -115,7 +119,7 @@ final class DemoExecutionShowcaseService
             'worker_model' => $workerModel,
             'status' => 'running',
             'progress' => 3,
-            'message' => 'Ticket accepted on the backend.',
+            'message' => 'Ticket accepted on the backend (staged timeline — no real work is executed).',
             'sent_at' => $this->timestamp(),
         ]);
 
@@ -139,10 +143,10 @@ final class DemoExecutionShowcaseService
 
         $durationMs = (int) round((microtime(true) - $startedAt) * 1000);
         $summary = match ($mode) {
-            'sync' => 'The response stayed blocked until all three proof steps completed.',
-            'async' => 'The HTTP response returned early; the deferred listener finished after the page was already free.',
-            'queued' => 'The queue worker picked the job up and finished it outside the request lifecycle.',
-            default => 'Execution completed.',
+            'sync' => 'The response stayed blocked until the scripted timeline completed.',
+            'async' => 'The HTTP response returned early; the deferred listener ran the scripted timeline after the page was already free.',
+            'queued' => 'The queue worker picked the job up and ran the scripted timeline outside the request lifecycle.',
+            default => 'Scripted timeline completed.',
         };
 
         $this->completeRun($runId, [
@@ -152,7 +156,7 @@ final class DemoExecutionShowcaseService
             'duration_ms' => $durationMs,
             'completed_at' => $this->timestamp(),
             'summary' => $summary,
-        ], 'Backend finished all proof steps.');
+        ], 'Backend finished the staged timeline.');
 
         $this->emit($sessionId, [
             'event' => 'demo.execution.completed',
