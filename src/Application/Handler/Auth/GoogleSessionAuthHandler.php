@@ -8,6 +8,7 @@ use Semitexa\Auth\Attribute\AsAuthHandler;
 use Semitexa\Auth\Handler\AuthHandlerInterface;
 use Semitexa\Auth\Session\AuthSessionWriter;
 use Semitexa\Core\Attribute\AsService;
+use Semitexa\Core\Attribute\ExecutionScoped;
 use Semitexa\Core\Attribute\InjectAsMutable;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Auth\AuthResult;
@@ -16,6 +17,7 @@ use Semitexa\Demo\Application\Auth\GooglePrincipal;
 use Semitexa\Demo\Application\Payload\Session\GoogleAuthSessionSegment;
 
 #[AsService]
+#[ExecutionScoped]
 #[AsAuthHandler(priority: -20)]
 final class GoogleSessionAuthHandler implements AuthHandlerInterface
 {
