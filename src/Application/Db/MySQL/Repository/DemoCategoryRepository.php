@@ -20,7 +20,7 @@ use Semitexa\Orm\Repository\DomainRepository;
 final class DemoCategoryRepository implements DemoCategoryRepositoryInterface
 {
     #[InjectAsReadonly]
-    protected ?OrmManager $orm = null;
+    protected OrmManager $orm;
 
     private ?DomainRepository $repository = null;
 

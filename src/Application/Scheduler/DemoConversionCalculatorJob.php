@@ -18,11 +18,15 @@ use Semitexa\Scheduler\Domain\Value\ScheduledJobContext;
 final class DemoConversionCalculatorJob implements ScheduledJobInterface
 {
     #[InjectAsReadonly]
-    protected ?DemoAnalyticsAggregator $aggregator = null;
+    protected DemoAnalyticsAggregator $aggregator;
 
     public function handle(ScheduledJobContext $context): void
     {
+        if (!isset($this->aggregator)) {
+            return;
+        }
+
         $tenantId = $context->payload['tenantId'] ?? 'acme';
-        $this->aggregator?->recordSnapshot('conversions', $tenantId);
+        $this->aggregator->recordSnapshot('conversions', $tenantId);
     }
 }

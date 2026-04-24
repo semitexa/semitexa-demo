@@ -30,10 +30,10 @@ final class LedgerDemoHandler implements TypedHandlerInterface
     protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
-    protected ?EventDispatcherInterface $eventDispatcher = null;
+    protected EventDispatcherInterface $eventDispatcher;
 
     #[InjectAsMutable]
-    protected ?SessionInterface $session = null;
+    protected SessionInterface $session;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
@@ -46,7 +46,7 @@ final class LedgerDemoHandler implements TypedHandlerInterface
 
     public function handle(LedgerDemoPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        if ($this->session === null) {
+        if (!isset($this->session)) {
             throw new \RuntimeException('Session service is required for LedgerDemoHandler.');
         }
 
@@ -144,7 +144,7 @@ final class LedgerDemoHandler implements TypedHandlerInterface
             return ['Ledger runtime is not enabled in the current environment.', 'warning'];
         }
 
-        if ($this->eventDispatcher === null) {
+        if (!isset($this->eventDispatcher)) {
             return ['Event dispatcher is unavailable, so the ledger demo cannot emit the propagated event.', 'error'];
         }
 

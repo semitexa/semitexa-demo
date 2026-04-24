@@ -20,14 +20,14 @@ use Semitexa\Scheduler\Domain\Value\ScheduledJobContext;
 final class DemoReportGenerationJob implements ScheduledJobInterface
 {
     #[InjectAsReadonly]
-    protected ?DemoJobRunRepositoryInterface $jobRunRepository = null;
+    protected DemoJobRunRepositoryInterface $jobRunRepository;
 
     #[InjectAsReadonly]
-    protected ?DemoReportBuilder $reportBuilder = null;
+    protected DemoReportBuilder $reportBuilder;
 
     public function handle(ScheduledJobContext $context): void
     {
-        if ($this->jobRunRepository === null || $this->reportBuilder === null) {
+        if (!isset($this->jobRunRepository) || !isset($this->reportBuilder)) {
             return;
         }
 

@@ -20,14 +20,14 @@ use Semitexa\Scheduler\Domain\Value\ScheduledJobContext;
 final class DemoProductImportJob implements ScheduledJobInterface
 {
     #[InjectAsReadonly]
-    protected ?DemoJobRunRepositoryInterface $jobRunRepository = null;
+    protected DemoJobRunRepositoryInterface $jobRunRepository;
 
     #[InjectAsReadonly]
-    protected ?DemoProductImporter $importer = null;
+    protected DemoProductImporter $importer;
 
     public function handle(ScheduledJobContext $context): void
     {
-        if ($this->jobRunRepository === null || $this->importer === null) {
+        if (!isset($this->jobRunRepository) || !isset($this->importer)) {
             return;
         }
 

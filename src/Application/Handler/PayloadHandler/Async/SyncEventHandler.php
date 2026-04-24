@@ -24,7 +24,7 @@ final class SyncEventHandler implements TypedHandlerInterface
     protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
-    protected ?EventDispatcherInterface $eventDispatcher = null;
+    protected EventDispatcherInterface $eventDispatcher;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;
@@ -43,7 +43,9 @@ final class SyncEventHandler implements TypedHandlerInterface
             $event->setItemName('Demo Product');
             $event->setSection('events');
             $event->setTimestamp(microtime(true));
-            $this->eventDispatcher?->dispatch($event);
+            if (isset($this->eventDispatcher)) {
+                $this->eventDispatcher->dispatch($event);
+            }
 
             $eventLog = [
                 ['event' => 'DemoItemCreated', 'listener' => 'DemoItemCreatedListener', 'mode' => 'Sync', 'status' => 'fired'],

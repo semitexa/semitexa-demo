@@ -15,13 +15,17 @@ final class DemoAnalyticsAggregator
     private const METRIC_TYPES = ['pageviews', 'conversions', 'top_products'];
 
     #[InjectAsReadonly]
-    protected ?DemoAnalyticsSnapshotRepositoryInterface $snapshotRepository = null;
+    protected DemoAnalyticsSnapshotRepositoryInterface $snapshotRepository;
 
     /**
      * Record a simulated analytics snapshot for a given metric type.
      */
     public function recordSnapshot(string $metricType, string $tenantId = 'acme'): void
     {
+        if (!isset($this->snapshotRepository)) {
+            return;
+        }
+
         $periodEnd = new \DateTimeImmutable();
 
         $snapshot = new DemoAnalyticsSnapshot();
@@ -31,7 +35,7 @@ final class DemoAnalyticsAggregator
         $snapshot->setPeriodEnd($periodEnd);
         $snapshot->setPeriodStart($periodEnd->modify('-5 minutes'));
 
-        $this->snapshotRepository?->save($snapshot);
+        $this->snapshotRepository->save($snapshot);
     }
 
     /**
@@ -43,7 +47,9 @@ final class DemoAnalyticsAggregator
     {
         $result = [];
         foreach (self::METRIC_TYPES as $type) {
-            $snapshots = $this->snapshotRepository?->findByMetricAndTenant($type, $tenantId, 1) ?? [];
+            $snapshots = isset($this->snapshotRepository)
+                ? $this->snapshotRepository->findByMetricAndTenant($type, $tenantId, 1)
+                : [];
             $result[$type] = $snapshots[0] ?? null;
         }
         return $result;

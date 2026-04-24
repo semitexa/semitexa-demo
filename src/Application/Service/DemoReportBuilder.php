@@ -14,7 +14,7 @@ final class DemoReportBuilder
     private const STAGES = ['querying', 'aggregating', 'formatting', 'complete'];
 
     #[InjectAsReadonly]
-    protected ?DemoJobRunRepositoryInterface $jobRunRepository = null;
+    protected DemoJobRunRepositoryInterface $jobRunRepository;
 
     /**
      * Simulate report aggregation progress for a given job run.
@@ -22,7 +22,11 @@ final class DemoReportBuilder
      */
     public function advanceProgress(string $jobRunId): void
     {
-        $run = $this->jobRunRepository?->findById($jobRunId);
+        if (!isset($this->jobRunRepository)) {
+            return;
+        }
+
+        $run = $this->jobRunRepository->findById($jobRunId);
         if ($run === null) {
             return;
         }
@@ -32,10 +36,10 @@ final class DemoReportBuilder
         $stageIndex = $next >= 100 ? count(self::STAGES) - 1 : max(0, (int) floor(($next - 1) / 25));
         $stage = self::STAGES[$stageIndex] ?? 'complete';
 
-        $this->jobRunRepository?->updateProgress($jobRunId, $next, ucfirst($stage) . '…');
+        $this->jobRunRepository->updateProgress($jobRunId, $next, ucfirst($stage) . '…');
 
         if ($next >= 100) {
-            $this->jobRunRepository?->markCompleted($jobRunId, json_encode([
+            $this->jobRunRepository->markCompleted($jobRunId, json_encode([
                 'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
                 'values' => [420, 380, 510, 460, 530],
                 'currency' => 'USD',

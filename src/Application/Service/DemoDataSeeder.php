@@ -117,25 +117,25 @@ final class DemoDataSeeder
     private const ORDER_STATUSES = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
 
     #[InjectAsReadonly]
-    protected ?DemoCategoryRepositoryInterface $categoryRepository = null;
+    protected DemoCategoryRepositoryInterface $categoryRepository;
 
     #[InjectAsReadonly]
-    protected ?DemoProductRepositoryInterface $productRepository = null;
+    protected DemoProductRepositoryInterface $productRepository;
 
     #[InjectAsReadonly]
-    protected ?DemoReviewRepositoryInterface $reviewRepository = null;
+    protected DemoReviewRepositoryInterface $reviewRepository;
 
     #[InjectAsReadonly]
-    protected ?DemoOrderRepositoryInterface $orderRepository = null;
+    protected DemoOrderRepositoryInterface $orderRepository;
 
     #[InjectAsReadonly]
-    protected ?DemoJobRunRepositoryInterface $jobRunRepository = null;
+    protected DemoJobRunRepositoryInterface $jobRunRepository;
 
     #[InjectAsReadonly]
-    protected ?DemoAiTaskRepositoryInterface $aiTaskRepository = null;
+    protected DemoAiTaskRepositoryInterface $aiTaskRepository;
 
     #[InjectAsReadonly]
-    protected ?TransactionManager $transactionManager = null;
+    protected TransactionManager $transactionManager;
 
     /**
      * Seed all demo data. Returns summary counts.
@@ -169,7 +169,7 @@ final class DemoDataSeeder
             return $counts;
         };
 
-        if ($this->transactionManager === null) {
+        if (!isset($this->transactionManager)) {
             return $seed();
         }
 

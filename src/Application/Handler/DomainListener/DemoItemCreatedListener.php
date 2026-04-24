@@ -15,7 +15,7 @@ use Semitexa\Demo\Application\Payload\Event\DemoNotificationEvent;
 final class DemoItemCreatedListener
 {
     #[InjectAsReadonly]
-    protected ?EventDispatcherInterface $eventDispatcher = null;
+    protected EventDispatcherInterface $eventDispatcher;
 
     public function handle(DemoItemCreated $event): void
     {
@@ -25,6 +25,8 @@ final class DemoItemCreatedListener
         );
         $notification->setLevel('info');
 
-        $this->eventDispatcher?->dispatch($notification);
+        if (isset($this->eventDispatcher)) {
+            $this->eventDispatcher->dispatch($notification);
+        }
     }
 }
