@@ -22,7 +22,11 @@ final class DemoConversionCalculatorJob implements ScheduledJobInterface
 
     public function handle(ScheduledJobContext $context): void
     {
+        if (!isset($this->aggregator)) {
+            return;
+        }
+
         $tenantId = $context->payload['tenantId'] ?? 'acme';
-        $this->aggregator?->recordSnapshot('conversions', $tenantId);
+        $this->aggregator->recordSnapshot('conversions', $tenantId);
     }
 }

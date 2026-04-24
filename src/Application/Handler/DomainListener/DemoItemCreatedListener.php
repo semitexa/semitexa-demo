@@ -25,6 +25,8 @@ final class DemoItemCreatedListener
         );
         $notification->setLevel('info');
 
-        $this->eventDispatcher?->dispatch($notification);
+        if (isset($this->eventDispatcher)) {
+            $this->eventDispatcher->dispatch($notification);
+        }
     }
 }

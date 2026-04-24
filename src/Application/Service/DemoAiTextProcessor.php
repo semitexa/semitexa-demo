@@ -24,7 +24,11 @@ final class DemoAiTextProcessor
      */
     public function processNextStage(string $taskId): bool
     {
-        $task = $this->aiTaskRepository?->findById($taskId);
+        if (!isset($this->aiTaskRepository)) {
+            return false;
+        }
+
+        $task = $this->aiTaskRepository->findById($taskId);
         if ($task === null) {
             return false;
         }
@@ -40,7 +44,7 @@ final class DemoAiTextProcessor
 
         $completedCount = count(array_intersect(self::STAGES, array_keys($stageResults)));
         if ($completedCount >= count(self::STAGES)) {
-            return $this->aiTaskRepository?->updateStatus($taskId, 'completed') === true;
+            return $this->aiTaskRepository->updateStatus($taskId, 'completed') === true;
         }
 
         $nextStage = null;
@@ -51,7 +55,7 @@ final class DemoAiTextProcessor
             }
         }
         if ($nextStage === null) {
-            return $this->aiTaskRepository?->updateStatus($taskId, 'completed') === true;
+            return $this->aiTaskRepository->updateStatus($taskId, 'completed') === true;
         }
 
         $stageResults[$nextStage] = [
@@ -60,7 +64,7 @@ final class DemoAiTextProcessor
             'ms'     => random_int(80, 400),
         ];
 
-        $saved = $this->aiTaskRepository?->updateStageResults($taskId, json_encode($stageResults, JSON_THROW_ON_ERROR));
+        $saved = $this->aiTaskRepository->updateStageResults($taskId, json_encode($stageResults, JSON_THROW_ON_ERROR));
         if ($saved !== true) {
             return false;
         }
@@ -69,7 +73,7 @@ final class DemoAiTextProcessor
             ? 'completed'
             : 'running';
 
-        return $this->aiTaskRepository?->updateStatus($taskId, $newStatus) === true;
+        return $this->aiTaskRepository->updateStatus($taskId, $newStatus) === true;
     }
 
     public function getStages(): array
