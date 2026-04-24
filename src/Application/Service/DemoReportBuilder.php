@@ -14,7 +14,7 @@ final class DemoReportBuilder
     private const STAGES = ['querying', 'aggregating', 'formatting', 'complete'];
 
     #[InjectAsReadonly]
-    protected ?DemoJobRunRepositoryInterface $jobRunRepository = null;
+    protected DemoJobRunRepositoryInterface $jobRunRepository;
 
     /**
      * Simulate report aggregation progress for a given job run.

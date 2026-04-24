@@ -24,7 +24,7 @@ final class GoogleStartHandler implements TypedHandlerInterface
     private const string PROVIDER = 'google';
 
     #[InjectAsMutable]
-    protected ?SessionInterface $session = null;
+    protected SessionInterface $session;
 
     protected ?Request $httpRequest = null;
 
@@ -36,7 +36,7 @@ final class GoogleStartHandler implements TypedHandlerInterface
 
     public function handle(GoogleStartPayload $payload, ResourceResponse $resource): ResourceResponse
     {
-        if ($this->session === null) {
+        if (!isset($this->session)) {
             throw new \RuntimeException('Session service is required for Google OAuth start.');
         }
 
@@ -73,7 +73,7 @@ final class GoogleStartHandler implements TypedHandlerInterface
 
     private function completeLocalTestSignIn(GoogleAuthSessionSegment $segment, string $returnTo): void
     {
-        if ($this->session === null) {
+        if (!isset($this->session)) {
             throw new \RuntimeException('Session service is required for local Google OAuth bypass.');
         }
 

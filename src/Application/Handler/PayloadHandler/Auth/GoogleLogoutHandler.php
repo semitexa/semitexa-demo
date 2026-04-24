@@ -19,7 +19,7 @@ use Semitexa\Demo\Application\Service\GoogleOAuthClient;
 final class GoogleLogoutHandler implements TypedHandlerInterface
 {
     #[InjectAsMutable]
-    protected ?SessionInterface $session = null;
+    protected SessionInterface $session;
 
     #[InjectAsReadonly]
     protected GoogleOAuthClient $oauthClient;
@@ -29,7 +29,7 @@ final class GoogleLogoutHandler implements TypedHandlerInterface
 
     public function handle(GoogleLogoutPayload $payload, ResourceResponse $resource): ResourceResponse
     {
-        if ($this->session === null) {
+        if (!isset($this->session)) {
             throw new \RuntimeException('Session service is required for Google OAuth logout.');
         }
 

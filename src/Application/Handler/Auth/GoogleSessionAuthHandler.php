@@ -23,14 +23,14 @@ final class GoogleSessionAuthHandler implements AuthHandlerInterface
     private const string PROVIDER = 'google';
 
     #[InjectAsMutable]
-    protected ?SessionInterface $session = null;
+    protected SessionInterface $session;
 
     #[InjectAsReadonly]
     protected AuthSessionWriter $authWriter;
 
     public function handle(object $payload): ?AuthResult
     {
-        if ($this->session === null) {
+        if (!isset($this->session)) {
             return null;
         }
 

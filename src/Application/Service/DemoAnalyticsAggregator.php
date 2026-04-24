@@ -15,7 +15,7 @@ final class DemoAnalyticsAggregator
     private const METRIC_TYPES = ['pageviews', 'conversions', 'top_products'];
 
     #[InjectAsReadonly]
-    protected ?DemoAnalyticsSnapshotRepositoryInterface $snapshotRepository = null;
+    protected DemoAnalyticsSnapshotRepositoryInterface $snapshotRepository;
 
     /**
      * Record a simulated analytics snapshot for a given metric type.

@@ -22,7 +22,7 @@ final class GoogleCallbackHandler implements TypedHandlerInterface
     private const string PROVIDER = 'google';
 
     #[InjectAsMutable]
-    protected ?SessionInterface $session = null;
+    protected SessionInterface $session;
 
     #[InjectAsReadonly]
     protected GoogleOAuthClient $oauthClient;
@@ -32,7 +32,7 @@ final class GoogleCallbackHandler implements TypedHandlerInterface
 
     public function handle(GoogleCallbackPayload $payload, ResourceResponse $resource): ResourceResponse
     {
-        if ($this->session === null) {
+        if (!isset($this->session)) {
             throw new \RuntimeException('Session service is required for Google OAuth callback.');
         }
 

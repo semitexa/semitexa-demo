@@ -16,7 +16,7 @@ final class DemoAiTextProcessor
     private const array STAGES = ['parse', 'analyze', 'generate', 'format'];
 
     #[InjectAsReadonly]
-    protected ?DemoAiTaskRepositoryInterface $aiTaskRepository = null;
+    protected DemoAiTaskRepositoryInterface $aiTaskRepository;
 
     /**
      * Advance a pending AI task by one processing stage.

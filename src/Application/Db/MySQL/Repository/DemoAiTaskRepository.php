@@ -22,7 +22,7 @@ use Semitexa\Tenancy\Context\TenantContext;
 final class DemoAiTaskRepository implements DemoAiTaskRepositoryInterface
 {
     #[InjectAsReadonly]
-    protected ?OrmManager $orm = null;
+    protected OrmManager $orm;
 
     private ?DomainRepository $repository = null;
     private ?SystemScopeToken $systemScopeToken = null;

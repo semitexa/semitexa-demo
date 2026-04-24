@@ -24,7 +24,7 @@ final class SyncEventHandler implements TypedHandlerInterface
     protected DemoFeaturePageProjector $projector;
 
     #[InjectAsReadonly]
-    protected ?EventDispatcherInterface $eventDispatcher = null;
+    protected EventDispatcherInterface $eventDispatcher;
 
     #[InjectAsReadonly]
     protected DemoExplanationProvider $explanationProvider;

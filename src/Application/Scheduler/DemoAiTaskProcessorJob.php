@@ -19,14 +19,14 @@ use Semitexa\Scheduler\Domain\Value\ScheduledJobContext;
 final class DemoAiTaskProcessorJob implements ScheduledJobInterface
 {
     #[InjectAsReadonly]
-    protected ?DemoAiTaskRepositoryInterface $aiTaskRepository = null;
+    protected DemoAiTaskRepositoryInterface $aiTaskRepository;
 
     #[InjectAsReadonly]
-    protected ?DemoAiTextProcessor $processor = null;
+    protected DemoAiTextProcessor $processor;
 
     public function handle(ScheduledJobContext $context): void
     {
-        if ($this->aiTaskRepository === null || $this->processor === null) {
+        if (!isset($this->aiTaskRepository) || !isset($this->processor)) {
             return;
         }
 

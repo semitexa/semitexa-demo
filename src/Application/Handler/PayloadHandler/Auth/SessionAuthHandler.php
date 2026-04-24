@@ -32,7 +32,7 @@ final class SessionAuthHandler implements TypedHandlerInterface
     private const DEFAULT_ROLE = 'viewer';
 
     #[InjectAsMutable]
-    protected ?SessionInterface $session = null;
+    protected SessionInterface $session;
 
     #[InjectAsReadonly]
     protected DemoFeaturePageProjector $projector;
@@ -45,7 +45,7 @@ final class SessionAuthHandler implements TypedHandlerInterface
 
     public function handle(SessionAuthPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
-        if ($this->session === null) {
+        if (!isset($this->session)) {
             throw new \RuntimeException('Session service is required for SessionAuthHandler.');
         }
 

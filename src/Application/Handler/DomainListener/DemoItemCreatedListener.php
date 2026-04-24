@@ -15,7 +15,7 @@ use Semitexa\Demo\Application\Payload\Event\DemoNotificationEvent;
 final class DemoItemCreatedListener
 {
     #[InjectAsReadonly]
-    protected ?EventDispatcherInterface $eventDispatcher = null;
+    protected EventDispatcherInterface $eventDispatcher;
 
     public function handle(DemoItemCreated $event): void
     {

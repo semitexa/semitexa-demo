@@ -18,7 +18,7 @@ use Semitexa\Scheduler\Domain\Value\ScheduledJobContext;
 final class DemoConversionCalculatorJob implements ScheduledJobInterface
 {
     #[InjectAsReadonly]
-    protected ?DemoAnalyticsAggregator $aggregator = null;
+    protected DemoAnalyticsAggregator $aggregator;
 
     public function handle(ScheduledJobContext $context): void
     {

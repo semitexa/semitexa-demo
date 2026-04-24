@@ -23,7 +23,7 @@ final class ExecutionArenaLaunchHandler implements TypedHandlerInterface
     protected DemoExecutionShowcaseService $showcaseService;
 
     #[InjectAsReadonly]
-    protected ?EventDispatcherInterface $eventDispatcher = null;
+    protected EventDispatcherInterface $eventDispatcher;
 
     public function handle(ExecutionArenaLaunchPayload $payload, DemoJsonResource $resource): DemoJsonResource
     {
@@ -48,7 +48,7 @@ final class ExecutionArenaLaunchHandler implements TypedHandlerInterface
                 ]);
         }
 
-        if ($this->eventDispatcher === null) {
+        if (!isset($this->eventDispatcher)) {
             return $resource
                 ->setStatusCode(HttpStatus::ServiceUnavailable->value)
                 ->withData([

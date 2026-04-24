@@ -31,7 +31,7 @@ final class GoogleAuthHandler implements TypedHandlerInterface
     private const PROVIDER = 'google';
 
     #[InjectAsMutable]
-    protected ?SessionInterface $session = null;
+    protected SessionInterface $session;
 
     protected ?Request $httpRequest = null;
 
@@ -123,7 +123,7 @@ final class GoogleAuthHandler implements TypedHandlerInterface
         $payloadError = $payloadError !== null ? trim($payloadError) : null;
         $payloadError = $payloadError !== '' ? $payloadError : null;
 
-        if ($this->session === null) {
+        if (!isset($this->session)) {
             return $payloadError;
         }
 
@@ -140,7 +140,7 @@ final class GoogleAuthHandler implements TypedHandlerInterface
 
     private function completeLocalTestSignIn(DemoFeatureResource $resource, string $returnTo): DemoFeatureResource
     {
-        if ($this->session === null) {
+        if (!isset($this->session)) {
             throw new \RuntimeException('Session service is required for local Google OAuth bypass.');
         }
 
