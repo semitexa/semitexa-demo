@@ -15,8 +15,8 @@ use Semitexa\Demo\Application\Resource\Slot\DemoNavSlot;
 use Semitexa\Demo\Application\Resource\Slot\DemoSidebarSlot;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Ssr\Layout\SlotHandlerPipeline;
-use Semitexa\Ssr\Layout\SlotRenderer;
+use Semitexa\Ssr\Application\Service\Layout\SlotHandlerPipeline;
+use Semitexa\Ssr\Application\Service\Layout\SlotRenderer;
 
 #[AsPayloadHandler(payload: LayoutSlotPayload::class, resource: DemoFeatureResource::class)]
 final class LayoutSlotHandler implements TypedHandlerInterface

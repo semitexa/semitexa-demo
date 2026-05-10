@@ -8,7 +8,7 @@ use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Domain\Model\DemoJobRun;
 use Semitexa\Demo\Domain\Repository\DemoJobRunRepositoryInterface;
-use Semitexa\Ssr\Async\AsyncResourceSseServer;
+use Semitexa\Ssr\Application\Service\Async\AsyncResourceSseServer;
 
 #[AsService]
 final class DemoExecutionShowcaseService

@@ -13,7 +13,7 @@ use Semitexa\Demo\Application\Payload\Request\Data\NPlusOnePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Orm\Hydration\ResourceModelRelationLoader;
+use Semitexa\Orm\Application\Service\Hydration\ResourceModelRelationLoader;
 
 #[AsPayloadHandler(payload: NPlusOnePayload::class, resource: DemoFeatureResource::class)]
 final class NPlusOneHandler implements TypedHandlerInterface

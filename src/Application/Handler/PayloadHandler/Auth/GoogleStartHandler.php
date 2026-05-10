@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Handler\PayloadHandler\Auth;
 
-use Semitexa\Auth\Session\AuthSessionWriter;
+use Semitexa\Auth\Application\Service\AuthSessionWriter;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsMutable;
 use Semitexa\Core\Attribute\InjectAsReadonly;

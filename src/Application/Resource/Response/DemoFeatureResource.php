@@ -7,7 +7,7 @@ namespace Semitexa\Demo\Application\Resource\Response;
 use Semitexa\Core\Attribute\AsResource;
 use Semitexa\Core\Contract\ResourceInterface;
 use Semitexa\Demo\Application\Feature\FeatureDescriptor;
-use Semitexa\Ssr\Http\Response\HtmlResponse;
+use Semitexa\Ssr\Application\Service\Http\Response\HtmlResponse;
 
 /**
  * Shared resource for all individual feature detail pages.

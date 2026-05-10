@@ -16,8 +16,8 @@ use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Dev\Console\Command\AiAskCommand;
 use Semitexa\Dev\Console\Command\DevGraph\DevGraphCapabilitiesCommand;
 use Semitexa\Dev\Console\Command\LogsAppCommand;
-use Semitexa\Llm\Console\Command\AiAssistantCommand;
-use Semitexa\Llm\Console\Command\AiSkillsCommand;
+use Semitexa\Llm\Application\Console\Command\AiAssistantCommand;
+use Semitexa\Llm\Application\Console\Command\AiSkillsCommand;
 
 #[AsPayloadHandler(payload: AiToolingPayload::class, resource: DemoFeatureResource::class)]
 final class AiToolingHandler implements TypedHandlerInterface

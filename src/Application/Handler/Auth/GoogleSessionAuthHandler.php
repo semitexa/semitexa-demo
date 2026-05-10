@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Handler\Auth;
 
 use Semitexa\Auth\Attribute\AsAuthHandler;
-use Semitexa\Auth\Handler\AuthHandlerInterface;
-use Semitexa\Auth\Session\AuthSessionWriter;
+use Semitexa\Auth\Domain\Contract\AuthHandlerInterface;
+use Semitexa\Auth\Application\Service\AuthSessionWriter;
 use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\ExecutionScoped;
 use Semitexa\Core\Attribute\InjectAsMutable;

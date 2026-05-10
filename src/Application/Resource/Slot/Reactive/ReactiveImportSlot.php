@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Resource\Slot\Reactive;
 
 use Semitexa\Ssr\Attribute\AsSlotResource;
-use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
+use Semitexa\Ssr\Application\Service\Http\Response\HtmlSlotResponse;
 
 #[AsSlotResource(
     handle: 'demo_reactive_import',

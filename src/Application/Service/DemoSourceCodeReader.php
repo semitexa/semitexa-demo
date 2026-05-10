@@ -251,16 +251,12 @@ declare(strict_types=1);
 
 namespace App\Application\Payload\Request\Example;
 
-use Semitexa\Core\Attribute\AsPayload;
-use Semitexa\Core\Base\BasePayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 
-#[AsPayload(methods: ['GET'], path: '/demo/example/{$slug}')]
-final class {$ref->getShortName()} extends BasePayload
+#[AsPublicPayload(methods: ['GET'], path: '/demo/example/{$slug}')]
+final class {$ref->getShortName()}
 {
-    public function getSearch(): string
-    {
-        return (string) \$this->getQueryValue('search', '');
-    }
+    public ?string \$search = null;
 }
 PHP);
     }

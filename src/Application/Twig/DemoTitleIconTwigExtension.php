@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Twig;
 
 use Semitexa\Ssr\Attribute\AsTwigExtension;
-use Semitexa\Ssr\Extension\TwigExtensionRegistry;
+use Semitexa\Ssr\Application\Service\Extension\TwigExtensionRegistry;
 use Twig\Markup;
 
 #[AsTwigExtension]

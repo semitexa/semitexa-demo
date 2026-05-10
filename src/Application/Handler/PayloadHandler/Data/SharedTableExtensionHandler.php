@@ -13,7 +13,7 @@ use Semitexa\Demo\Application\Payload\Request\Data\SharedTableExtensionPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Orm\Schema\SchemaCollector;
+use Semitexa\Orm\Application\Service\Schema\SchemaCollector;
 
 #[AsPayloadHandler(payload: SharedTableExtensionPayload::class, resource: DemoFeatureResource::class)]
 final class SharedTableExtensionHandler implements TypedHandlerInterface

@@ -18,7 +18,7 @@ use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
 use Semitexa\Demo\Domain\Repository\DemoReviewRepositoryInterface;
 use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
-use Semitexa\Orm\Transaction\TransactionManager;
+use Semitexa\Orm\Application\Service\Transaction\TransactionManager;
 
 #[AsService]
 final class DemoDataSeeder
