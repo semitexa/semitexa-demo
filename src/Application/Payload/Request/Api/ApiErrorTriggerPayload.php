@@ -6,13 +6,11 @@ namespace Semitexa\Demo\Application\Payload\Request\Api;
 
 use Semitexa\Api\Attribute\ApiVersion;
 use Semitexa\Api\Attribute\ExternalApi;
-use Semitexa\Authorization\Attribute\PublicEndpoint;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 use Semitexa\Core\Request;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 
-#[PublicEndpoint]
-#[AsPayload(
+#[AsPublicPayload(
     path: '/demo/api/structured-errors',
     methods: ['GET', 'POST'],
     defaults: ['type' => 'not-found'],

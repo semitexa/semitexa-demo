@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Payload\Request\Container;
 
-use Semitexa\Authorization\Attribute\PublicEndpoint;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 
-#[PublicEndpoint]
-#[AsPayload(
+#[AsPublicPayload(
     path: '/demo/di/overview',
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
