@@ -7,10 +7,10 @@ namespace App\Api\Product;
 use App\Api\Product\ProductApiResponse;
 use App\Api\Product\ProductGraphqlView;
 use Semitexa\Api\Attribute\ExternalApi;
-use Semitexa\Core\Attribute\AsPayload;
-use Semitexa\Graphql\Attributes\ExposeAsGraphql;
+use Semitexa\Core\Attribute\AsPublicPayload;
+use Semitexa\Graphql\Attribute\ExposeAsGraphql;
 
-#[AsPayload(path: '/api/v1/products/{slug}', methods: ['GET'], responseWith: ProductApiResponse::class)]
+#[AsPublicPayload(path: '/api/v1/products/{slug}', methods: ['GET'], responseWith: ProductApiResponse::class)]
 #[ExternalApi(version: 'v1')]
 #[ExposeAsGraphql(
     field: 'productBySlug',

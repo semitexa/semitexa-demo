@@ -18,7 +18,7 @@ use Semitexa\Mail\Console\Command\MailWorkCommand;
 use Semitexa\Scheduler\Console\SchedulerListCommand;
 use Semitexa\Scheduler\Console\SchedulerPlanCommand;
 use Semitexa\Scheduler\Console\SchedulerWorkCommand;
-use Semitexa\Tenancy\CLI\TenantRunCommand;
+use Semitexa\Tenancy\Application\Console\Command\TenantRunCommand;
 use Semitexa\Webhooks\Console\WebhookReplayInboundCommand;
 use Semitexa\Webhooks\Console\WebhookShowCommand;
 use Semitexa\Webhooks\Console\WebhookWorkCommand;

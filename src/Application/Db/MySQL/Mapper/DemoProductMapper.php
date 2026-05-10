@@ -7,7 +7,7 @@ namespace Semitexa\Demo\Application\Db\MySQL\Mapper;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
 use Semitexa\Demo\Domain\Model\DemoProduct;
 use Semitexa\Orm\Attribute\AsMapper;
-use Semitexa\Orm\Contract\ResourceModelMapperInterface;
+use Semitexa\Orm\Domain\Contract\ResourceModelMapperInterface;
 
 #[AsMapper(
     resourceModel: DemoProductResource::class,

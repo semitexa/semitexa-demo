@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Console;
 
-use Semitexa\Llm\Data\LlmRequest;
-use Semitexa\Llm\Data\PlannerResponseType;
-use Semitexa\Llm\Planner\Planner;
-use Semitexa\Llm\Session\ConversationSession;
+use Semitexa\Llm\Domain\Model\LlmRequest;
+use Semitexa\Llm\Domain\Enum\PlannerResponseType;
+use Semitexa\Llm\Application\Service\Planner;
+use Semitexa\Llm\Application\Service\ConversationSession;
 
 // Resolve these collaborators from your container/bootstrap before running the example.
 $registry = $registry ?? throw new \LogicException('Resolve $registry from your application container.');

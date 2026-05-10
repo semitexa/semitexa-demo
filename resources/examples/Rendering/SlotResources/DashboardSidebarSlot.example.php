@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Semitexa\Ssr\Attribute\AsSlotResource;
-use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
+use Semitexa\Ssr\Application\Service\Http\Response\HtmlSlotResponse;
 
 #[AsSlotResource(
     handle: 'dashboard',

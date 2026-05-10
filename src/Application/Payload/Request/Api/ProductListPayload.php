@@ -6,15 +6,13 @@ namespace Semitexa\Demo\Application\Payload\Request\Api;
 
 use Semitexa\Api\Attribute\ApiVersion;
 use Semitexa\Api\Attribute\ExternalApi;
-use Semitexa\Authorization\Attribute\PublicEndpoint;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 use Semitexa\Core\Request;
 use Semitexa\Demo\Application\Graphql\Output\ProductListGraphqlView;
 use Semitexa\Demo\Application\Resource\Response\DemoApiResponse;
-use Semitexa\Graphql\Attributes\ExposeAsGraphql;
+use Semitexa\Graphql\Attribute\ExposeAsGraphql;
 
-#[PublicEndpoint]
-#[AsPayload(
+#[AsPublicPayload(
     path: '/demo/api/v1/products',
     methods: ['GET'],
     responseWith: DemoApiResponse::class,

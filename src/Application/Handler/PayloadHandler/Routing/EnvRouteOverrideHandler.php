@@ -88,7 +88,7 @@ final class EnvRouteOverrideHandler implements TypedHandlerInterface
                         ['text' => $resolvedPath === self::FALLBACK_PATH ? 'Running on fallback route' : 'Running on env override route', 'variant' => 'success'],
                     ],
                 ],
-                'codeSnippet' => "DEMO_ENV_ROUTE_OVERRIDE_PATH=/demo/http/env-override\n\n#[AsPayload(\n    path: 'env::DEMO_ENV_ROUTE_OVERRIDE_PATH::/demo/routing/env-route-override',\n    methods: ['GET'],\n    responseWith: DemoFeatureResource::class,\n)]",
+                'codeSnippet' => "DEMO_ENV_ROUTE_OVERRIDE_PATH=/demo/http/env-override\n\n#[AsPublicPayload(\n    path: 'env::DEMO_ENV_ROUTE_OVERRIDE_PATH::/demo/routing/env-route-override',\n    methods: ['GET'],\n    responseWith: DemoFeatureResource::class,\n)]",
                 'note' => 'This is intentionally boring in the best way: the handler does not change, the resource does not change, and the payload still stays the single place where the route contract is declared.',
             ]);
     }

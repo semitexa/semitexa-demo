@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Payload\Request\Auth;
 
-use Semitexa\Authorization\Attribute\PublicEndpoint;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 use Semitexa\Core\Http\Response\ResourceResponse;
 
-#[PublicEndpoint]
-#[AsPayload(
+#[AsPublicPayload(
     path: '/demo/auth/google/start',
     methods: ['GET'],
     responseWith: ResourceResponse::class,

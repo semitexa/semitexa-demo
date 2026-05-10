@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Application\Payload\Container;
 
 use App\Application\Resource\Page\MailerStatusResource;
-use Semitexa\Authorization\Attribute\PublicEndpoint;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 
-#[PublicEndpoint]
-#[AsPayload(
+#[AsPublicPayload(
     path: '/docs/di/contracts',
     methods: ['GET'],
     responseWith: MailerStatusResource::class,

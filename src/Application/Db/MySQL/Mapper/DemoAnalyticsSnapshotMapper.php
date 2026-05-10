@@ -7,7 +7,7 @@ namespace Semitexa\Demo\Application\Db\MySQL\Mapper;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoAnalyticsSnapshotResource;
 use Semitexa\Demo\Domain\Model\DemoAnalyticsSnapshot;
 use Semitexa\Orm\Attribute\AsMapper;
-use Semitexa\Orm\Contract\ResourceModelMapperInterface;
+use Semitexa\Orm\Domain\Contract\ResourceModelMapperInterface;
 
 #[AsMapper(
     resourceModel: DemoAnalyticsSnapshotResource::class,

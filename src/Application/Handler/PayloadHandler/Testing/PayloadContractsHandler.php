@@ -13,9 +13,8 @@ use Semitexa\Demo\Application\Payload\Request\Testing\PayloadContractsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Testing\Attribute\TestablePayload;
-use Semitexa\Testing\Console\Command\TestInitCommand;
-use Semitexa\Testing\Console\Command\TestRunCommand;
+use Semitexa\Testing\Attributes\TestablePayload;
+use Semitexa\Testing\Application\Console\Command\TestRunCommand;
 use Semitexa\Testing\PayloadContractTester;
 use Semitexa\Testing\Strategy\MonkeyTestingStrategy;
 use Semitexa\Testing\Strategy\Profile\ParanoidProfileStrategy;
@@ -53,7 +52,6 @@ final class PayloadContractsHandler implements TypedHandlerInterface
             ->withSourceCode([
                 '#[TestablePayload]' => $this->sourceCodeReader->readClassSource(TestablePayload::class),
                 'PayloadContractTester' => $this->sourceCodeReader->readClassSource(PayloadContractTester::class),
-                'test:init Command' => $this->sourceCodeReader->readClassSource(TestInitCommand::class),
                 'test:run Command' => $this->sourceCodeReader->readClassSource(TestRunCommand::class),
                 'StrictProfileStrategy' => $this->sourceCodeReader->readClassSource(StrictProfileStrategy::class),
                 'ParanoidProfileStrategy' => $this->sourceCodeReader->readClassSource(ParanoidProfileStrategy::class),
@@ -77,7 +75,7 @@ final class PayloadContractsHandler implements TypedHandlerInterface
                     [
                         'label' => 'Mark a payload as contract-testable',
                         'code' => <<<'PHP'
-#[AsPayload(path: '/api/payments', methods: ['POST'])]
+#[AsPublicPayload(path: '/api/payments', methods: ['POST'])]
 #[TestablePayload(
     strategies: [StrictProfileStrategy::class, ParanoidProfileStrategy::class],
     context: ['fail_fast' => false],

@@ -12,9 +12,9 @@ use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Llm\LlmExecutionFlowPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Llm\Executor\SkillExecutor;
-use Semitexa\Llm\Planner\Planner;
-use Semitexa\Llm\Session\ConversationSession;
+use Semitexa\Llm\Application\Service\SkillExecutor;
+use Semitexa\Llm\Application\Service\Planner;
+use Semitexa\Llm\Application\Service\ConversationSession;
 
 #[AsPayloadHandler(payload: LlmExecutionFlowPayload::class, resource: DemoFeatureResource::class)]
 final class LlmExecutionFlowHandler implements TypedHandlerInterface

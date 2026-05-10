@@ -13,10 +13,10 @@ use Semitexa\Demo\Application\Payload\Request\Testing\OrmConsolePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Orm\Console\Command\OrmDiffCommand;
-use Semitexa\Orm\Console\Command\OrmSeedCommand;
-use Semitexa\Orm\Console\Command\OrmStatusCommand;
-use Semitexa\Orm\Console\Command\OrmSyncCommand;
+use Semitexa\Orm\Application\Console\Command\OrmDiffCommand;
+use Semitexa\Orm\Application\Console\Command\OrmSeedCommand;
+use Semitexa\Orm\Application\Console\Command\OrmStatusCommand;
+use Semitexa\Orm\Application\Console\Command\OrmSyncCommand;
 
 #[AsPayloadHandler(payload: OrmConsolePayload::class, resource: DemoFeatureResource::class)]
 final class OrmConsoleHandler implements TypedHandlerInterface

@@ -71,7 +71,7 @@ final class RbacHandler implements TypedHandlerInterface
                 'summary' => 'Capabilities cover broad platform rights, permission slugs cover exact business actions, and any module can add its own permission list by implementing the RBAC provider contract.',
                 'columns' => $this->buildMatrixColumns(),
                 'rows' => $this->buildMatrixRows(),
-                'codeSnippet' => "#[RequiresCapability(AdminCapability::BackofficeAccess)]\n#[RequiresPermission('products.write')]\n#[AsPayload(path: '/admin/products/{id}', methods: ['PUT'])]\nclass UpdateProductPayload { ... }\n\n// A domain module supplies slug permissions through PermissionProviderInterface.",
+                'codeSnippet' => "#[RequiresCapability(AdminCapability::BackofficeAccess)]\n#[RequiresPermission('products.write')]\n#[AsProtectedPayload(path: '/admin/products/{id}', methods: ['PUT'])]\nclass UpdateProductPayload { ... }\n\n// A domain module supplies slug permissions through PermissionProviderInterface.",
             ]);
     }
 

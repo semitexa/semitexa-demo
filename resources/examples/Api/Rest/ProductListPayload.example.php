@@ -6,9 +6,9 @@ namespace App\Api\Product;
 
 use Semitexa\Api\Attribute\ApiVersion;
 use Semitexa\Api\Attribute\ExternalApi;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 
-#[AsPayload(path: '/api/v1/products', methods: ['GET'], responseWith: ProductApiResponse::class)]
+#[AsPublicPayload(path: '/api/v1/products', methods: ['GET'], responseWith: ProductApiResponse::class)]
 #[ExternalApi(version: 'v1')]
 #[ApiVersion(version: '1.0.0')]
 final class ProductListPayload

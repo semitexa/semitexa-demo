@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Application\Payload\Container;
 
 use App\Application\Resource\Page\DiOverviewResource;
-use Semitexa\Authorization\Attribute\PublicEndpoint;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 
-#[PublicEndpoint]
-#[AsPayload(
+#[AsPublicPayload(
     path: '/docs/di',
     methods: ['GET'],
     responseWith: DiOverviewResource::class,

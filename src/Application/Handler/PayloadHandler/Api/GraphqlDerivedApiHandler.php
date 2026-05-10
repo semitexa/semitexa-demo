@@ -13,7 +13,7 @@ use Semitexa\Demo\Application\Payload\Request\Api\GraphqlDerivedApiPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Graphql\Contract\GraphqlOperationRegistryInterface;
+use Semitexa\Graphql\Domain\Contract\GraphqlOperationRegistryInterface;
 use Semitexa\Graphql\Discovery\ResolvedGraphqlOperation;
 
 #[AsPayloadHandler(payload: GraphqlDerivedApiPayload::class, resource: DemoFeatureResource::class)]

@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Payload\Routing;
 
-use Semitexa\Authorization\Attribute\PublicEndpoint;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 use App\Resource\CatalogPageResource;
 
-#[PublicEndpoint]
-#[AsPayload(
+#[AsPublicPayload(
     responseWith: CatalogPageResource::class,
     path: '/catalog',
     methods: ['GET'],

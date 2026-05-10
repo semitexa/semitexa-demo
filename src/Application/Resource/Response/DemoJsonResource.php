@@ -7,7 +7,7 @@ namespace Semitexa\Demo\Application\Resource\Response;
 use Semitexa\Core\Attribute\AsResource;
 use Semitexa\Core\Contract\ResourceInterface;
 use Semitexa\Core\Http\Response\ResponseFormat;
-use Semitexa\Ssr\Http\Response\HtmlResponse;
+use Semitexa\Ssr\Application\Service\Http\Response\HtmlResponse;
 
 #[AsResource(format: ResponseFormat::Json)]
 class DemoJsonResource extends HtmlResponse implements ResourceInterface

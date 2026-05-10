@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Payload\Request\Platform;
 
-use Semitexa\Authorization\Attribute\PublicEndpoint;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 use Semitexa\Demo\Application\Resource\Platform\DemoTenantQueueResource;
 
-#[PublicEndpoint]
-#[AsPayload(
+#[AsPublicPayload(
     path: '/demo/platform/tenancy-queue',
     methods: ['GET'],
     responseWith: DemoTenantQueueResource::class,

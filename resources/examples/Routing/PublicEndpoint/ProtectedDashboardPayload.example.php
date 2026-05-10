@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Payload\Routing;
 
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Authorization\Attribute\AsProtectedPayload;
 use App\Resource\DashboardPageResource;
 
-#[AsPayload(
+#[AsProtectedPayload(
     responseWith: DashboardPageResource::class,
     path: '/dashboard',
     methods: ['GET'],

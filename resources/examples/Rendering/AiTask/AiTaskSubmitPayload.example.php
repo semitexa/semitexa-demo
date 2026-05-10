@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Application\Payload\Rendering;
 
 use App\Application\Resource\Page\AiTaskPageResource;
-use Semitexa\Authorization\Attribute\PublicEndpoint;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 
-#[PublicEndpoint]
-#[AsPayload(
+#[AsPublicPayload(
     path: '/demo/ai/tasks',
     methods: ['GET', 'POST'],
     responseWith: AiTaskPageResource::class,

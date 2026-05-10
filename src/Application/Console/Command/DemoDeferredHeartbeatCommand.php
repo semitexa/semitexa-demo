@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Console\Command;
 
 use Semitexa\Core\Attribute\AsCommand;
-use Semitexa\Ssr\Async\AsyncResourceSseServer;
+use Semitexa\Ssr\Application\Service\Async\AsyncResourceSseServer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

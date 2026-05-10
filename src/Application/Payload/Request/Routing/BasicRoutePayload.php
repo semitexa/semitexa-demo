@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Payload\Request\Routing;
 
-use Semitexa\Authorization\Attribute\PublicEndpoint;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 
-#[PublicEndpoint]
-#[AsPayload(
+#[AsPublicPayload(
     responseWith: DemoFeatureResource::class,
     produces: ['application/json', 'text/html'],
     path: 'env::DEMO_BASIC_ROUTE_PATH::/demo/routing/basic',

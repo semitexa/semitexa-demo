@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Llm;
 
-use Semitexa\Llm\Data\LlmBackend;
-use Semitexa\Llm\Data\LlmRequest;
+use Semitexa\Llm\Domain\Enum\LlmBackend;
+use Semitexa\Llm\Domain\Model\LlmRequest;
 
 // Local Ollama
 // LLM_BASE_URL=http://127.0.0.1:11434

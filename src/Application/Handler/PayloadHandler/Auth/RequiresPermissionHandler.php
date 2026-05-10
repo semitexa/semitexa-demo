@@ -57,7 +57,7 @@ final class RequiresPermissionHandler implements TypedHandlerInterface
                     [['text' => 'Authenticated, missing permission'], ['text' => '403 Forbidden', 'variant' => 'error']],
                     [['text' => 'Authenticated, permission granted'], ['text' => '200 OK', 'variant' => 'success']],
                 ],
-                'codeSnippet' => "#[RequiresPermission('users.manage')]\n#[AsPayload(path: '/admin/users', methods: ['GET'])]\nclass ManageUsersPayload {}\n\nfinal class ManageUsersHandler implements TypedHandlerInterface\n{\n    public function handle(ManageUsersPayload \$payload, AdminPageResource \$resource): AdminPageResource\n    {\n        // No manual access checks here.\n        return \$resource;\n    }\n}",
+                'codeSnippet' => "#[RequiresPermission('users.manage')]\n#[AsProtectedPayload(path: '/admin/users', methods: ['GET'])]\nclass ManageUsersPayload {}\n\nfinal class ManageUsersHandler implements TypedHandlerInterface\n{\n    public function handle(ManageUsersPayload \$payload, AdminPageResource \$resource): AdminPageResource\n    {\n        // No manual access checks here.\n        return \$resource;\n    }\n}",
             ]);
     }
 }

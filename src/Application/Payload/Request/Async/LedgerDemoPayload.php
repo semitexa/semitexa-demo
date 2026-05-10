@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Payload\Request\Async;
 
 use Semitexa\Authorization\Attribute\RequiresPermission;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Authorization\Attribute\AsProtectedPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 
 #[RequiresPermission('products.read')]
-#[AsPayload(
+#[AsProtectedPayload(
     path: '/demo/events/ledger',
     methods: ['GET', 'POST'],
     responseWith: DemoFeatureResource::class,

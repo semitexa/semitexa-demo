@@ -6,10 +6,10 @@ namespace App\Application\Payload\Api;
 
 use App\Application\Resource\Api\ProductSchemaResource;
 use Semitexa\Api\Attribute\ExternalApi;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 
 #[ExternalApi]
-#[AsPayload(
+#[AsPublicPayload(
     path: '/api/schema/products',
     methods: ['GET'],
     responseWith: ProductSchemaResource::class,

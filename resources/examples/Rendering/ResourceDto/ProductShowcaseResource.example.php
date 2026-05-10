@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Semitexa\Core\Attribute\AsResource;
-use Semitexa\Ssr\Http\Response\HtmlResponse;
+use Semitexa\Ssr\Application\Service\Http\Response\HtmlResponse;
 
 #[AsResource(
     handle: 'product_showcase',

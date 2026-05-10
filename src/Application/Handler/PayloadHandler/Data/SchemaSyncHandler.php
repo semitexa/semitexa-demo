@@ -13,10 +13,10 @@ use Semitexa\Demo\Application\Payload\Request\Data\SchemaSyncPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Orm\Console\Command\OrmSyncCommand;
+use Semitexa\Orm\Application\Console\Command\OrmSyncCommand;
 use Semitexa\Orm\OrmManager;
-use Semitexa\Orm\Sync\AuditLogger;
-use Semitexa\Orm\Sync\SyncEngine;
+use Semitexa\Orm\Application\Service\Sync\AuditLogger;
+use Semitexa\Orm\Application\Service\Sync\SyncEngine;
 
 #[AsPayloadHandler(payload: SchemaSyncPayload::class, resource: DemoFeatureResource::class)]
 final class SchemaSyncHandler implements TypedHandlerInterface

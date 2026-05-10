@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Catalog\Application\Payload\Request;
 
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 use Semitexa\Core\Exception\ValidationException;
 
-#[AsPayload(
+#[AsPublicPayload(
     path: '/search',
     methods: ['GET'],
     responseWith: SearchPageResource::class,
