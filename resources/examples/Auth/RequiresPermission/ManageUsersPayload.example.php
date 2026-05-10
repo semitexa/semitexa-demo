@@ -6,10 +6,10 @@ namespace App\Payload\Admin;
 
 use App\Resource\AdminPageResource;
 use Semitexa\Authorization\Attribute\RequiresPermission;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Authorization\Attribute\AsProtectedPayload;
 
 #[RequiresPermission('users.manage')]
-#[AsPayload(
+#[AsProtectedPayload(
     responseWith: AdminPageResource::class,
     path: '/admin/users',
     methods: ['GET'],

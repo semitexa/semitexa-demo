@@ -9,13 +9,11 @@ use App\Auth\Session\GoogleAuthSessionSegment;
 use App\Payload\Auth\SessionAuthPayload;
 use App\Resource\Auth\SessionAuthResource;
 use Semitexa\Auth\Context\AuthManager;
-use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsMutable;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Session\SessionInterface;
 
-#[PublicEndpoint]
 #[AsPayloadHandler(payload: SessionAuthPayload::class, resource: SessionAuthResource::class)]
 final class SessionAuthHandler implements TypedHandlerInterface
 {

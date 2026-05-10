@@ -7,11 +7,11 @@ namespace App\Application\Payload\Api;
 use App\Application\Resource\Api\ProductListV2Resource;
 use Semitexa\Api\Attribute\ApiVersion;
 use Semitexa\Api\Attribute\ExternalApi;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 
 #[ExternalApi]
 #[ApiVersion('2.0')]
-#[AsPayload(
+#[AsPublicPayload(
     path: '/api/v2/products',
     methods: ['GET'],
     responseWith: ProductListV2Resource::class,

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Api\Product;
 
 use Semitexa\Api\Attribute\ExternalApi;
-use Semitexa\Core\Attribute\AsPayload;
-use Semitexa\Graphql\Attributes\ExposeAsGraphql;
+use Semitexa\Core\Attribute\AsPublicPayload;
+use Semitexa\Graphql\Attribute\ExposeAsGraphql;
 
-#[AsPayload(path: '/api/v1/products', methods: ['GET'], responseWith: ProductApiResponse::class)]
+#[AsPublicPayload(path: '/api/v1/products', methods: ['GET'], responseWith: ProductApiResponse::class)]
 #[ExternalApi(version: 'v1')]
 #[ExposeAsGraphql(
     field: 'products',

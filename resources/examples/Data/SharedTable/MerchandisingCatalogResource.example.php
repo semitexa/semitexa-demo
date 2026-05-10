@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Resource\Page;
 
 use Semitexa\Core\Contract\ResourceInterface;
-use Semitexa\Ssr\Http\Response\HtmlResponse;
+use Semitexa\Ssr\Application\Service\Http\Response\HtmlResponse;
 
 final class MerchandisingCatalogResource extends HtmlResponse implements ResourceInterface
 {

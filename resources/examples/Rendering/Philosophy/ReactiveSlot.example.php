@@ -6,7 +6,7 @@ use Examples\Rendering\Philosophy\Support\JobService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Ssr\Attribute\AsSlotHandler;
 use Semitexa\Ssr\Attribute\AsSlotResource;
-use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
+use Semitexa\Ssr\Application\Service\Http\Response\HtmlSlotResponse;
 
 #[AsSlotResource(
     handle: 'imports_dashboard',

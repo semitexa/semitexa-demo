@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 use Semitexa\Core\Exception\ValidationException;
 
-#[AsPayload(
+#[AsPublicPayload(
     path: '/products/{slug}',
     methods: ['GET'],
     responseWith: ProductShowcaseResource::class,

@@ -6,10 +6,10 @@ namespace App\Application\Payload\Api;
 
 use App\Application\Resource\Api\ErrorEnvelopeResource;
 use Semitexa\Api\Attribute\ExternalApi;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 
 #[ExternalApi]
-#[AsPayload(
+#[AsPublicPayload(
     path: '/api/demo/errors/{scenario}',
     methods: ['GET'],
     responseWith: ErrorEnvelopeResource::class,

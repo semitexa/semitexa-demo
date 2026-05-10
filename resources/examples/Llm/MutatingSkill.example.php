@@ -6,8 +6,8 @@ namespace App\Console\Command;
 
 use Semitexa\Core\Attribute\AsCommand;
 use Semitexa\Llm\Attribute\AsAiSkill;
-use Semitexa\Llm\Policy\AiConfirmationMode;
-use Semitexa\Llm\Policy\AiRiskLevel;
+use Semitexa\Llm\Domain\Enum\AiConfirmationMode;
+use Semitexa\Llm\Domain\Enum\AiRiskLevel;
 use Symfony\Component\Console\Command\Command;
 
 #[AsCommand(name: 'cache:clear', description: 'Clear stale application cache')]

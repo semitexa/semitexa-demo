@@ -8,7 +8,6 @@ use App\Auth\Session\BrowserSessionSegment;
 use App\Payload\Auth\LoginPayload;
 use App\Resource\Auth\LoginPageResource;
 use App\User\UserRepositoryInterface;
-use Semitexa\Authorization\Attribute\PublicEndpoint;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsMutable;
 use Semitexa\Core\Attribute\InjectAsReadonly;
@@ -16,7 +15,6 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Exception\AuthenticationException;
 use Semitexa\Core\Session\SessionInterface;
 
-#[PublicEndpoint]
 #[AsPayloadHandler(payload: LoginPayload::class, resource: LoginPageResource::class)]
 final class LoginHandler implements TypedHandlerInterface
 {

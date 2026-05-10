@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 use App\Domain\Catalog\CatalogInterface;
 use App\Domain\Product;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Attribute\AsResource;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Exception\NotFoundException;
 use Semitexa\Core\Exception\ValidationException;
-use Semitexa\Ssr\Http\Response\HtmlResponse;
+use Semitexa\Ssr\Application\Service\Http\Response\HtmlResponse;
 
-#[AsPayload(
+#[AsPublicPayload(
     path: '/products/{slug}',
     methods: ['GET'],
     responseWith: ProductPageResource::class,

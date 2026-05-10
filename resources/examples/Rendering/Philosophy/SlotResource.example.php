@@ -6,7 +6,7 @@ use Examples\Rendering\Philosophy\Support\RecommendationService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Ssr\Attribute\AsSlotHandler;
 use Semitexa\Ssr\Attribute\AsSlotResource;
-use Semitexa\Ssr\Http\Response\HtmlSlotResponse;
+use Semitexa\Ssr\Application\Service\Http\Response\HtmlSlotResponse;
 
 #[AsSlotResource(handle: 'product_page', slot: 'sidebar')]
 final class ProductSidebarSlot extends HtmlSlotResponse

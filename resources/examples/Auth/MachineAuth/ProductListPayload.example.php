@@ -6,10 +6,10 @@ namespace App\Application\Payload\Api;
 
 use App\Application\Resource\Api\ProductListResource;
 use Semitexa\Api\Attribute\ExternalApi;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Authorization\Attribute\AsServicePayload;
 
 #[ExternalApi(version: 'v1')]
-#[AsPayload(
+#[AsServicePayload(
     path: '/api/products',
     methods: ['GET'],
     responseWith: ProductListResource::class,

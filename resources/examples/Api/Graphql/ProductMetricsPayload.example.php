@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Api\Graphql;
 
 use App\Api\Graphql\Output\ProductMetricsGraphqlView;
-use Semitexa\Core\Attribute\AsPayload;
+use Semitexa\Core\Attribute\AsPublicPayload;
 use Semitexa\Core\Http\Response\ResourceResponse;
-use Semitexa\Graphql\Attributes\ExposeAsGraphql;
+use Semitexa\Graphql\Attribute\ExposeAsGraphql;
 
-#[AsPayload(
+#[AsPublicPayload(
     path: '/__graphql/products/metrics',
     methods: ['POST'],
     responseWith: ResourceResponse::class,
