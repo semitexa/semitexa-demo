@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Service;
 
-use Semitexa\Docs\Application\Document\RenderedDocument;
-use Semitexa\Docs\Application\Document\ResolvedDocument;
+use Semitexa\Docs\Domain\Model\RenderedDocument;
+use Semitexa\Docs\Domain\Model\ResolvedDocument;
 
 final readonly class DemoFeatureDocument
 {

@@ -6,7 +6,7 @@ namespace Semitexa\Demo\Application\Service;
 
 use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
-use Semitexa\Docs\Application\Document\DocumentId;
+use Semitexa\Docs\Domain\Model\DocumentId;
 use Semitexa\Docs\Application\Service\DocumentHtmlRenderer;
 use Semitexa\Docs\Application\Service\FileDocumentRepository;
 
