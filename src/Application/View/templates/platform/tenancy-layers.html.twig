@@ -1,9 +1,18 @@
-{% extends '@project-layouts-semitexa-demo/layouts/demo-feature.html.twig' %}
+{#
+ # Framework demo — tenancy "Multi-Layer Tenancy" feature.
+ #
+ # Migrated to the shared ShowcaseKit feature layout. The bespoke L1/L2/L3 block
+ # bodies are captured (set-before-extends) into the kit's raw-HTML slots
+ # (previewHtml / l2Content / l3Content) so their content + every data-* hook and
+ # component render through unchanged. Title/summary come from the feature
+ # resource; the projector-supplied highlights / documentBodyHtml / explanation
+ # are suppressed so the rendered content stays identical to the old demo-feature
+ # output (which only rendered the three blocks).
+ #}
+{% set title = 'Multi-Layer Tenancy' %}
+{% set summary = 'Four independent layers compose into one TenantContext, so tenant identity, locale, theme, and environment stay explicit instead of collapsing into one switch.' %}
 
-{% block feature_title %}Multi-Layer Tenancy{% endblock %}
-{% block feature_summary %}Four independent layers compose into one TenantContext, so tenant identity, locale, theme, and environment stay explicit instead of collapsing into one switch.{% endblock %}
-
-{% block feature_l1 %}
+{% set previewHtml %}
 <div class="feature-l1 tenancy-layers-page">
     <div class="tenancy-layers-page__intro">
         <p class="feature-entry tenancy-layers-page__lead">Organization → Locale → Theme → Environment. Each layer answers a different product question, and together they form one explicit <code>TenantContext</code>.</p>
@@ -64,9 +73,9 @@
         </table>
     </div>
 </div>
-{% endblock %}
+{% endset %}
 
-{% block feature_l2 %}
+{% set l2Content %}
 <div class="feature-l2">
     <h3>Configuring a multilayer resolver</h3>
     <div class="code-block"><pre>$multilayer = new MultilayerTenantResolver([
@@ -84,12 +93,14 @@
         {% endfor %}
     </div>
 </div>
-{% endblock %}
+{% endset %}
 
-{% block feature_l3 %}
+{% set l3Content %}
 <div class="feature-l3">
     <h3>MultilayerTenantResolver internals</h3>
     <p>Each <code>LayerDefinition</code> pairs a <em>layer type</em> with a <em>resolver strategy</em>. The resolver runs all strategies, builds each layer independently, then merges them into a single immutable <code>TenantContext</code>.</p>
     <p>The important architectural habit is this: downstream code reads the composed context, not the mechanics of how each layer was produced. Layers are resolved in order, but remain conceptually independent.</p>
 </div>
-{% endblock %}
+{% endset %}
+
+{% extends '@project-layouts-semitexa-demo/platform/_tenancy-feature.html.twig' %}

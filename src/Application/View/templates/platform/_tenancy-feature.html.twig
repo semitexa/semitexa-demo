@@ -1,0 +1,76 @@
+{#
+ # Shared wrapper for the demo's tenancy feature pages.
+ #
+ # Sits between each `platform/tenancy-*.html.twig` page and the shared
+ # ShowcaseKit feature layout, so the 5 tenancy pages only have to capture their
+ # bespoke L1/L2/L3 markup into `previewHtml` / `l2Content` / `l3Content` (and
+ # set them BEFORE extending this wrapper). This wrapper maps the feature
+ # resource data onto the kit feature contract, applies the demo chrome, and —
+ # to keep the rendered content byte-for-byte equivalent to the retired
+ # `demo-feature.html.twig` (which rendered only the three blocks) — suppresses
+ # the projector-supplied highlights / documentBodyHtml / explanation / source so
+ # only the captured blocks appear.
+ #
+ # Inheritance chain:
+ #   platform/tenancy-*.html.twig
+ #     → platform/_tenancy-feature.html.twig   (this file)
+ #       → @project-layouts-ShowcaseKit/layouts/feature.html.twig
+ #         → @project-layouts-ShowcaseKit/layouts/showcase.html.twig
+ #}
+{% extends '@project-layouts-ShowcaseKit/layouts/feature.html.twig' %}
+
+{# --- map the demo feature resource → kit feature-page contract --- #}
+{# `title` / `summary` are supplied by the concrete tenancy page (the old
+   feature_title / feature_summary block text) so the heading copy is preserved
+   verbatim. We only fall back to resource data if a page omits them. #}
+{% set title = title|default(featureTitle|default('Feature')) %}
+{% set summary = summary|default(entryLine|default(null)) %}
+{% set backHref = '/demo/' ~ (section|default('platform')) %}
+
+{# Keep content identical to the old demo-feature output: only the three blocks. #}
+{% set highlights = [] %}
+{% set documentBodyHtml = null %}
+{% set explanation = null %}
+{% set sourceCode = [] %}
+{% set relatedFeatures = [] %}
+
+{# sidebar tree: the demo `featureTree` is already the kit `layers` shape. #}
+{% set layers = featureTree|default(navSections|default([])) %}
+{% set currentSection = section %}
+{% set currentSlug = slug %}
+
+{# --- demo identity / chrome --- #}
+{% set sk_site_title = 'Semitexa Demo' %}
+
+{% block head %}
+  {{ parent() }}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block sk_brand %}
+  <a class="sk-brand" href="/">
+    <span class="sk-brand__text"><span class="semitexa-logo" aria-label="Semitexa">Semite<span>xa</span></span></span>
+  </a>
+{% endblock %}
+
+{% block sk_topnav %}
+  {% set navAuth = authUi|default({}) %}
+  {% set navAuthIsAuthenticated = navAuth.isAuthenticated|default(false) %}
+  {% set navAuthHref = navAuthIsAuthenticated
+    ? navAuth.accountUrl|default('/demo/auth/google')
+    : navAuth.startUrl|default('/demo/auth/google/start') %}
+  {% set navAuthTitle = navAuthIsAuthenticated
+    ? (navAuth.email|default(navAuth.label|default('Signed in with Google')))
+    : navAuth.signInTitle|default('Sign in with Google to unlock advanced demos') %}
+  {% set navAuthText = navAuthIsAuthenticated
+    ? 'Hi, ' ~ navAuth.shortLabel|default(navAuth.label|default('there'))
+    : navAuth.actionLabel|default('Sign in') %}
+  <a class="sk-topnav__signin{{ navAuthIsAuthenticated ? ' sk-topnav__signin--active' : '' }}" href="{{ navAuthHref }}" title="{{ navAuthTitle }}">{{ navAuthText }}</a>
+  <a href="https://github.com/semitexa" target="_blank" rel="noopener" aria-label="Semitexa on GitHub" title="GitHub">GitHub</a>
+  <a href="https://www.linkedin.com/company/semitexa/" target="_blank" rel="noopener" aria-label="Semitexa on LinkedIn" title="LinkedIn">LinkedIn</a>
+  <a href="https://www.facebook.com/semitexa" target="_blank" rel="noopener" aria-label="Semitexa on Facebook" title="Facebook">Facebook</a>
+{% endblock %}
+
+{% block sk_footer %}<p class="sk-footer__copy">© 2026 Semitexa</p>{% endblock %}

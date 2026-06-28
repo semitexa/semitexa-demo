@@ -1,9 +1,12 @@
-{% extends '@project-layouts-semitexa-demo/layouts/demo-feature.html.twig' %}
+{#
+ # Framework demo — tenancy "Queue Tenant Propagation" feature.
+ # Migrated to the ShowcaseKit feature layout via _tenancy-feature wrapper.
+ # Bespoke L1/L2/L3 markup captured into previewHtml / l2Content / l3Content.
+ #}
+{% set title = 'Queue Tenant Propagation' %}
+{% set summary = 'Tenant context travels with queued jobs — _tenant key injected automatically.' %}
 
-{% block feature_title %}Queue Tenant Propagation{% endblock %}
-{% block feature_summary %}Tenant context travels with queued jobs — _tenant key injected automatically.{% endblock %}
-
-{% block feature_l1 %}
+{% set previewHtml %}
 <div class="feature-l1">
     <p class="feature-entry">Tenant context travels with queued jobs — no manual propagation.</p>
 
@@ -41,9 +44,9 @@ $serializer->wrap([
         </div>
     </div>
 </div>
-{% endblock %}
+{% endset %}
 
-{% block feature_l2 %}
+{% set l2Content %}
 <div class="feature-l2">
     <h3>Wrap and unwrap API</h3>
     <div class="code-block"><pre>$serializer = new TenantAwareJobSerializer();
@@ -58,12 +61,14 @@ TenantContext::set($tenantContext);
 // ORM, templates, everything scoped to 'acme' now</pre></div>
     <p>Design decision: the <em>default</em> tenant (no active context) is NOT propagated — only explicit tenant contexts travel.</p>
 </div>
-{% endblock %}
+{% endset %}
 
-{% block feature_l3 %}
+{% set l3Content %}
 <div class="feature-l3">
     <h3>Why this matters for SaaS</h3>
     <p>Without tenant propagation, a queued job runs in the wrong scope — a report job for Acme reads Globex's data. Every job needs manual <code>tenant_id</code> plumbing.</p>
     <p>With <code>TenantAwareJobSerializer</code>, tenant context is an invisible envelope on every job. Workers restore it transparently. Zero plumbing in application code.</p>
 </div>
-{% endblock %}
+{% endset %}
+
+{% extends '@project-layouts-semitexa-demo/platform/_tenancy-feature.html.twig' %}
