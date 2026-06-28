@@ -1,8 +1,77 @@
-{% extends '@project-layouts-semitexa-demo/layouts/demo-layout.html.twig' %}
+{#
+ # Framework demo — SECTION overview.
+ #
+ # Structural migration: extends the shared ShowcaseKit section page so the
+ # layout, sidebar tree, chrome, and skin-mode toggle come from the kit. Palette
+ # is 100% skin-driven (terracotta via the `semitexa-demo` skin).
+ #
+ # The section structural data (meta + grouped/flat features + sidebar tree) maps
+ # onto the kit section contract. The section page also carries demo-specific
+ # CONTENT the kit contract does not model — the rendering / get-started /
+ # project-graph manifesto blocks, the per-section eyebrow/intro copy, and the
+ # donate block — so `showcase_main` is overridden to reproduce the demo body
+ # faithfully while reusing the kit's `_feature-card` partial and `demo-section-page`
+ # CSS classes (skin-driven). Everything else (sidebar, header chrome, scripts)
+ # comes from the kit unchanged.
+ #
+ # Demo resource vars: section, sectionLabel, sectionIcon, sectionSummary,
+ #   features (flat), groups, + shell context (featureTree, navSections,
+ #   currentSection, navMode, activeLayerKey, authUi).
+ #}
+{% extends '@project-layouts-ShowcaseKit/pages/section.html.twig' %}
 
-{% block title %}{{ page_title()|default((sectionLabel|default('Section')) ~ ' — Semitexa Demo') }}{% endblock %}
+{# --- map the demo section data → kit section-page contract --- #}
+{% set sectionEyebrow = 'Section Overview' %}
+{% set backHref = '/' %}
+{% set backLabel = 'All sections' %}
+{% set statLabel = 'live features' %}
 
-{% block main %}
+{# sidebar tree: the demo `featureTree` is already the kit `layers` shape. #}
+{% set layers = featureTree|default(navSections|default([])) %}
+{% set currentSection = section %}
+
+{# --- demo identity / chrome --- #}
+{% set sk_site_title = 'Semitexa Demo' %}
+{% set sk_body_class = 'demo-page-bg' %}
+
+{% block head %}
+  {{ parent() }}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block sk_brand %}
+  <a class="sk-brand" href="/">
+    <span class="sk-brand__text"><span class="semitexa-logo" aria-label="Semitexa">Semite<span>xa</span></span></span>
+  </a>
+{% endblock %}
+
+{% block sk_topnav %}
+  {% set navAuth = authUi|default({}) %}
+  {% set navAuthIsAuthenticated = navAuth.isAuthenticated|default(false) %}
+  {% set navAuthHref = navAuthIsAuthenticated
+    ? navAuth.accountUrl|default('/demo/auth/google')
+    : navAuth.startUrl|default('/demo/auth/google/start') %}
+  {% set navAuthTitle = navAuthIsAuthenticated
+    ? (navAuth.email|default(navAuth.label|default('Signed in with Google')))
+    : navAuth.signInTitle|default('Sign in with Google to unlock advanced demos') %}
+  {% set navAuthText = navAuthIsAuthenticated
+    ? 'Hi, ' ~ navAuth.shortLabel|default(navAuth.label|default('there'))
+    : navAuth.actionLabel|default('Sign in') %}
+  <a class="sk-topnav__signin{{ navAuthIsAuthenticated ? ' sk-topnav__signin--active' : '' }}" href="{{ navAuthHref }}" title="{{ navAuthTitle }}">{{ navAuthText }}</a>
+  <a href="https://github.com/semitexa" target="_blank" rel="noopener" aria-label="Semitexa on GitHub" title="GitHub">GitHub</a>
+  <a href="https://www.linkedin.com/company/semitexa/" target="_blank" rel="noopener" aria-label="Semitexa on LinkedIn" title="LinkedIn">LinkedIn</a>
+  <a href="https://www.facebook.com/semitexa" target="_blank" rel="noopener" aria-label="Semitexa on Facebook" title="Facebook">Facebook</a>
+{% endblock %}
+
+{% block sk_footer %}<p class="sk-footer__copy">© 2026 Semitexa</p>{% endblock %}
+
+{# --- demo section body: header + section-specific manifesto/donate + feature
+       grid, reproduced faithfully on top of the kit shell. --- #}
+{% block showcase_main %}
+  {% set _features = features|default([]) %}
+  {% set _groups = groups|default([]) %}
   <div class="demo-section-page">
 
     <header class="demo-section-page__header">
@@ -16,7 +85,7 @@
           </div>
         </div>
         <div class="demo-section-page__stat">
-          <span class="demo-section-page__stat-value">{{ features|default([])|length }}</span>
+          <span class="demo-section-page__stat-value">{{ _features|length }}</span>
           <span class="demo-section-page__stat-label">live features</span>
         </div>
       </div>
@@ -199,37 +268,26 @@
       </section>
     {% endif %}
 
-    {% if features|default([])|length > 0 %}
+    {% if _features|length > 0 %}
       <section class="demo-section-page__features">
         <div class="demo-block-heading demo-block-heading--tight">
           <p class="demo-block-heading__eyebrow">{{ section|default('') == 'rendering' ? 'Conceptual Path' : (section|default('') == 'get-started' ? 'Onboarding Pages' : (section|default('') == 'project-graph' ? 'Usage Paths' : 'Route Map')) }}</p>
           <p class="demo-block-heading__text">{{ section|default('') == 'rendering' ? 'Read the section as a progression: start with the rendering model, then move through delivery, and only then into the live surfaces that reuse the same server-owned story.' : (section|default('') == 'get-started' ? 'Open these pages in order if you want the shortest path from a fresh install to a realistic Semitexa local setup.' : (section|default('') == 'project-graph' ? 'Start with the overview, then move into inspection and impact workflows to see how the graph helps real engineering and AI-assisted work.' : 'Each feature page pairs live output with the source that produced it.')) }}</p>
         </div>
-        {% if groups|default([]) is not empty %}
+        {% if _groups is not empty %}
           <div class="demo-section-page__groups">
-            {% for group in groups|default([]) %}
+            {% for group in _groups %}
               <section class="demo-section-page__group">
                 <div class="demo-section-page__group-head">
                   <h3 class="demo-section-page__group-title">{{ group.label }}</h3>
-                  <span class="demo-section-page__group-count">{{ group.featureCount }}</span>
+                  <span class="demo-section-page__group-count">{{ group.featureCount|default(group.features|default([])|length) }}</span>
                 </div>
                 <div class="demo-sections__grid">
                   {% for feature in group.features|default([]) %}
-                    <a
-                      href="{{ feature.href|default('/demo/' ~ (section|url_encode) ~ '/' ~ (feature.slug|url_encode)) }}"
-                      class="feature-card feature-card--feature"
-                      {% if feature.opensInNewTab|default(false) %}aria-label="{{ feature.title }} (opens in new tab)"{% endif %}
-                      {% if feature.opensInNewTab|default(false) %}target="_blank" rel="noopener"{% endif %}
-                    >
-                      <div class="feature-card__body">
-                        <p class="feature-card__eyebrow">{{ sectionLabel|default(section|upper) }}</p>
-                        <h3 class="feature-card__title">{{ feature.title }}{% if feature.opensInNewTab|default(false) %}<span class="demo-link-external-indicator" aria-hidden="true">↗</span>{% endif %}</h3>
-                        <p class="feature-card__summary">{{ feature.summary }}</p>
-                        <div class="feature-card__meta">
-                          <span class="feature-card__count">Open feature</span>
-                        </div>
-                      </div>
-                    </a>
+                    {% include '@project-layouts-ShowcaseKit/partials/_feature-card.html.twig' with {
+                      feature: feature,
+                      sectionLabel: sectionLabel|default((section|default(''))|upper),
+                    } only %}
                   {% endfor %}
                 </div>
               </section>
@@ -237,22 +295,11 @@
           </div>
         {% else %}
           <div class="demo-sections__grid">
-            {% for feature in features %}
-              <a
-                href="{{ feature.href|default('/demo/' ~ (section|url_encode) ~ '/' ~ (feature.slug|url_encode)) }}"
-                class="feature-card feature-card--feature"
-                {% if feature.opensInNewTab|default(false) %}aria-label="{{ feature.title }} (opens in new tab)"{% endif %}
-                {% if feature.opensInNewTab|default(false) %}target="_blank" rel="noopener"{% endif %}
-              >
-                <div class="feature-card__body">
-                  <p class="feature-card__eyebrow">{{ sectionLabel|default(section|upper) }}</p>
-                  <h3 class="feature-card__title">{{ feature.title }}{% if feature.opensInNewTab|default(false) %}<span class="demo-link-external-indicator" aria-hidden="true">↗</span>{% endif %}</h3>
-                  <p class="feature-card__summary">{{ feature.summary }}</p>
-                  <div class="feature-card__meta">
-                    <span class="feature-card__count">Open feature</span>
-                  </div>
-                </div>
-              </a>
+            {% for feature in _features %}
+              {% include '@project-layouts-ShowcaseKit/partials/_feature-card.html.twig' with {
+                feature: feature,
+                sectionLabel: sectionLabel|default((section|default(''))|upper),
+              } only %}
             {% endfor %}
           </div>
         {% endif %}

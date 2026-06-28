@@ -70,6 +70,13 @@
 
   function initFeatureTree() {
     document.querySelectorAll('.feature-tree__toggle').forEach(function (toggle) {
+      // Shared idempotency marker with the kit's feature-tree.js: whichever
+      // script runs first binds the toggle; the other skips. Without this both
+      // scripts add a click listener and a single click toggles twice (the
+      // section opens then immediately closes — "the menu won't open").
+      if (toggle.dataset.ftBound === '1') return;
+      toggle.dataset.ftBound = '1';
+
       var section = toggle.closest('.feature-tree__section');
       var body = section ? section.querySelector('.feature-tree__section-body') : null;
       if (!section) return;

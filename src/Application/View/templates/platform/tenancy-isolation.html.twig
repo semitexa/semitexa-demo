@@ -1,9 +1,12 @@
-{% extends '@project-layouts-semitexa-demo/layouts/demo-feature.html.twig' %}
+{#
+ # Framework demo — tenancy "Data Isolation" feature.
+ # Migrated to the ShowcaseKit feature layout via _tenancy-feature wrapper.
+ # Bespoke L1/L2/L3 markup captured into previewHtml / l2Content / l3Content.
+ #}
+{% set title = 'Data Isolation' %}
+{% set summary = 'The same repository call returns a different dataset when tenant context changes, without hand-written WHERE clauses in business code.' %}
 
-{% block feature_title %}Data Isolation{% endblock %}
-{% block feature_summary %}The same repository call returns a different dataset when tenant context changes, without hand-written WHERE clauses in business code.{% endblock %}
-
-{% block feature_l1 %}
+{% set previewHtml %}
 <div class="feature-l1 tenancy-isolation-page">
     <div class="tenancy-isolation-page__intro">
         <p class="feature-entry tenancy-isolation-page__lead">Switch tenant and the result set changes instantly. The point is not the table itself, but the fact that isolation happens below your business query.</p>
@@ -64,9 +67,9 @@
         {% endif %}
     </div>
 </div>
-{% endblock %}
+{% endset %}
 
-{% block feature_l2 %}
+{% set l2Content %}
 <div class="feature-l2">
     <h3>ORM automatic WHERE injection</h3>
     <p>Add <code>#[TenantScoped(strategy: 'same_storage')]</code> to any model and the framework enforces tenant scoping automatically across reads and writes.</p>
@@ -78,9 +81,9 @@ final class DemoProductResource
     // No manual filtering. No forgotten WHERE clauses.
 }</pre></div>
 </div>
-{% endblock %}
+{% endset %}
 
-{% block feature_l3 %}
+{% set l3Content %}
 <div class="feature-l3">
     <h3>Three isolation strategies</h3>
     <div class="tenancy-isolation-page__strategies">
@@ -93,4 +96,6 @@ final class DemoProductResource
     </div>
     <p>The strategy is per-model, so the same app can mix lightweight shared-table isolation with stricter tenant storage boundaries where needed.</p>
 </div>
-{% endblock %}
+{% endset %}
+
+{% extends '@project-layouts-semitexa-demo/platform/_tenancy-feature.html.twig' %}

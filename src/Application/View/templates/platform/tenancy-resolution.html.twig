@@ -1,9 +1,13 @@
-{% extends '@project-layouts-semitexa-demo/layouts/demo-feature.html.twig' %}
+{#
+ # Framework demo — tenancy "Tenant Context Resolution" feature.
+ # Migrated to the ShowcaseKit feature layout via _tenancy-feature wrapper.
+ # Bespoke L1/L2/L3 markup captured into previewHtml / l2Content / l3Content
+ # (the demo-resolver-chain-viz component and all data-* hooks preserved).
+ #}
+{% set title = 'Tenant Context Resolution' %}
+{% set summary = 'See how Semitexa resolves the active tenant from subdomain, header, path, or query input before the rest of the platform runs.' %}
 
-{% block feature_title %}Tenant Context Resolution{% endblock %}
-{% block feature_summary %}See how Semitexa resolves the active tenant from subdomain, header, path, or query input before the rest of the platform runs.{% endblock %}
-
-{% block feature_l1 %}
+{% set previewHtml %}
 <div class="feature-l1">
     <div class="preview-card preview-card--layered">
         <p class="preview-card__eyebrow">Resolution Story</p>
@@ -65,9 +69,9 @@
         }) }}
     </div>
 </div>
-{% endblock %}
+{% endset %}
 
-{% block feature_l2 %}
+{% set l2Content %}
 <div class="feature-l2">
     <div class="preview-card preview-card--nested">
         <p class="preview-card__eyebrow">Priority Design</p>
@@ -84,13 +88,15 @@
 ]);</code></pre>
     </div>
 </div>
-{% endblock %}
+{% endset %}
 
-{% block feature_l3 %}
+{% set l3Content %}
 <div class="feature-l3">
     <h3>What this boundary protects</h3>
     <p>Each strategy implements <code>TenantResolverInterface::resolve(Request $request): ?TenantContext</code>. Returning <code>null</code> means "not matched, let the next strategy try".</p>
     <p>Once the chain resolves a tenant, that <code>TenantContext</code> becomes the foundation for configuration, data isolation, and background propagation. In a Swoole runtime the context is coroutine-scoped, so concurrent executions in different tenants do not bleed into each other.</p>
     <p>The real message is simple: multi-tenancy is not a decorative mode. It is an execution boundary.</p>
 </div>
-{% endblock %}
+{% endset %}
+
+{% extends '@project-layouts-semitexa-demo/platform/_tenancy-feature.html.twig' %}

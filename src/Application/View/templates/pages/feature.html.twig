@@ -1,188 +1,175 @@
-{% extends '@project-layouts-semitexa-demo/layouts/demo-layout.html.twig' %}
+{#
+ # Framework demo — FEATURE detail (L1/L2/L3).
+ #
+ # Structural migration: delegates the progressive-reveal feature layout to the
+ # shared ShowcaseKit feature template and maps the demo's feature resource data
+ # onto the kit contract. Palette is 100% skin-driven (terracotta via the
+ # `semitexa-demo` skin resolved for framework.semitexa.test).
+ #
+ # The LIVE PREVIEW, source code, related links, and L2/L3 companion content are
+ # preserved verbatim by rendering the demo's own preview/companion templates and
+ # components into the kit's raw-HTML slots (previewHtml / l2Content / l3Content)
+ # using the set-capture-before-extends pattern. Every data-* hook, reactive /
+ # deferred slot, and JS module reference therefore travels through unchanged.
+ #
+ # Demo resource vars (from DemoFeatureResource / DemoFeaturePageProjector):
+ #   section, slug, featureTitle, summary, entryLine, highlights, sectionLabel,
+ #   documentBodyHtml, explanation, relatedPayloads, learnMoreLabel,
+ #   deepDiveLabel, sourceCode, resultPreview(Template|Data),
+ #   l2Content(Template|Data), l3Content(Template|Data),
+ #   + shell context: featureTree, navSections, currentSection, currentSlug,
+ #     navMode, activeLayerKey, authUi, infoWhat/How/Why/Keywords.
+ #}
 
-{% block title %}{{ page_title()|default((featureTitle|default('Feature')) ~ ' — Semitexa Demo') }}{% endblock %}
+{# --- L1 live preview rendered into the kit previewHtml (raw HTML).
+       Preserves the demo's reactive / deferred slot markup and data-* hooks. --- #}
+{% if resultPreviewTemplate is defined and resultPreviewTemplate %}
+  {% set previewHtml %}
+    {% include resultPreviewTemplate with resultPreviewData|default({}) only %}
+  {% endset %}
+{% elseif resultPreview is defined and resultPreview %}
+  {% set previewHtml = resultPreview %}
+{% endif %}
 
-{% block main %}
-  {% set domKey = (section ~ '-' ~ slug)|lower|replace({' ': '-', '/': '-', '\\': '-', '_': '-'}) %}
-  {% set resolvedSectionLabel = sectionLabel|default(section|title) %}
-  {% set hasInlineExplanation = (explanation is defined and (
-    (explanation.how is defined and explanation.how)
-    or (explanation.why is defined and explanation.why)
-    or (explanation.keywords is defined and explanation.keywords|length > 0)
-  )) %}
-  {% set hasL2 = (sourceCode is defined and sourceCode|length > 0) or (l2ContentTemplate is defined and l2ContentTemplate) or (l2Content is defined and l2Content) or (relatedPayloads is defined and relatedPayloads|length > 0) %}
-  {% set hasL3 = hasInlineExplanation or (l3ContentTemplate is defined and l3ContentTemplate) or (l3Content is defined and l3Content) %}
-  {% set keywordDefinitions = {} %}
-  {% if explanation is defined and explanation.keywords is defined %}
-    {% for keyword in explanation.keywords %}
-      {% set keywordDefinitions = keywordDefinitions|merge({ (keyword.term): keyword.definition }) %}
-    {% endfor %}
-  {% endif %}
-  <article class="feature-detail" data-section="{{ section }}" data-slug="{{ slug }}">
+{# Capture the demo's raw L2/L3 content (from withL2Content/withL3Content) before
+   we reuse those names as the kit contract vars. #}
+{% set _demoL2ContentRaw = l2Content is defined ? l2Content : null %}
+{% set _demoL3ContentRaw = l3Content is defined ? l3Content : null %}
+{% set _hasSourceCode = sourceCode is defined and sourceCode|length > 0 %}
+{% set _hasL2Companion = (l2ContentTemplate is defined and l2ContentTemplate) or _demoL2ContentRaw %}
+{% set _hasL3Companion = (l3ContentTemplate is defined and l3ContentTemplate) or _demoL3ContentRaw %}
 
-    <section class="feature-detail__l1">
-      <header class="feature-detail__header">
-        <div class="feature-detail__header-copy">
-          <a href="/demo/{{ section }}" class="feature-detail__back">← {{ resolvedSectionLabel }}</a>
-          <p class="feature-detail__eyebrow">{{ resolvedSectionLabel|upper }} FEATURE</p>
-          <h1 class="feature-detail__title">
-            {{ demo_title_icon(featureTitle, section, slug) }}
-            <span>{{ featureTitle }}</span>
-          </h1>
-          <p class="feature-detail__entry-line">{{ entryLine }}</p>
-          {% include '@project-layouts-semitexa-demo/partials/donate-block.html.twig' only %}
-        </div>
-      </header>
-
-      {% if resultPreviewTemplate is defined and resultPreviewTemplate %}
-        <div class="feature-detail__preview" aria-label="Result preview">
-          {% include resultPreviewTemplate with resultPreviewData|default({}) only %}
-        </div>
-      {% elseif resultPreview is defined and resultPreview %}
-        <div class="feature-detail__preview" aria-label="Result preview">
-          {{ resultPreview|raw }}
-        </div>
-      {% endif %}
-
-      {% if highlights is defined and highlights|length > 0 %}
-        <div class="feature-detail__highlights">
-          {% for highlight in highlights %}
-            {% set definition = attribute(keywordDefinitions, highlight)|default(null) %}
-            {% if definition %}
-              <span class="feature-detail__highlight feature-detail__highlight--interactive">
-                {% include '@project-layouts-semitexa-demo/components/explanation-tooltip.html.twig' with {
-                  term: highlight,
-                  definition: definition,
-                } only %}
-              </span>
-            {% else %}
-              <span class="feature-detail__highlight feature-detail__highlight--plain">{{ highlight }}</span>
-            {% endif %}
-          {% endfor %}
-        </div>
-      {% endif %}
-
-      {% set inlineWhat = infoWhat|default(summary|default(sectionSummary|default(null))) %}
-      {% set inlineHow = infoHow|default(explanation.how|default(null)) %}
-      {% set inlineWhy = infoWhy|default(explanation.why|default(null)) %}
-      {% set inlineKeywords = infoKeywords|default(explanation.keywords|default([])) %}
-      {% if inlineWhat or inlineHow or inlineWhy or inlineKeywords|length > 0 %}
-        <div class="feature-detail__context">
-          {% include '@project-layouts-semitexa-demo/partials/feature-info.html.twig' with {
-            what: inlineWhat,
-            how: inlineHow,
-            why: inlineWhy,
-            keywords: inlineKeywords,
-          } only %}
-        </div>
-      {% endif %}
-
-      {% if documentBodyHtml is defined and documentBodyHtml %}
-        <div class="feature-detail__document-body">
-          {{ documentBodyHtml|raw }}
-        </div>
-      {% endif %}
-    </section>
-
-    {% if hasL2 %}
-      <section class="feature-detail__l2">
-        {% if sourceCode is defined and sourceCode|length > 0 %}
-          {{ component('demo-code-block', {
-            tabs: sourceCode,
-            featureSlug: slug,
-          }) }}
-        {% endif %}
-
-        {% if l2ContentTemplate is defined and l2ContentTemplate %}
-          <div class="feature-detail__l2-extra">
-            {% include l2ContentTemplate with l2ContentData|default({}) only %}
-          </div>
-        {% elseif l2Content is defined and l2Content %}
-          <div class="feature-detail__l2-extra">
-            {{ l2Content|raw }}
-          </div>
-        {% endif %}
-
-        {% if relatedPayloads is defined and relatedPayloads|length > 0 %}
-          <div class="feature-detail__related">
-              <h3 class="feature-detail__related-heading">Related features</h3>
-              <ul class="feature-detail__related-list">
-              {% for related in relatedPayloads %}
-                {% set relatedHref = related.href|default(related)|default('') %}
-                {% set relatedLabel = related.label|default(relatedHref) %}
-                {% if relatedHref and not (
-                  relatedHref starts with '/demo/'
-                  or relatedHref == '/demo'
-                  or relatedHref starts with '/'
-                  or relatedHref starts with 'http://'
-                  or relatedHref starts with 'https://'
-                ) %}
-                  {% set relatedHref = '/demo/' ~ relatedHref|trim('/') %}
-                {% endif %}
-                <li><a href="{{ relatedHref }}">{{ relatedLabel }}</a></li>
-              {% endfor %}
-            </ul>
-          </div>
-        {% endif %}
-
-        {% if hasL3 %}
-          {{ component('demo-disclosure-prompt', {
-            label: deepDiveLabel|default('Under the hood →'),
-            variant: 'deepDive',
-            target: 'l3-' ~ domKey,
-          }) }}
-        {% endif %}
-      </section>
+{# --- L2 extra content: render the demo source-code component (tabs, copy,
+       PHP highlighting) + any companion L2 content into the kit l2Content slot.
+       `sourceCode` is intentionally NOT forwarded to the kit so the kit's plain
+       <pre> renderer does not duplicate the rich demo code block. Only set the
+       slot when there is real content, so the kit's L2 gating stays accurate. --- #}
+{% if _hasSourceCode or _hasL2Companion %}
+  {% set l2Content %}
+    {% if _hasSourceCode %}
+      {{ component('demo-code-block', {
+        tabs: sourceCode,
+        featureSlug: slug,
+      }) }}
     {% endif %}
-
-    {% if hasL3 %}
-      <div id="l3-{{ domKey }}" class="deep-dive-drawer" data-expanded="false" data-drawer>
-        <div class="deep-dive-drawer__overlay" data-drawer-close></div>
-        <div class="deep-dive-drawer__panel">
-          <button class="deep-dive-drawer__close" type="button" aria-label="Close details panel" data-drawer-close>&times;</button>
-          <div class="deep-dive-drawer__content">
-            <div class="feature-detail__l3">
-              {% if explanation is defined %}
-                {% if explanation.how is defined and explanation.how %}
-                  <section class="feature-detail__l3-section">
-                    <h3>How it works</h3>
-                    <p>{{ explanation.how }}</p>
-                  </section>
-                {% endif %}
-                {% if explanation.why is defined and explanation.why %}
-                  <section class="feature-detail__l3-section">
-                    <h3>Why it matters</h3>
-                    <p>{{ explanation.why }}</p>
-                  </section>
-                {% endif %}
-                {% if explanation.keywords is defined and explanation.keywords|length > 0 %}
-                  <section class="feature-detail__l3-section">
-                    <h3>Key concepts</h3>
-                    <dl class="feature-detail__keywords">
-                      {% for kw in explanation.keywords %}
-                        <dt>{{ kw.term }}</dt>
-                        <dd>{{ kw.definition }}</dd>
-                      {% endfor %}
-                    </dl>
-                  </section>
-                {% endif %}
-              {% endif %}
-
-              {% if l3ContentTemplate is defined and l3ContentTemplate %}
-                <div class="feature-detail__l3-extra">
-                  {% include l3ContentTemplate with l3ContentData|default({}) only %}
-                </div>
-              {% elseif l3Content is defined and l3Content %}
-                <div class="feature-detail__l3-extra">
-                  {{ l3Content|raw }}
-                </div>
-              {% endif %}
-
-            </div>
-          </div>
-        </div>
+    {% if l2ContentTemplate is defined and l2ContentTemplate %}
+      <div class="feature-detail__l2-extra">
+        {% include l2ContentTemplate with l2ContentData|default({}) only %}
       </div>
+    {% elseif _demoL2ContentRaw %}
+      <div class="feature-detail__l2-extra">{{ _demoL2ContentRaw|raw }}</div>
     {% endif %}
+  {% endset %}
+{% else %}
+  {% set l2Content = null %}
+{% endif %}
 
-  </article>
+{# --- L3 extra content: render any companion L3 content into the kit l3Content
+       slot (rendered alongside the kit's explanation how/why/keywords). --- #}
+{% if _hasL3Companion %}
+  {% set l3Content %}
+    {% if l3ContentTemplate is defined and l3ContentTemplate %}
+      <div class="feature-detail__l3-extra">
+        {% include l3ContentTemplate with l3ContentData|default({}) only %}
+      </div>
+    {% elseif _demoL3ContentRaw %}
+      <div class="feature-detail__l3-extra">{{ _demoL3ContentRaw|raw }}</div>
+    {% endif %}
+  {% endset %}
+{% else %}
+  {% set l3Content = null %}
+{% endif %}
+
+{# --- Rich highlight chips: pair each plain-string highlight with a hover
+       definition when a matching keyword exists, so the kit renders it as a
+       tooltip chip. Demo keywords come from explanation.keywords / infoKeywords
+       as { term, definition }. Highlights with no match stay plain strings. --- #}
+{% set _demoKeywords = (explanation.keywords is defined and explanation.keywords)
+  ? explanation.keywords
+  : (infoKeywords|default([])) %}
+{% if highlights is defined and highlights|length > 0 and _demoKeywords|length > 0 %}
+  {% set _richHighlights = [] %}
+  {% for highlight in highlights %}
+    {% set _definition = null %}
+    {% for kw in _demoKeywords %}
+      {% if _definition is null and kw.term is defined and kw.term|lower == highlight|lower %}
+        {% set _definition = kw.definition|default(null) %}
+      {% endif %}
+    {% endfor %}
+    {% set _richHighlights = _richHighlights|merge([
+      _definition ? { label: highlight, definition: _definition } : highlight
+    ]) %}
+  {% endfor %}
+  {% set highlights = _richHighlights %}
+{% endif %}
+
+{% extends '@project-layouts-ShowcaseKit/layouts/feature.html.twig' %}
+
+{# --- map the demo feature resource → kit feature-page contract --- #}
+{% set title = featureTitle|default('Feature') %}
+{% set summary = entryLine|default(summary|default(null)) %}
+{% set backHref = '/demo/' ~ section %}
+{% set relatedFeatures = relatedPayloads|default([]) %}
+
+{# --- Title icon: glyph before the H1, resolved by the demo Twig function. --- #}
+{% block feature_title_prefix %}{{ demo_title_icon(featureTitle|default(title|default('Feature')), section|default(null), slug|default(null)) }}{% endblock %}
+
+{# --- Inline L1 context panel: the demo what/how/why orientation block. --- #}
+{% block feature_l1_context %}
+  {% if (infoWhat is defined and infoWhat) or (infoHow is defined and infoHow) or (infoWhy is defined and infoWhy) or (infoKeywords is defined and infoKeywords|length > 0) %}
+    {% include '@project-layouts-semitexa-demo/partials/feature-info.html.twig' with {
+      what: infoWhat|default(null),
+      how: infoHow|default(null),
+      why: infoWhy|default(null),
+      keywords: infoKeywords|default([]),
+    } only %}
+  {% endif %}
 {% endblock %}
+
+{# --- Donate support callout below the feature article. --- #}
+{% block feature_aside %}
+  {% include '@project-layouts-semitexa-demo/partials/donate-block.html.twig' only %}
+{% endblock %}
+
+{# sidebar tree: the demo `featureTree` is already the kit `layers` shape
+   (start-here feature-links + full-catalog section-groups). #}
+{% set layers = featureTree|default(navSections|default([])) %}
+{% set currentSection = section %}
+{% set currentSlug = slug %}
+
+{# --- demo identity / chrome --- #}
+{% set sk_site_title = 'Semitexa Demo' %}
+{% set sk_body_class = 'demo-page-bg' %}
+
+{% block head %}
+  {{ parent() }}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block sk_brand %}
+  <a class="sk-brand" href="/">
+    <span class="sk-brand__text"><span class="semitexa-logo" aria-label="Semitexa">Semite<span>xa</span></span></span>
+  </a>
+{% endblock %}
+
+{% block sk_topnav %}
+  {% set navAuth = authUi|default({}) %}
+  {% set navAuthIsAuthenticated = navAuth.isAuthenticated|default(false) %}
+  {% set navAuthHref = navAuthIsAuthenticated
+    ? navAuth.accountUrl|default('/demo/auth/google')
+    : navAuth.startUrl|default('/demo/auth/google/start') %}
+  {% set navAuthTitle = navAuthIsAuthenticated
+    ? (navAuth.email|default(navAuth.label|default('Signed in with Google')))
+    : navAuth.signInTitle|default('Sign in with Google to unlock advanced demos') %}
+  {% set navAuthText = navAuthIsAuthenticated
+    ? 'Hi, ' ~ navAuth.shortLabel|default(navAuth.label|default('there'))
+    : navAuth.actionLabel|default('Sign in') %}
+  <a class="sk-topnav__signin{{ navAuthIsAuthenticated ? ' sk-topnav__signin--active' : '' }}" href="{{ navAuthHref }}" title="{{ navAuthTitle }}">{{ navAuthText }}</a>
+  <a href="https://github.com/semitexa" target="_blank" rel="noopener" aria-label="Semitexa on GitHub" title="GitHub">GitHub</a>
+  <a href="https://www.linkedin.com/company/semitexa/" target="_blank" rel="noopener" aria-label="Semitexa on LinkedIn" title="LinkedIn">LinkedIn</a>
+  <a href="https://www.facebook.com/semitexa" target="_blank" rel="noopener" aria-label="Semitexa on Facebook" title="Facebook">Facebook</a>
+{% endblock %}
+
+{% block sk_footer %}<p class="sk-footer__copy">© 2026 Semitexa</p>{% endblock %}

@@ -1,9 +1,13 @@
-{% extends '@project-layouts-semitexa-demo/layouts/demo-feature.html.twig' %}
+{#
+ # Framework demo — tenancy "Per-Tenant Configuration" feature.
+ # Migrated to the ShowcaseKit feature layout via _tenancy-feature wrapper.
+ # Bespoke L1/L2/L3 markup is captured into previewHtml / l2Content / l3Content
+ # (all data-* hooks + components preserved). See _tenancy-feature for the mapping.
+ #}
+{% set title = 'Per-Tenant Configuration' %}
+{% set summary = 'One resolved tenant config reshapes branding, locale, commerce defaults, and feature flags across the same product surface.' %}
 
-{% block feature_title %}Per-Tenant Configuration{% endblock %}
-{% block feature_summary %}One resolved tenant config reshapes branding, locale, commerce defaults, and feature flags across the same product surface.{% endblock %}
-
-{% block feature_l1 %}
+{% set previewHtml %}
 <div class="feature-l1 tenancy-config-page">
     <div class="tenancy-config-page__hero">
         <div class="tenancy-config-page__intro">
@@ -78,9 +82,9 @@
         </aside>
     {% endif %}
 </div>
-{% endblock %}
+{% endset %}
 
-{% block feature_l2 %}
+{% set l2Content %}
 <div class="feature-l2">
     <h3>What this page is actually demonstrating</h3>
     <p>The point is not that a color changed. The point is that one resolved tenant config can drive multiple product decisions consistently: theme, locale, currency, rating presentation, and feature flags.</p>
@@ -114,9 +118,9 @@ $color = $theme->primaryColor;   // '#1e40af' for acme
 $font  = $theme->fontFamily;     // 'Georgia, serif' for acme</pre></div>
     <p>That is the real design goal: application code asks for the active layer, not for a tenant ID. Tenant selection happens once at the boundary; downstream code consumes capabilities.</p>
 </div>
-{% endblock %}
+{% endset %}
 
-{% block feature_l3 %}
+{% set l3Content %}
 <div class="feature-l3">
     <h3>How the resolution flow works</h3>
     <p>Think about this page as a three-step pipeline rather than a styling demo:</p>
@@ -128,4 +132,6 @@ $font  = $theme->fontFamily;     // 'Georgia, serif' for acme</pre></div>
 
     <p>If you had to write <code>if ($tenantId === 'globex')</code> inside a template, the architecture would already be losing. The demo should teach the opposite habit: resolve tenant context once, then let the rest of the stack read structured configuration.</p>
 </div>
-{% endblock %}
+{% endset %}
+
+{% extends '@project-layouts-semitexa-demo/platform/_tenancy-feature.html.twig' %}
