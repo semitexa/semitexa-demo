@@ -167,9 +167,7 @@
     ? 'Hi, ' ~ navAuth.shortLabel|default(navAuth.label|default('there'))
     : navAuth.actionLabel|default('Sign in') %}
   <a class="sk-topnav__signin{{ navAuthIsAuthenticated ? ' sk-topnav__signin--active' : '' }}" href="{{ navAuthHref }}" title="{{ navAuthTitle }}">{{ navAuthText }}</a>
-  <a href="https://github.com/semitexa" target="_blank" rel="noopener" aria-label="Semitexa on GitHub" title="GitHub">GitHub</a>
-  <a href="https://www.linkedin.com/company/semitexa/" target="_blank" rel="noopener" aria-label="Semitexa on LinkedIn" title="LinkedIn">LinkedIn</a>
-  <a href="https://www.facebook.com/semitexa" target="_blank" rel="noopener" aria-label="Semitexa on Facebook" title="Facebook">Facebook</a>
+  {% include '@project-layouts-semitexa-demo/partials/social-links.html.twig' %}
 {% endblock %}
 
 {% block sk_footer %}<p class="sk-footer__copy">© 2026 Semitexa</p>{% endblock %}
