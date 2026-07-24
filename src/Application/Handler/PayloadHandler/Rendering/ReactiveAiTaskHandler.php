@@ -7,7 +7,7 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Rendering;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
-use Semitexa\Demo\Domain\Contract\DemoAiTaskRepositoryInterface;
+use Semitexa\Demo\Domain\Repository\DemoAiTaskRepositoryInterface;
 use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
 use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Rendering\ReactiveAiTaskPayload;

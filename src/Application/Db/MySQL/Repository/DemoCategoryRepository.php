@@ -12,7 +12,7 @@ use Semitexa\Orm\Attribute\AsRepository;
 use Semitexa\Orm\OrmManager;
 use Semitexa\Orm\Query\Direction;
 use Semitexa\Orm\Query\Operator;
-use Semitexa\Demo\Domain\Contract\DemoCategoryRepositoryInterface;
+use Semitexa\Demo\Domain\Repository\DemoCategoryRepositoryInterface;
 use Semitexa\Orm\Repository\DomainRepository;
 
 #[AsRepository]

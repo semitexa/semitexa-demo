@@ -14,7 +14,7 @@ use Semitexa\Demo\Auth\GooglePrincipal;
 use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
 use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Auth\SessionAuthPayload;
-use Semitexa\Demo\Application\Service\Session\GoogleAuthSessionSegment;
+use Semitexa\Demo\Application\Payload\Session\GoogleAuthSessionSegment;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoAuthMode;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;

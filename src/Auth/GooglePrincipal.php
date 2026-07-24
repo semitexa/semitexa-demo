@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Auth;
 
 use Semitexa\Core\Auth\AuthenticatableInterface;
-use Semitexa\Demo\Application\Service\Session\GoogleSessionIdentityPayload;
+use Semitexa\Demo\Application\Payload\Session\GoogleSessionIdentityPayload;
 
 final readonly class GooglePrincipal implements AuthenticatableInterface
 {

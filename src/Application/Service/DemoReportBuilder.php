@@ -6,7 +6,7 @@ namespace Semitexa\Demo\Application\Service;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Attribute\AsService;
-use Semitexa\Demo\Domain\Contract\DemoJobRunRepositoryInterface;
+use Semitexa\Demo\Domain\Repository\DemoJobRunRepositoryInterface;
 
 #[AsService]
 final class DemoReportBuilder

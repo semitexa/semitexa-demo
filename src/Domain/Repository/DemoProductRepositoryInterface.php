@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Semitexa\Demo\Domain\Contract;
+namespace Semitexa\Demo\Domain\Repository;
 
 use Semitexa\Demo\Domain\Model\DemoProduct;
 

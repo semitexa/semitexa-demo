@@ -15,7 +15,7 @@ use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Handler\DomainListener\DemoItemCreatedListener;
 use Semitexa\Demo\Application\Payload\Event\DemoItemCreated;
 use Semitexa\Demo\Application\Payload\Request\Async\LedgerDemoPayload;
-use Semitexa\Demo\Application\Service\Session\LedgerDemoSessionSegment;
+use Semitexa\Demo\Application\Payload\Session\LedgerDemoSessionSegment;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoLedgerInspector;

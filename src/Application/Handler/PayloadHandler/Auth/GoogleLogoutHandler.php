@@ -12,7 +12,7 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Http\Response\ResourceResponse;
 use Semitexa\Core\Session\SessionInterface;
 use Semitexa\Demo\Application\Payload\Request\Auth\GoogleLogoutPayload;
-use Semitexa\Demo\Application\Service\Session\GoogleAuthSessionSegment;
+use Semitexa\Demo\Application\Payload\Session\GoogleAuthSessionSegment;
 use Semitexa\Demo\Application\Service\GoogleOAuthClient;
 
 #[AsPayloadHandler(payload: GoogleLogoutPayload::class, resource: ResourceResponse::class)]

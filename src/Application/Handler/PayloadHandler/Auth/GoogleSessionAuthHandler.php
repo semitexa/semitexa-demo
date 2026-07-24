@@ -14,7 +14,7 @@ use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Auth\AuthResult;
 use Semitexa\Core\Session\SessionInterface;
 use Semitexa\Demo\Auth\GooglePrincipal;
-use Semitexa\Demo\Application\Service\Session\GoogleAuthSessionSegment;
+use Semitexa\Demo\Application\Payload\Session\GoogleAuthSessionSegment;
 
 #[AsService]
 #[ExecutionScoped]

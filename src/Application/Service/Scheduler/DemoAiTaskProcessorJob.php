@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Service\Scheduler;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
-use Semitexa\Demo\Domain\Contract\DemoAiTaskRepositoryInterface;
+use Semitexa\Demo\Domain\Repository\DemoAiTaskRepositoryInterface;
 use Semitexa\Demo\Application\Service\DemoAiTextProcessor;
 use Semitexa\Scheduler\Attribute\AsScheduledJob;
 use Semitexa\Scheduler\Contract\ScheduledJobInterface;

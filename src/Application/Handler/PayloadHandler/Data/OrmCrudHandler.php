@@ -15,7 +15,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Demo\Domain\Model\DemoProduct;
-use Semitexa\Demo\Domain\Contract\DemoProductRepositoryInterface;
+use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
 
 #[AsPayloadHandler(payload: OrmCrudPayload::class, resource: DemoFeatureResource::class)]
 final class OrmCrudHandler implements TypedHandlerInterface

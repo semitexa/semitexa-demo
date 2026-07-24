@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Semitexa\Demo\Application\Service\Session;
+namespace Semitexa\Demo\Application\Payload\Session;
 
 final class GoogleSessionIdentityPayload
 {

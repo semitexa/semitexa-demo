@@ -12,8 +12,8 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Http\Response\ResourceResponse;
 use Semitexa\Core\Session\SessionInterface;
 use Semitexa\Demo\Application\Payload\Request\Auth\GoogleCallbackPayload;
-use Semitexa\Demo\Application\Service\Session\GoogleAuthSessionSegment;
-use Semitexa\Demo\Application\Service\Session\GoogleSessionIdentityPayload;
+use Semitexa\Demo\Application\Payload\Session\GoogleAuthSessionSegment;
+use Semitexa\Demo\Application\Payload\Session\GoogleSessionIdentityPayload;
 use Semitexa\Demo\Application\Service\GoogleOAuthClient;
 
 #[AsPayloadHandler(payload: GoogleCallbackPayload::class, resource: ResourceResponse::class)]
