@@ -13,8 +13,8 @@ use Semitexa\Core\Http\Response\ResourceResponse;
 use Semitexa\Core\Request;
 use Semitexa\Core\Session\SessionInterface;
 use Semitexa\Demo\Application\Payload\Request\Auth\GoogleStartPayload;
-use Semitexa\Demo\Application\Payload\Session\GoogleAuthSessionSegment;
-use Semitexa\Demo\Application\Payload\Session\GoogleSessionIdentityPayload;
+use Semitexa\Demo\Application\Service\Session\GoogleAuthSessionSegment;
+use Semitexa\Demo\Application\Service\Session\GoogleSessionIdentityPayload;
 use Semitexa\Demo\Application\Service\DemoAuthMode;
 use Semitexa\Demo\Application\Service\GoogleOAuthClient;
 

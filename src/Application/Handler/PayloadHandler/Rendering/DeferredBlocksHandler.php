@@ -8,7 +8,7 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Auth\Context\AuthManager;
 use Semitexa\Core\Environment;
-use Semitexa\Demo\Application\Auth\GooglePrincipal;
+use Semitexa\Demo\Auth\GooglePrincipal;
 use Semitexa\Demo\Application\Service\DemoAuthMode;
 use Semitexa\Demo\Application\Payload\Request\Rendering\DeferredBlocksPayload;
 use Semitexa\Demo\Application\Resource\Response\DeferredBlocksDemoResource;

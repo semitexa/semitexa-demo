@@ -10,7 +10,7 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
 use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Platform\TenantQueuePayload;
-use Semitexa\Demo\Application\Resource\Platform\DemoTenantQueueResource;
+use Semitexa\Demo\Application\Resource\Response\Platform\DemoTenantQueueResource;
 use Semitexa\Demo\Application\Service\DemoTenantConfigProvider;
 
 #[AsPayloadHandler(payload: TenantQueuePayload::class, resource: DemoTenantQueueResource::class)]

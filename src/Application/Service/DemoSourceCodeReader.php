@@ -53,7 +53,7 @@ final class DemoSourceCodeReader
         'Semitexa\\Demo\\Application\\Payload\\Request\\Api\\ProductDetailPayload' => 'resources/examples/Api/Rest/ProductDetailPayload.example.php',
         'Semitexa\\Demo\\Application\\Handler\\PayloadHandler\\Api\\ApiErrorTriggerHandler' => 'resources/examples/Api/Errors/ApiErrorTriggerHandler.example.php',
         'Semitexa\\Demo\\Application\\Payload\\Request\\Api\\ApiErrorTriggerPayload' => 'resources/examples/Api/Errors/ApiErrorTriggerPayload.example.php',
-        'Semitexa\\Demo\\Application\\Exception\\DemoApiNotFoundException' => 'resources/examples/Api/Errors/DemoApiNotFoundException.example.php',
+        'Semitexa\\Demo\\Exception\\DemoApiNotFoundException' => 'resources/examples/Api/Errors/DemoApiNotFoundException.example.php',
         'Semitexa\\Api\\Pipeline\\ExternalApiExceptionMapper' => 'resources/examples/Api/Errors/ExternalApiExceptionMapper.example.php',
         'Semitexa\\Demo\\Application\\Handler\\PayloadHandler\\Rendering\\SeoHandler' => 'resources/examples/Rendering/Seo/SeoHandler.example.php',
         'Semitexa\\Demo\\Application\\Handler\\PayloadHandler\\Rendering\\AiTaskSubmitHandler' => 'resources/examples/Rendering/AiTask/AiTaskSubmitHandler.example.php',

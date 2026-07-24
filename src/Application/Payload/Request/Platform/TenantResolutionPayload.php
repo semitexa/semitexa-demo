@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Payload\Request\Platform;
 
 use Semitexa\Core\Attribute\AsPublicPayload;
-use Semitexa\Demo\Application\Resource\Platform\DemoTenantResolutionResource;
+use Semitexa\Demo\Application\Resource\Response\Platform\DemoTenantResolutionResource;
 
 #[AsPublicPayload(
     path: '/demo/platform/tenancy-resolution',

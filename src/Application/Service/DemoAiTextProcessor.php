@@ -8,7 +8,7 @@ use JsonException;
 use Random\RandomException;
 use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
-use Semitexa\Demo\Domain\Repository\DemoAiTaskRepositoryInterface;
+use Semitexa\Demo\Domain\Contract\DemoAiTaskRepositoryInterface;
 
 #[AsService]
 final class DemoAiTextProcessor

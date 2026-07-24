@@ -1,0 +1,27 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Semitexa\Demo\Application\Resource\Response\Platform;
+
+use Semitexa\Core\Attribute\AsResource;
+use Semitexa\Core\Contract\ResourceInterface;
+use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
+
+#[AsResource(
+    handle: 'demo_tenant_isolation',
+    template: '@project-layouts-semitexa-demo/platform/tenancy-isolation.html.twig',
+)]
+class DemoTenantIsolationResource extends DemoFeatureResource implements ResourceInterface
+{
+    public function withDataUnavailable(bool $state): static { return $this->with('dataUnavailable', $state); }
+    public function withActiveTenant(string $tenant): static { return $this->with('activeTenant', $tenant); }
+    public function withActiveTenantSummary(array $summary): static { return $this->with('activeTenantSummary', $summary); }
+    public function withProducts(array $products): static { return $this->with('products', $products); }
+    public function withProductCount(int $count): static { return $this->with('productCount', $count); }
+    public function withIllustrationSql(string $sql): static { return $this->with('illustrationSql', $sql); }
+    public function withAllTenantCounts(array $counts): static { return $this->with('allTenantCounts', $counts); }
+    public function withTenantTabs(array $tabs): static { return $this->with('tenantTabs', $tabs); }
+    public function withIsolationHighlights(array $highlights): static { return $this->with('isolationHighlights', $highlights); }
+    public function withIsolationStrategies(array $strategies): static { return $this->with('isolationStrategies', $strategies); }
+}

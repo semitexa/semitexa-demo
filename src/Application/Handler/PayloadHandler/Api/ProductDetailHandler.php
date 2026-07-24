@@ -8,7 +8,7 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Request;
-use Semitexa\Demo\Application\Exception\DemoApiNotFoundException;
+use Semitexa\Demo\Exception\DemoApiNotFoundException;
 use Semitexa\Demo\Application\Payload\Request\Api\ProductDetailPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoApiResponse;
 use Semitexa\Demo\Application\Service\DemoApiPresenter;

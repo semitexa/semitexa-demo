@@ -6,7 +6,7 @@ namespace Semitexa\Demo\Application\Service;
 
 use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
-use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
+use Semitexa\Demo\Domain\Contract\DemoProductRepositoryInterface;
 
 /**
  * Reports per-tenant data counts for the tenancy isolation demo.

@@ -7,7 +7,7 @@ namespace Semitexa\Demo\Application\Service;
 use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Domain\Model\DemoJobRun;
-use Semitexa\Demo\Domain\Repository\DemoJobRunRepositoryInterface;
+use Semitexa\Demo\Domain\Contract\DemoJobRunRepositoryInterface;
 use Semitexa\Ssr\Application\Service\Async\AsyncResourceSseServer;
 
 #[AsService]

@@ -8,7 +8,7 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
-use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
+use Semitexa\Demo\Domain\Contract\DemoProductRepositoryInterface;
 use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
 use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Data\PaginationPayload;

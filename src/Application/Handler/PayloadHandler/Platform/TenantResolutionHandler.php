@@ -10,7 +10,7 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
 use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Platform\TenantResolutionPayload;
-use Semitexa\Demo\Application\Resource\Platform\DemoTenantResolutionResource;
+use Semitexa\Demo\Application\Resource\Response\Platform\DemoTenantResolutionResource;
 
 #[AsPayloadHandler(payload: TenantResolutionPayload::class, resource: DemoTenantResolutionResource::class)]
 final class TenantResolutionHandler implements TypedHandlerInterface

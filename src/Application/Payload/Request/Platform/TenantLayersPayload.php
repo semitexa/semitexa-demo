@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Payload\Request\Platform;
 
 use Semitexa\Core\Attribute\AsPublicPayload;
-use Semitexa\Demo\Application\Resource\Platform\DemoTenantLayersResource;
+use Semitexa\Demo\Application\Resource\Response\Platform\DemoTenantLayersResource;
 
 #[AsPublicPayload(
     path: '/demo/platform/tenancy-layers',

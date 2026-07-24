@@ -13,7 +13,7 @@ use Semitexa\Orm\OrmManager;
 use Semitexa\Orm\Query\Direction;
 use Semitexa\Orm\Query\Operator;
 use Semitexa\Orm\Query\SystemScopeToken;
-use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
+use Semitexa\Demo\Domain\Contract\DemoProductRepositoryInterface;
 use Semitexa\Orm\Repository\DomainRepository;
 use Semitexa\Tenancy\Context\TenantContext;
 

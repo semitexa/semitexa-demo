@@ -7,7 +7,7 @@ namespace Semitexa\Demo\Application\Service;
 use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Domain\Model\DemoAnalyticsSnapshot;
-use Semitexa\Demo\Domain\Repository\DemoAnalyticsSnapshotRepositoryInterface;
+use Semitexa\Demo\Domain\Contract\DemoAnalyticsSnapshotRepositoryInterface;
 
 #[AsService]
 final class DemoAnalyticsAggregator

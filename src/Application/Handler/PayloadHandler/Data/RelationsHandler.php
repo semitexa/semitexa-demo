@@ -16,9 +16,9 @@ use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Demo\Domain\Model\DemoCategory;
 use Semitexa\Demo\Domain\Model\DemoProduct;
 use Semitexa\Demo\Domain\Model\DemoReview;
-use Semitexa\Demo\Domain\Repository\DemoCategoryRepositoryInterface;
-use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
-use Semitexa\Demo\Domain\Repository\DemoReviewRepositoryInterface;
+use Semitexa\Demo\Domain\Contract\DemoCategoryRepositoryInterface;
+use Semitexa\Demo\Domain\Contract\DemoProductRepositoryInterface;
+use Semitexa\Demo\Domain\Contract\DemoReviewRepositoryInterface;
 
 #[AsPayloadHandler(payload: RelationsPayload::class, resource: DemoFeatureResource::class)]
 final class RelationsHandler implements TypedHandlerInterface
