@@ -43,7 +43,7 @@ final class DescribeCommandsHandler implements TypedHandlerInterface
             relatedSlugs: [],
             fallbackTitle: 'Project Graph Introspection',
             fallbackSummary: 'Routes, modules, contracts, and handlers can be introspected directly from the CLI instead of reverse-engineering the framework graph by hand.',
-            fallbackHighlights: ['ai:ask', 'dev:graph:route', 'dev:graph:project', 'routes:list', 'contracts:list', 'semitexa:lint:*'],
+            fallbackHighlights: ['ai:ask', 'dev:graph:route', 'dev:graph:project', 'routes:list', 'contracts:list', 'lint:*'],
             // NB: v1 intentionally queries explanation under 'cli/project-graph' rather than 'cli/describe-commands'.
             explanation: $this->explanationProvider->getExplanation('cli', 'project-graph') ?? [],
             pageTitleSuffix: ' — Semitexa Demo',
@@ -56,7 +56,7 @@ final class DescribeCommandsHandler implements TypedHandlerInterface
                 'dev:graph:project Command' => $this->sourceCodeReader->readClassSource(DevGraphProjectCommand::class),
                 'routes:list Command' => $this->sourceCodeReader->readClassSource(RoutesListCommand::class),
                 'contracts:list Command' => $this->sourceCodeReader->readClassSource(ContractsListCommand::class),
-                'semitexa:lint:handlers Command' => $this->sourceCodeReader->readClassSource(LintHandlersCommand::class),
+                'lint:handlers Command' => $this->sourceCodeReader->readClassSource(LintHandlersCommand::class),
             ])
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/cli-command-workbench.html.twig', [
                 'eyebrow' => 'Explain The System',
@@ -65,19 +65,19 @@ final class DescribeCommandsHandler implements TypedHandlerInterface
                 'pillars' => [
                     ['title' => 'Route chain visibility.', 'summary' => 'ai:ask route (backed by dev:graph:route) shows payload, handlers, resource, template, and auth posture for one endpoint.'],
                     ['title' => 'Project-level map.', 'summary' => 'ai:ask project and routes:list expose modules, counts, and discovered request surfaces.'],
-                    ['title' => 'Binding and rule checks.', 'summary' => 'contracts:list and semitexa:lint:* help debug DI bindings and architectural invariants before runtime incidents.'],
+                    ['title' => 'Binding and rule checks.', 'summary' => 'contracts:list and lint:* help debug DI bindings and architectural invariants before runtime incidents.'],
                 ],
                 'commands' => [
                     ['name' => 'bin/semitexa ai:ask route --path=/demo/api/schema-discovery --json', 'purpose' => 'Explain the full execution chain for one route.', 'value' => 'Ideal when a page behaves unexpectedly and you need the exact payload → handler → resource path.'],
                     ['name' => 'bin/semitexa ai:ask project --json', 'purpose' => 'Emit a high-level project overview with modules, routes, and listeners.', 'value' => 'Useful for onboarding, architecture review, and AI navigation of unfamiliar projects.'],
                     ['name' => 'bin/semitexa routes:list --json', 'purpose' => 'List all discovered routes with source metadata.', 'value' => 'Gives a stable route inventory instead of relying on tribal knowledge.'],
                     ['name' => 'bin/semitexa contracts:list --json', 'purpose' => 'Show service contracts and their active implementation.', 'value' => 'Shortens DI debugging when multiple modules can satisfy the same interface.'],
-                    ['name' => 'bin/semitexa semitexa:lint:handlers', 'purpose' => 'Validate handler signatures, bindings, and return types.', 'value' => 'Catches architecture drift before it becomes a runtime failure.'],
+                    ['name' => 'bin/semitexa lint:handlers', 'purpose' => 'Validate handler signatures, bindings, and return types.', 'value' => 'Catches architecture drift before it becomes a runtime failure.'],
                 ],
                 'snippets' => [
                     ['label' => 'Inspect one route end to end', 'code' => "bin/semitexa ai:ask route --path=/demo/rendering/reactive-ai --method=GET\nbin/semitexa ai:ask route --path=/demo/rendering/reactive-ai --json"],
                     ['label' => 'Map the project and routes', 'code' => "bin/semitexa ai:ask project --json\nbin/semitexa routes:list --json"],
-                    ['label' => 'Check DI and handler invariants', 'code' => "bin/semitexa contracts:list --json\nbin/semitexa semitexa:lint:handlers"],
+                    ['label' => 'Check DI and handler invariants', 'code' => "bin/semitexa contracts:list --json\nbin/semitexa lint:handlers"],
                 ],
             ])
             ->withL2ContentTemplate('@project-layouts-semitexa-demo/components/previews/checklist-panel.html.twig', [
