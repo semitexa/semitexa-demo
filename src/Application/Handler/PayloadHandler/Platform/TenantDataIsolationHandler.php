@@ -11,7 +11,7 @@ use Semitexa\Core\Log\LoggerInterface;
 use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
 use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Platform\TenantDataIsolationPayload;
-use Semitexa\Demo\Application\Resource\Platform\DemoTenantIsolationResource;
+use Semitexa\Demo\Application\Resource\Response\Platform\DemoTenantIsolationResource;
 use Semitexa\Demo\Application\Service\DemoTenantConfigProvider;
 use Semitexa\Demo\Application\Service\DemoTenantDataSeeder;
 use Throwable;

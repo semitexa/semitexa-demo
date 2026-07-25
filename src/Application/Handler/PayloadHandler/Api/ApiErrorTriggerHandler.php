@@ -14,7 +14,7 @@ use Semitexa\Core\Exception\DomainException;
 use Semitexa\Core\Exception\RateLimitException;
 use Semitexa\Core\Exception\ValidationException;
 use Semitexa\Core\Request;
-use Semitexa\Demo\Application\Exception\DemoApiNotFoundException;
+use Semitexa\Demo\Exception\DemoApiNotFoundException;
 use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
 use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Api\ApiErrorTriggerPayload;

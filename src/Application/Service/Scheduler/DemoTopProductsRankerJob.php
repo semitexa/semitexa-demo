@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Semitexa\Demo\Application\Scheduler;
+namespace Semitexa\Demo\Application\Service\Scheduler;
 
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Service\DemoAnalyticsAggregator;
@@ -11,11 +11,11 @@ use Semitexa\Scheduler\Contract\ScheduledJobInterface;
 use Semitexa\Scheduler\Domain\Value\ScheduledJobContext;
 
 #[AsScheduledJob(
-    key: 'demo.pageview_aggregator',
-    cronExpression: '*/15 * * * * *',
+    key: 'demo.top_products_ranker',
+    cronExpression: '*/45 * * * * *',
     overlapPolicy: 'skip',
 )]
-final class DemoPageviewAggregatorJob implements ScheduledJobInterface
+final class DemoTopProductsRankerJob implements ScheduledJobInterface
 {
     #[InjectAsReadonly]
     protected DemoAnalyticsAggregator $aggregator;
@@ -27,6 +27,6 @@ final class DemoPageviewAggregatorJob implements ScheduledJobInterface
         }
 
         $tenantId = $context->payload['tenantId'] ?? 'acme';
-        $this->aggregator->recordSnapshot('pageviews', $tenantId);
+        $this->aggregator->recordSnapshot('top_products', $tenantId);
     }
 }

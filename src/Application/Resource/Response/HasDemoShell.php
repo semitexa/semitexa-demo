@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Resource\Response;
 
 use Semitexa\Auth\Context\AuthManager;
-use Semitexa\Demo\Application\Auth\GooglePrincipal;
+use Semitexa\Demo\Auth\GooglePrincipal;
 use Semitexa\Demo\Application\Service\DemoAuthMode;
 
 trait HasDemoShell

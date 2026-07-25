@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Semitexa\Demo\Application\Resource\Platform;
+namespace Semitexa\Demo\Application\Resource\Response\Platform;
 
 use Semitexa\Core\Attribute\AsResource;
 use Semitexa\Core\Contract\ResourceInterface;

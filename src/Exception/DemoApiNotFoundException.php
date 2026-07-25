@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Semitexa\Demo\Application\Exception;
+namespace Semitexa\Demo\Exception;
 
 use Semitexa\Core\Exception\DomainException;
 use Semitexa\Core\Http\HttpStatus;

@@ -9,7 +9,7 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Environment;
-use Semitexa\Demo\Application\Auth\GooglePrincipal;
+use Semitexa\Demo\Auth\GooglePrincipal;
 use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
 use Semitexa\Demo\Application\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Async\SseStreamPayload;

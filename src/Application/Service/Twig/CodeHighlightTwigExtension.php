@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Semitexa\Demo\Application\Twig;
+namespace Semitexa\Demo\Application\Service\Twig;
 
 use Semitexa\Ssr\Attribute\AsTwigExtension;
 use Semitexa\Ssr\Application\Service\Extension\TwigExtensionRegistry;

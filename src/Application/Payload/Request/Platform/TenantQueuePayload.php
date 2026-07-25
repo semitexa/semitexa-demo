@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Payload\Request\Platform;
 
 use Semitexa\Core\Attribute\AsPublicPayload;
-use Semitexa\Demo\Application\Resource\Platform\DemoTenantQueueResource;
+use Semitexa\Demo\Application\Resource\Response\Platform\DemoTenantQueueResource;
 
 #[AsPublicPayload(
     path: '/demo/platform/tenancy-queue',

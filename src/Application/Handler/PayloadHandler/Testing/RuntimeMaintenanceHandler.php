@@ -42,7 +42,7 @@ final class RuntimeMaintenanceHandler implements TypedHandlerInterface
             relatedSlugs: [],
             fallbackTitle: 'Runtime Maintenance',
             fallbackSummary: 'Reload workers, clear stale cache, sync registries, lint architecture rules, and probe handler wiring without reaching for ad-hoc shell scripts.',
-            fallbackHighlights: ['server:reload', 'cache:clear', 'registry:sync', 'semitexa:lint:*', 'test:handler'],
+            fallbackHighlights: ['server:reload', 'cache:clear', 'registry:sync', 'lint:*', 'test:handler'],
             explanation: $this->explanationProvider->getExplanation('cli', 'runtime-maintenance') ?? [],
             pageTitleSuffix: ' — Semitexa Demo',
         );
@@ -52,7 +52,7 @@ final class RuntimeMaintenanceHandler implements TypedHandlerInterface
                 'server:reload Command' => $this->sourceCodeReader->readClassSource(ServerReloadCommand::class),
                 'cache:clear Command' => $this->sourceCodeReader->readClassSource(CacheClearCommand::class),
                 'registry:sync Command' => $this->sourceCodeReader->readClassSource(RegistrySyncCommand::class),
-                'semitexa:lint:handlers Command' => $this->sourceCodeReader->readClassSource(LintHandlersCommand::class),
+                'lint:handlers Command' => $this->sourceCodeReader->readClassSource(LintHandlersCommand::class),
                 'test:handler Command' => $this->sourceCodeReader->readClassSource(TestHandlerCommand::class),
             ])
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/cli-command-workbench.html.twig', [
@@ -61,19 +61,19 @@ final class RuntimeMaintenanceHandler implements TypedHandlerInterface
                 'summary' => 'These commands cover the maintenance loop that teams hit all the time: stale templates, generated registries, architecture drift, and suspicious DI wiring.',
                 'pillars' => [
                     ['title' => 'Graceful refresh.', 'summary' => 'server:reload picks up code changes without a full container restart when the Swoole runtime is healthy.'],
-                    ['title' => 'Architectural checks.', 'summary' => 'semitexa:lint:* and test:handler turn framework invariants into explicit checks instead of “I hope boot catches it.”'],
+                    ['title' => 'Architectural checks.', 'summary' => 'lint:* and test:handler turn framework invariants into explicit checks instead of “I hope boot catches it.”'],
                     ['title' => 'State hygiene.', 'summary' => 'cache:clear and registry:sync reduce the class of issues caused by stale compiled artifacts or outdated generated bindings.'],
                 ],
                 'commands' => [
                     ['name' => 'bin/semitexa server:reload', 'purpose' => 'Gracefully reload Swoole workers after code changes.', 'value' => 'Fast path for normal development when containers do not need a full restart.'],
                     ['name' => 'bin/semitexa cache:clear --twig', 'purpose' => 'Clear compiled Twig cache after template changes or stale render state.', 'value' => 'Cuts straight to one of the most common SSR debugging needs.'],
                     ['name' => 'bin/semitexa registry:sync', 'purpose' => 'Regenerate DI-oriented registry artifacts such as contract resolvers.', 'value' => 'Keeps generated framework metadata aligned with current code.'],
-                    ['name' => 'bin/semitexa semitexa:lint:handlers', 'purpose' => 'Validate handler signatures and payload/resource bindings.', 'value' => 'Catches architecture drift before it shows up as a weird runtime failure.'],
+                    ['name' => 'bin/semitexa lint:handlers', 'purpose' => 'Validate handler signatures and payload/resource bindings.', 'value' => 'Catches architecture drift before it shows up as a weird runtime failure.'],
                     ['name' => 'bin/semitexa test:handler Semitexa\\\\Demo\\\\Application\\\\Handler\\\\PayloadHandler\\\\Testing\\\\AiToolingHandler', 'purpose' => 'Probe handler instantiation and property injection directly.', 'value' => 'Useful when DI uncertainty is more valuable to test than business behavior.'],
                 ],
                 'snippets' => [
                     ['label' => 'Refresh changed templates safely', 'code' => "bin/semitexa cache:clear --twig\nbin/semitexa server:reload"],
-                    ['label' => 'Check architecture after refactor', 'code' => "bin/semitexa registry:sync\nbin/semitexa semitexa:lint:handlers\nbin/semitexa semitexa:lint:di"],
+                    ['label' => 'Check architecture after refactor', 'code' => "bin/semitexa registry:sync\nbin/semitexa lint:handlers\nbin/semitexa lint:di"],
                     ['label' => 'Probe one suspicious handler', 'code' => "bin/semitexa test:handler 'Semitexa\\\\Demo\\\\Application\\\\Handler\\\\PayloadHandler\\\\Testing\\\\RuntimeMaintenanceHandler'"],
                 ],
             ])

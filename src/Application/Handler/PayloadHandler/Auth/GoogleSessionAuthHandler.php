@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Semitexa\Demo\Application\Handler\Auth;
+namespace Semitexa\Demo\Application\Handler\PayloadHandler\Auth;
 
 use Semitexa\Auth\Attribute\AsAuthHandler;
 use Semitexa\Auth\Domain\Contract\AuthHandlerInterface;
@@ -13,7 +13,7 @@ use Semitexa\Core\Attribute\InjectAsMutable;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Auth\AuthResult;
 use Semitexa\Core\Session\SessionInterface;
-use Semitexa\Demo\Application\Auth\GooglePrincipal;
+use Semitexa\Demo\Auth\GooglePrincipal;
 use Semitexa\Demo\Application\Payload\Session\GoogleAuthSessionSegment;
 
 #[AsService]

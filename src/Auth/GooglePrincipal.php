@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Semitexa\Demo\Application\Auth;
+namespace Semitexa\Demo\Auth;
 
 use Semitexa\Core\Auth\AuthenticatableInterface;
 use Semitexa\Demo\Application\Payload\Session\GoogleSessionIdentityPayload;
