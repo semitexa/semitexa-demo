@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Semitexa\Demo\Application\Graphql\Output;
+namespace Semitexa\Demo\Application\Resource\Response\Graphql;
 
 final readonly class ProductGraphqlView
 {

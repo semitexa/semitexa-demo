@@ -7,8 +7,8 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\GetStarted;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
-use Semitexa\Demo\Application\Feature\DemoFeaturePageProjector;
-use Semitexa\Demo\Application\Feature\FeatureSpec;
+use Semitexa\Demo\Application\Service\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Service\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\GetStarted\InstallationPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 
