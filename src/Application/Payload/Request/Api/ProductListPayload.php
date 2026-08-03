@@ -8,7 +8,7 @@ use Semitexa\Api\Attribute\ApiVersion;
 use Semitexa\Api\Attribute\ExternalApi;
 use Semitexa\Core\Attribute\AsPublicPayload;
 use Semitexa\Core\Request;
-use Semitexa\Demo\Application\Graphql\Output\ProductListGraphqlView;
+use Semitexa\Demo\Application\Resource\Response\Graphql\ProductListGraphqlView;
 use Semitexa\Demo\Application\Resource\Response\DemoApiResponse;
 use Semitexa\Graphql\Attribute\ExposeAsGraphql;
 

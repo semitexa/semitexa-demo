@@ -6,7 +6,7 @@ namespace Semitexa\Demo\Application\Resource\Response;
 
 use Semitexa\Core\Attribute\AsResource;
 use Semitexa\Core\Contract\ResourceInterface;
-use Semitexa\Demo\Application\Feature\FeatureDescriptor;
+use Semitexa\Demo\Application\Service\Feature\FeatureDescriptor;
 use Semitexa\Ssr\Application\Service\Http\Response\HtmlResponse;
 
 /**
