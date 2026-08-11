@@ -148,6 +148,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 {% endblock %}
 
+{# Deliberately empty — no parent().
+
+   The kit's version of this block loads its own disclosure.js and code-block.js.
+   The demo already ships both behaviours through its asset pipeline: its own
+   disclosure.js, which additionally drives the demo-disclosure-prompt component,
+   the disclosure:expand event and the explanation tooltips, and code-tabs.js for
+   the demo's own code block. Loading the kit's copies on top meant two click
+   handlers on every [data-disclosure-trigger]: one opened the section, the other
+   closed it in the same tick, so "Try it yourself" did nothing at all. #}
+{% block sk_body_scripts %}{% endblock %}
+
 {% block sk_brand %}
   <a class="sk-brand" href="/">
     <span class="sk-brand__text"><span class="semitexa-logo" aria-label="Semitexa">Semite<span>xa</span></span></span>
