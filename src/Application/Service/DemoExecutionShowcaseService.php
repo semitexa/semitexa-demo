@@ -8,11 +8,14 @@ use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Domain\Model\DemoJobRun;
 use Semitexa\Demo\Domain\Repository\DemoJobRunRepositoryInterface;
-use Semitexa\Ssr\Application\Service\Async\AsyncResourceSseServer;
+use Semitexa\Ssr\Application\Service\Async\SseServer;
 
 #[AsService]
 final class DemoExecutionShowcaseService
 {
+    #[InjectAsReadonly]
+    protected SseServer $sseServer;
+
     #[InjectAsReadonly]
     protected DemoJobRunRepositoryInterface $jobRunRepository;
 
@@ -206,7 +209,7 @@ final class DemoExecutionShowcaseService
             return;
         }
 
-        AsyncResourceSseServer::deliver($sessionId, $payload);
+        $this->sseServer->deliver($sessionId, $payload);
     }
 
     private function sleepMs(int $milliseconds): void
