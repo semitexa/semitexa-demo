@@ -6,7 +6,7 @@ namespace Semitexa\Demo\Application\Handler\SlotHandler\Deferred;
 
 use Semitexa\Demo\Application\Resource\Slot\Deferred\DeferredCountdownSlot;
 use Semitexa\Ssr\Attribute\AsSlotHandler;
-use Semitexa\Ssr\Contract\TypedSlotHandlerInterface;
+use Semitexa\Ssr\Domain\Contract\TypedSlotHandlerInterface;
 
 #[AsSlotHandler(slot: DeferredCountdownSlot::class)]
 final class CountdownSlotHandler implements TypedSlotHandlerInterface

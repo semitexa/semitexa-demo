@@ -6,7 +6,7 @@ namespace Semitexa\Demo\Application\Handler\SlotHandler\Deferred;
 
 use Semitexa\Demo\Application\Resource\Slot\Deferred\DeferredNotificationSlot;
 use Semitexa\Ssr\Attribute\AsSlotHandler;
-use Semitexa\Ssr\Contract\TypedSlotHandlerInterface;
+use Semitexa\Ssr\Domain\Contract\TypedSlotHandlerInterface;
 
 #[AsSlotHandler(slot: DeferredNotificationSlot::class)]
 final class NotificationSlotHandler implements TypedSlotHandlerInterface
