@@ -47,37 +47,4 @@ final readonly class FeatureDescriptor
     {
         return $this->presentation->highlights;
     }
-
-    /**
-     * Normalize a mixed keyword list (strings or shaped arrays) into a flat,
-     * de-duplicated list of string terms. Exposed for legacy call sites that
-     * still feed unstructured keyword arrays through {@see DemoFeatureResource::withExplanation()}.
-     *
-     * @param array<int, string|array{term?: string, title?: string, label?: string, name?: string}> $keywords
-     * @return list<string>
-     */
-    public static function normalizeKeywords(array $keywords): array
-    {
-        $terms = [];
-
-        foreach ($keywords as $keyword) {
-            if (is_string($keyword) && $keyword !== '') {
-                $terms[] = $keyword;
-                continue;
-            }
-
-            if (!is_array($keyword)) {
-                continue;
-            }
-
-            foreach (['term', 'title', 'label', 'name'] as $key) {
-                if (isset($keyword[$key]) && is_string($keyword[$key]) && $keyword[$key] !== '') {
-                    $terms[] = $keyword[$key];
-                    break;
-                }
-            }
-        }
-
-        return array_values(array_unique($terms));
-    }
 }
