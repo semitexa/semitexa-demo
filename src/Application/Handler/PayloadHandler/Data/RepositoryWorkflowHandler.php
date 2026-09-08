@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Handler\PayloadHandler\Data;
 
-use Semitexa\Api\Application\Db\MySQL\Model\MachineCredentialMapper;
+use Semitexa\Api\Application\Db\MySQL\Mapper\MachineCredentialMapper;
 use Semitexa\Api\Application\Db\MySQL\Model\MachineCredentialResourceModel;
 use Semitexa\Api\Application\Db\MySQL\Repository\MachineCredentialRepository;
 use Semitexa\Api\Domain\Contract\MachineCredentialRepositoryInterface;

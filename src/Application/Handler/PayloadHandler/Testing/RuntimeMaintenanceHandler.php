@@ -6,11 +6,11 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Testing;
 
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
-use Semitexa\Core\Console\Command\CacheClearCommand;
-use Semitexa\Core\Console\Command\LintHandlersCommand;
-use Semitexa\Core\Console\Command\RegistrySyncCommand;
-use Semitexa\Core\Console\Command\ServerReloadCommand;
-use Semitexa\Core\Console\Command\TestHandlerCommand;
+use Semitexa\Core\Application\Console\Command\CacheClearCommand;
+use Semitexa\Core\Application\Console\Command\LintHandlersCommand;
+use Semitexa\Core\Application\Console\Command\RegistrySyncCommand;
+use Semitexa\Core\Application\Console\Command\ServerReloadCommand;
+use Semitexa\Core\Application\Console\Command\TestHandlerCommand;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Service\Feature\DemoFeaturePageProjector;
 use Semitexa\Demo\Application\Service\Feature\FeatureSpec;

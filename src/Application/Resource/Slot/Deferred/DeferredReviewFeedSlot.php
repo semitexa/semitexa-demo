@@ -19,7 +19,7 @@ use Semitexa\Ssr\Application\Service\Http\Response\HtmlSlotResponse;
 final class DeferredReviewFeedSlot extends HtmlSlotResponse
 {
     /**
-     * @param list<array{rating: int, body: string}> $reviews
+     * @param list<array{rating: int, body: string, stars: list<bool>}> $reviews
      */
     public function withReviews(array $reviews): static
     {

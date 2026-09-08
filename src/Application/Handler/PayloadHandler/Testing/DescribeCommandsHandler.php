@@ -6,9 +6,9 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Testing;
 
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
-use Semitexa\Core\Console\Command\ContractsListCommand;
-use Semitexa\Core\Console\Command\LintHandlersCommand;
-use Semitexa\Core\Console\Command\RoutesListCommand;
+use Semitexa\Core\Application\Console\Command\ContractsListCommand;
+use Semitexa\Core\Application\Console\Command\LintHandlersCommand;
+use Semitexa\Core\Application\Console\Command\RoutesListCommand;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Service\Feature\DemoFeaturePageProjector;
 use Semitexa\Demo\Application\Service\Feature\FeatureSpec;
@@ -16,9 +16,9 @@ use Semitexa\Demo\Application\Payload\Request\Testing\DescribeCommandsPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Dev\Console\Command\AiAskCommand;
-use Semitexa\Dev\Console\Command\DevGraph\DevGraphProjectCommand;
-use Semitexa\Dev\Console\Command\DevGraph\DevGraphRouteCommand;
+use Semitexa\Dev\Application\Console\Command\AiAskCommand;
+use Semitexa\Dev\Application\Console\Command\DevGraph\DevGraphProjectCommand;
+use Semitexa\Dev\Application\Console\Command\DevGraph\DevGraphRouteCommand;
 
 #[AsPayloadHandler(payload: DescribeCommandsPayload::class, resource: DemoFeatureResource::class)]
 final class DescribeCommandsHandler implements TypedHandlerInterface

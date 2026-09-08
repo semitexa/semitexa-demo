@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Handler\PayloadHandler\Auth;
 
-use Semitexa\Authorization\Authorizer\Authorizer;
+use Semitexa\Authorization\Application\Service\Authorizer;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
@@ -14,9 +14,9 @@ use Semitexa\Demo\Application\Payload\Request\Auth\RbacPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Rbac\Capability\CapabilityRegistry;
-use Semitexa\Rbac\Contract\PermissionProviderInterface;
-use Semitexa\Rbac\Resolver\SubjectGrantResolver;
+use Semitexa\Rbac\Application\Service\CapabilityRegistry;
+use Semitexa\Rbac\Domain\Contract\PermissionProviderInterface;
+use Semitexa\Rbac\Application\Service\SubjectGrantResolver;
 
 #[AsPayloadHandler(payload: RbacPayload::class, resource: DemoFeatureResource::class)]
 final class RbacHandler implements TypedHandlerInterface

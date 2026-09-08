@@ -7,8 +7,8 @@ namespace Semitexa\Demo\Application\Service\Scheduler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Service\DemoAnalyticsAggregator;
 use Semitexa\Scheduler\Attribute\AsScheduledJob;
-use Semitexa\Scheduler\Contract\ScheduledJobInterface;
-use Semitexa\Scheduler\Domain\Value\ScheduledJobContext;
+use Semitexa\Scheduler\Domain\Contract\ScheduledJobInterface;
+use Semitexa\Scheduler\Domain\Model\ScheduledJobContext;
 
 #[AsScheduledJob(
     key: 'demo.top_products_ranker',

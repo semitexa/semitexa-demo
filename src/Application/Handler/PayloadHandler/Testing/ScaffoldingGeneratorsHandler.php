@@ -13,11 +13,11 @@ use Semitexa\Demo\Application\Payload\Request\Testing\ScaffoldingGeneratorsPaylo
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Dev\Console\Command\MakeContractCommand;
-use Semitexa\Dev\Console\Command\MakeModuleCommand;
-use Semitexa\Dev\Console\Command\MakePageCommand;
-use Semitexa\Dev\Console\Command\MakePayloadCommand;
-use Semitexa\Dev\Console\Command\MakeServiceCommand;
+use Semitexa\Dev\Application\Console\Command\MakeContractCommand;
+use Semitexa\Dev\Application\Console\Command\MakeModuleCommand;
+use Semitexa\Dev\Application\Console\Command\MakePageCommand;
+use Semitexa\Dev\Application\Console\Command\MakePayloadCommand;
+use Semitexa\Dev\Application\Console\Command\MakeServiceCommand;
 
 #[AsPayloadHandler(payload: ScaffoldingGeneratorsPayload::class, resource: DemoFeatureResource::class)]
 final class ScaffoldingGeneratorsHandler implements TypedHandlerInterface

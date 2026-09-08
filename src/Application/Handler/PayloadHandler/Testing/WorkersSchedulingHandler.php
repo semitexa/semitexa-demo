@@ -6,7 +6,7 @@ namespace Semitexa\Demo\Application\Handler\PayloadHandler\Testing;
 
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
-use Semitexa\Core\Console\Command\QueueWorkCommand;
+use Semitexa\Core\Application\Console\Command\QueueWorkCommand;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Service\Feature\DemoFeaturePageProjector;
 use Semitexa\Demo\Application\Service\Feature\FeatureSpec;
@@ -14,14 +14,14 @@ use Semitexa\Demo\Application\Payload\Request\Testing\WorkersSchedulingPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Mail\Console\Command\MailWorkCommand;
-use Semitexa\Scheduler\Console\SchedulerListCommand;
-use Semitexa\Scheduler\Console\SchedulerPlanCommand;
-use Semitexa\Scheduler\Console\SchedulerWorkCommand;
+use Semitexa\Mail\Application\Console\Command\MailWorkCommand;
+use Semitexa\Scheduler\Application\Console\Command\SchedulerListCommand;
+use Semitexa\Scheduler\Application\Console\Command\SchedulerPlanCommand;
+use Semitexa\Scheduler\Application\Console\Command\SchedulerWorkCommand;
 use Semitexa\Tenancy\Application\Console\Command\TenantRunCommand;
-use Semitexa\Webhooks\Console\WebhookReplayInboundCommand;
-use Semitexa\Webhooks\Console\WebhookShowCommand;
-use Semitexa\Webhooks\Console\WebhookWorkCommand;
+use Semitexa\Webhooks\Application\Console\Command\WebhookReplayInboundCommand;
+use Semitexa\Webhooks\Application\Console\Command\WebhookShowCommand;
+use Semitexa\Webhooks\Application\Console\Command\WebhookWorkCommand;
 
 #[AsPayloadHandler(payload: WorkersSchedulingPayload::class, resource: DemoFeatureResource::class)]
 final class WorkersSchedulingHandler implements TypedHandlerInterface

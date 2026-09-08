@@ -7,18 +7,24 @@
         <span class="deferred-block__badge">Rendered from published Twig</span>
     </div>
     <p class="deferred-block__summary">This block arrives as <code>mode: template</code>, then keeps layering fresh backend reactions from the shared kiss stream on top of the initial template render.</p>
+    {# Deferred templates render twice — here and in the browser — so they stay
+       inside the frontend Twig subset: iterables must be plain context paths,
+       and {% for %}...{% else %} does not exist there. Hence the explicit
+       emptiness check, and stars precomputed into the row. #}
     <ul class="review-feed" data-review-feed>
+        {% if reviews %}
         {% for review in reviews %}
         <li class="review-feed__item">
             <div class="review-feed__rating">
-                {% for i in 1..5 %}
-                <span class="star {% if i <= review.rating %}star--filled{% endif %}">★</span>
+                {% for filled in review.stars %}
+                <span class="star {% if filled %}star--filled{% endif %}">★</span>
                 {% endfor %}
             </div>
             <p class="review-feed__body">{{ review.body }}</p>
         </li>
+        {% endfor %}
         {% else %}
         <li class="deferred-block__empty">No reviews yet.</li>
-        {% endfor %}
+        {% endif %}
     </ul>
 </div>
