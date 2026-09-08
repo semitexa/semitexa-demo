@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Console\Command;
 
 use Semitexa\Core\Attribute\AsCommand;
-use Semitexa\Core\Console\Command\BaseCommand;
+use Semitexa\Core\Attribute\InjectAsReadonly;
+use Semitexa\Core\Console\BaseCommand;
 use Semitexa\Demo\Application\Service\DemoDataSeeder;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,11 +17,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[AsCommand(name: 'semitexa:demo:seed', description: 'Seed demo data (categories, products, reviews, orders, jobs, AI tasks)')]
 class DemoSeedCommand extends BaseCommand
 {
-    public function __construct(
-        private readonly DemoDataSeeder $seeder,
-    ) {
-        parent::__construct();
-    }
+    #[InjectAsReadonly]
+    protected DemoDataSeeder $seeder;
 
     protected function configure(): void
     {

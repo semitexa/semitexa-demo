@@ -13,9 +13,9 @@ use Semitexa\Demo\Application\Payload\Request\Testing\AiToolingPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
-use Semitexa\Dev\Console\Command\AiAskCommand;
-use Semitexa\Dev\Console\Command\DevGraph\DevGraphCapabilitiesCommand;
-use Semitexa\Dev\Console\Command\LogsAppCommand;
+use Semitexa\Dev\Application\Console\Command\AiAskCommand;
+use Semitexa\Dev\Application\Console\Command\DevGraph\DevGraphCapabilitiesCommand;
+use Semitexa\Dev\Application\Console\Command\LogsAppCommand;
 use Semitexa\Llm\Application\Console\Command\AiAssistantCommand;
 use Semitexa\Llm\Application\Console\Command\AiSkillsCommand;
 

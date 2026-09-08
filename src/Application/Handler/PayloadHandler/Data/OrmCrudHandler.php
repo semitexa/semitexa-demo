@@ -8,6 +8,7 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Db\MySQL\Model\DemoProductResource;
+use Semitexa\Demo\Application\Db\MySQL\Repository\DemoProductRepository;
 use Semitexa\Demo\Application\Service\Feature\DemoFeaturePageProjector;
 use Semitexa\Demo\Application\Service\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Data\OrmCrudPayload;
@@ -54,9 +55,6 @@ final class OrmCrudHandler implements TypedHandlerInterface
         return $this->projector->project($resource, $spec)
             ->withSourceCode([
                 'Model' => $this->sourceCodeReader->readClassSource(DemoProductResource::class),
-                // NB: unqualified DemoProductRepository::class resolves to this namespace and
-                //     is intentionally unimported — matches baseline behavior where this key
-                //     resolves to an empty string via readClassSource's missing-class guard.
                 'Repository' => $this->sourceCodeReader->readClassSource(DemoProductRepository::class),
                 'Handler' => $this->sourceCodeReader->readClassSource(self::class),
             ])

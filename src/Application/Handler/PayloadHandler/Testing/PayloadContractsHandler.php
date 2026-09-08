@@ -14,7 +14,6 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Testing\Attributes\TestablePayload;
-use Semitexa\Testing\Application\Console\Command\TestRunCommand;
 use Semitexa\Testing\PayloadContractTester;
 use Semitexa\Testing\Strategy\MonkeyTestingStrategy;
 use Semitexa\Testing\Strategy\Profile\ParanoidProfileStrategy;
@@ -52,7 +51,6 @@ final class PayloadContractsHandler implements TypedHandlerInterface
             ->withSourceCode([
                 '#[TestablePayload]' => $this->sourceCodeReader->readClassSource(TestablePayload::class),
                 'PayloadContractTester' => $this->sourceCodeReader->readClassSource(PayloadContractTester::class),
-                'test:run Command' => $this->sourceCodeReader->readClassSource(TestRunCommand::class),
                 'StrictProfileStrategy' => $this->sourceCodeReader->readClassSource(StrictProfileStrategy::class),
                 'ParanoidProfileStrategy' => $this->sourceCodeReader->readClassSource(ParanoidProfileStrategy::class),
                 'MonkeyTestingStrategy' => $this->sourceCodeReader->readClassSource(MonkeyTestingStrategy::class),

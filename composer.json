@@ -20,6 +20,7 @@
     "semitexa/authorization": "*",
     "semitexa/rbac": "*",
     "semitexa/api": "*",
+    "semitexa/graphql": "*",
     "semitexa/tenancy": "*",
     "semitexa/locale": "*",
     "semitexa/cache": "*",
@@ -30,6 +31,7 @@
     "semitexa/scheduler": "*",
     "semitexa/project-graph": "*",
     "semitexa/workflow": "*",
+    "semitexa/webhooks": "*",
     "semitexa/storage": "*",
     "semitexa/search": "*",
     "semitexa/testing": "*"
