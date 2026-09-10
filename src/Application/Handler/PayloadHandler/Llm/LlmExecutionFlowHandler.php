@@ -56,7 +56,8 @@ final class LlmExecutionFlowHandler implements TypedHandlerInterface
                 'title' => 'From prompt to command run',
                 'summary' => 'The model does not get arbitrary shell access. It receives a bounded skill catalog and must answer in one of a few typed planner formats.',
                 'codeSnippet' => <<<'PHP'
-$manifest = $registry->buildManifest();
+// Scoped to the surface: what the planner is shown is what it may propose.
+$manifest = $registry->buildManifest()->forChannels(['web']);
 $systemPrompt = $planner->buildSystemPrompt($manifest);
 $request = new LlmRequest(
     systemPrompt: $systemPrompt,
@@ -66,12 +67,12 @@ $request = new LlmRequest(
 $llmResponse = $provider->complete($request);
 $decision = $planner->parseResponse($llmResponse);
 if ($decision->type->value === 'propose_skill' && $decision->skill !== null) {
-    $result = $executor->execute($decision->skill, $decision->arguments, $manifest);
+    $result = $executor->execute($decision->skill, $decision->arguments, $manifest, 'web');
 }
 PHP,
                 'columns' => ['Stage', 'Primary class', 'What happens'],
                 'rows' => [
-                    [['text' => 'Build skill surface'], ['text' => 'SkillRegistry + SkillManifest', 'code' => true], ['text' => 'Collect allowed skills and compress them into the planner prompt.']],
+                    [['text' => 'Build skill surface'], ['text' => 'SkillRegistry + ScopedSkillManifest', 'code' => true], ['text' => 'Collect the skills this surface may run and compress them into the planner prompt.']],
                     [['text' => 'Ask the provider'], ['text' => 'LlmProviderInterface + LlmRequest', 'code' => true], ['text' => 'Send system prompt, user message, and recent conversation history to the backend.']],
                     [['text' => 'Parse the decision'], ['text' => 'Planner + PlannerResponse', 'code' => true], ['text' => 'Accept only answer, ask, propose_skill, or refuse in structured JSON form.']],
                     [['text' => 'Gate execution'], ['text' => 'AiConfirmationMode + SkillExecutor', 'code' => true], ['text' => 'Check confirmation needs, validate arguments, and reject anything outside the manifest.']],
