@@ -14,7 +14,7 @@
     }
 
     function getChartPalette() {
-        var isDark = document.documentElement.getAttribute('data-demo-theme') === 'dark';
+        var isDark = document.documentElement.getAttribute('data-skin-mode') === 'dark';
 
         return {
             background: getCssVar('--demo-elevated-bg', isDark ? '#101821' : '#fff9f1'),
@@ -76,14 +76,14 @@
 
         new MutationObserver(function (mutations) {
             for (var i = 0; i < mutations.length; i++) {
-                if (mutations[i].attributeName === 'data-demo-theme') {
+                if (mutations[i].attributeName === 'data-skin-mode') {
                     document.querySelectorAll('.chart-canvas[data-chart-data]').forEach(renderCanvas);
                     break;
                 }
             }
         }).observe(document.documentElement, {
             attributes: true,
-            attributeFilter: ['data-demo-theme']
+            attributeFilter: ['data-skin-mode']
         });
     }
 

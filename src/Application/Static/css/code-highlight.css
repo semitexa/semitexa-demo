@@ -20,7 +20,7 @@
   backdrop-filter: blur(18px) saturate(135%);
 }
 
-:root[data-demo-theme="dark"] .code-block__frame {
+:root[data-skin-mode="dark"] .code-block__frame {
   border-color: var(--demo-glass-stroke);
   box-shadow:
     0 34px 70px rgba(2, 8, 15, 0.36),
@@ -223,8 +223,8 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
-:root[data-demo-theme="dark"] .code-block > pre,
-:root[data-demo-theme="dark"] .code-block > code {
+:root[data-skin-mode="dark"] .code-block > pre,
+:root[data-skin-mode="dark"] .code-block > code {
   border-color: var(--demo-glass-stroke);
   box-shadow:
     0 28px 56px rgba(2, 8, 15, 0.28),
