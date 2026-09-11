@@ -9,7 +9,13 @@
 
   var VISITED_COOKIE = 'semitexa_demo_visited';
   var READY_THRESHOLD = 3;
-  var THEME_STORAGE_KEY = 'semitexa_demo_theme';
+  // The one frontend skin-mode contract, shared with semitexa-theme, the OS
+  // shell, the showcase kit and the Hello scaffold: data-skin-mode on the
+  // root, data-skin-toggle / data-skin-text on the control, and this key.
+  // The demo carried a per-site copy of all four, which was the last legacy
+  // theme system in the tree and the reason the regression guard had to skip
+  // this package.
+  var SKIN_MODE_STORAGE_KEY = 'semitexa_skin_mode';
   var themeMediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
   // --- Cookie helpers ---
@@ -200,7 +206,7 @@
     var storedTheme = null;
 
     try {
-      storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+      storedTheme = window.localStorage.getItem(SKIN_MODE_STORAGE_KEY);
     } catch (e) {
       storedTheme = null;
     }
@@ -222,15 +228,15 @@
     var isDark = resolvedTheme === 'dark';
     var nextActionLabel = isDark ? 'Light mode' : 'Dark mode';
 
-    root.setAttribute('data-demo-theme', resolvedTheme);
+    root.setAttribute('data-skin-mode', resolvedTheme);
 
-    document.querySelectorAll('[data-demo-theme-toggle]').forEach(function (toggle) {
+    document.querySelectorAll('[data-skin-toggle]').forEach(function (toggle) {
       toggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
       toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
       toggle.setAttribute('title', isDark ? 'Switch to light mode' : 'Switch to dark mode');
     });
 
-    document.querySelectorAll('[data-demo-theme-text]').forEach(function (label) {
+    document.querySelectorAll('[data-skin-text]').forEach(function (label) {
       label.textContent = nextActionLabel;
     });
   }
@@ -325,21 +331,21 @@
 
   function persistTheme(theme) {
     try {
-      window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+      window.localStorage.setItem(SKIN_MODE_STORAGE_KEY, theme);
     } catch (e) {
       // Ignore storage failures; theme still applies for current session.
     }
   }
 
   function initThemeToggle() {
-    var toggles = document.querySelectorAll('[data-demo-theme-toggle]');
+    var toggles = document.querySelectorAll('[data-skin-toggle]');
     if (!toggles.length) return;
 
     applyTheme(getPreferredTheme());
 
     toggles.forEach(function (toggle) {
       toggle.addEventListener('click', function () {
-        var currentTheme = document.documentElement.getAttribute('data-demo-theme') === 'dark' ? 'dark' : 'light';
+        var currentTheme = document.documentElement.getAttribute('data-skin-mode') === 'dark' ? 'dark' : 'light';
         var nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
         persistTheme(nextTheme);
         applyTheme(nextTheme);
@@ -352,7 +358,7 @@
       var storedTheme = null;
 
       try {
-        storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+        storedTheme = window.localStorage.getItem(SKIN_MODE_STORAGE_KEY);
       } catch (e) {
         storedTheme = null;
       }

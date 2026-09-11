@@ -13,21 +13,12 @@
     {{ meta('og:title') }}
     {{ meta('og:description') }}
     {{ meta('og:type') }}
-    <script>
-      (function () {
-        try {
-          var theme = window.localStorage.getItem('semitexa_demo_theme');
-          if (theme !== 'light' && theme !== 'dark') {
-            theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-          }
-          document.documentElement.setAttribute('data-demo-theme', theme);
-          window.__resolvedDemoTheme = theme;
-        } catch (error) {
-          document.documentElement.setAttribute('data-demo-theme', 'light');
-          window.__resolvedDemoTheme = 'light';
-        }
-      })();
-    </script>
+    {# The pre-paint skin-mode script, from the one place that owns it. This
+       page carried a hand-copied duplicate — the same three lines of reading
+       localStorage, falling back to the media query, stamping the root — which
+       is a second implementation of the contract however identical it looked
+       on the day it was written. #}
+    {% include '@project-layouts-theme-base/partials/head/theme-switcher.html.twig' %}
     {{ semantic_head() }}
     {{ asset_head() }}
     {{ __ssr_preload_hints|default('')|raw }}
@@ -46,11 +37,14 @@
       : headerAuth.authActionLabel|default('Sign in') %}
     <script>
       (function () {
-        var theme = window.__resolvedDemoTheme || document.documentElement.getAttribute('data-demo-theme') || 'light';
+        // The root attribute is the single source: the pre-paint script above
+        // has already stamped it, so a page-local copy of the resolved value
+        // would only be another thing that can disagree with it.
+        var theme = document.documentElement.getAttribute('data-skin-mode') || 'light';
         var label = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
         var text = theme === 'dark' ? 'Light mode' : 'Dark mode';
-        var toggle = document.querySelector('[data-demo-theme-toggle]');
-        var textNode = document.querySelector('[data-demo-theme-text]');
+        var toggle = document.querySelector('[data-skin-toggle]');
+        var textNode = document.querySelector('[data-skin-text]');
         if (toggle) {
           toggle.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
           toggle.setAttribute('aria-label', label);
@@ -77,14 +71,14 @@
             <span class="demo-nav__signin-text">{{ headerAuthText }}</span>
           </a>
           <div class="demo-nav__theme-control">
-            <span class="demo-nav__theme-text" aria-hidden="true" data-demo-theme-text>Dark mode</span>
+            <span class="demo-nav__theme-text" aria-hidden="true" data-skin-text>Dark mode</span>
             <button
               class="demo-nav__theme-toggle"
               type="button"
               aria-pressed="false"
               aria-label="Switch to dark mode"
               title="Toggle color theme"
-              data-demo-theme-toggle
+              data-skin-toggle
             >
               <span class="demo-nav__theme-toggle-track" aria-hidden="true">
                 <span class="demo-nav__theme-toggle-thumb"></span>
