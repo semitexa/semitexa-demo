@@ -35,7 +35,7 @@
     {% set headerAuthText = headerAuthIsAuthenticated
       ? 'Hi, ' ~ (headerAuth.displayName|default('there')|split(' ')|first)
       : headerAuth.authActionLabel|default('Sign in') %}
-    <script>
+    <script{{ csp_nonce_attr() }}>
       (function () {
         // The root attribute is the single source: the pre-paint script above
         // has already stamped it, so a page-local copy of the resolved value
