@@ -148,9 +148,10 @@ final class DemoFeaturePageProjector
             'infoWhat' => $explanation?->what ?? $feature->presentation->summary,
             'infoHow' => $explanation?->how,
             'infoWhy' => $explanation?->why,
-            'infoKeywords' => $explanation === null
-                ? []
-                : ($explanation->toArray()['keywords'] ?? []),
+            'infoKeywords' => $explanation === null ? [] : array_map(
+                static fn (ExplanationKeyword $keyword): array => $keyword->toArray(),
+                $explanation->keywords,
+            ),
         ];
     }
 }
