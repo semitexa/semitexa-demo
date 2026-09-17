@@ -42,7 +42,7 @@ final class SchemaSyncHandler implements TypedHandlerInterface
             fallbackTitle: 'Schema Sync, Not Migration Churn',
             fallbackSummary: 'Semitexa creates SQL only when the real schema changed, blocks destructive drops by default, and logs the exact DDL plan as SQL and JSON.',
             fallbackHighlights: ['orm:sync', '--dry-run', '--allow-destructive', 'two-phase drop', 'AuditLogger'],
-            explanation: $this->explanationProvider->getExplanation('data', 'schema-sync') ?? [],
+            explanation: $this->explanationProvider->getExplanation('data', 'schema-sync'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

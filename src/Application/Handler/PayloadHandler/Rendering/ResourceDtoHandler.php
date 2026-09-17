@@ -38,7 +38,7 @@ final class ResourceDtoHandler implements TypedHandlerInterface
             fallbackTitle: 'Resource DTOs',
             fallbackSummary: 'A Resource DTO is the one typed source of presentation data: handlers shape it once, templates consume it everywhere, and no view has to dissect random arrays.',
             fallbackHighlights: ['#[AsResource]', 'HtmlResponse', 'with*() methods', 'typed view data', 'auto render'],
-            explanation: $this->explanationProvider->getExplanation('rendering', 'resource-dtos') ?? [],
+            explanation: $this->explanationProvider->getExplanation('rendering', 'resource-dtos'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

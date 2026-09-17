@@ -8,6 +8,7 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Service\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Service\Feature\FeatureExplanation;
 use Semitexa\Demo\Application\Service\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Platform\TenantLayersPayload;
 use Semitexa\Demo\Application\Resource\Response\Platform\DemoTenantLayersResource;
@@ -65,12 +66,11 @@ final class TenantLayersHandler implements TypedHandlerInterface
             fallbackTitle: 'Multi-Layer Tenancy',
             fallbackSummary: 'Organization, Locale, Theme, Environment — four independent layers compose into one TenantContext.',
             fallbackHighlights: self::DOC_KEYWORDS,
-            explanation: [
+            explanation: FeatureExplanation::fromArray([
                 'what' => 'Tenant context is not one switch. It is a composed stack of organization, locale, theme, and environment decisions.',
                 'how' => 'Each layer resolves independently, then merges into the final context consumed by the rest of the app.',
                 'why' => 'Showing the layers separately makes the platform model understandable instead of mystical.',
-                'keywords' => self::DOC_KEYWORDS,
-            ],
+            ]),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

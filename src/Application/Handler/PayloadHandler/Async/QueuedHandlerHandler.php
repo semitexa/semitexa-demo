@@ -38,7 +38,7 @@ final class QueuedHandlerHandler implements TypedHandlerInterface
             fallbackTitle: 'Queued Handler',
             fallbackSummary: 'Events survive restarts and scale across workers — backed by a durable message queue.',
             fallbackHighlights: ['EventExecution::Queued', 'queue transport', 'NATS', 'retry', 'DLQ'],
-            explanation: $this->explanationProvider->getExplanation('events', 'queued') ?? [],
+            explanation: $this->explanationProvider->getExplanation('events', 'queued'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

@@ -71,7 +71,7 @@ final class SessionAuthHandler implements TypedHandlerInterface
             fallbackTitle: 'Session Auth',
             fallbackSummary: 'Google signs the user in, then the session stores the selected demo role and re-hydrates it on every request.',
             fallbackHighlights: ['Google OAuth', '#[SessionSegment]', 'AuthResult', '#[AsAuthHandler]'],
-            explanation: $this->explanationProvider->getExplanation('auth', 'session') ?? [],
+            explanation: $this->explanationProvider->getExplanation('auth', 'session'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

@@ -38,7 +38,7 @@ final class ProtectedRouteHandler implements TypedHandlerInterface
             fallbackTitle: 'Protected Route',
             fallbackSummary: 'Add one attribute to any route and the framework enforces access — 403 returned automatically.',
             fallbackHighlights: ['#[RequiresPermission]', '#[PublicEndpoint]', 'guard chain', '403 response'],
-            explanation: $this->explanationProvider->getExplanation('auth', 'protected') ?? [],
+            explanation: $this->explanationProvider->getExplanation('auth', 'protected'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

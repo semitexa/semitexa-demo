@@ -8,6 +8,7 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Service\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Service\Feature\FeatureExplanation;
 use Semitexa\Demo\Application\Service\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Platform\TenantQueuePayload;
 use Semitexa\Demo\Application\Resource\Response\Platform\DemoTenantQueueResource;
@@ -47,12 +48,11 @@ final class TenantQueueHandler implements TypedHandlerInterface
             fallbackTitle: 'Queue Tenant Propagation',
             fallbackSummary: 'Tenant context travels with queued jobs — _tenant key injected automatically, restored by worker.',
             fallbackHighlights: self::DOC_KEYWORDS,
-            explanation: [
+            explanation: FeatureExplanation::fromArray([
                 'what' => 'Queued jobs keep tenant context attached so background work stays scoped after the HTTP request is gone.',
                 'how' => 'The serializer wraps the message with a tenant envelope, and the worker restores that context before executing the job.',
                 'why' => 'Without this, multi-tenant background processing quietly becomes dangerous.',
-                'keywords' => self::DOC_KEYWORDS,
-            ],
+            ]),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

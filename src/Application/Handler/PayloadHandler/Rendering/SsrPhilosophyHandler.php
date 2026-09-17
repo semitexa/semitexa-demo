@@ -38,7 +38,7 @@ final class SsrPhilosophyHandler implements TypedHandlerInterface
             fallbackTitle: 'SSR Philosophy',
             fallbackSummary: 'Semitexa SSR is one continuous rendering architecture: page, slots, deferred regions, live refresh, and interactive components stay inside one server-owned story.',
             fallbackHighlights: ['one rendering story', 'HtmlResponse', 'Presentation boundary', 'Deferred SSR', 'Framework-free enhancement'],
-            explanation: $this->explanationProvider->getExplanation('rendering', 'philosophy') ?? [],
+            explanation: $this->explanationProvider->getExplanation('rendering', 'philosophy'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

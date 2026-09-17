@@ -63,7 +63,7 @@ final class SyncEventHandler implements TypedHandlerInterface
             fallbackTitle: 'Sync Events',
             fallbackSummary: 'Dispatch an event and all sync listeners run before the response is sent.',
             fallbackHighlights: ['#[AsEvent]', '#[Propagated]', '#[AsEventListener]', 'EventExecution::Sync', 'EventDispatcherInterface'],
-            explanation: $this->explanationProvider->getExplanation('events', 'sync') ?? [],
+            explanation: $this->explanationProvider->getExplanation('events', 'sync'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

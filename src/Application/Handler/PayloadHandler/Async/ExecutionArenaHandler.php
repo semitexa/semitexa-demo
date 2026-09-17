@@ -9,6 +9,7 @@ use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Environment;
 use Semitexa\Demo\Application\Service\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Service\Feature\FeatureExplanation;
 use Semitexa\Demo\Application\Service\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Handler\DomainListener\DemoExecutionShowcaseAsyncListener;
 use Semitexa\Demo\Application\Handler\DomainListener\DemoExecutionShowcaseQueuedListener;
@@ -43,7 +44,7 @@ final class ExecutionArenaHandler implements TypedHandlerInterface
             fallbackTitle: 'Execution Arena',
             fallbackSummary: 'Launch the same backend intent in sync, Swoole async, and queued modes, then watch the proof arrive over SSE.',
             fallbackHighlights: ['EventExecution::Sync', 'EventExecution::Async', 'EventExecution::Queued', 'SSE proof stream'],
-            explanation: [
+            explanation: FeatureExplanation::fromArray([
                 'what' => 'One browser action emits one backend event. Three listeners with different execution modes turn that same intent into three visibly different response lifecycles.',
                 'how' => 'The page opens one SSE session, launches a mode-specific event, and then records proof from both sides: response timing from the launch request and stage-by-stage backend confirmations from the SSE stream.',
                 'why' => 'This removes hand-wavy “Semitexa supports async” claims. The sync lane visibly blocks, the Swoole lane returns early and completes later, and the queued lane waits for a worker before finishing.',
@@ -53,7 +54,7 @@ final class ExecutionArenaHandler implements TypedHandlerInterface
                     ['term' => 'EventExecution::Queued', 'definition' => 'Serializes the listener work into a transport for a queue worker to consume later.'],
                     ['term' => 'SSE proof stream', 'definition' => 'A dedicated EventSource connection that receives backend stage confirmations in real time.'],
                 ],
-            ],
+            ]),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

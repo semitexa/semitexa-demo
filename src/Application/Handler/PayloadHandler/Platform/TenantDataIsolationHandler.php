@@ -9,6 +9,7 @@ use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Core\Log\LoggerInterface;
 use Semitexa\Demo\Application\Service\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Service\Feature\FeatureExplanation;
 use Semitexa\Demo\Application\Service\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Platform\TenantDataIsolationPayload;
 use Semitexa\Demo\Application\Resource\Response\Platform\DemoTenantIsolationResource;
@@ -71,12 +72,11 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
             fallbackTitle: 'Data Isolation',
             fallbackSummary: 'Product listing scoped by tenant — switch tenant, list changes. Zero manual WHERE clauses.',
             fallbackHighlights: self::DOC_KEYWORDS,
-            explanation: [
+            explanation: FeatureExplanation::fromArray([
                 'what' => 'Switch tenant, and the same repository calls return a different dataset without hand-written WHERE clauses.',
                 'how' => 'Tenant-scoped resources inject tenant filters automatically, so repository code stays focused on business queries.',
                 'why' => 'This is the kind of platform guarantee that should be obvious in a demo, not hidden in docs.',
-                'keywords' => self::DOC_KEYWORDS,
-            ],
+            ]),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

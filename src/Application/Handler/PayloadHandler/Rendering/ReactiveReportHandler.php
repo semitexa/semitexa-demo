@@ -47,7 +47,7 @@ final class ReactiveReportHandler implements TypedHandlerInterface
             fallbackTitle: 'Reactive Report',
             fallbackSummary: 'Background work updates an SSR-first slot in place, so the UI feels live without falling back to SPA state orchestration.',
             fallbackHighlights: ['refreshInterval', '#[AsScheduledJob]', 'DemoJobRun', 'SSR-first live UI'],
-            explanation: $this->explanationProvider->getExplanation('rendering', 'reactive-report') ?? [],
+            explanation: $this->explanationProvider->getExplanation('rendering', 'reactive-report'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

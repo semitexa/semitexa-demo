@@ -38,7 +38,7 @@ final class DiOverviewHandler implements TypedHandlerInterface
             fallbackTitle: 'DI Canon',
             fallbackSummary: 'One canonical DI path for container-managed classes: explicit properties, explicit lifecycles, deterministic boot.',
             fallbackHighlights: ['single-path DI', '#[InjectAsReadonly]', '#[InjectAsMutable]', 'boot-time validation'],
-            explanation: $this->explanationProvider->getExplanation('di', 'overview') ?? [],
+            explanation: $this->explanationProvider->getExplanation('di', 'overview'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

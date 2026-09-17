@@ -53,7 +53,7 @@ final class RbacHandler implements TypedHandlerInterface
             fallbackTitle: 'RBAC',
             fallbackSummary: 'Hybrid RBAC with coarse-grained capabilities, exact permission slugs, and module-owned permission catalogs.',
             fallbackHighlights: ['#[RequiresCapability]', '#[RequiresPermission]', 'CapabilityRegistry', 'PermissionProviderInterface'],
-            explanation: $this->explanationProvider->getExplanation('auth', 'rbac') ?? [],
+            explanation: $this->explanationProvider->getExplanation('auth', 'rbac'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

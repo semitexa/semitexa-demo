@@ -8,6 +8,7 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Service\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Service\Feature\FeatureExplanation;
 use Semitexa\Demo\Application\Service\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Platform\TenantResolutionPayload;
 use Semitexa\Demo\Application\Resource\Response\Platform\DemoTenantResolutionResource;
@@ -44,12 +45,11 @@ final class TenantResolutionHandler implements TypedHandlerInterface
             fallbackTitle: 'Tenant Context Resolution',
             fallbackSummary: 'See how Semitexa resolves the active tenant from subdomain, header, path, or query input before the rest of the platform runs.',
             fallbackHighlights: self::DOC_KEYWORDS,
-            explanation: [
+            explanation: FeatureExplanation::fromArray([
                 'what' => 'Semitexa decides the active tenant before configuration, data access, queues, and rendering continue downstream.',
                 'how' => 'The resolver chain tries the configured strategies in priority order. The first match wins and becomes the tenant context for the rest of the execution.',
                 'why' => 'If tenant resolution is ambiguous, every “isolated” layer above it becomes unreliable. That is why this boundary deserves explicit design.',
-                'keywords' => self::DOC_KEYWORDS,
-            ],
+            ]),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

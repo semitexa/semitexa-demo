@@ -38,7 +38,7 @@ final class ServiceContractHandler implements TypedHandlerInterface
             fallbackTitle: 'Service Contracts',
             fallbackSummary: 'Depend on contracts, but keep ownership explicit — deterministic substitution instead of runtime magic.',
             fallbackHighlights: ['#[SatisfiesServiceContract]', 'module-owned capability', 'closed-world factory', 'deterministic binding'],
-            explanation: $this->explanationProvider->getExplanation('di', 'contracts') ?? [],
+            explanation: $this->explanationProvider->getExplanation('di', 'contracts'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

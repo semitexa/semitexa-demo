@@ -43,7 +43,7 @@ final class DomainModelsHandler implements TypedHandlerInterface
             fallbackTitle: 'Domain-Level Models',
             fallbackSummary: 'Semitexa separates persistence resources from business models. Resources map tables; domain models carry behavior and invariants.',
             fallbackHighlights: ['ResourceModel', 'mapper', '#[AsMapper]', '#[SatisfiesRepositoryContract]', 'DomainRepository'],
-            explanation: $this->explanationProvider->getExplanation('data', 'domain-models') ?? [],
+            explanation: $this->explanationProvider->getExplanation('data', 'domain-models'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

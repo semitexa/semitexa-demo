@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Service;
 
 use Semitexa\Core\Attribute\AsService;
+use Semitexa\Demo\Application\Service\Feature\FeatureExplanation;
 
 /**
  * Provides structured explanation data for each demo feature.
@@ -16,14 +17,12 @@ use Semitexa\Core\Attribute\AsService;
 #[AsService]
 final class DemoExplanationProvider
 {
-    /**
-     * @return array{what: string, how: string, why: string, keywords: list<array{term: string, definition: string}>}|null
-     */
-    public function getExplanation(string $section, string $slug): ?array
+    public function getExplanation(string $section, string $slug): ?FeatureExplanation
     {
         $key = $section . '/' . $slug;
+        $row = self::EXPLANATIONS[self::ALIASES[$key] ?? $key] ?? null;
 
-        return self::EXPLANATIONS[self::ALIASES[$key] ?? $key] ?? null;
+        return $row === null ? null : FeatureExplanation::fromArray($row);
     }
 
     private const ALIASES = [

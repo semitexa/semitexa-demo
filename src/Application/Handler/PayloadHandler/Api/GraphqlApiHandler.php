@@ -38,7 +38,7 @@ final class GraphqlApiHandler implements TypedHandlerInterface
             fallbackTitle: 'GraphQL API',
             fallbackSummary: 'GraphQL-first Semitexa contracts built with typed payloads and typed output DTOs instead of resolver sprawl.',
             fallbackHighlights: ['POST /graphql', '#[ExposeAsGraphql]', 'typed output DTOs', 'GraphQL-first'],
-            explanation: $this->explanationProvider->getExplanation('api', 'graphql') ?? [],
+            explanation: $this->explanationProvider->getExplanation('api', 'graphql'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

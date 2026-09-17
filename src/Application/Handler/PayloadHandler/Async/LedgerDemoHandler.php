@@ -68,7 +68,7 @@ final class LedgerDemoHandler implements TypedHandlerInterface
             fallbackTitle: 'Ledger Demo',
             fallbackSummary: 'Dispatch a protected demo event and inspect only the persisted demo ledger rows through a safe read-only view.',
             fallbackHighlights: ['#[Propagated]', '#[RequiresPermission]', 'typed session nonce', 'SQLite read-only view'],
-            explanation: $this->explanationProvider->getExplanation('events', 'ledger') ?? [],
+            explanation: $this->explanationProvider->getExplanation('events', 'ledger'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

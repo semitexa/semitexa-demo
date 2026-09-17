@@ -38,7 +38,7 @@ final class SessionPayloadsHandler implements TypedHandlerInterface
             fallbackTitle: 'Session Payloads',
             fallbackSummary: 'Semitexa forbids string-key session chaos: session state lives in typed Session Payloads or it does not exist.',
             fallbackHighlights: ['#[SessionSegment]', 'typed session contract', 'no string keys', 'SessionInterface::getPayload()'],
-            explanation: $this->explanationProvider->getExplanation('auth', 'session-payloads') ?? [],
+            explanation: $this->explanationProvider->getExplanation('auth', 'session-payloads'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

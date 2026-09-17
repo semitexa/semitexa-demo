@@ -40,7 +40,7 @@ final class SeoHandler implements TypedHandlerInterface
             fallbackTitle: 'SEO',
             fallbackSummary: 'Set title, description, and Open Graph tags from your handler — no template hacks needed.',
             fallbackHighlights: ['pageTitle()', 'seoTag()', 'Open Graph', 'description', 'structured data'],
-            explanation: $this->explanationProvider->getExplanation('rendering', 'seo') ?? [],
+            explanation: $this->explanationProvider->getExplanation('rendering', 'seo'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

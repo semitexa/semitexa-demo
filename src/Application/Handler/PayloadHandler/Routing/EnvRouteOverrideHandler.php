@@ -42,7 +42,7 @@ final class EnvRouteOverrideHandler implements TypedHandlerInterface
             fallbackTitle: 'Env Route Override',
             fallbackSummary: 'Keep the payload as the route source of truth while allowing operations to remap the public URL through .env.',
             fallbackHighlights: ['env::VAR::/fallback', 'path override', '.env-driven routing', 'same payload boundary'],
-            explanation: $this->explanationProvider->getExplanation('routing', 'env-route-override') ?? [],
+            explanation: $this->explanationProvider->getExplanation('routing', 'env-route-override'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

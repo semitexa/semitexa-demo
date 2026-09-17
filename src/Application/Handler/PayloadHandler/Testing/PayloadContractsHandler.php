@@ -43,7 +43,7 @@ final class PayloadContractsHandler implements TypedHandlerInterface
             fallbackTitle: 'Payload Contract Testing',
             fallbackSummary: 'Scaffold one project-level contract test and let strategy profiles verify payload boundaries without hand-writing repetitive negative cases.',
             fallbackHighlights: ['#[TestablePayload]', 'test:init', 'test:run', 'StrictProfileStrategy', 'MonkeyTestingStrategy'],
-            explanation: $this->explanationProvider->getExplanation('testing', 'payload-contracts') ?? [],
+            explanation: $this->explanationProvider->getExplanation('testing', 'payload-contracts'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

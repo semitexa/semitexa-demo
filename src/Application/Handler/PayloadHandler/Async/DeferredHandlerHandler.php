@@ -39,7 +39,7 @@ final class DeferredHandlerHandler implements TypedHandlerInterface
             fallbackTitle: 'Deferred Handler',
             fallbackSummary: 'Heavy work runs after the response is sent — the user gets instant feedback.',
             fallbackHighlights: ['EventExecution::Async', 'Swoole\\Event::defer()', 'post-response', 'non-blocking'],
-            explanation: $this->explanationProvider->getExplanation('events', 'deferred') ?? [],
+            explanation: $this->explanationProvider->getExplanation('events', 'deferred'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

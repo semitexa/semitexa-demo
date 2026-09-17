@@ -47,7 +47,7 @@ final class WorkersSchedulingHandler implements TypedHandlerInterface
             fallbackTitle: 'Workers & Scheduling',
             fallbackSummary: 'Run queues, scheduler pools, mail delivery, webhooks, and tenant-scoped commands from a coherent operator surface instead of bespoke daemons.',
             fallbackHighlights: ['queue:work', 'scheduler:list', 'scheduler:plan', 'scheduler:work', 'webhook:work', 'tenant:run'],
-            explanation: $this->explanationProvider->getExplanation('cli', 'workers-scheduling') ?? [],
+            explanation: $this->explanationProvider->getExplanation('cli', 'workers-scheduling'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

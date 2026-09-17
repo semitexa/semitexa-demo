@@ -43,7 +43,7 @@ final class AiToolingHandler implements TypedHandlerInterface
             fallbackTitle: 'AI Tooling Surface',
             fallbackSummary: 'Semitexa exposes AI-facing commands as explicit CLI contracts: capabilities, skills, log access, and a local assistant entrypoint.',
             fallbackHighlights: ['ai:ask', 'ai:skills', 'logs:app', 'ai', '--json'],
-            explanation: $this->explanationProvider->getExplanation('cli', 'ai-tooling') ?? [],
+            explanation: $this->explanationProvider->getExplanation('cli', 'ai-tooling'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

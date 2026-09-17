@@ -43,7 +43,7 @@ final class ProductListV0Handler implements TypedHandlerInterface
         $contentType = $this->apiPresenter->getContentType($request, $payload->getFormat());
 
         // JSON clients receive the raw collection with lifecycle headers; page rendering is skipped.
-        if ($this->wantsJson($request, $payload->getFormat())) {
+        if ($this->apiPresenter->wantsJson($request, $payload->getFormat())) {
             return $this->jsonResponse($resource, $body, [
                 'Content-Type' => $contentType,
                 'X-Api-Version' => self::API_VERSION,
@@ -62,7 +62,7 @@ final class ProductListV0Handler implements TypedHandlerInterface
             fallbackTitle: 'Sunset Version',
             fallbackSummary: 'A deprecated product endpoint that emits both Deprecation and Sunset headers.',
             fallbackHighlights: ['#[ApiVersion]', 'Deprecation', 'Sunset', 'X-Api-Version'],
-            explanation: $this->explanationProvider->getExplanation('api', 'sunset-version') ?? [],
+            explanation: $this->explanationProvider->getExplanation('api', 'sunset-version'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 
@@ -116,12 +116,6 @@ final class ProductListV0Handler implements TypedHandlerInterface
         $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         return is_string($json) ? $json : "{}\n";
-    }
-
-    private function wantsJson(Request $request, ?string $format): bool
-    {
-        return strtolower((string) $format) === 'json'
-            || str_contains(strtolower($request->getHeader('Accept') ?? ''), 'application/json');
     }
 
     /**

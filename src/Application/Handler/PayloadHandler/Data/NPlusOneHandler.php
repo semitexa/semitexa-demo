@@ -39,7 +39,7 @@ final class NPlusOneHandler implements TypedHandlerInterface
             fallbackTitle: 'N+1 Without Magic',
             fallbackSummary: 'Semitexa avoids N+1 by using resource slices for the exact columns and relations each screen needs, instead of hiding database traffic behind implicit relation loading.',
             fallbackHighlights: ['ResourceModelRelationLoader', 'resource slice', 'no lazy loading', '#[FromTable]', 'batch relations'],
-            explanation: $this->explanationProvider->getExplanation('data', 'n-plus-one') ?? [],
+            explanation: $this->explanationProvider->getExplanation('data', 'n-plus-one'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 
