@@ -14,6 +14,8 @@ use Semitexa\Core\Exception\DomainException;
 use Semitexa\Core\Exception\RateLimitException;
 use Semitexa\Core\Exception\ValidationException;
 use Semitexa\Core\Request;
+use Semitexa\Core\Resource\AcceptHeaderResolver;
+use Semitexa\Core\Resource\RenderProfile;
 use Semitexa\Demo\Exception\DemoApiNotFoundException;
 use Semitexa\Demo\Application\Service\Feature\DemoFeaturePageProjector;
 use Semitexa\Demo\Application\Service\Feature\FeatureSpec;
@@ -33,6 +35,9 @@ final class ApiErrorTriggerHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
+
+    #[InjectAsReadonly]
+    protected AcceptHeaderResolver $acceptResolver;
 
     public function handle(ApiErrorTriggerPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
@@ -56,7 +61,7 @@ final class ApiErrorTriggerHandler implements TypedHandlerInterface
             fallbackTitle: 'Structured Errors',
             fallbackSummary: 'Throw domain exceptions and let semitexa-api map them into stable machine-readable error envelopes.',
             fallbackHighlights: ['ExternalApiExceptionMapper', 'DomainException', 'error.context', 'request_id'],
-            explanation: $this->explanationProvider->getExplanation('api', 'structured-errors') ?? [],
+            explanation: $this->explanationProvider->getExplanation('api', 'structured-errors'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 
@@ -156,10 +161,21 @@ final class ApiErrorTriggerHandler implements TypedHandlerInterface
         };
     }
 
+    /**
+     * `?format=json` wins outright; otherwise the framework's Accept resolver
+     * decides. Html is declared first, so a missing Accept, `*\/*` and a
+     * browser's `text/html,...` all keep the rendered page.
+     */
     private function wantsJson(Request $request, ?string $format): bool
     {
-        return strtolower((string) $format) === 'json'
-            || str_contains(strtolower($request->getHeader('Accept') ?? ''), 'application/json');
+        if (strtolower(trim((string) $format)) === 'json') {
+            return true;
+        }
+
+        return $this->acceptResolver->resolve(
+            $request->getHeader('Accept'),
+            [RenderProfile::Html, RenderProfile::Json],
+        ) === RenderProfile::Json;
     }
 
     /**

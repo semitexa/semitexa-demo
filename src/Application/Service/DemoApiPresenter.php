@@ -7,6 +7,8 @@ namespace Semitexa\Demo\Application\Service;
 use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Request;
+use Semitexa\Core\Resource\AcceptHeaderResolver;
+use Semitexa\Core\Resource\RenderProfile;
 use Semitexa\Demo\Domain\Repository\DemoCategoryRepositoryInterface;
 use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
 use Semitexa\Demo\Domain\Repository\DemoReviewRepositoryInterface;
@@ -25,6 +27,9 @@ final class DemoApiPresenter
 
     #[InjectAsReadonly]
     protected DemoReviewRepositoryInterface $reviews;
+
+    #[InjectAsReadonly]
+    protected AcceptHeaderResolver $acceptResolver;
 
     public function buildCollection(
         Request $request,
@@ -383,6 +388,28 @@ final class DemoApiPresenter
         return $json;
     }
 
+    /**
+     * Does this client want the JSON payload rather than the rendered demo page?
+     *
+     * An explicit `?format=json` wins outright; otherwise the framework's
+     * Accept resolver decides between the two profiles this endpoint serves.
+     * HTML is declared first, so a missing Accept, `*\/*` or a browser's
+     * `text/html,...` all land on the page — which is the behaviour these
+     * endpoints had, now reached by RFC 7231 negotiation instead of a
+     * substring test that ignored q-values.
+     */
+    public function wantsJson(Request $request, ?string $format): bool
+    {
+        if (strtolower(trim((string) $format)) === 'json') {
+            return true;
+        }
+
+        return $this->acceptResolver->resolve(
+            $request->getHeader('Accept'),
+            [RenderProfile::Html, RenderProfile::Json],
+        ) === RenderProfile::Json;
+    }
+
     private function resolveRepresentation(Request $request, ?string $format): string
     {
         $format = strtolower(trim((string) $format));
@@ -390,7 +417,12 @@ final class DemoApiPresenter
             return 'ld+json';
         }
 
-        return str_contains(strtolower($request->getHeader('Accept') ?? ''), 'application/ld+json')
+        // Json is declared first, so anything that does not positively ask for
+        // JSON-LD — including a missing Accept and `*\/*` — stays on plain JSON.
+        return $this->acceptResolver->resolve(
+            $request->getHeader('Accept'),
+            [RenderProfile::Json, RenderProfile::JsonLd],
+        ) === RenderProfile::JsonLd
             ? 'ld+json'
             : 'json';
     }

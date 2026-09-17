@@ -8,6 +8,7 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Service\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Service\Feature\FeatureExplanation;
 use Semitexa\Demo\Application\Service\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\ProjectGraph\ProjectGraphImpactPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
@@ -34,7 +35,7 @@ final class ProjectGraphImpactHandler implements TypedHandlerInterface
             fallbackTitle: 'Impact, Context, and Watch Mode',
             fallbackSummary: 'Use impact analysis, context packing, and watch mode to scope risky changes and keep graph-backed answers current during long work sessions.',
             fallbackHighlights: ['ai:review-graph:impact', '--context', '--prompt', 'ai:review-graph:watch'],
-            explanation: [
+            explanation: FeatureExplanation::fromArray([
                 'what' => 'Impact mode is where Project Graph becomes a change-safety tool. It estimates blast radius, groups affected modules by depth, and can package only the snippets and context that actually belong in a review or AI prompt.',
                 'how' => 'Use `ai:review-graph:impact` on a class, file path, or node id, add `--context` when you want a focused context package, add `--prompt` when that package should be shaped for review or refactor work, and use `ai:review-graph:watch` when a long session would otherwise leave graph-backed answers stale.',
                 'why' => 'This matters because risky work usually fails before the patch is done: teams underestimate blast radius, overfeed AI prompts, and keep editing while structural assumptions drift. Project Graph makes those failure modes explicit and reviewable.',
@@ -44,7 +45,7 @@ final class ProjectGraphImpactHandler implements TypedHandlerInterface
                     ['term' => '--prompt', 'definition' => 'Formats the context package into a review-, refactor-, or test-oriented prompt scaffold.'],
                     ['term' => 'ai:review-graph:watch', 'definition' => 'Keeps the stored graph fresh during active development so later graph-backed answers match the current codebase.'],
                 ],
-            ],
+            ]),
             pageTitleSuffix: ' — Semitexa Demo',
             sectionLabel: 'Project Graph',
         );

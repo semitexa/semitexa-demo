@@ -56,7 +56,7 @@ final class AssetHandler implements TypedHandlerInterface
             fallbackTitle: 'Asset Pipeline',
             fallbackSummary: 'Declare assets with glob patterns in assets.json — served, versioned, and injected automatically.',
             fallbackHighlights: ['assets.json', 'asset_head()', 'asset_body()', 'glob patterns', 'versioning'],
-            explanation: $this->explanationProvider->getExplanation('rendering', 'assets') ?? [],
+            explanation: $this->explanationProvider->getExplanation('rendering', 'assets'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

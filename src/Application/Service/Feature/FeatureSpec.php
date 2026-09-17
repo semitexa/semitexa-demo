@@ -20,12 +20,7 @@ final readonly class FeatureSpec
     /**
      * @param list<string> $relatedSlugs Slugs in the same section, in display order.
      * @param list<string> $fallbackHighlights
-     * @param array{
-     *     what?: string|null,
-     *     how?: string|null,
-     *     why?: string|null,
-     *     keywords?: list<string|array{term?: string, title?: string, label?: string, name?: string}>
-     * }|null $explanation
+     * @param FeatureExplanation|null $explanation
      *        Optional concept-level explanation for the page. When supplied the projector routes it
      *        into the demo shell info panel (what/how/why/keywords) and into the resource body so
      *        the feature template can render structured prose alongside the docs-backed document.
@@ -40,7 +35,7 @@ final readonly class FeatureSpec
         public string $fallbackTitle,
         public string $fallbackSummary,
         public array $fallbackHighlights = [],
-        public ?array $explanation = null,
+        public ?FeatureExplanation $explanation = null,
         public string $pageTitleSuffix = ' — Semitexa Framework',
         public ?string $sectionLabel = null,
     ) {}

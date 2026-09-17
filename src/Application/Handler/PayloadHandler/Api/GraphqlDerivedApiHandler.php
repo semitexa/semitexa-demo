@@ -43,7 +43,7 @@ final class GraphqlDerivedApiHandler implements TypedHandlerInterface
             fallbackTitle: 'REST + GraphQL',
             fallbackSummary: 'One Semitexa use case can serve both REST and GraphQL without duplicating handler logic into separate resolver classes.',
             fallbackHighlights: ['REST + GraphQL', '#[ExposeAsGraphql]', 'shared use case', 'no duplicated logic'],
-            explanation: $this->explanationProvider->getExplanation('api', 'rest-graphql') ?? [],
+            explanation: $this->explanationProvider->getExplanation('api', 'rest-graphql'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

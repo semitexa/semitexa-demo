@@ -8,6 +8,7 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Service\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Service\Feature\FeatureExplanation;
 use Semitexa\Demo\Application\Service\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\ProjectGraph\ProjectGraphOverviewPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
@@ -34,7 +35,7 @@ final class ProjectGraphOverviewHandler implements TypedHandlerInterface
             fallbackTitle: 'Project Graph Overview',
             fallbackSummary: 'Understand what `semitexa-project-graph` adds: a stored structural map, an intelligence layer, and task-scoped context for large-codebase work.',
             fallbackHighlights: ['semitexa-project-graph', 'task-first workflow', 'intelligence layer', 'stored structural graph'],
-            explanation: [
+            explanation: FeatureExplanation::fromArray([
                 'what' => 'Project Graph is a package-level architecture memory for Semitexa repositories. It persists structural facts about modules, handlers, services, events, flows, and dependencies so engineers and AI can work from the actual system shape instead of rediscovering it repeatedly.',
                 'how' => 'Use it on demand. Start from the task, fetch graph-backed context when structure matters, refresh the stored graph only when answers are stale, and then choose the narrowest command that answers the question: show, query, module, intelligence, impact, or context.',
                 'why' => 'This matters because large repositories do not become easier just by adding more docs. Project Graph turns architecture into a reusable artifact: onboarding accelerates, impact analysis gets safer, AI prompts shrink, and structural questions stop triggering another round of blind grep.',
@@ -44,7 +45,7 @@ final class ProjectGraphOverviewHandler implements TypedHandlerInterface
                     ['term' => 'intelligence layer', 'definition' => 'Higher-level answers built on top of the graph: hotspots, domain context, event lifecycles, inferred intent, and natural-language structural queries.'],
                     ['term' => 'package-level capability', 'definition' => 'The graph surface belongs to the `semitexa-project-graph` package and is available where that package is installed and enabled.'],
                 ],
-            ],
+            ]),
             pageTitleSuffix: ' — Semitexa Demo',
             sectionLabel: 'Project Graph',
         );

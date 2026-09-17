@@ -43,7 +43,7 @@ final class ReactiveAnalyticsHandler implements TypedHandlerInterface
             fallbackTitle: 'Reactive Analytics',
             fallbackSummary: 'Independent analytics jobs can light up one dashboard progressively, while the page stays server-rendered from the first byte.',
             fallbackHighlights: ['multi-job snapshots', 'independent panel refresh', 'refreshInterval: 5', 'SSR-first live UI'],
-            explanation: $this->explanationProvider->getExplanation('rendering', 'reactive-analytics') ?? [],
+            explanation: $this->explanationProvider->getExplanation('rendering', 'reactive-analytics'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

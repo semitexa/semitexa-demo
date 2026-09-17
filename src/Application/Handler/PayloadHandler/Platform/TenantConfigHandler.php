@@ -8,6 +8,7 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Service\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Service\Feature\FeatureExplanation;
 use Semitexa\Demo\Application\Service\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Platform\TenantConfigPayload;
 use Semitexa\Demo\Application\Resource\Response\Platform\DemoTenantConfigResource;
@@ -46,12 +47,11 @@ final class TenantConfigHandler implements TypedHandlerInterface
             fallbackTitle: 'Per-Tenant Configuration',
             fallbackSummary: 'Three demo tenants with distinct branding — switch tenant, everything changes without if/else.',
             fallbackHighlights: self::DOC_KEYWORDS,
-            explanation: [
+            explanation: FeatureExplanation::fromArray([
                 'what' => 'This page demonstrates that tenancy is not only row isolation. The active tenant changes branding, locale defaults, pricing conventions, and visible features.',
                 'how' => 'One tenant config is resolved once, then reused by rendering, component behavior, and downstream services.',
                 'why' => 'The important platform promise is this: the same codebase can produce multiple product surfaces without sprinkling tenant-specific if/else logic everywhere.',
-                'keywords' => self::DOC_KEYWORDS,
-            ],
+            ]),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

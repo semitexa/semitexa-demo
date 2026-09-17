@@ -41,7 +41,7 @@ final class ProductListV2Handler implements TypedHandlerInterface
         $contentType = $this->apiPresenter->getContentType($request, $payload->getFormat());
 
         // JSON clients bypass page rendering and receive the collection with the active-version header.
-        if ($this->wantsJson($request, $payload->getFormat())) {
+        if ($this->apiPresenter->wantsJson($request, $payload->getFormat())) {
             return $this->jsonResponse($resource, $body, [
                 'Content-Type' => $contentType,
                 'X-Api-Version' => self::API_VERSION,
@@ -58,7 +58,7 @@ final class ProductListV2Handler implements TypedHandlerInterface
             fallbackTitle: 'Active Version',
             fallbackSummary: 'The current collection endpoint with a clean X-Api-Version header and no deprecation noise.',
             fallbackHighlights: ['#[ApiVersion]', 'X-Api-Version', 'active lifecycle'],
-            explanation: $this->explanationProvider->getExplanation('api', 'active-version') ?? [],
+            explanation: $this->explanationProvider->getExplanation('api', 'active-version'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 
@@ -110,12 +110,6 @@ final class ProductListV2Handler implements TypedHandlerInterface
         $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         return is_string($json) ? $json : "{}\n";
-    }
-
-    private function wantsJson(Request $request, ?string $format): bool
-    {
-        return strtolower((string) $format) === 'json'
-            || str_contains(strtolower($request->getHeader('Accept') ?? ''), 'application/json');
     }
 
     /**

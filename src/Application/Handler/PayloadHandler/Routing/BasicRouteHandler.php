@@ -38,7 +38,7 @@ final class BasicRouteHandler implements TypedHandlerInterface
             fallbackTitle: 'Basic Route',
             fallbackSummary: 'Define a route with one attribute — no XML, no YAML, no config files.',
             fallbackHighlights: ['#[AsPublicPayload]', 'path', 'methods', 'responseWith'],
-            explanation: $this->explanationProvider->getExplanation('routing', 'basic') ?? [],
+            explanation: $this->explanationProvider->getExplanation('routing', 'basic'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

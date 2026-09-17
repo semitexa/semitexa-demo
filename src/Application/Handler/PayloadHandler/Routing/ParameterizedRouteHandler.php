@@ -48,7 +48,7 @@ final class ParameterizedRouteHandler implements TypedHandlerInterface
             fallbackTitle: 'Parameterized Route',
             fallbackSummary: 'Path parameters with regex constraints and typed injection.',
             fallbackHighlights: ['requirements', 'defaults', 'PayloadHydrator', 'setter injection'],
-            explanation: $this->explanationProvider->getExplanation('routing', 'parameterized') ?? [],
+            explanation: $this->explanationProvider->getExplanation('routing', 'parameterized'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

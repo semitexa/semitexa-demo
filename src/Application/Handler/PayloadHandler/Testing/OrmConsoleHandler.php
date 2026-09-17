@@ -42,7 +42,7 @@ final class OrmConsoleHandler implements TypedHandlerInterface
             fallbackTitle: 'ORM Console Toolkit',
             fallbackSummary: 'The ORM ships with a practical CLI surface: status, diff, sync, and seed commands with dry-run safety and SQL plan export.',
             fallbackHighlights: ['orm:status', 'orm:diff', 'orm:sync', 'orm:seed', '--output'],
-            explanation: $this->explanationProvider->getExplanation('cli', 'orm-console') ?? [],
+            explanation: $this->explanationProvider->getExplanation('cli', 'orm-console'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

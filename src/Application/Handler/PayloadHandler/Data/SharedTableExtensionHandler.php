@@ -39,7 +39,7 @@ final class SharedTableExtensionHandler implements TypedHandlerInterface
             fallbackTitle: 'Shared Table Extension',
             fallbackSummary: 'Two modules can extend one table independently, and the ORM merges the schema without forcing either side to edit the other.',
             fallbackHighlights: ['#[FromTable]', 'SchemaCollector', 'Module isolation', '#[Column]', '#[TenantScoped]'],
-            explanation: $this->explanationProvider->getExplanation('data', 'table-extension') ?? [],
+            explanation: $this->explanationProvider->getExplanation('data', 'table-extension'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

@@ -45,7 +45,7 @@ final class DescribeCommandsHandler implements TypedHandlerInterface
             fallbackSummary: 'Routes, modules, contracts, and handlers can be introspected directly from the CLI instead of reverse-engineering the framework graph by hand.',
             fallbackHighlights: ['ai:ask', 'dev:graph:route', 'dev:graph:project', 'routes:list', 'contracts:list', 'lint:*'],
             // NB: v1 intentionally queries explanation under 'cli/project-graph' rather than 'cli/describe-commands'.
-            explanation: $this->explanationProvider->getExplanation('cli', 'project-graph') ?? [],
+            explanation: $this->explanationProvider->getExplanation('cli', 'project-graph'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

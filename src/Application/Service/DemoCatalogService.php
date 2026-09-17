@@ -626,16 +626,6 @@ final class DemoCatalogService
         ));
     }
 
-    public function buildInfoPanel(?array $explanation = null, ?string $fallbackWhat = null): array
-    {
-        return [
-            'what' => $explanation['what'] ?? $fallbackWhat,
-            'how' => $explanation['how'] ?? null,
-            'why' => $explanation['why'] ?? null,
-            'keywords' => $explanation['keywords'] ?? [],
-        ];
-    }
-
     private function getFeatureCard(string $section, string $slug): ?array
     {
         $meta = $this->resolveFeatureMeta($section, $slug);

@@ -47,7 +47,7 @@ final class ReactiveImportHandler implements TypedHandlerInterface
             fallbackTitle: 'Reactive Import',
             fallbackSummary: 'Background batches keep moving, and the page reflects server progress as live HTML instead of a client-managed progress app.',
             fallbackHighlights: ['refreshInterval: 2', 'server-owned progress', 'batch processing', 'SSR-first live UI'],
-            explanation: $this->explanationProvider->getExplanation('rendering', 'reactive-import') ?? [],
+            explanation: $this->explanationProvider->getExplanation('rendering', 'reactive-import'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 

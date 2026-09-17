@@ -46,7 +46,9 @@ final class DemoFeaturePageProjector
      */
     public function project(DemoFeatureResource $resource, FeatureSpec $spec): DemoFeatureResource
     {
-        $explanation = $this->normalizeExplanation($spec->explanation);
+        $explanation = $spec->explanation !== null && !$spec->explanation->isEmpty()
+            ? $spec->explanation
+            : null;
         $descriptor = $this->describe($spec);
 
         $resource
@@ -54,7 +56,7 @@ final class DemoFeaturePageProjector
             ->withDemoShellContext($this->shellContextFor($descriptor, $explanation));
 
         if ($explanation !== null) {
-            $resource->withExplanationData($explanation);
+            $resource->withExplanationData($explanation->toArray());
         }
 
         return $resource;
@@ -134,62 +136,21 @@ final class DemoFeaturePageProjector
     }
 
     /**
-     * @param array{
-     *     what?: string|null,
-     *     how?: string|null,
-     *     why?: string|null,
-     *     keywords?: list<string|array{term?: string, title?: string, label?: string, name?: string}>
-     * }|null $explanation
      * @return array<string, mixed>
      */
-    private function shellContextFor(FeatureDescriptor $feature, ?array $explanation): array
+    private function shellContextFor(FeatureDescriptor $feature, ?FeatureExplanation $explanation): array
     {
         return [
             'navSections' => $this->catalog->getSections(),
             'featureTree' => $this->catalog->getSidebarTree(),
             'currentSection' => $feature->section,
             'currentSlug' => $feature->slug,
-            'infoWhat' => $explanation['what'] ?? $feature->presentation->summary,
-            'infoHow' => $explanation['how'] ?? null,
-            'infoWhy' => $explanation['why'] ?? null,
-            'infoKeywords' => $explanation['keywords'] ?? [],
+            'infoWhat' => $explanation?->what ?? $feature->presentation->summary,
+            'infoHow' => $explanation?->how,
+            'infoWhy' => $explanation?->why,
+            'infoKeywords' => $explanation === null
+                ? []
+                : ($explanation->toArray()['keywords'] ?? []),
         ];
-    }
-
-    /**
-     * @param array{
-     *     what?: string|null,
-     *     how?: string|null,
-     *     why?: string|null,
-     *     keywords?: list<string|array{term?: string, title?: string, label?: string, name?: string}>
-     * }|null $explanation
-     * @return array{
-     *     what?: string|null,
-     *     how?: string|null,
-     *     why?: string|null,
-     *     keywords?: list<string|array{term?: string, title?: string, label?: string, name?: string}>
-     * }|null
-     */
-    private function normalizeExplanation(?array $explanation): ?array
-    {
-        if ($explanation === null) {
-            return null;
-        }
-
-        $normalized = [];
-
-        foreach (['what', 'how', 'why'] as $key) {
-            $value = $explanation[$key] ?? null;
-            if (is_string($value) && trim($value) !== '') {
-                $normalized[$key] = $value;
-            }
-        }
-
-        $keywords = $explanation['keywords'] ?? null;
-        if (is_array($keywords) && $keywords !== []) {
-            $normalized['keywords'] = $keywords;
-        }
-
-        return $normalized === [] ? null : $normalized;
     }
 }

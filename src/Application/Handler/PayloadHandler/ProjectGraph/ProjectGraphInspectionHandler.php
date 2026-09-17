@@ -8,6 +8,7 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Service\Feature\DemoFeaturePageProjector;
+use Semitexa\Demo\Application\Service\Feature\FeatureExplanation;
 use Semitexa\Demo\Application\Service\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\ProjectGraph\ProjectGraphInspectionPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
@@ -34,7 +35,7 @@ final class ProjectGraphInspectionHandler implements TypedHandlerInterface
             fallbackTitle: 'Inspecting the Graph',
             fallbackSummary: 'Use Project Graph queries and intelligence views to inspect modules, dependencies, flows, events, and hotspots without reconstructing the repository manually.',
             fallbackHighlights: ['ai:review-graph:show', 'ai:review-graph:query', 'ai:review-graph:module', 'ai:review-graph:intelligence', 'ai:review-graph:context'],
-            explanation: [
+            explanation: FeatureExplanation::fromArray([
                 'what' => 'Once the package is enabled and the graph exists, inspection becomes a set of explicit structural views instead of improvised archaeology. You can render slices, query dependencies, inspect whole modules, and ask the intelligence layer for hotspots, doc gaps, or event lifecycles.',
                 'how' => 'Use `ai:review-graph:show` for readable slices, `ai:review-graph:query` for targeted dependency questions, `ai:review-graph:module` for a module-level overview, `ai:review-graph:intelligence` for higher-level structural explanations, and `ai:review-graph:context` when the task needs a review- or AI-ready context package.',
                 'why' => 'This is where the package becomes operationally useful. Reviews get faster, onboarding becomes less fragile, and AI tools can start from architecture-backed answers instead of broad guesses assembled from random files.',
@@ -45,7 +46,7 @@ final class ProjectGraphInspectionHandler implements TypedHandlerInterface
                     ['term' => 'ai:review-graph:intelligence', 'definition' => 'Queries the higher-level intelligence layer for hotspots, documentation gaps, flows, event lifecycles, intent, and natural-language structural answers.'],
                     ['term' => 'ai:review-graph:context', 'definition' => 'Builds task-scoped structural context for review, refactor, debugging, or AI-assisted work.'],
                 ],
-            ],
+            ]),
             pageTitleSuffix: ' — Semitexa Demo',
             sectionLabel: 'Project Graph',
         );
