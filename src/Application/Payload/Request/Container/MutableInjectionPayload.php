@@ -11,7 +11,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
     path: '/demo/di/mutable',
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
-    produces: ['application/json', 'text/html'],
+    produces: ['text/html', 'application/json'],
 )]
 class MutableInjectionPayload
 {

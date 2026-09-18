@@ -11,7 +11,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
     path: '/demo/rendering/reactive-report',
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
-    produces: ['application/json', 'text/html'],
+    produces: ['text/html', 'application/json'],
 )]
 class ReactiveReportPayload
 {

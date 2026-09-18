@@ -10,7 +10,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 
 #[AsPublicPayload(
     responseWith: DemoFeatureResource::class,
-    produces: ['application/json', 'text/html'],
+    produces: ['text/html', 'application/json'],
     path: '/demo/routing/content-negotiation',
     methods: ['GET'],
 )]

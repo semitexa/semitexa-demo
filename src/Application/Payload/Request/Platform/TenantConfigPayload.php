@@ -11,7 +11,7 @@ use Semitexa\Demo\Application\Resource\Response\Platform\DemoTenantConfigResourc
     path: '/demo/platform/tenancy-config',
     methods: ['GET'],
     responseWith: DemoTenantConfigResource::class,
-    produces: ['application/json', 'text/html'],
+    produces: ['text/html', 'application/json'],
 )]
 class TenantConfigPayload
 {

@@ -11,7 +11,7 @@ use Semitexa\Demo\Application\Resource\Response\Platform\DemoTenantQueueResource
     path: '/demo/platform/tenancy-queue',
     methods: ['GET'],
     responseWith: DemoTenantQueueResource::class,
-    produces: ['application/json', 'text/html'],
+    produces: ['text/html', 'application/json'],
 )]
 class TenantQueuePayload
 {

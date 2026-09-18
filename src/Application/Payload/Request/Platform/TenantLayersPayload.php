@@ -11,7 +11,7 @@ use Semitexa\Demo\Application\Resource\Response\Platform\DemoTenantLayersResourc
     path: '/demo/platform/tenancy-layers',
     methods: ['GET'],
     responseWith: DemoTenantLayersResource::class,
-    produces: ['application/json', 'text/html'],
+    produces: ['text/html', 'application/json'],
 )]
 class TenantLayersPayload
 {

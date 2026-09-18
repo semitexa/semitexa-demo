@@ -11,7 +11,7 @@ use Semitexa\Demo\Application\Resource\Response\Platform\DemoTenantIsolationReso
     path: '/demo/platform/tenancy-isolation',
     methods: ['GET'],
     responseWith: DemoTenantIsolationResource::class,
-    produces: ['application/json', 'text/html'],
+    produces: ['text/html', 'application/json'],
 )]
 class TenantDataIsolationPayload
 {
