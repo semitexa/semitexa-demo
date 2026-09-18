@@ -9,7 +9,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoHomeResource;
 
 #[AsPublicPayload(
     responseWith: DemoHomeResource::class,
-    produces: ['application/json', 'text/html'],
+    produces: ['text/html', 'application/json'],
     path: '/',
     methods: ['GET'],
 )]

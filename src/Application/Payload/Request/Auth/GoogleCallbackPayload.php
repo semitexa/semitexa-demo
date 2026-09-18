@@ -11,7 +11,7 @@ use Semitexa\Core\Http\Response\ResourceResponse;
     path: '/demo/auth/google/callback',
     methods: ['GET'],
     responseWith: ResourceResponse::class,
-    produces: ['application/json', 'text/html'],
+    produces: ['text/html', 'application/json'],
 )]
 class GoogleCallbackPayload
 {

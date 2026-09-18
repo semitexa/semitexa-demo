@@ -11,7 +11,7 @@ use Semitexa\Demo\Application\Resource\Response\Platform\DemoTenantResolutionRes
     path: '/demo/platform/tenancy-resolution',
     methods: ['GET'],
     responseWith: DemoTenantResolutionResource::class,
-    produces: ['application/json', 'text/html'],
+    produces: ['text/html', 'application/json'],
 )]
 class TenantResolutionPayload
 {

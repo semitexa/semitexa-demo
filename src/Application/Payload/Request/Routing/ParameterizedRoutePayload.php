@@ -11,7 +11,7 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
     path: '/demo/routing/parameterized/{slug}',
     methods: ['GET'],
     responseWith: DemoFeatureResource::class,
-    produces: ['application/json', 'text/html'],
+    produces: ['text/html', 'application/json'],
     requirements: ['slug' => '[a-z0-9-]+'],
     defaults: ['slug' => 'headphones'],
 )]

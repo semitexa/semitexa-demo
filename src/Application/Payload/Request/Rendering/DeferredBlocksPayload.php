@@ -11,7 +11,7 @@ use Semitexa\Demo\Application\Resource\Response\DeferredBlocksDemoResource;
     path: '/demo/rendering/deferred',
     methods: ['GET'],
     responseWith: DeferredBlocksDemoResource::class,
-    produces: ['application/json', 'text/html'],
+    produces: ['text/html', 'application/json'],
 )]
 class DeferredBlocksPayload
 {
