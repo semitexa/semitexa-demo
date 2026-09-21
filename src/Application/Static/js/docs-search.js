@@ -82,9 +82,20 @@
       window.requestAnimationFrame(function () { input.focus(); });
     }
 
+    function restoreFocus() {
+      if (opener && typeof opener.focus === 'function') opener.focus();
+    }
+
     function closeSearch() {
-      if (typeof dialog.close === 'function') dialog.close();
-      else dialog.removeAttribute('open');
+      if (typeof dialog.close === 'function') {
+        dialog.close();
+        return;
+      }
+
+      // No showModal/close support: removing the attribute fires no 'close'
+      // event, so focus would stay inside a hidden dialog unless we move it.
+      dialog.removeAttribute('open');
+      restoreFocus();
     }
 
     trigger.addEventListener('click', function () { openSearch(trigger); });
@@ -116,9 +127,7 @@
     dialog.addEventListener('click', function (event) {
       if (event.target === dialog) closeSearch();
     });
-    dialog.addEventListener('close', function () {
-      if (opener && typeof opener.focus === 'function') opener.focus();
-    });
+    dialog.addEventListener('close', restoreFocus);
 
     roots.push({ open: openSearch });
   }
