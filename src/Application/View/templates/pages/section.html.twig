@@ -48,6 +48,7 @@
 {% endblock %}
 
 {% block sk_topnav %}
+  {% include '@project-layouts-semitexa-demo/partials/docs-search.html.twig' %}
   {% set navAuth = authUi|default({}) %}
   {% set navAuthIsAuthenticated = navAuth.isAuthenticated|default(false) %}
   {% set navAuthHref = navAuthIsAuthenticated
@@ -63,7 +64,7 @@
   {% include '@project-layouts-semitexa-demo/partials/social-links.html.twig' %}
 {% endblock %}
 
-{% block sk_footer %}<p class="sk-footer__copy">© 2026 Semitexa</p>{% endblock %}
+{% block sk_footer %}<p class="sk-footer__copy">© {{ "now"|date("Y") }} Semitexa{% if ultimateVersion|default(null) %} · Ultimate {{ ultimateVersion }}{% endif %}</p>{% endblock %}
 
 {# --- demo section body: header + section-specific manifesto/donate + feature
        grid, reproduced faithfully on top of the kit shell. --- #}
@@ -83,8 +84,8 @@
           </div>
         </div>
         <div class="demo-section-page__stat">
-          <span class="demo-section-page__stat-value">{{ _features|length }}</span>
-          <span class="demo-section-page__stat-label">live features</span>
+          <span class="demo-section-page__stat-value">{{ section|default('') == 'changelog' ? changelog.releaseCount|default(0) : _features|length }}</span>
+          <span class="demo-section-page__stat-label">{{ section|default('') == 'changelog' ? 'release entries' : 'live features' }}</span>
         </div>
       </div>
       <p class="demo-section-page__summary">{{ sectionSummary|default('') }}</p>
@@ -266,7 +267,34 @@
       </section>
     {% endif %}
 
-    {% if _features|length > 0 %}
+    {% if section|default('') == 'changelog' %}
+      <section class="demo-changelog" aria-labelledby="demo-changelog-title">
+        <div class="demo-block-heading demo-block-heading--tight">
+          <p class="demo-block-heading__eyebrow">Package Release Notes</p>
+          <h2 class="demo-changelog__heading" id="demo-changelog-title">What changed</h2>
+          <p class="demo-block-heading__text">{{ changelog.packageCount|default(0) }} packages currently publish release notes. Upcoming entries appear first, followed by released versions in reverse chronological order.</p>
+        </div>
+
+        {% for release in changelog.releases|default([]) %}
+          <article class="demo-changelog__release{{ release.isUnreleased ? ' demo-changelog__release--unreleased' : '' }}">
+            <header class="demo-changelog__release-header">
+              <div>
+                <p class="demo-changelog__package">{{ release.package }}</p>
+                <h3 class="demo-changelog__version">{{ release.isUnreleased ? 'In development' : 'Version ' ~ release.version }}</h3>
+              </div>
+              {% if release.date %}
+                <time class="demo-changelog__date" datetime="{{ release.date }}">{{ release.date }}</time>
+              {% elseif release.isUnreleased %}
+                <span class="demo-changelog__badge">Upcoming</span>
+              {% endif %}
+            </header>
+            <div class="demo-changelog__body">{{ release.html|raw }}</div>
+          </article>
+        {% else %}
+          <p class="demo-section-page__empty">No package release notes have been published yet.</p>
+        {% endfor %}
+      </section>
+    {% elseif _features|length > 0 %}
       <section class="demo-section-page__features">
         <div class="demo-block-heading demo-block-heading--tight">
           <p class="demo-block-heading__eyebrow">{{ section|default('') == 'rendering' ? 'Conceptual Path' : (section|default('') == 'get-started' ? 'Onboarding Pages' : (section|default('') == 'project-graph' ? 'Usage Paths' : 'Route Map')) }}</p>

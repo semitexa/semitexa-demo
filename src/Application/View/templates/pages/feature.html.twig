@@ -166,6 +166,7 @@
 {% endblock %}
 
 {% block sk_topnav %}
+  {% include '@project-layouts-semitexa-demo/partials/docs-search.html.twig' %}
   {% set navAuth = authUi|default({}) %}
   {% set navAuthIsAuthenticated = navAuth.isAuthenticated|default(false) %}
   {% set navAuthHref = navAuthIsAuthenticated
@@ -181,4 +182,4 @@
   {% include '@project-layouts-semitexa-demo/partials/social-links.html.twig' %}
 {% endblock %}
 
-{% block sk_footer %}<p class="sk-footer__copy">© 2026 Semitexa</p>{% endblock %}
+{% block sk_footer %}<p class="sk-footer__copy">© {{ "now"|date("Y") }} Semitexa{% if ultimateVersion|default(null) %} · Ultimate {{ ultimateVersion }}{% endif %}</p>{% endblock %}

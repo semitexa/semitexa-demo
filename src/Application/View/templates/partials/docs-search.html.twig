@@ -1,0 +1,36 @@
+<button class="demo-nav__search-trigger" type="button" data-docs-search-open aria-keyshortcuts="Control+K Meta+K /" aria-haspopup="dialog">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m20 20-4.6-4.6m2.5-5.4a7.9 7.9 0 1 1-15.8 0 7.9 7.9 0 0 1 15.8 0Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  <span>Search docs</span>
+  <kbd>⌘K</kbd>
+</button>
+
+<dialog class="docs-search" data-docs-search-dialog aria-labelledby="docs-search-title">
+  <div class="docs-search__panel">
+    <div class="docs-search__header">
+      <div>
+        <p class="docs-search__eyebrow">Semitexa documentation</p>
+        <h2 id="docs-search-title">Find a concept, task, or command</h2>
+      </div>
+      <button class="docs-search__close" type="button" data-docs-search-close aria-label="Close documentation search">Esc</button>
+    </div>
+    <label class="docs-search__field">
+      <span class="visually-hidden">Search documentation</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m20 20-4.6-4.6m2.5-5.4a7.9 7.9 0 1 1-15.8 0 7.9 7.9 0 0 1 15.8 0Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input type="search" autocomplete="off" spellcheck="false" placeholder="Try ‘tenant’, ‘ai:observe’, or ‘create a page’" data-docs-search-input>
+    </label>
+    <p class="docs-search__status" data-docs-search-status aria-live="polite">Type to search every documentation page.</p>
+    <ul class="docs-search__results" data-docs-search-results>
+      {% for item in docsSearchIndex|default([]) %}
+        <li data-docs-search-item data-search-text="{{ item.searchText }}" data-search-title="{{ item.title|lower }}" hidden>
+          <a href="{{ item.href }}" class="docs-search__result-link">
+            <span class="docs-search__result-section">{{ item.section }}</span>
+            <strong>{{ item.title }}</strong>
+            {% if item.summary %}<span class="docs-search__result-summary">{{ item.summary }}</span>{% endif %}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+    <p class="docs-search__empty" data-docs-search-empty hidden>No matching documentation. Try a shorter task or a framework term.</p>
+    <div class="docs-search__footer"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span></div>
+  </div>
+</dialog>

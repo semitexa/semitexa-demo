@@ -11,12 +11,20 @@ use Semitexa\Core\Exception\NotFoundException;
 use Semitexa\Demo\Application\Payload\Request\DemoSectionPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoSectionResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
+use Semitexa\Demo\Application\Service\DemoChangelogProvider;
+use Semitexa\Demo\Application\Service\UltimateVersionProvider;
 
 #[AsPayloadHandler(payload: DemoSectionPayload::class, resource: DemoSectionResource::class)]
 final class DemoSectionHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
+
+    #[InjectAsReadonly]
+    protected UltimateVersionProvider $ultimateVersion;
+
+    #[InjectAsReadonly]
+    protected DemoChangelogProvider $changelog;
 
     public function handle(DemoSectionPayload $payload, DemoSectionResource $resource): DemoSectionResource
     {
@@ -59,6 +67,10 @@ final class DemoSectionHandler implements TypedHandlerInterface
             $infoWhat = 'Project Graph is the package-level architecture memory for a Semitexa repository: structural facts, module boundaries, hotspots, event lifecycles, and impact surfaces become reusable data instead of rediscovery work.';
             $infoHow = 'Read the section as a task-first workflow. Start from the task, use graph-backed context only when structure matters, refresh the stored graph when answers are stale, then choose the smallest command surface that answers the question.';
             $infoWhy = 'This is one of the most practical Semitexa differentiators because it improves decision quality, not just introspection aesthetics. Onboarding gets faster, reviews get sharper, AI prompts get smaller, and risky changes become easier to scope before they go wrong.';
+        } elseif ($section === 'changelog') {
+            $infoWhat = 'The Semitexa changelog is the public release history assembled from package-owned CHANGELOG.md files.';
+            $infoHow = 'Each package keeps its own notes beside its code. This page discovers those files and renders them through the same parser used by the update workflow.';
+            $infoWhy = 'Release notes stay useful only when the website and the upgrade tooling read one source of truth.';
         }
 
         $keywords = [$meta['label'], $meta['summary'], 'Semitexa Demo'];
@@ -66,7 +78,7 @@ final class DemoSectionHandler implements TypedHandlerInterface
             $keywords[] = $feature['title'];
         }
 
-        return $resource
+        $resource
             ->pageTitle($meta['label'] . ' — Semitexa Demo')
             ->seoTagDefault('description', $meta['summary'])
             ->seoKeywords($keywords)
@@ -75,6 +87,7 @@ final class DemoSectionHandler implements TypedHandlerInterface
                 'featureTree' => $this->catalog->getSidebarTree(),
                 'currentSection' => $section,
                 'currentSlug' => null,
+                'ultimateVersion' => $this->ultimateVersion->current(),
                 'infoWhat' => $infoWhat,
                 'infoHow' => $infoHow,
                 'infoWhy' => $infoWhy,
@@ -86,5 +99,11 @@ final class DemoSectionHandler implements TypedHandlerInterface
             ->withSectionSummary($meta['summary'])
             ->withGroups($groups)
             ->withFeatures($features);
+
+        if ($section === 'changelog') {
+            $resource->withChangelog($this->changelog->page());
+        }
+
+        return $resource;
     }
 }

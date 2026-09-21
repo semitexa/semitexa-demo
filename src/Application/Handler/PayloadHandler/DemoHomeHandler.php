@@ -10,12 +10,16 @@ use Semitexa\Core\Contract\TypedHandlerInterface;
 use Semitexa\Demo\Application\Payload\Request\DemoHomePayload;
 use Semitexa\Demo\Application\Resource\Response\DemoHomeResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
+use Semitexa\Demo\Application\Service\UltimateVersionProvider;
 
 #[AsPayloadHandler(payload: DemoHomePayload::class, resource: DemoHomeResource::class)]
 final class DemoHomeHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
+
+    #[InjectAsReadonly]
+    protected UltimateVersionProvider $ultimateVersion;
 
     public function handle(DemoHomePayload $payload, DemoHomeResource $resource): DemoHomeResource
     {
@@ -50,6 +54,7 @@ final class DemoHomeHandler implements TypedHandlerInterface
                 'featureTree' => $this->catalog->getSidebarTree(),
                 'currentSection' => null,
                 'currentSlug' => null,
+                'ultimateVersion' => $this->ultimateVersion->current(),
                 'infoWhat' => 'Production-like walkthroughs for the Semitexa runtime, not disconnected toy snippets.',
                 'infoHow' => 'Start from the shell, open a section, then drill into feature pages with live previews and source.',
                 'infoWhy' => 'A demo package should prove that the framework feels coherent before anyone reads the docs.',

@@ -20,6 +20,11 @@
             "priority": 30,
             "attributes": { "defer": true }
         },
+        "js/docs-search.js": {
+            "scope": "module",
+            "priority": 32,
+            "attributes": { "defer": true }
+        },
         "js/script-signal-card.js": {
             "priority": 31,
             "attributes": { "defer": true }

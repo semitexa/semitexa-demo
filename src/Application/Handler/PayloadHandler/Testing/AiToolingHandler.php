@@ -14,10 +14,10 @@ use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
 use Semitexa\Dev\Application\Console\Command\AiAskCommand;
-use Semitexa\Dev\Application\Console\Command\DevGraph\DevGraphCapabilitiesCommand;
-use Semitexa\Dev\Application\Console\Command\LogsAppCommand;
-use Semitexa\Llm\Application\Console\Command\AiAssistantCommand;
-use Semitexa\Llm\Application\Console\Command\AiSkillsCommand;
+use Semitexa\Dev\Application\Console\Command\AiObserveCommand;
+use Semitexa\Dev\Application\Console\Command\AiOrientCommand;
+use Semitexa\Dev\Application\Console\Command\AiVerifyCommand;
+use Semitexa\Dev\Application\Console\Command\AiWorkCommand;
 
 #[AsPayloadHandler(payload: AiToolingPayload::class, resource: DemoFeatureResource::class)]
 final class AiToolingHandler implements TypedHandlerInterface
@@ -36,55 +36,56 @@ final class AiToolingHandler implements TypedHandlerInterface
         $spec = new FeatureSpec(
             section: 'cli',
             slug: 'ai-tooling',
-            entryLine: 'If the framework wants to be AI-native, the console surface has to be machine-readable and operationally safe, not just human-friendly.',
-            learnMoreLabel: 'See the AI command surface →',
-            deepDiveLabel: 'What makes it agent-friendly →',
+            entryLine: 'Semitexa Dev gives people and coding agents one project-aware loop for orientation, structural inspection, runtime evidence, durable work memory, and precise verification.',
+            learnMoreLabel: 'Follow the operating loop →',
+            deepDiveLabel: 'See the complete command reference →',
             relatedSlugs: [],
-            fallbackTitle: 'AI Tooling Surface',
-            fallbackSummary: 'Semitexa exposes AI-facing commands as explicit CLI contracts: capabilities, skills, log access, and a local assistant entrypoint.',
-            fallbackHighlights: ['ai:ask', 'ai:skills', 'logs:app', 'ai', '--json'],
+            fallbackTitle: 'Semitexa Dev',
+            fallbackSummary: 'Use the project-aware operating layer for orientation, planning, structural inspection, runtime debugging, durable work memory, and precise verification.',
+            fallbackHighlights: ['ai:orient', 'ai:ask', 'ai:observe', 'ai:work', 'ai:verify'],
             explanation: $this->explanationProvider->getExplanation('cli', 'ai-tooling'),
             pageTitleSuffix: ' — Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)
             ->withSourceCode([
+                'ai:orient Command' => $this->sourceCodeReader->readClassSource(AiOrientCommand::class),
                 'ai:ask Command' => $this->sourceCodeReader->readClassSource(AiAskCommand::class),
-                'dev:graph:capabilities Command' => $this->sourceCodeReader->readClassSource(DevGraphCapabilitiesCommand::class),
-                'ai:skills Command' => $this->sourceCodeReader->readClassSource(AiSkillsCommand::class),
-                'ai Command' => $this->sourceCodeReader->readClassSource(AiAssistantCommand::class),
-                'logs:app Command' => $this->sourceCodeReader->readClassSource(LogsAppCommand::class),
+                'ai:observe Command' => $this->sourceCodeReader->readClassSource(AiObserveCommand::class),
+                'ai:work Command' => $this->sourceCodeReader->readClassSource(AiWorkCommand::class),
+                'ai:verify Command' => $this->sourceCodeReader->readClassSource(AiVerifyCommand::class),
             ])
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/cli-command-workbench.html.twig', [
-                'eyebrow' => 'Agent Operations',
-                'title' => 'The CLI explains what an AI agent may do before it does it',
-                'summary' => 'Capabilities and skills can be exported as manifests, logs can be queried in structured form, and the local assistant has a first-class entrypoint instead of being bolted on as a hidden dev script.',
+                'eyebrow' => 'Project-Aware Workflow',
+                'title' => 'Start with facts, act on a narrow plan, and leave durable evidence',
+                'summary' => 'Semitexa Dev connects repository state, structural discovery, live runtime traces, persistent work items, and diff-aware verification in one inspectable loop.',
                 'pillars' => [
-                    ['title' => 'Capability manifest.', 'summary' => 'ai:ask capabilities lists generator and introspection commands with intended use, required inputs, and avoid-when guidance.'],
-                    ['title' => 'Skill registry.', 'summary' => 'ai:skills exposes risk, confirmation mode, dry-run support, and inputs so AI orchestration can stay explicit.'],
-                    ['title' => 'LLM-friendly operations.', 'summary' => 'logs:app and JSON output modes let agents inspect the system without brittle terminal scraping.'],
+                    ['title' => 'Context before code.', 'summary' => 'orient, task, ask, context, and plan expose the current project shape and the safest implementation path.'],
+                    ['title' => 'Runtime evidence.', 'summary' => 'The Observatory records process lifecycles, spans, queries, payload snapshots, source locations, and sandbox replays.'],
+                    ['title' => 'Recoverable work.', 'summary' => 'epic, work, trace, and verify preserve decisions and prove the resulting change across sessions.'],
                 ],
                 'commands' => [
-                    ['name' => 'bin/semitexa ai:ask capabilities --json', 'purpose' => 'Export the command capability manifest for generators and structured tooling.', 'value' => 'Lets agents choose the right command with explicit input/output metadata.'],
-                    ['name' => 'bin/semitexa ai:skills --json', 'purpose' => 'Export AI-executable skills with risk and confirmation policy.', 'value' => 'Makes agent permissions and affordances reviewable instead of implicit.'],
-                    ['name' => 'bin/semitexa logs:app --file app --since -15m --json', 'purpose' => 'Query recent application logs in a stable structured format.', 'value' => 'Cuts down hallucinated debugging because the agent can inspect recent evidence directly.'],
-                    ['name' => 'bin/semitexa ai', 'purpose' => 'Open the local assistant entrypoint backed by the registered skill surface.', 'value' => 'Turns the framework itself into an operator-facing AI console rather than a bundle of disconnected helpers.'],
+                    ['name' => 'bin/semitexa ai:orient --json', 'purpose' => 'Read Git state, active work, recent traces, and the last verification in one response.', 'value' => 'Starts a cold session from shared facts instead of repository archaeology.'],
+                    ['name' => 'bin/semitexa ai:ask route --path=/invoices --json', 'purpose' => 'Resolve one route from payload through handler, resource, template, and access posture.', 'value' => 'Answers a structural question without broad file searches.'],
+                    ['name' => 'bin/semitexa ai:observe show --id=p-123 --source', 'purpose' => 'Inspect one real process with timing, spans, queries, payload, and executed source.', 'value' => 'Turns runtime debugging into evidence instead of source-only guessing.'],
+                    ['name' => 'bin/semitexa ai:work resume --id=tk-invoice-export --json', 'purpose' => 'Restore the task, its recent trace, and the exact next step.', 'value' => 'Lets work survive context compaction and session boundaries.'],
+                    ['name' => 'bin/semitexa ai:verify --files=packages/semitexa-billing/src --json', 'purpose' => 'Select syntax, lint, structure, static-analysis, and test checks from the diff.', 'value' => 'Verifies the changed surface without running unrelated checks blindly.'],
                 ],
                 'snippets' => [
-                    ['label' => 'Export machine-readable capability metadata', 'code' => "bin/semitexa ai:ask capabilities --json\nbin/semitexa ai:skills --json"],
-                    ['label' => 'Inspect app logs without grep gymnastics', 'code' => "bin/semitexa logs:app --file app --since -15m --grep tenant --json"],
-                    ['label' => 'Use the local assistant entrypoint', 'code' => "bin/semitexa ai\n# interactive assistant backed by the registered skill manifest"],
+                    ['label' => 'Start a cold session', 'code' => "bin/semitexa ai:orient --json\nbin/semitexa ai:task 'add tenant-aware invoice export' --json"],
+                    ['label' => 'Inspect before editing', 'code' => "bin/semitexa ai:ask route --path=/invoices --method=GET --json\nbin/semitexa ai:review-graph:impact 'App\\Billing\\InvoiceExporter' --json"],
+                    ['label' => 'Observe and verify', 'code' => "bin/semitexa ai:observe tail --kind=http --follow --duration=15\nbin/semitexa ai:verify --files=packages/semitexa-billing/src --json"],
                 ],
             ])
             ->withL2ContentTemplate('@project-layouts-semitexa-demo/components/previews/checklist-panel.html.twig', [
-                'eyebrow' => 'Design Rule',
-                'title' => 'What AI-ready CLI should look like',
-                'summary' => 'The important part is not “AI branding”. The important part is that the framework exposes stable, machine-readable operational seams.',
+                'eyebrow' => 'Operating Rules',
+                'title' => 'What makes the workflow trustworthy',
+                'summary' => 'The tools stay useful when each one answers a narrow question and reports its limits in a machine-readable form.',
                 'rules' => [
-                    'If a command is meant to be used by an agent, give it a JSON mode and explicit input semantics.',
-                    'If a command may be risky, expose confirmation and dry-run policy as metadata rather than burying it in documentation.',
-                    'Logs and project introspection should be queryable without forcing the agent to scrape arbitrary terminal prose.',
-                    'A local assistant is useful only when the surrounding command surface is disciplined and discoverable.',
+                    'Use ai:ask and Project Graph before broad source searches when the question is structural.',
+                    'Use ai:observe before forming a runtime hypothesis; the process journal records what actually ran.',
+                    'Keep long work in epic, work, and trace artifacts with a concrete next step for the next session.',
+                    'Run ai:verify after a coherent edit, then restart workers only when exercising the live server.',
                 ],
             ]);
     }
