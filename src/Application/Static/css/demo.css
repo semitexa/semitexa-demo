@@ -600,6 +600,13 @@ a:hover {
   border: 0 !important;
 }
 
+/* Component root for the docs search: a wrapper the JS can mount per
+   instance, kept out of layout so the trigger stays a flex child of the
+   nav it sits in. */
+.docs-search-root {
+  display: contents;
+}
+
 .demo-nav__search-trigger {
   display: inline-flex;
   align-items: center;
