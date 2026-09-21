@@ -71,7 +71,7 @@ final class DemoCatalogService
             'summary' => 'The exhaustive live map, still route-first, still real, and still one click away from every feature route.',
             'type' => 'section-groups',
             'href' => '/#full-catalog',
-            'sectionKeys' => ['get-started', 'routing', 'di', 'data', 'auth', 'events', 'rendering', 'platform', 'api', 'cli', 'project-graph', 'llm', 'testing', 'changelog'],
+            'sectionKeys' => ['get-started', 'routing', 'di', 'data', 'auth', 'events', 'rendering', 'platform', 'api', 'cli', 'project-graph', 'llm', 'testing'],
         ],
     ];
 
@@ -248,16 +248,6 @@ final class DemoCatalogService
             'icon' => 'GO',
             'eyebrow' => 'Onboarding',
             'starter' => true,
-            'prerequisites' => [],
-        ],
-        'changelog' => [
-            'key' => 'changelog',
-            'label' => 'Changelog',
-            'summary' => 'A chronological view of released and upcoming changes across Semitexa packages, rendered from the same package notes used by the update workflow.',
-            'icon' => 'NEW',
-            'eyebrow' => 'Release History',
-            'starter' => false,
-            'standalone' => true,
             'prerequisites' => [],
         ],
         'routing' => [
@@ -479,7 +469,7 @@ final class DemoCatalogService
             $flatFeatures = $this->buildFeaturesForSection($key);
             $featureCount = count($flatFeatures);
 
-            if (!$includeEmpty && $featureCount === 0 && ($meta['standalone'] ?? false) !== true) {
+            if (!$includeEmpty && $featureCount === 0) {
                 continue;
             }
 

@@ -55,16 +55,4 @@ class DemoSectionResource extends HtmlResponse implements ResourceInterface
 
         return $this->with('features', $features);
     }
-
-    /**
-     * @param array{
-     *   releases: list<array{package: string, version: string, date: ?string, isUnreleased: bool, html: string}>,
-     *   releaseCount: int,
-     *   packageCount: int
-     * } $changelog
-     */
-    public function withChangelog(array $changelog): self
-    {
-        return $this->with('changelog', $changelog);
-    }
 }

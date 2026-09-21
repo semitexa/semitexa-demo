@@ -13,7 +13,6 @@
     "php": ">=8.4",
     "semitexa/core": "*",
     "semitexa/docs": "*",
-    "semitexa/update": ">=2026.07.06.1438 || dev-master",
     "semitexa/ssr": ">=2026.09.17.1037 || dev-master",
     "semitexa/showcase-kit": "*",
     "semitexa/orm": "*",
