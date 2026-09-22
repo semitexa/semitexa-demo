@@ -588,6 +588,231 @@ a:hover {
   flex-wrap: wrap;
 }
 
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Component root for the docs search: a wrapper the JS can mount per
+   instance, kept out of layout so the trigger stays a flex child of the
+   nav it sits in. */
+.docs-search-root {
+  display: contents;
+}
+
+.demo-nav__search-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.1rem;
+  padding: 0.38rem 0.5rem 0.38rem 0.72rem;
+  border: 1px solid var(--demo-border-light);
+  border-radius: 999px;
+  background: rgba(255, 249, 241, 0.68);
+  color: var(--demo-text-muted);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(14px) saturate(135%);
+  transition: transform 120ms ease, background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.demo-nav__search-trigger:hover,
+.demo-nav__search-trigger:focus-visible {
+  transform: translateY(-1px);
+  background: rgba(255, 244, 234, 0.98);
+  color: var(--demo-accent);
+  border-color: rgba(182, 58, 47, 0.24);
+}
+
+.demo-nav__search-trigger svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.demo-nav__search-trigger kbd,
+.docs-search kbd {
+  padding: 0.16rem 0.38rem;
+  border: 1px solid var(--demo-border-light);
+  border-radius: 0.42rem;
+  background: var(--demo-bg-soft);
+  color: var(--demo-text-muted);
+  font: 600 0.68rem/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+  box-shadow: 0 1px 0 rgba(61, 42, 29, 0.12);
+}
+
+.docs-search {
+  width: min(46rem, calc(100vw - 2rem));
+  max-height: min(44rem, calc(100vh - 2rem));
+  padding: 0;
+  border: 1px solid var(--demo-border);
+  border-radius: 1.4rem;
+  background: var(--demo-bg-card);
+  color: var(--demo-text);
+  box-shadow: 0 28px 90px rgba(44, 27, 18, 0.32);
+  overflow: hidden;
+}
+
+.docs-search::backdrop {
+  background: rgba(35, 24, 18, 0.48);
+  backdrop-filter: blur(6px);
+}
+
+.docs-search__panel {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  max-height: min(44rem, calc(100vh - 2rem));
+}
+
+.docs-search__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.35rem 0.9rem;
+}
+
+.docs-search__eyebrow {
+  margin: 0 0 0.24rem;
+  color: var(--demo-accent);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.docs-search__header h2 {
+  margin: 0;
+  font-size: clamp(1.12rem, 3vw, 1.45rem);
+  line-height: 1.2;
+}
+
+.docs-search__close {
+  padding: 0.32rem 0.5rem;
+  border: 1px solid var(--demo-border-light);
+  border-radius: 0.5rem;
+  background: var(--demo-bg-soft);
+  color: var(--demo-text-muted);
+  font: 700 0.7rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  cursor: pointer;
+}
+
+.docs-search__field {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0 1.35rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--demo-border);
+  border-radius: 0.9rem;
+  background: var(--demo-bg-soft);
+}
+
+.docs-search__field:focus-within {
+  border-color: var(--demo-accent);
+  box-shadow: 0 0 0 3px rgba(182, 58, 47, 0.12);
+}
+
+.docs-search__field svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  flex: 0 0 auto;
+  color: var(--demo-text-muted);
+}
+
+.docs-search__field input {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--demo-text);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.docs-search__status,
+.docs-search__empty {
+  margin: 0;
+  padding: 0.7rem 1.4rem;
+  color: var(--demo-text-muted);
+  font-size: 0.78rem;
+}
+
+.docs-search__results {
+  margin: 0;
+  padding: 0 0.7rem 0.8rem;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.docs-search__result-link {
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.28fr) minmax(10rem, 0.72fr);
+  gap: 0.14rem 0.8rem;
+  padding: 0.72rem;
+  border-radius: 0.8rem;
+  color: var(--demo-text);
+  text-decoration: none;
+}
+
+.docs-search__result-link:hover,
+.docs-search__result-link:focus-visible {
+  background: var(--demo-bg-soft);
+  outline: 2px solid transparent;
+  text-decoration: none;
+}
+
+.docs-search__result-section {
+  grid-row: 1 / span 2;
+  align-self: start;
+  padding-top: 0.1rem;
+  color: var(--demo-accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.docs-search__result-summary {
+  color: var(--demo-text-muted);
+  font-size: 0.78rem;
+  line-height: 1.42;
+}
+
+.docs-search__footer {
+  display: flex;
+  gap: 1rem;
+  padding: 0.7rem 1.35rem;
+  border-top: 1px solid var(--demo-border-light);
+  color: var(--demo-text-muted);
+  font-size: 0.72rem;
+}
+
+.docs-search__footer span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+:root[data-skin-mode="dark"] .demo-nav__search-trigger {
+  background: rgba(19, 29, 39, 0.78);
+  border-color: var(--demo-glass-stroke);
+}
+
+:root[data-skin-mode="dark"] .docs-search {
+  background: #14202a;
+  border-color: var(--demo-glass-stroke);
+}
+
 .demo-nav__signin {
   display: inline-flex;
   align-items: center;
@@ -5322,6 +5547,46 @@ a:hover {
   .demo-nav__actions {
     gap: 0.38rem;
     flex-wrap: nowrap;
+  }
+
+  .demo-nav__search-trigger {
+    width: 2.2rem;
+    height: 2.2rem;
+    min-height: 2.2rem;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .demo-nav__search-trigger span,
+  .demo-nav__search-trigger kbd {
+    display: none;
+  }
+
+  .docs-search {
+    width: calc(100vw - 1rem);
+    max-height: calc(100vh - 1rem);
+    border-radius: 1rem;
+  }
+
+  .docs-search__panel {
+    max-height: calc(100vh - 1rem);
+  }
+
+  .docs-search__header,
+  .docs-search__field {
+    margin-inline: 0.85rem;
+  }
+
+  .docs-search__header {
+    padding-inline: 0;
+  }
+
+  .docs-search__result-link {
+    grid-template-columns: 1fr;
+  }
+
+  .docs-search__result-section {
+    grid-row: auto;
   }
 
   .demo-nav__signin,

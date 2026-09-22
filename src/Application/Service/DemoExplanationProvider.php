@@ -622,13 +622,13 @@ final class DemoExplanationProvider
             ],
         ],
         'cli/ai-tooling' => [
-            'what' => 'Semitexa treats AI operations as part of the CLI contract: capabilities, skills, logs, and assistant entrypoints are exposed deliberately.',
-            'how' => 'ai:ask capabilities (backed by dev:graph:capabilities) publishes command metadata, ai:skills exports the executable skill registry, logs:app supports structured filtering, and the ai command opens the local assistant surface.',
-            'why' => 'AI-native workflow is not about sprinkling chat features onto the product. It is about giving agents stable, inspectable operational seams so they can act with less guesswork and less scraping.',
+            'what' => 'Semitexa Dev is the project-aware operating layer for orientation, planning, structural inspection, runtime debugging, durable work memory, and verification.',
+            'how' => 'The ai:* command family connects repository state, recipes, prior art, Project Graph, the runtime Observatory, epic/work/trace memory, and diff-aware checks through stable JSON contracts.',
+            'why' => 'People and agents make safer changes when the project can explain its current shape, show what actually ran, preserve decisions across sessions, and verify the edited surface precisely.',
             'keywords' => [
-                ['term' => 'ai:ask capabilities', 'definition' => 'Lists command capabilities with usage guidance, inputs, and output shape for AI tooling.'],
-                ['term' => 'ai:skills', 'definition' => 'Exports AI-executable skills with risk, confirmation, and dry-run metadata.'],
-                ['term' => 'logs:app', 'definition' => 'Structured application log reader designed to be usable by both humans and LLM agents.'],
+                ['term' => 'ai:orient', 'definition' => 'Combines Git state, active work, recent traces, last verification, and the next useful command.'],
+                ['term' => 'ai:observe', 'definition' => 'Reads live and recorded process lifecycles, full waterfalls, executed source, and sandbox replay results.'],
+                ['term' => 'ai:verify', 'definition' => 'Selects the relevant checks from the actual changed files and reports one structured verdict.'],
             ],
         ],
         'cli/describe-commands' => [

@@ -443,7 +443,7 @@ final class DemoCatalogService
         'cli/runtime-maintenance' => ['title' => 'Runtime Maintenance', 'summary' => 'Reload workers, clear stale cache, sync registries, lint architecture rules, and probe handler wiring without reaching for ad-hoc shell scripts.'],
         'cli/scaffolding-generators' => ['title' => 'Scaffolding Generators', 'summary' => 'Scaffold modules, pages, payloads, services, and contracts through commands that already understand Semitexa structure and AI-friendly output modes.'],
         'cli/workers-scheduling' => ['title' => 'Workers & Scheduling', 'summary' => 'Run queues, scheduler pools, mail delivery, webhooks, and tenant-scoped commands from a coherent operator surface instead of bespoke daemons.'],
-        'cli/ai-tooling' => ['title' => 'AI Tooling Surface', 'summary' => 'Semitexa exposes AI-facing commands as explicit CLI contracts: capabilities, skills, log access, and a local assistant entrypoint.'],
+        'cli/ai-tooling' => ['title' => 'Semitexa Dev', 'summary' => 'Use the project-aware operating layer for orientation, planning, structural inspection, runtime debugging, durable work memory, and precise verification.'],
         'cli/orm-console' => ['title' => 'ORM Console Toolkit', 'summary' => 'The ORM ships with a practical CLI surface: status, diff, sync, and seed commands with dry-run safety and SQL plan export.'],
 
         // llm
@@ -675,7 +675,7 @@ final class DemoCatalogService
     /**
      * Builds the flat feature list for a section from SECTION_GROUPS + FEATURE_META.
      *
-     * @return list<array{section:string,slug:string,label:string,title:string,summary:string,opensInNewTab:bool,href:string}>
+     * @return list<array{section:string,slug:string,label:string,title:string,summary:string,aliases:list<string>,keywords:list<string>,opensInNewTab:bool,href:string}>
      */
     private function buildFeaturesForSection(string $section): array
     {
@@ -701,6 +701,8 @@ final class DemoCatalogService
                     'label' => self::SECTION_META[$section]['label'] ?? ucfirst($section),
                     'title' => $meta['title'],
                     'summary' => $meta['summary'],
+                    'aliases' => $meta['aliases'] ?? [],
+                    'keywords' => $meta['keywords'] ?? [],
                     'opensInNewTab' => $meta['opensInNewTab'] ?? false,
                     'href' => $href,
                 ];
@@ -711,7 +713,7 @@ final class DemoCatalogService
     }
 
     /**
-     * @return array{title: string, summary: string, opensInNewTab?: true}|null
+     * @return array{title: string, summary: string, aliases?: list<string>, keywords?: list<string>, opensInNewTab?: true}|null
      */
     private function resolveFeatureMeta(string $section, string $slug): ?array
     {
@@ -731,7 +733,7 @@ final class DemoCatalogService
     }
 
     /**
-     * @return array<string, array{title: string, summary: string}>
+     * @return array<string, array{title: string, summary: string, aliases: list<string>, keywords: list<string>}>
      */
     private function loadDocsFeatureMeta(): array
     {
@@ -750,6 +752,8 @@ final class DemoCatalogService
                 $meta[$item->id->toString()] = [
                     'title' => $item->metadata->title,
                     'summary' => $item->metadata->summary,
+                    'aliases' => $item->metadata->aliases,
+                    'keywords' => $item->metadata->keywords,
                 ];
             }
         }
@@ -760,7 +764,7 @@ final class DemoCatalogService
     }
 
     /**
-     * @param list<array{section:string,slug:string,label:string,title:string,summary:string,opensInNewTab:bool,href:string}> $features
+     * @param list<array{section:string,slug:string,label:string,title:string,summary:string,aliases:list<string>,keywords:list<string>,opensInNewTab:bool,href:string}> $features
      * @return list<array{key:string,label:string,featureCount:int,features:list<array<string,mixed>>}>
      */
     private function buildSectionGroups(string $section, array $features): array

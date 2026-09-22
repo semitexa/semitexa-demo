@@ -35,8 +35,10 @@ trait HasDemoShell
             'navMode',
             'activeLayerKey',
             'featureTree',
+            'docsSearchIndex',
             'currentSection',
             'currentSlug',
+            'ultimateVersion',
             'authUi',
             'infoWhat',
             'infoHow',
@@ -68,8 +70,82 @@ trait HasDemoShell
         $shellContext['navMode'] = $navMode;
         $shellContext['activeLayerKey'] = $activeLayerKey;
         $shellContext['authUi'] = $shellContext['authUi'] ?? $this->buildAuthUiContext();
+        $shellContext['docsSearchIndex'] = $shellContext['docsSearchIndex']
+            ?? $this->buildDocsSearchIndex($shellContext['navSections'] ?? []);
 
         return $this->setRenderContext(array_merge($this->getRenderContext(), $shellContext));
+    }
+
+    /**
+     * @param list<array<string, mixed>> $sections
+     * @return list<array{title: string, section: string, summary: string, href: string, searchText: string}>
+     */
+    private function buildDocsSearchIndex(array $sections): array
+    {
+        $index = [];
+
+        foreach ($sections as $section) {
+            $sectionKey = trim((string) ($section['key'] ?? ''));
+            $sectionLabel = trim((string) ($section['label'] ?? $sectionKey));
+            $sectionHref = trim((string) ($section['href'] ?? ''));
+            $sectionSummary = trim((string) ($section['summary'] ?? ''));
+
+            if ($sectionLabel !== '' && $sectionHref !== '') {
+                $index[] = $this->docsSearchItem(
+                    title: $sectionLabel,
+                    section: 'Section',
+                    summary: $sectionSummary,
+                    href: $sectionHref,
+                    terms: [$sectionKey],
+                );
+            }
+
+            foreach (($section['features'] ?? []) as $feature) {
+                if (!is_array($feature)) {
+                    continue;
+                }
+
+                $title = trim((string) ($feature['title'] ?? ''));
+                $href = trim((string) ($feature['href'] ?? ''));
+                if ($title === '' || $href === '') {
+                    continue;
+                }
+
+                $terms = [$sectionKey, (string) ($feature['slug'] ?? '')];
+                foreach (['aliases', 'keywords'] as $termGroup) {
+                    foreach (($feature[$termGroup] ?? []) as $term) {
+                        if (is_string($term) && trim($term) !== '') {
+                            $terms[] = $term;
+                        }
+                    }
+                }
+
+                $index[] = $this->docsSearchItem(
+                    title: $title,
+                    section: $sectionLabel,
+                    summary: trim((string) ($feature['summary'] ?? '')),
+                    href: $href,
+                    terms: $terms,
+                );
+            }
+        }
+
+        return $index;
+    }
+
+    /**
+     * @param list<string> $terms
+     * @return array{title: string, section: string, summary: string, href: string, searchText: string}
+     */
+    private function docsSearchItem(string $title, string $section, string $summary, string $href, array $terms): array
+    {
+        return [
+            'title' => $title,
+            'section' => $section,
+            'summary' => $summary,
+            'href' => $href,
+            'searchText' => mb_strtolower(implode(' ', [$title, $section, $summary, ...$terms])),
+        ];
     }
 
     public function withNavSections(array $sections): static

@@ -56,7 +56,7 @@ final class ProjectGraphOverviewHandler implements TypedHandlerInterface
             ->withRelatedPayloads([
                 ['href' => '/demo/project-graph/inspection', 'label' => 'Inspecting the Graph'],
                 ['href' => '/demo/project-graph/impact', 'label' => 'Impact, Context, and Watch Mode'],
-                ['href' => '/demo/cli/ai-tooling', 'label' => 'AI Tooling Surface'],
+                ['href' => '/demo/cli/ai-tooling', 'label' => 'Semitexa Dev'],
             ])
             ->withSourceCode([
                 'Demo Package README' => $this->sourceCodeReader->readProjectRelativeSource('README.md'),
