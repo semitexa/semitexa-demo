@@ -30,6 +30,9 @@
 
     var items = Array.from(root.querySelectorAll('[data-docs-search-item]'));
     var opener = null;
+    // One flag for all three paths. A browser that has showModal but not
+    // close (or the reverse) must not take the modal path half-way.
+    var supportsModal = typeof dialog.showModal === 'function' && typeof dialog.close === 'function';
 
     function normalize(value) {
       return (value || '').toLocaleLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').trim();
@@ -75,7 +78,7 @@
       // take focus back on close. Fall back to the trigger so Escape always
       // returns the keyboard somewhere it can carry on from.
       opener = from instanceof HTMLElement && from !== document.body ? from : trigger;
-      if (typeof dialog.showModal === 'function') dialog.showModal();
+      if (supportsModal) dialog.showModal();
       else dialog.setAttribute('open', '');
       input.value = '';
       filter();
@@ -87,7 +90,7 @@
     }
 
     function closeSearch() {
-      if (typeof dialog.close === 'function') {
+      if (supportsModal) {
         dialog.close();
         return;
       }
@@ -128,6 +131,18 @@
       if (event.target === dialog) closeSearch();
     });
     dialog.addEventListener('close', restoreFocus);
+
+    // Without showModal the dialog is not a real modal, so the browser does
+    // not dismiss it on Escape. Bound on the document because in that mode
+    // focus is not confined to the dialog either.
+    if (!supportsModal) {
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && dialog.hasAttribute('open')) {
+          event.preventDefault();
+          closeSearch();
+        }
+      });
+    }
 
     roots.push({ open: openSearch });
   }
