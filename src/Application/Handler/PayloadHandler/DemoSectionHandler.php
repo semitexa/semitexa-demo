@@ -11,16 +11,12 @@ use Semitexa\Core\Exception\NotFoundException;
 use Semitexa\Demo\Application\Payload\Request\DemoSectionPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoSectionResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
-use Semitexa\Demo\Application\Service\UltimateVersionProvider;
 
 #[AsPayloadHandler(payload: DemoSectionPayload::class, resource: DemoSectionResource::class)]
 final class DemoSectionHandler implements TypedHandlerInterface
 {
     #[InjectAsReadonly]
     protected DemoCatalogService $catalog;
-
-    #[InjectAsReadonly]
-    protected UltimateVersionProvider $ultimateVersion;
 
     public function handle(DemoSectionPayload $payload, DemoSectionResource $resource): DemoSectionResource
     {
@@ -79,7 +75,6 @@ final class DemoSectionHandler implements TypedHandlerInterface
                 'featureTree' => $this->catalog->getSidebarTree(),
                 'currentSection' => $section,
                 'currentSlug' => null,
-                'ultimateVersion' => $this->ultimateVersion->current(),
                 'infoWhat' => $infoWhat,
                 'infoHow' => $infoHow,
                 'infoWhy' => $infoWhy,

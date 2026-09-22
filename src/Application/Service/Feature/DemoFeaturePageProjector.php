@@ -9,7 +9,6 @@ use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
-use Semitexa\Demo\Application\Service\UltimateVersionProvider;
 
 /**
  * Projects a handler-authored {@see FeatureSpec} onto a {@see DemoFeatureResource}.
@@ -35,9 +34,6 @@ final class DemoFeaturePageProjector
 
     #[InjectAsReadonly]
     protected DemoFeatureDocumentPresenter $documents;
-
-    #[InjectAsReadonly]
-    protected UltimateVersionProvider $ultimateVersion;
 
     /**
      * Apply a spec to a feature resource. The return type is generic over the concrete
@@ -149,7 +145,6 @@ final class DemoFeaturePageProjector
             'featureTree' => $this->catalog->getSidebarTree(),
             'currentSection' => $feature->section,
             'currentSlug' => $feature->slug,
-            'ultimateVersion' => $this->ultimateVersion->current(),
             'infoWhat' => $explanation?->what ?? $feature->presentation->summary,
             'infoHow' => $explanation?->how,
             'infoWhy' => $explanation?->why,
