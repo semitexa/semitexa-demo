@@ -329,28 +329,18 @@
     });
   }
 
-  function persistTheme(theme) {
-    try {
-      window.localStorage.setItem(SKIN_MODE_STORAGE_KEY, theme);
-    } catch (e) {
-      // Ignore storage failures; theme still applies for current session.
-    }
-  }
-
   function initThemeToggle() {
     var toggles = document.querySelectorAll('[data-skin-toggle]');
     if (!toggles.length) return;
 
     applyTheme(getPreferredTheme());
 
-    toggles.forEach(function (toggle) {
-      toggle.addEventListener('click', function () {
-        var currentTheme = document.documentElement.getAttribute('data-skin-mode') === 'dark' ? 'dark' : 'light';
-        var nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        persistTheme(nextTheme);
-        applyTheme(nextTheme);
-      });
-    });
+    // No click handler here on purpose. ShowcaseKit's skin-toggle.js owns the
+    // click for every kit-consuming site, and this page loads it. Binding a
+    // second handler made the two cancel out — one flipped light->dark, the
+    // other read that and flipped it straight back, so the button did nothing.
+    // What the kit does NOT do is follow the system preference after load,
+    // which is why the listener below stays.
 
     if (!themeMediaQuery) return;
 
