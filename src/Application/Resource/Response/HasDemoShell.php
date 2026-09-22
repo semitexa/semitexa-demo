@@ -38,7 +38,6 @@ trait HasDemoShell
             'docsSearchIndex',
             'currentSection',
             'currentSlug',
-            'ultimateVersion',
             'authUi',
             'infoWhat',
             'infoHow',

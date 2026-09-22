@@ -182,4 +182,4 @@
   {% include '@project-layouts-semitexa-demo/partials/social-links.html.twig' %}
 {% endblock %}
 
-{% block sk_footer %}<p class="sk-footer__copy">© {{ "now"|date("Y") }} Semitexa{% if ultimateVersion|default(null) %} · Ultimate {{ ultimateVersion }}{% endif %}</p>{% endblock %}
+{% block sk_footer %}{% set semitexaRelease = semitexa_version() %}<p class="sk-footer__copy">© {{ "now"|date("Y") }} Semitexa{% if semitexaRelease %} · {{ semitexaRelease }}{% endif %}</p>{% endblock %}
