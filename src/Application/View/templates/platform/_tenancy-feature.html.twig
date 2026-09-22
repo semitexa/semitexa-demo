@@ -56,6 +56,7 @@
 {% endblock %}
 
 {% block sk_topnav %}
+  {% include '@project-layouts-semitexa-demo/partials/docs-search.html.twig' %}
   {% set navAuth = authUi|default({}) %}
   {% set navAuthIsAuthenticated = navAuth.isAuthenticated|default(false) %}
   {% set navAuthHref = navAuthIsAuthenticated
