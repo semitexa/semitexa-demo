@@ -1,0 +1,17 @@
+{% set navAuth = authUi|default({}) %}
+{% set signedIn = navAuth.isAuthenticated|default(false) %}
+{% set accountHref = signedIn
+  ? navAuth.accountUrl|default('/demo/auth/google')
+  : navAuth.startUrl|default('/demo/auth/google/start') %}
+{% set accountTitle = signedIn
+  ? navAuth.email|default(navAuth.label|default('Your account'))
+  : navAuth.signInTitle|default('Sign in to explore the live demos') %}
+<a class="demo-header-account{{ signedIn ? ' demo-header-account--active' : '' }}" href="{{ accountHref }}" title="{{ accountTitle }}">
+  {% if signedIn %}
+    <span class="demo-header-account__status" aria-hidden="true"></span>
+    <span>{{ navAuth.shortLabel|default(navAuth.label|default('Account')) }}</span>
+  {% else %}
+    <span>Sign in</span>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  {% endif %}
+</a>
