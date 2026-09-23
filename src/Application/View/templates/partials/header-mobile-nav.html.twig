@@ -1,0 +1,17 @@
+<div class="demo-mobile-nav">
+  <div class="demo-mobile-nav__heading">
+    <span>Explore Semitexa</span>
+    <button type="button" data-sk-nav-close aria-label="Close navigation">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <nav class="demo-mobile-nav__links" aria-label="Site navigation">
+    <a href="/"{% if currentSection|default(null) != 'blog' %} class="is-active"{% endif %}><span>Explore the framework</span><span aria-hidden="true">↗</span></a>
+    <a href="/blog"{% if currentSection|default(null) == 'blog' %} class="is-active" aria-current="page"{% endif %}><span>Blog</span><span aria-hidden="true">↗</span></a>
+    <a href="/demo/get-started/installation"><span>Get started</span><span aria-hidden="true">↗</span></a>
+  </nav>
+  <div class="demo-mobile-nav__account">
+    {% include '@project-layouts-semitexa-demo/partials/header-account.html.twig' %}
+    {% include '@project-layouts-semitexa-demo/partials/social-links.html.twig' %}
+  </div>
+</div>
