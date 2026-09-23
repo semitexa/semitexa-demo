@@ -51,7 +51,7 @@
   {{ parent() }}
 {% endblock %}
 
-{% block sk_footer %}{% set semitexaRelease = semitexa_version() %}<p class="sk-footer__copy">© {{ "now"|date("Y") }} Semitexa{% if semitexaRelease %} · {{ semitexaRelease }}{% endif %}</p><div class="demo-footer-socials">{% include '@project-layouts-semitexa-demo/partials/social-links.html.twig' %}</div>{% endblock %}
+{% block sk_footer %}{% include '@project-layouts-semitexa-demo/partials/footer.html.twig' %}{% endblock %}
 
 {# --- demo home body, reproduced faithfully on the kit shell --- #}
 {% block showcase_main %}

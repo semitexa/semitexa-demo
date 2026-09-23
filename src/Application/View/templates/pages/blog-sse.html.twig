@@ -19,7 +19,7 @@
     mainEntityOfPage: {'@type': 'WebPage', '@id': canonicalUrl},
     url: canonicalUrl
   } %}
-  <script type="application/ld+json">{{ articleSchema|json_encode(15)|raw }}</script>
+  <script type="application/ld+json"{{ csp_nonce_attr() }}>{{ articleSchema|json_encode(15)|raw }}</script>
 {% endblock %}
 
 {% block blog_contents %}
