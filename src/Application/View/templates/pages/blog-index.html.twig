@@ -1,0 +1,37 @@
+{% extends '@project-layouts-semitexa-demo/layouts/blog.html.twig' %}
+
+{% block blog_main %}
+  <header class="blog-masthead">
+    <p class="blog-eyebrow">Ideas into applications</p>
+    <h1>The Semitexa Blog</h1>
+    <p class="blog-lede">Understand the web. Build what comes next.</p>
+    <p>Practical guides to real-time PHP, server-rendered interfaces, and the decisions behind better web applications.</p>
+  </header>
+  <section class="blog-posts" aria-labelledby="latest-articles">
+    <h2 id="latest-articles" class="blog-eyebrow">Latest articles</h2>
+    {% for article in articles %}
+      <article class="blog-card">
+        <div class="blog-card__signal" aria-hidden="true">
+          <span class="blog-card__protocol">HTTP / text/event-stream</span>
+          <span class="blog-card__letters">SSE<span>→</span></span>
+          <span>One connection. A stream of possibilities.</span>
+        </div>
+        <div class="blog-card__body">
+          <p class="blog-meta">{{ article.category }} · <time datetime="{{ article.published }}">{{ article.published|date('F j, Y') }}</time></p>
+          <h3><a href="{{ article.path }}">{{ article.title }}</a></h3>
+          <p>{{ article.description }}</p>
+          <a class="blog-text-link" href="{{ article.path }}">Read the SSE guide →</a>
+        </div>
+      </article>
+    {% endfor %}
+  </section>
+  <aside class="blog-cta" aria-labelledby="blog-start-title">
+    <p class="blog-eyebrow">From reading to building</p>
+    <h2 id="blog-start-title">Meet Semitexa Framework.</h2>
+    <p>Explore a PHP framework that brings typed request handling, server rendering, and live updates into one application.</p>
+    <div class="blog-actions">
+      <a class="blog-button" href="/demo/get-started/installation">Get started with Semitexa →</a>
+      <a class="blog-text-link" href="/">Explore the framework demo</a>
+    </div>
+  </aside>
+{% endblock %}
