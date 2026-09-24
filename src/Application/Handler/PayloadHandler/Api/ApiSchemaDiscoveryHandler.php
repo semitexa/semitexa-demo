@@ -89,8 +89,10 @@ final class ApiSchemaDiscoveryHandler implements TypedHandlerInterface
         $slimRequest = new Request('GET', '/demo/api/v1/products/wireless-headphones?fields=slug,name,price', [], [], [], [], []);
         $fullRequest = new Request('GET', '/demo/api/v1/products/wireless-headphones?profile=full&expand=category,reviews', ['X-Response-Profile' => 'full'], [], [], [], []);
 
-        $slimBody = $this->apiPresenter->buildDetail(request: $slimRequest, slug: 'wireless-headphones', fields: 'slug,name,price');
-        $fullBody = $this->apiPresenter->buildDetail(request: $fullRequest, slug: 'wireless-headphones', expand: 'category,reviews', profile: 'full');
+        // One lookup for both panels: the same product under two profiles.
+        $product = $this->apiPresenter->findProductBySlug('wireless-headphones');
+        $slimBody = $product === null ? null : $this->apiPresenter->buildDetailFor($product, request: $slimRequest, fields: 'slug,name,price');
+        $fullBody = $product === null ? null : $this->apiPresenter->buildDetailFor($product, request: $fullRequest, expand: 'category,reviews', profile: 'full');
 
         return [
             [

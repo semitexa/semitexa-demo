@@ -21,6 +21,14 @@ interface DemoAiTaskRepositoryInterface
     /** @return list<DemoAiTask> */
     public function findByStatus(string $status): array;
 
+    /**
+     * Tasks in any of the given statuses, newest first.
+     *
+     * @param list<string> $statuses
+     * @return list<DemoAiTask>
+     */
+    public function findByStatuses(array $statuses): array;
+
     public function updateStatus(string $id, string $status): bool;
 
     public function updateStageResults(string $id, string $stageResultsJson): bool;

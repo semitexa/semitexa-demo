@@ -27,6 +27,17 @@ final class DemoTenantDataSeeder
     }
 
     /**
+     * Product counts for every given tenant, in one query.
+     *
+     * @param list<string> $tenantIds
+     * @return array<string, int>
+     */
+    public function getProductCounts(array $tenantIds): array
+    {
+        return $this->productRepository->countByTenants($tenantIds);
+    }
+
+    /**
      * Get a sample product listing for a given tenant (max $limit items).
      *
      * @return list<object>
