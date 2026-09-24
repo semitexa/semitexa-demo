@@ -10,11 +10,33 @@ use Semitexa\Core\Attribute\AsService;
 #[AsService]
 final class DemoBlogCatalog
 {
+    public const AUTHOR_NAME = 'Taras Hanych (SyntaxWanderer)';
+    public const AUTHOR_URL = 'https://www.linkedin.com/in/syntaxwanderer/';
+
     public const SSE_PATH = '/blog/server-sent-events-explained';
     public const STREAMING_SSE_PATH = '/blog/streaming-sse-semitexa';
     public const PROJECT_GRAPH_PATH = '/blog/project-graph-semitexa';
+    public const SSR2_PATH = '/blog/server-side-rendering-2-0';
 
-    /** @return array{title: string, description: string, path: string, published: string, author: string, category: string} */
+    /** @return array<string, string> */
+    public function ssr2Article(): array
+    {
+        return [
+            'title' => 'Server Side Rendering 2.0',
+            'description' => 'Server Side Rendering 2.0 in PHP: one Twig template, deferred blocks and live SSE events. Explore Semitexa with highlighted code and working demos.',
+            'path' => self::SSR2_PATH,
+            'published' => '2026-09-24',
+            'author' => self::AUTHOR_NAME,
+            'authorUrl' => self::AUTHOR_URL,
+            'category' => 'Architecture',
+            'cardProtocol' => 'PHP / HTML / SSE',
+            'cardMark' => 'SSR',
+            'cardTagline' => 'One rule. Immediate HTML. Live delivery.',
+            'linkLabel' => 'Read the SSR 2.0 guide',
+        ];
+    }
+
+    /** @return array<string, string> */
     public function projectGraphArticle(): array
     {
         return [
@@ -22,12 +44,17 @@ final class DemoBlogCatalog
             'description' => 'Project Graph in Semitexa maps PHP routes, handlers, dependencies and impact. See real CLI queries, AI context, and working Demo workflows.',
             'path' => self::PROJECT_GRAPH_PATH,
             'published' => '2026-09-24',
-            'author' => 'Semitexa Team',
+            'author' => self::AUTHOR_NAME,
+            'authorUrl' => self::AUTHOR_URL,
             'category' => 'Architecture',
+            'cardProtocol' => 'CODE / dependency graph',
+            'cardMark' => 'PG',
+            'cardTagline' => 'See the structure before you edit.',
+            'linkLabel' => 'Read the Project Graph guide',
         ];
     }
 
-    /** @return array{title: string, description: string, path: string, published: string, author: string, category: string} */
+    /** @return array<string, string> */
     public function streamingSseArticle(): array
     {
         return [
@@ -35,12 +62,17 @@ final class DemoBlogCatalog
             'description' => 'Streaming SSE in Semitexa delivers live events and server-rendered HTML over HTTP. See the real PHP demos, shared stream, and production considerations.',
             'path' => self::STREAMING_SSE_PATH,
             'published' => '2026-09-24',
-            'author' => 'Semitexa Team',
+            'author' => self::AUTHOR_NAME,
+            'authorUrl' => self::AUTHOR_URL,
             'category' => 'Real-time web',
+            'cardProtocol' => 'HTTP / text/event-stream',
+            'cardMark' => 'SSE',
+            'cardTagline' => 'One connection. A stream of possibilities.',
+            'linkLabel' => 'Read the SSE guide',
         ];
     }
 
-    /** @return array{title: string, description: string, path: string, published: string, author: string, category: string} */
+    /** @return array<string, string> */
     public function sseArticle(): array
     {
         return [
@@ -48,14 +80,19 @@ final class DemoBlogCatalog
             'description' => 'Learn how Server-Sent Events (SSE) work, compare SSE with WebSockets and polling, and explore real-time PHP interfaces with Semitexa Framework.',
             'path' => self::SSE_PATH,
             'published' => '2026-09-23',
-            'author' => 'Semitexa Team',
+            'author' => self::AUTHOR_NAME,
+            'authorUrl' => self::AUTHOR_URL,
             'category' => 'Real-time web',
+            'cardProtocol' => 'HTTP / text/event-stream',
+            'cardMark' => 'SSE',
+            'cardTagline' => 'One connection. A stream of possibilities.',
+            'linkLabel' => 'Read the SSE guide',
         ];
     }
 
-    /** @return list<array{title: string, description: string, path: string, published: string, author: string, category: string}> */
+    /** @return list<array<string, string>> */
     public function articles(): array
     {
-        return [$this->projectGraphArticle(), $this->streamingSseArticle(), $this->sseArticle()];
+        return [$this->ssr2Article(), $this->projectGraphArticle(), $this->streamingSseArticle(), $this->sseArticle()];
     }
 }

@@ -14,7 +14,7 @@
     datePublished: article.published ~ 'T00:00:00+00:00',
     inLanguage: 'en',
     articleSection: article.category,
-    author: {'@type': 'Organization', name: article.author, url: 'https://github.com/semitexa'},
+    author: {'@type': 'Person', name: article.author, url: article.authorUrl},
     publisher: {'@type': 'Organization', name: 'Semitexa', url: 'https://github.com/semitexa'},
     mainEntityOfPage: {'@type': 'WebPage', '@id': canonicalUrl},
     url: canonicalUrl
@@ -37,7 +37,7 @@
     <header>
       <p class="blog-eyebrow">{{ article.category }} / Engineering guide</p>
       <h1>{{ article.title }}</h1>
-      <p class="blog-meta">By {{ article.author }} · <time datetime="{{ article.published }}">{{ article.published|date('F j, Y') }}</time></p>
+      <p class="blog-meta">By <a href="{{ article.authorUrl }}" rel="author">{{ article.author }}</a> · <time datetime="{{ article.published }}">{{ article.published|date('F j, Y') }}</time></p>
       <p class="blog-lede">A page is ready, but its chart is still loading. A background job advances, but the browser has no reason to ask again. Streaming SSE lets the server send each update as it becomes ready over one open HTTP response.</p>
     </header>
     <div class="blog-prose">

@@ -4,6 +4,7 @@
 {% set canonicalUrl = current_absolute_url()|split("/")|slice(0, 3)|join("/") ~ (article.path|default("/blog")) %}
 
 {% block head %}
+  {{ asset_require('semitexa-demo:js:blog-reading-nav') }}
   {{ parent() }}
   <link rel="canonical" href="{{ canonicalUrl }}">
   <meta property="og:url" content="{{ canonicalUrl }}">
@@ -16,7 +17,7 @@
 
 {% block sk_sidebar %}
   {% include '@project-layouts-semitexa-demo/partials/header-mobile-nav.html.twig' %}
-  <nav class="blog-sidebar" aria-label="Blog navigation">
+  <nav class="blog-sidebar" aria-label="Blog navigation" data-blog-reading-nav>
     <a class="blog-sidebar__home" href="/blog">← All articles</a>
     {% block blog_contents %}
       <p class="blog-eyebrow">Explore Semitexa</p>

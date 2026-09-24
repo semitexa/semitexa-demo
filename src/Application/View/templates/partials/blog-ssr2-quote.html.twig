@@ -1,0 +1,10 @@
+<div class="blog-ssr-demo__quote" data-ssr2-quote>
+  <h3>{{ quote.deliveryLabel }}</h3>
+  <dl>
+    <div><dt>Order subtotal</dt><dd>{{ quote.subtotal }}</dd></div>
+    <div><dt>Member discount</dt><dd>{{ quote.discount }}</dd></div>
+    <div><dt>Delivery</dt><dd>{{ quote.shipping }}</dd></div>
+    <div class="blog-ssr-demo__total"><dt>Total</dt><dd>{{ quote.total }}</dd></div>
+  </dl>
+  <p>{{ quote.rule }}</p>
+</div>
