@@ -5,6 +5,9 @@
     'use strict';
 
     const DEFERRED_KISS_MODE = 'deferred_kiss';
+    // The producer's stream name, not this widget's streamMode ('standalone' here):
+    // SseDemoStreamProducer answers only to 'showcase', and only when APP_DEBUG is on.
+    const SHOWCASE_STREAM = 'showcase';
 
     function init() {
         const rootEl = document.getElementById('sse-demo');
@@ -150,7 +153,7 @@
             source = new EventSource(
                 SSE_ENDPOINT
                 + '?session_id=' + encodeURIComponent(currentSessionId)
-                + '&demo_stream=' + encodeURIComponent(streamMode)
+                + '&demo_stream=' + encodeURIComponent(SHOWCASE_STREAM)
             );
             setStatus('Connecting…', 'warning');
             connectBtn.style.display = 'none';
