@@ -4,19 +4,16 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Handler\PayloadHandler\Async;
 
-use Semitexa\Auth\Context\AuthManager;
 use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
-use Semitexa\Core\Environment;
-use Semitexa\Demo\Auth\GooglePrincipal;
 use Semitexa\Demo\Application\Service\Feature\DemoFeaturePageProjector;
 use Semitexa\Demo\Application\Service\Feature\FeatureSpec;
 use Semitexa\Demo\Application\Payload\Request\Async\SseStreamPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
-use Semitexa\Demo\Application\Service\DemoAuthMode;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
+use Semitexa\Demo\Application\Service\DemoSsePreviewContext;
 
 #[AsPayloadHandler(payload: SseStreamPayload::class, resource: DemoFeatureResource::class)]
 final class SseStreamHandler implements TypedHandlerInterface
@@ -29,6 +26,9 @@ final class SseStreamHandler implements TypedHandlerInterface
 
     #[InjectAsReadonly]
     protected DemoSourceCodeReader $sourceCodeReader;
+
+    #[InjectAsReadonly]
+    protected DemoSsePreviewContext $ssePreview;
 
     public function handle(SseStreamPayload $payload, DemoFeatureResource $resource): DemoFeatureResource
     {
@@ -51,36 +51,7 @@ final class SseStreamHandler implements TypedHandlerInterface
                 'Handler' => $this->sourceCodeReader->readClassSource(self::class),
                 'Client JS' => $this->sourceCodeReader->readProjectRelativeSource('src/Application/Static/js/sse-demo.js'),
             ])
-            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/sse-stream.html.twig', $this->buildPreviewData());
+            ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/sse-stream.html.twig', $this->ssePreview->forPage('/demo/events/sse'));
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function buildPreviewData(): array
-    {
-        $returnTo = '/demo/events/sse';
-        $auth = AuthManager::getInstance();
-        $user = $auth->getUser();
-        $googleUser = $user instanceof GooglePrincipal ? $user : null;
-
-        return [
-            'authorizationRequired' => true,
-            'isAuthenticated' => !$auth->isGuest(),
-            'displayName' => $googleUser?->getDisplayName() ?? ($user?->getId() ?? null),
-            'email' => $googleUser?->getEmail(),
-            'pictureUrl' => $googleUser?->getPictureUrl(),
-            'hostedDomain' => $googleUser?->getHostedDomain(),
-            'emailVerified' => $googleUser?->emailVerified ?? false,
-            'authPageUrl' => '/demo/auth/google?return_to=' . rawurlencode($returnTo),
-            'startUrl' => '/demo/auth/google/start?return_to=' . rawurlencode($returnTo),
-            'logoutUrl' => '/demo/auth/google/logout?return_to=' . rawurlencode($returnTo),
-            'authActionLabel' => DemoAuthMode::actionLabel(),
-            'authSignedInLabel' => DemoAuthMode::signedInLabel(),
-            'sseEndpoint' => Environment::getEnvValue('SSE_ENDPOINT', '/sse'),
-            'authRequiredMessage' => DemoAuthMode::isLocalLoginEnabled()
-                ? 'Local sign-in is required to open the long-lived SSE stream used by this demo.'
-                : 'Authorization is required to open the long-lived SSE stream used by this demo.',
-        ];
-    }
 }

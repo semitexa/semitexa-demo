@@ -22,6 +22,7 @@ final class DemoDeferredSlotDelay
             'deferred_countdown' => 3000,
             'deferred_review_feed' => 3800,
             'deferred_notification' => 4600,
+            'ssr2_receipt' => 1200,
             default => 0,
         };
 

@@ -15,6 +15,14 @@ use Semitexa\Ssr\Application\Service\Http\Response\HtmlSlotResponse;
     skeletonTemplate: '@project-layouts-semitexa-demo/deferred/product-carousel.skeleton.html.twig',
     clientModules: ['@project-static-semitexa-demo/deferred/product-carousel.js'],
 )]
+#[AsSlotResource(
+    handle: 'demo_blog_ssr2',
+    slot: 'deferred_product_carousel',
+    template: '@project-layouts-semitexa-demo/deferred/product-carousel.html.twig',
+    deferred: true,
+    skeletonTemplate: '@project-layouts-semitexa-demo/deferred/product-carousel.skeleton.html.twig',
+    clientModules: ['@project-static-semitexa-demo/deferred/product-carousel.js'],
+)]
 final class DeferredProductCarouselSlot extends HtmlSlotResponse
 {
     public function withProducts(array $products): static

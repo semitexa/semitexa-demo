@@ -12,21 +12,15 @@
     {% for article in articles %}
       <article class="blog-card">
         <div class="blog-card__signal" aria-hidden="true">
-          {% if article.category == 'Architecture' %}
-            <span class="blog-card__protocol">CODE / dependency graph</span>
-            <span class="blog-card__letters">PG<span>→</span></span>
-            <span>See the structure before you edit.</span>
-          {% else %}
-            <span class="blog-card__protocol">HTTP / text/event-stream</span>
-            <span class="blog-card__letters">SSE<span>→</span></span>
-            <span>One connection. A stream of possibilities.</span>
-          {% endif %}
+          <span class="blog-card__protocol">{{ article.cardProtocol }}</span>
+          <span class="blog-card__letters">{{ article.cardMark }}<span>→</span></span>
+          <span>{{ article.cardTagline }}</span>
         </div>
         <div class="blog-card__body">
-          <p class="blog-meta">{{ article.category }} · <time datetime="{{ article.published }}">{{ article.published|date('F j, Y') }}</time></p>
+          <p class="blog-meta">{{ article.category }} · <a href="{{ article.authorUrl }}" rel="author">{{ article.author }}</a> · <time datetime="{{ article.published }}">{{ article.published|date('F j, Y') }}</time></p>
           <h3><a href="{{ article.path }}">{{ article.title }}</a></h3>
           <p>{{ article.description }}</p>
-          <a class="blog-text-link" href="{{ article.path }}">Read the {{ article.category == 'Architecture' ? 'Project Graph' : 'SSE' }} guide →</a>
+          <a class="blog-text-link" href="{{ article.path }}">{{ article.linkLabel }} →</a>
         </div>
       </article>
     {% endfor %}
