@@ -79,19 +79,22 @@ final class ReactiveAiTaskHandler implements TypedHandlerInterface
 
     private function findLatestTask(): ?\Semitexa\Demo\Domain\Model\DemoAiTask
     {
-        // One query, newest first; then the first status in priority order that has a task.
-        $priority = ['running', 'pending', 'failed', 'completed'];
+        // The newest task of the first status in priority order that has one.
+        // Live statuses are few by nature, so one query covers all three;
+        // completed tasks only accumulate, so that fallback reads a single row
+        // rather than the whole history.
+        $live = ['running', 'pending', 'failed'];
         $newestByStatus = [];
-        foreach ($this->aiTaskRepository->findByStatuses($priority) as $task) {
+        foreach ($this->aiTaskRepository->findByStatuses($live) as $task) {
             $newestByStatus[$task->getStatus()] ??= $task;
         }
-        foreach ($priority as $status) {
+        foreach ($live as $status) {
             if (isset($newestByStatus[$status])) {
                 return $newestByStatus[$status];
             }
         }
 
-        return null;
+        return $this->aiTaskRepository->findByStatuses(['completed'], 1)[0] ?? null;
     }
 
     /**

@@ -22,12 +22,12 @@ interface DemoAiTaskRepositoryInterface
     public function findByStatus(string $status): array;
 
     /**
-     * Tasks in any of the given statuses, newest first.
+     * Tasks in any of the given statuses, newest first; at most $limit when given.
      *
      * @param list<string> $statuses
      * @return list<DemoAiTask>
      */
-    public function findByStatuses(array $statuses): array;
+    public function findByStatuses(array $statuses, ?int $limit = null): array;
 
     public function updateStatus(string $id, string $status): bool;
 
