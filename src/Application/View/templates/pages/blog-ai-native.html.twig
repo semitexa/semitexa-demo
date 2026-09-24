@@ -1,0 +1,198 @@
+{% extends '@project-layouts-semitexa-demo/layouts/blog.html.twig' %}
+
+{% block blog_metadata %}
+  <meta property="article:published_time" content="{{ article.published }}T00:00:00+00:00">
+  <meta property="article:section" content="{{ article.category }}">
+  <meta name="author" content="{{ article.author }}">
+  <meta name="twitter:title" content="{{ article.title }}">
+  <meta name="twitter:description" content="{{ article.description }}">
+  {% set articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: article.title,
+    description: article.description,
+    datePublished: article.published ~ 'T00:00:00+00:00',
+    inLanguage: 'en',
+    articleSection: article.category,
+    author: {'@type': 'Person', name: article.author, url: article.authorUrl},
+    publisher: {'@type': 'Organization', name: 'Semitexa', url: 'https://github.com/semitexa'},
+    mainEntityOfPage: {'@type': 'WebPage', '@id': canonicalUrl},
+    url: canonicalUrl
+  } %}
+  <script type="application/ld+json"{{ csp_nonce_attr() }}>{{ articleSchema|json_encode(15)|raw }}</script>
+{% endblock %}
+
+{% block blog_contents %}
+  <p class="blog-eyebrow">In this guide</p>
+  <a href="#ai-native-php">What AI-native PHP means</a>
+  <a href="#investigation">Demo: reproduce the bug</a>
+  <a href="#map-the-code">Find the execution path</a>
+  <a href="#observe-the-request">Observe a real request</a>
+  <a href="#one-rule-one-owner">One rule, one owner</a>
+  <a href="#replay-the-handler">Replay with changed input</a>
+  <a href="#verify-the-behavior">Prove the behavior</a>
+  <a href="#memory-that-survives">Keep the evidence</a>
+  <a href="#start-with-one-bug">Start with one real bug</a>
+{% endblock %}
+
+{% block blog_main %}
+  <article class="blog-article">
+    <header>
+      <p class="blog-eyebrow">{{ article.category }} / An investigation you can run</p>
+      <h1>{{ article.title }}</h1>
+      <p class="blog-meta">By <a href="{{ article.authorUrl }}" rel="author">{{ article.author }}</a> · <time datetime="{{ article.published }}">{{ article.published|date('F j, Y') }}</time></p>
+      <p class="blog-lede">An AI coding agent can produce a convincing patch. The harder question is whether it found the right code, understood the rule, and proved that the application now behaves correctly. AI-native PHP development with Semitexa gives that investigation a concrete foundation: an explicit execution path, a queryable project graph, observable requests, and verification the agent can run.</p>
+      <div class="blog-note"><p><strong>This article includes a working bug.</strong> An order at exactly $100 is charged $12 for delivery that should be free. Run the example, follow its PHP handler, inspect the evidence, and compare the corrected rule. Every result in the lab is calculated by the Semitexa application serving this page.</p></div>
+    </header>
+
+    <div class="blog-prose">
+      <section id="ai-native-php">
+        <h2>AI-native PHP starts with an application an agent can inspect</h2>
+        <p>A developer reports: “Free shipping is broken.” Before changing a line, an agent has several questions to answer. Which route handles the request? Which policy calculates shipping? Is the browser displaying a server result or calculating its own? What happened for the failing order? Does “from $100” include $100 itself?</p>
+        <p>A repository can contain all the answers and still make them expensive to find. A string search returns references with different meanings. A class name suggests responsibility but does not prove it. A screenshot shows the wrong total without identifying the calculation. Even a successful request tells us only that execution completed.</p>
+        <p>Semitexa gives those questions named tools. Route introspection explains the request chain. Project Graph reports structural relationships. Observatory records execution. The agent can move from a user-visible symptom to a specific method with evidence at each step.</p>
+        <p>The roles remain clear: <strong>the agent reasons; Semitexa supplies an execution, inspection, memory, and verification environment.</strong> The framework does not decide the product requirement. The developer still owns the acceptance criteria and reviews the change. “AI-native” here means that an agent has useful, structured ways to discover and check the application it is editing.</p>
+        <div class="blog-table-scroll" tabindex="0" role="region" aria-label="Three kinds of evidence for an AI investigation"><table>
+          <thead><tr><th>Evidence</th><th>Question it answers</th><th>What it cannot establish alone</th></tr></thead>
+          <tbody>
+            <tr><td>Route introspection and Project Graph</td><td>How is this feature connected?</td><td>Which path a particular request took</td></tr>
+            <tr><td>Runtime trace</td><td>Which instrumented steps actually ran?</td><td>Whether the business result was correct</td></tr>
+            <tr><td>Acceptance cases and tests</td><td>Did the result meet the stated rule?</td><td>Every possible input or deployment condition</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section id="investigation">
+        <h2>Reproduce the bug: one cent makes the difference</h2>
+        <p>Our requirement is deliberately small and unambiguous: <strong>standard delivery costs $12 below a $100 subtotal, and is free at $100 or more.</strong> There are no taxes, discounts, currencies to convert, or regional exceptions in this lab. The amounts are represented as integer cents.</p>
+        <p>Start with the faulty fixture at $100.00. Then try $99.99 and $100.01. Both neighboring cases behave correctly, which is why a quick check of an ordinary order could miss the defect. Finally, choose the corrected rule and repeat all three cases.</p>
+        {% include '@project-layouts-semitexa-demo/partials/blog-ai-native-lab.html.twig' %}
+        <p>The controls submit a regular GET form. Semitexa hydrates a typed payload, runs the handler, and renders the result through Twig. The example also works with JavaScript disabled. The browser displays the amounts returned by PHP; it contains no second shipping calculation.</p>
+        <p>This is a controlled teaching fixture with two predefined implementations. Selecting “corrected rule” does not ask an AI model to generate a patch or edit a file. Keeping the faulty implementation available lets every reader reproduce the same mistake and compare it with the correct behavior.</p>
+        <p>The defect is a single comparison. In the faulty branch of <code>DemoShippingRuleLab</code>, the condition is:</p>
+        {% set faultyRule %}return $subtotalCents > 10000 ? 0 : 1200;{% endset %}
+        <figure class="blog-code"><figcaption>PHP · the faulty fixture excludes the threshold itself</figcaption><pre tabindex="0"><code class="language-php">{{ highlight_php(faultyRule) }}</code></pre></figure>
+        <p>Finding that line is easy once someone tells you where it is. The useful engineering problem is reaching it from the symptom without guessing, then demonstrating that the correction satisfies the requirement.</p>
+      </section>
+
+      <section id="map-the-code">
+        <h2>Find the route before searching the whole repository</h2>
+        <p>In a local Semitexa development checkout containing this Demo article, ask the framework for the route chain:</p>
+        {% set routeCommands %}bin/semitexa ai:ask route \
+  --path=/blog/ai-native-php-development-semitexa --json
+
+bin/semitexa ai:review-graph:impact \
+  'Semitexa\Demo\Application\Payload\Request\BlogAiNativePayload' --json{% endset %}
+        <figure class="blog-code"><figcaption>Terminal · route ownership and the payload's graph impact</figcaption><pre tabindex="0"><code class="language-bash">{{ highlight_php(routeCommands) }}</code></pre></figure>
+        <p>The route query identifies a public GET endpoint, <code>BlogAiNativePayload</code>, its synchronous <code>BlogAiNativeHandler</code>, <code>BlogAiNativeResource</code>, and <code>pages/blog-ai-native.html.twig</code>. The graph impact query reports the handler one relationship away from the payload. These are results from the implementation of this article.</p>
+        <figure class="blog-flow">
+          <div class="blog-flow__row"><strong>Typed payload</strong><span class="blog-flow__arrow">→ handler</span><strong>PHP lab service</strong></div>
+          <div class="blog-flow__row"><span>Calculated result</span><span class="blog-flow__arrow">→ resource</span><span>Twig → HTML</span></div>
+          <figcaption>The article's code path, combining route metadata with the handler source. This diagram is an explanation, not a live trace visualization.</figcaption>
+        </figure>
+        <p>Now the investigation has a narrow starting point. The handler's source shows its injected <code>DemoShippingRuleLab</code> service and the call to <code>run()</code>. That is the policy to inspect; the template is responsible for displaying its result.</p>
+        <p>Graph results have a scope. In the inspected build, the handler dependency query exposed its typed payload, resource, and interface relationships, but did not list the injected lab service. Reading the identified handler supplied that last connection. An agent should treat the graph as evidence about the edges it reports, rather than assume that an absent edge proves there is no dependency.</p>
+        <p>This becomes especially useful when a feature spans modules. Start from an actual route or symbol, follow the relevant relationships, and open the files that answer the remaining question. The <a href="/blog/project-graph-semitexa">Project Graph guide</a> explores that structural workflow in more detail.</p>
+      </section>
+
+      <section id="observe-the-request">
+        <h2>Observe the request that produced the wrong answer</h2>
+        <p>Structure tells us where to look. Runtime evidence tells us whether the request reached that code. In your local development environment, open this article's route with the trace flag:</p>
+        {% set traceUrl %}/blog/ai-native-php-development-semitexa?scenario=boundary&rule=buggy&__trace=1{% endset %}
+        <figure class="blog-code"><figcaption>Development URL · request a full trace for the failing case</figcaption><pre tabindex="0"><code>{{ traceUrl }}</code></pre></figure>
+        <p>Use the process journal to find the request, then inspect its source-linked trace. The request name is the payload class name; the process ID comes from the journal:</p>
+        {% set observeCommands %}bin/semitexa ai:observe tail \
+  --kind=http --name=BlogAiNative --lines=4 --json
+
+# Replace p-YOUR-ID with the completed request's id.
+bin/semitexa ai:observe show --id=p-YOUR-ID --source{% endset %}
+        <figure class="blog-code"><figcaption>Terminal · inspect the recorded execution and its source</figcaption><pre tabindex="0"><code class="language-bash">{{ highlight_php(observeCommands) }}</code></pre></figure>
+        <p>The request used while preparing this guide returned HTTP 200 and recorded a <code>pipeline.handler</code> span whose <code>source_ref</code> was <code>BlogAiNativeHandler::handle</code>, with its full namespace. The source output included the actual call that passes the selected scenario and rule to the lab service.</p>
+        <p>Notice the distinction: the request completed successfully while displaying a wrong business result. HTTP 200 is not a shipping-policy test. Likewise, the handler span proves that the instrumented handler ran; it does not imply a separate span exists for every internal PHP method call.</p>
+        <p>A developer can inspect the same development environment through <code>/__observatory</code> and the waterfall at <code>/__trace</code>. Source views connect recorded steps to code without a second search through similarly named handlers. Those source slices are read from the current files, so they are most useful before the implementation changes; they are not an immutable historical copy of the code.</p>
+        <p>Full traces, source inspection, and replay in this walkthrough require development mode. Observatory also has a restricted production monitoring mode for lifecycle records, with different access and data limits. The public lab on this page exposes only its fixed shipping cases.</p>
+      </section>
+
+      <section id="one-rule-one-owner">
+        <h2>Correct the rule where the rule lives</h2>
+        <p>The acceptance criterion includes the threshold itself. The corrected PHP expression is therefore:</p>
+        {% set correctedRule %}return $subtotalCents >= 10000 ? 0 : 1200;{% endset %}
+        <figure class="blog-code"><figcaption>PHP · free delivery includes an exact $100 subtotal</figcaption><pre tabindex="0"><code class="language-php">{{ highlight_php(correctedRule) }}</code></pre></figure>
+        <p>In a real shipping policy, that is the implementation we would keep. This article retains both branches in the isolated lab so the comparison remains runnable. The expected amounts are stored separately as explicit acceptance cases; they are not calculated by calling the same shipping function and trusting its answer twice.</p>
+        <p>The handler coordinates the work and passes decided values to the response resource. This is the relevant call from the page's real handler:</p>
+        {% set handlerExcerpt %}->withLab($this->shippingLab->run(
+    $payload->getScenario(),
+    $payload->getRule(),
+));{% endset %}
+        <figure class="blog-code"><figcaption>PHP · handler excerpt, expanded for readability</figcaption><pre tabindex="0"><code class="language-php">{{ highlight_php(handlerExcerpt) }}</code></pre></figure>
+        <p>Twig owns the view: labels, amounts, selected options, and the visible comparison. The service owns the calculation. This separation reduces the number of places an agent must change and the number of competing implementations a reviewer must reconcile.</p>
+        <p>The same ownership principle matters when interfaces become more dynamic. A deferred region can receive a server-calculated result, and a live update can deliver newly rendered content without inventing a browser-side shipping policy. Our <a href="/blog/server-side-rendering-2-0">Server Side Rendering 2.0 article</a> demonstrates shared templates and deferred blocks; the <a href="/blog/streaming-sse-semitexa">Streaming SSE guide</a> follows live delivery.</p>
+        <p>One source of truth has a precise meaning here: <strong>one owner for the business rule, and one authoritative template for the view.</strong> Moving the comparison into Twig would blur that boundary again. Asking an agent to keep duplicated PHP and JavaScript pricing functions synchronized would preserve the duplication rather than resolve it.</p>
+      </section>
+
+      <section id="replay-the-handler">
+        <h2>Replay the handler with an explicit change of input</h2>
+        <p>Once a request has a full trace, Semitexa can use it as the starting point for a handler replay. For this isolated lab, provide both inputs explicitly and select the already implemented corrected branch:</p>
+        {% set replayCommand %}bin/semitexa ai:observe replay --id=p-YOUR-ID \
+  --mutate=scenario=boundary --mutate=rule=fixed{% endset %}
+        <figure class="blog-code"><figcaption>Terminal · re-execute the recorded handler with explicit lab inputs</figcaption><pre tabindex="0"><code class="language-bash">{{ highlight_php(replayCommand) }}</code></pre></figure>
+        <p>The replay we ran returned <code>verdict: ok</code>. Its resource contained the following lab values, shown here as a shortened selection from the output:</p>
+        {% set replayResult %}{
+  "scenario": "boundary",
+  "rule": "fixed",
+  "actualShippingCents": 0,
+  "expectedShippingCents": 0,
+  "actualTotal": "$100.00",
+  "matches": true
+}{% endset %}
+        <figure class="blog-code"><figcaption>Observed replay output · selected lab fields, not the full envelope</figcaption><pre tabindex="0"><code class="language-json">{{ highlight_php(replayResult) }}</code></pre></figure>
+        <p>Explicit inputs matter. This page's original hydration trace contained an empty payload snapshot, so it would be incorrect to claim that replay automatically preserved the selected form values. Here we know exactly which scenario we are rerunning because the command supplies it.</p>
+        <p>Replay also has a narrower execution boundary than a fresh browser request: it invokes the resolved handler with a hydrated payload and resource. It does not reproduce the complete HTTP, authorization, and rendering pipeline. Use it to inspect a handler result, then exercise the actual page to verify delivery and presentation.</p>
+        <p>The replay runner rolls back its managed database transaction and captures queue handoffs. Supported mail transport is withheld during the sandboxed run. Arbitrary outbound HTTP calls and LLM provider calls are not universally suppressed, so replay is not a blanket guarantee of external isolation. This lab performs no such calls and creates no orders.</p>
+      </section>
+
+      <section id="verify-the-behavior">
+        <h2>Make the acceptance criterion executable</h2>
+        <p>A plausible patch becomes a useful fix when the requirement survives independent checks. For our inclusive threshold, the three adjacent cases provide a compact specification:</p>
+        <div class="blog-table-scroll" tabindex="0" role="region" aria-label="Shipping boundary acceptance cases"><table>
+          <thead><tr><th>Subtotal</th><th>Expected delivery</th><th>Faulty rule</th><th>Corrected rule</th></tr></thead>
+          <tbody>
+            <tr><td>$99.99</td><td>$12.00</td><td>$12.00 · matches</td><td>$12.00 · matches</td></tr>
+            <tr><td>$100.00</td><td>$0.00</td><td>$12.00 · mismatch</td><td>$0.00 · matches</td></tr>
+            <tr><td>$100.01</td><td>$0.00</td><td>$0.00 · matches</td><td>$0.00 · matches</td></tr>
+          </tbody>
+        </table></div>
+        <p>The article's test suite checks all six scenario/implementation combinations and the fallback for unknown inputs: seven tests and 25 assertions. A test for the faulty branch asserts that the lab exposes the mismatch; it does not approve that charge as correct product behavior.</p>
+        {% set verifyCommands %}bin/semitexa test:run \
+  packages/semitexa-demo/tests/Unit/Service/DemoShippingRuleLabTest.php
+
+bin/semitexa ai:verify \
+  --files=packages/semitexa-demo/src/Application/Service/DemoShippingRuleLab.php \
+  --files=packages/semitexa-demo/tests/Unit/Service/DemoShippingRuleLabTest.php \
+  --json{% endset %}
+        <figure class="blog-code"><figcaption>Terminal · execute the acceptance cases and scoped framework checks</figcaption><pre tabindex="0"><code class="language-bash">{{ highlight_php(verifyCommands) }}</code></pre></figure>
+        <p><code>ai:verify</code> selects applicable checks for the files under review. Its report is evidence about the checks it ran. The focused service tests establish the boundary behavior; a browser check additionally establishes that form inputs reach PHP, values render correctly, and the page remains usable.</p>
+        <p>Semitexa's long-running workers cache discovered classes and compiled templates. After changing the implementation, run <code>bin/semitexa server:restart</code> before testing the running HTTP server. CLI verification uses fresh processes and does not need that restart.</p>
+        <p>The product decision still comes first. If the requirement had said “strictly over $100,” the original comparison would be correct. An agent must resolve that ambiguity with the product owner or an authoritative specification. Neither a graph nor a trace can invent the intended meaning of a promotion.</p>
+      </section>
+
+      <section id="memory-that-survives">
+        <h2>Keep the evidence when the conversation moves on</h2>
+        <p>Long investigations often fail at the handoff. The next session sees a modified file but loses the reason for the change, the failing input, and the hypothesis that was already disproved. The agent spends time reconstructing an investigation someone already completed.</p>
+        <p>Semitexa's <code>ai:epic</code>, <code>ai:work</code>, and <code>ai:trace</code> commands give ongoing work durable artifacts. <code>ai:orient</code> brings the active work and recent verification back into view. <code>ai:context</code> retrieves relevant prior context before an agent starts reading from scratch.</p>
+        <p>For this example, a useful handoff would preserve the inclusive-$100 requirement, the $112 failing result, the identified handler and service, the empty trace snapshot limitation, and the passing acceptance cases. “Investigated shipping” would preserve almost nothing.</p>
+        <p>The amount of process should fit the work. A focused correction can stay small. A change spanning several modules needs explicit tasks, dependencies, decisions, and a next step that another session can actually execute. The purpose is continuity: preserve the facts needed to continue without asking an agent to remember a conversation forever.</p>
+        <p>Evidence also needs freshness. A graph, a source view, or a passing test report describes a particular state of the project. After editing relevant code, rerun the checks that could have changed and record the new result.</p>
+      </section>
+
+      <section id="start-with-one-bug">
+        <h2>Start AI-native PHP development with one real bug</h2>
+        <p>The shipping mistake is small enough to understand in one sitting. The workflow scales because each step asks a specific question: reproduce the symptom, locate the route, inspect the relevant structure, observe execution, correct the owning rule, and verify the requirement.</p>
+        <p>Semitexa makes that sequence concrete through the application itself. An agent can query framework metadata, follow a source-linked runtime step, execute a focused test, and leave the evidence for the next session. A developer can review those same artifacts and challenge a conclusion at the point where it was made.</p>
+        <p>That is the useful promise of AI-native PHP development: a shorter, more inspectable path from “this behavior is wrong” to “here is the rule, the change, and the evidence that it now holds.” The strongest demonstration is an application you can run and question.</p>
+        <div class="blog-note"><p><strong>Try it on your own feature.</strong> Choose one reproducible request and write its expected result first. Start with <code>bin/semitexa ai:orient --json</code>, then ask for its route chain. Keep the investigation narrow enough that every proposed change can be connected to a concrete acceptance case.</p></div>
+        <p>Continue with the <a href="/demo/get-started/installation">Semitexa installation guide</a>, explore the <a href="https://github.com/semitexa/semitexa-dev">development tooling package</a>, or return to the <a href="#shipping-lab">shipping lab</a> and test the boundary yourself. Commands in this guide reflect the development build used for the article; your installed version's <code>--help</code> and capability output describe its available options.</p>
+      </section>
+    </div>
+  </article>
+{% endblock %}
