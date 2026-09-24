@@ -17,6 +17,25 @@ final class DemoBlogCatalog
     public const STREAMING_SSE_PATH = '/blog/streaming-sse-semitexa';
     public const PROJECT_GRAPH_PATH = '/blog/project-graph-semitexa';
     public const SSR2_PATH = '/blog/server-side-rendering-2-0';
+    public const AI_NATIVE_PATH = '/blog/ai-native-php-development-semitexa';
+
+    /** @return array<string, string> */
+    public function aiNativeArticle(): array
+    {
+        return [
+            'title' => 'AI-Native PHP Development with Semitexa',
+            'description' => 'AI-native PHP development with Semitexa: trace a shipping bug through Project Graph, Observatory, and tests. Run the example and verify the result.',
+            'path' => self::AI_NATIVE_PATH,
+            'published' => '2026-09-24',
+            'author' => self::AUTHOR_NAME,
+            'authorUrl' => self::AUTHOR_URL,
+            'category' => 'AI & Engineering',
+            'cardProtocol' => 'GRAPH / TRACE / VERIFY',
+            'cardMark' => 'AI',
+            'cardTagline' => 'An application an agent can inspect.',
+            'linkLabel' => 'Read the AI-native PHP guide',
+        ];
+    }
 
     /** @return array<string, string> */
     public function ssr2Article(): array
@@ -93,6 +112,6 @@ final class DemoBlogCatalog
     /** @return list<array<string, string>> */
     public function articles(): array
     {
-        return [$this->ssr2Article(), $this->projectGraphArticle(), $this->streamingSseArticle(), $this->sseArticle()];
+        return [$this->aiNativeArticle(), $this->ssr2Article(), $this->projectGraphArticle(), $this->streamingSseArticle(), $this->sseArticle()];
     }
 }

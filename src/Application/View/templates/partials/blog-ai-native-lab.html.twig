@@ -1,0 +1,34 @@
+<div class="blog-ssr-demo blog-ai-lab" id="shipping-lab" data-shipping-lab data-rule="{{ lab.rule }}" data-scenario="{{ lab.scenario }}" data-matches="{{ lab.matches ? 'true' : 'false' }}">
+  <p class="blog-eyebrow">Run the PHP example</p>
+  <h3>Free standard delivery from $100, inclusive</h3>
+  <p>Choose a case and a predefined rule. Each submission runs the PHP handler and renders the result with Twig.</p>
+  <form class="blog-ssr-demo__form blog-ai-lab__form" method="get" action="{{ article.path }}#shipping-lab">
+    <label>Order subtotal
+      <select name="scenario">
+        <option value="below"{{ lab.scenario == 'below' ? ' selected' : '' }}>$99.99 · below</option>
+        <option value="boundary"{{ lab.scenario == 'boundary' ? ' selected' : '' }}>$100.00 · boundary</option>
+        <option value="above"{{ lab.scenario == 'above' ? ' selected' : '' }}>$100.01 · above</option>
+      </select>
+    </label>
+    <label>Rule implementation
+      <select name="rule">
+        <option value="buggy"{{ lab.rule == 'buggy' ? ' selected' : '' }}>Faulty fixture · &gt;</option>
+        <option value="fixed"{{ lab.rule == 'fixed' ? ' selected' : '' }}>Corrected rule · &gt;=</option>
+      </select>
+    </label>
+    <button class="blog-button" type="submit">Run shipping check</button>
+  </form>
+  <p class="blog-ai-lab__verdict blog-ai-lab__verdict--{{ lab.matches ? 'pass' : 'fail' }}" role="status">
+    <strong>{{ lab.matches ? 'Matches the requirement' : 'Mismatch reproduced' }}</strong>
+    <span>{{ lab.scenarioLabel }} · {{ lab.rule == 'fixed' ? 'corrected rule' : 'faulty fixture' }}</span>
+  </p>
+  <dl class="blog-ai-lab__results">
+    <div><dt>Order subtotal</dt><dd>{{ lab.subtotal }}</dd></div>
+    <div><dt>Expected delivery</dt><dd>{{ lab.expectedShipping }}</dd></div>
+    <div><dt>Actual delivery</dt><dd data-lab-shipping>{{ lab.actualShipping }}</dd></div>
+    <div><dt>Expected total</dt><dd>{{ lab.expectedTotal }}</dd></div>
+    <div><dt>Actual total</dt><dd data-lab-total>{{ lab.actualTotal }}</dd></div>
+  </dl>
+  <p>Executed condition: <code>{{ lab.condition }}</code></p>
+  <p class="blog-meta">This isolated lab uses fixed test amounts and predefined implementations. The expected delivery charge comes from explicit acceptance cases. It does not create orders or modify application code.</p>
+</div>
