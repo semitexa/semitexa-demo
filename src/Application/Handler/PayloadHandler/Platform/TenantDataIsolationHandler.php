@@ -106,11 +106,9 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
     {
         try {
             $products = $this->tenantDataSeeder->getProducts($activeTenant, 5);
-            $count = $this->tenantDataSeeder->getProductCount($activeTenant);
-            $allCounts = [];
-            foreach ($tenantIds as $tenantId) {
-                $allCounts[$tenantId] = $this->tenantDataSeeder->getProductCount($tenantId);
-            }
+            // One grouped count for every tab; the active tenant is normally one of them.
+            $allCounts = $this->tenantDataSeeder->getProductCounts($tenantIds);
+            $count = $allCounts[$activeTenant] ?? $this->tenantDataSeeder->getProductCount($activeTenant);
 
             return [false, $products, $count, $allCounts];
         } catch (Throwable $exception) {

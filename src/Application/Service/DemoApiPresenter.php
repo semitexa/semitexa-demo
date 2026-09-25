@@ -156,6 +156,24 @@ final class DemoApiPresenter
             return null;
         }
 
+        return $this->buildDetailFor($product, $request, $fields, $expand, $profile, $format);
+    }
+
+    /**
+     * The detail representation of a product already in hand. A page showing
+     * the same product under several profiles resolves it once: finding it by
+     * slug loads and scans the catalogue, since the slug is derived, not stored.
+     *
+     * @return array<string, mixed>
+     */
+    public function buildDetailFor(
+        DemoProduct $product,
+        Request $request,
+        ?string $fields = null,
+        ?string $expand = null,
+        ?string $profile = null,
+        ?string $format = null,
+    ): array {
         $representation = $this->resolveRepresentation($request, $format);
         $profileName = $this->resolveProfile($request, $profile);
         $fieldList = $this->parseCsv($fields);

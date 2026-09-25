@@ -46,6 +46,23 @@ final class DemoJobRunRepository implements DemoJobRunRepositoryInterface
             ->fetchAllAs(DemoJobRun::class, $this->orm()->getMapperRegistry());
     }
 
+    /**
+     * @param list<string> $jobTypes
+     * @return list<DemoJobRun>
+     */
+    public function findByJobTypes(array $jobTypes): array
+    {
+        if ($jobTypes === []) {
+            return [];
+        }
+
+        /** @var list<DemoJobRun> */
+        return $this->repository()->query()
+            ->whereIn(DemoJobRunResource::column('jobType'), $jobTypes)
+            ->orderBy(DemoJobRunResource::column('createdAt'), Direction::Desc)
+            ->fetchAllAs(DemoJobRun::class, $this->orm()->getMapperRegistry());
+    }
+
     /** @return list<DemoJobRun> */
     public function findActiveRuns(): array
     {

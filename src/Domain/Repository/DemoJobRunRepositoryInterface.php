@@ -15,6 +15,14 @@ interface DemoJobRunRepositoryInterface
     /** @return list<DemoJobRun> */
     public function findByJobType(string $jobType): array;
 
+    /**
+     * Runs of any of the given job types, newest first.
+     *
+     * @param list<string> $jobTypes
+     * @return list<DemoJobRun>
+     */
+    public function findByJobTypes(array $jobTypes): array;
+
     /** @return list<DemoJobRun> */
     public function findActiveRuns(): array;
 

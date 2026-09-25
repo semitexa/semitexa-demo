@@ -69,6 +69,33 @@ final class DemoProductRepository implements DemoProductRepositoryInterface
         )->rows[0]['total'] ?? 0);
     }
 
+    /**
+     * @param list<string> $tenantIds
+     * @return array<string, int>
+     */
+    public function countByTenants(array $tenantIds): array
+    {
+        $counts = array_fill_keys($tenantIds, 0);
+        if ($tenantIds === []) {
+            return $counts;
+        }
+
+        $params = [];
+        foreach (array_values($tenantIds) as $i => $tenantId) {
+            $params['t' . $i] = $tenantId;
+        }
+        $rows = $this->adapter()->execute(
+            'SELECT tenant_id, COUNT(*) AS total FROM demo_products WHERE tenant_id IN (:'
+                . implode(', :', array_keys($params)) . ') GROUP BY tenant_id',
+            $params,
+        )->rows;
+        foreach ($rows as $row) {
+            $counts[(string) $row['tenant_id']] = (int) $row['total'];
+        }
+
+        return $counts;
+    }
+
     public function countAll(): int
     {
         return (int) ($this->adapter()->execute('SELECT COUNT(*) AS total FROM demo_products', [])->rows[0]['total'] ?? 0);

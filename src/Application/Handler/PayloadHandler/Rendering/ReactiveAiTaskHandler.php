@@ -79,10 +79,22 @@ final class ReactiveAiTaskHandler implements TypedHandlerInterface
 
     private function findLatestTask(): ?\Semitexa\Demo\Domain\Model\DemoAiTask
     {
-        foreach (['running', 'pending', 'failed', 'completed'] as $status) {
-            $tasks = $this->aiTaskRepository->findByStatus($status);
-            if (!empty($tasks)) {
-                return $tasks[0];
+        // The newest task of the first status in priority order that has one.
+        // Two bounded queries whatever piles up: a grouped count picks the
+        // status (no rows hydrated), then one row of it. Pending tasks can
+        // accumulate too - the processor takes one per run - so reading every
+        // task of the live statuses was not bounded either.
+        $priority = ['running', 'pending', 'failed', 'completed'];
+        $counts = $this->aiTaskRepository->countByStatuses($priority);
+        foreach ($priority as $status) {
+            if (($counts[$status] ?? 0) === 0) {
+                continue;
+            }
+            // A task can change status between the count and this read; then
+            // the next counted status answers rather than nothing.
+            $task = $this->aiTaskRepository->findByStatuses([$status], 1)[0] ?? null;
+            if ($task !== null) {
+                return $task;
             }
         }
 

@@ -19,6 +19,14 @@ interface DemoProductRepositoryInterface
 
     public function countByTenant(string $tenantId): int;
 
+    /**
+     * Product counts for several tenants in one query; a tenant with no rows is 0.
+     *
+     * @param list<string> $tenantIds
+     * @return array<string, int>
+     */
+    public function countByTenants(array $tenantIds): array;
+
     public function countAll(): int;
 
     /** @return list<DemoProduct> */

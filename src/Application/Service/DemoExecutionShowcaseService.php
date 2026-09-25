@@ -73,9 +73,19 @@ final class DemoExecutionShowcaseService
     {
         $lanes = [];
 
+        // Every lane's latest run from one query, newest first.
+        $jobTypes = [];
+        foreach (array_keys(self::MODE_META) as $mode) {
+            $jobTypes[] = (string) $this->getModeMeta($mode)['job_type'];
+        }
+        $latestByType = [];
+        foreach ($this->jobRunRepository->findByJobTypes(array_values(array_unique($jobTypes))) as $run) {
+            $latestByType[$run->getJobType()] ??= $run;
+        }
+
         foreach (array_keys(self::MODE_META) as $mode) {
             $meta = $this->getModeMeta($mode);
-            $latest = $this->jobRunRepository->findByJobType((string) $meta['job_type'])[0] ?? null;
+            $latest = $latestByType[(string) $meta['job_type']] ?? null;
             $resultPayload = $this->decodeJson($latest?->getResultPayload());
 
             $lanes[] = [

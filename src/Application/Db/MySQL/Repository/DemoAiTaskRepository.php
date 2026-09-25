@@ -70,6 +70,42 @@ final class DemoAiTaskRepository implements DemoAiTaskRepositoryInterface
             ->fetchAllAs(DemoAiTask::class, $this->orm()->getMapperRegistry());
     }
 
+    /**
+     * @param list<string> $statuses
+     * @return list<DemoAiTask>
+     */
+    public function findByStatuses(array $statuses, ?int $limit = null): array
+    {
+        if ($statuses === []) {
+            return [];
+        }
+
+        $query = $this->repository()->query()
+            ->whereIn(DemoAiTaskResource::column('status'), $statuses)
+            ->orderBy(DemoAiTaskResource::column('createdAt'), Direction::Desc);
+        if ($limit !== null) {
+            $query = $query->limit(max(1, $limit));
+        }
+
+        /** @var list<DemoAiTask> */
+        return $query->fetchAllAs(DemoAiTask::class, $this->orm()->getMapperRegistry());
+    }
+
+    /**
+     * @param list<string> $statuses
+     * @return array<string, int>
+     */
+    public function countByStatuses(array $statuses): array
+    {
+        if ($statuses === []) {
+            return [];
+        }
+
+        return $this->repository()->query()
+            ->whereIn(DemoAiTaskResource::column('status'), $statuses)
+            ->countBy(DemoAiTaskResource::column('status'));
+    }
+
     public function updateStatus(string $id, string $status): bool
     {
         $task = $this->findById($id);
