@@ -1,0 +1,232 @@
+{% extends '@project-layouts-semitexa-demo/layouts/blog.html.twig' %}
+
+{% block blog_metadata %}
+  <meta property="article:published_time" content="{{ article.published }}T00:00:00+00:00">
+  <meta property="article:section" content="{{ article.category }}">
+  <meta name="author" content="{{ article.author }}">
+  <meta name="twitter:title" content="{{ article.title }}">
+  <meta name="twitter:description" content="{{ article.description }}">
+  {% set articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: article.title,
+    description: article.description,
+    datePublished: article.published ~ 'T00:00:00+00:00',
+    inLanguage: 'en',
+    articleSection: article.category,
+    author: {'@type': 'Person', name: article.author, url: article.authorUrl},
+    publisher: {'@type': 'Organization', name: 'Semitexa', url: 'https://github.com/semitexa'},
+    mainEntityOfPage: {'@type': 'WebPage', '@id': canonicalUrl},
+    url: canonicalUrl
+  } %}
+  <script type="application/ld+json"{{ csp_nonce_attr() }}>{{ articleSchema|json_encode(15)|raw }}</script>
+{% endblock %}
+
+{% block blog_contents %}
+  <p class="blog-eyebrow">Inside the runtime</p>
+  <a href="#built-for-this">Designed for this from day one</a>
+  <a href="#two-lifetimes">Two lifetimes to understand</a>
+  <a href="#runtime-lab">Try the running example</a>
+  <a href="#container-lifetimes">A container that knows lifetimes</a>
+  <a href="#coroutine-isolation">Concurrency with context</a>
+  <a href="#connection-pools">Connections with an owner</a>
+  <a href="#live-delivery">A runtime for live HTML</a>
+  <a href="#worker-lifecycle">Workers that can stop</a>
+  <a href="#verify-the-runtime">Inspect and verify it</a>
+  <a href="#build-with-the-runtime">Build with the runtime</a>
+{% endblock %}
+
+{% block blog_main %}
+  <article class="blog-article">
+    <header>
+      <p class="blog-eyebrow">{{ article.category }} / Built to stay in memory</p>
+      <h1>{{ article.title }}</h1>
+      <p class="blog-meta">By <a href="{{ article.authorUrl }}" rel="author">{{ article.author }}</a> · <time datetime="{{ article.published }}">{{ article.published|date('F j, Y') }}</time></p>
+      <p class="blog-lede">The first request works. The second remembers more than it should. Keeping a PHP application alive makes its lifetimes part of the architecture: which objects should survive, which data belongs to one execution, and what happens while two requests overlap? Semitexa was designed from day one around those questions.</p>
+      <div class="blog-note"><p><strong>Persistent workers are Semitexa's starting point.</strong> Its Swoole runtime, dependency container, execution contexts, connection pools and server rendering are built around an application that stays in memory. This guide follows that design from worker startup to the HTML in your browser, with a small example running on this page.</p></div>
+    </header>
+
+    <div class="blog-prose">
+      <section id="built-for-this">
+        <h2>Designed for long-running PHP from day one</h2>
+        <p>Imagine a dashboard showing an order as it moves from payment to fulfillment. The first page should arrive quickly. A slow recommendation service should not hold up the order details. A background job should be able to publish progress. Several people may be watching, each with their own session and permissions.</p>
+        <p>That application benefits from more than a faster request handler. It needs reusable infrastructure, isolated execution state, efficient waiting, live delivery and a way to see what is happening inside the server. Semitexa treats those needs as parts of the same runtime design.</p>
+        <p><strong>Semitexa was created for the long-running execution model from the beginning.</strong> The worker is a first-class lifetime. The container distinguishes shared services from execution-scoped objects. Request context is carried through the framework. Coroutines, background work and streamed HTML have a place in the architecture.</p>
+        <p>The practical advantage is consistency. You can follow a typed payload into a handler, resolve dependencies with explicit lifetimes, produce a resource, and render or stream it using the same application model. The framework can make decisions at startup because the resulting application will serve many executions.</p>
+        <p>Other PHP runtimes also keep applications in memory; <a href="https://frankenphp.dev/docs/worker/">FrankenPHP's worker documentation</a> is a useful introduction to that broader model. This article examines Semitexa's own Swoole-based implementation. Its strength is how the framework's pieces are designed to work together within that model.</p>
+      </section>
+
+      <section id="two-lifetimes">
+        <h2>The worker lives longer than the request</h2>
+        <p>In a conventional PHP-FPM deployment, a worker process can already serve many requests. The application is normally initialized within each request's PHP execution, with ordinary userland request state torn down afterward. Long-running application servers keep the initialized application itself available across requests.</p>
+        <p>OPcache and application persistence address different work. <a href="https://www.php.net/manual/en/book.opcache.php">OPcache</a> caches compiled script bytecode. A persistent application can also reuse its bootstrapped service graph and discovered metadata. Neither mechanism makes database queries, remote APIs or expensive business logic disappear.</p>
+        <figure class="blog-flow">
+          <div class="blog-flow__row"><strong>Worker starts</strong><span class="blog-flow__arrow">→ discover and build</span><strong>Warm application</strong></div>
+          <div class="blog-flow__row"><span>Request A</span><span class="blog-flow__arrow">→ its context + handler</span><span>Response A</span></div>
+          <div class="blog-flow__row"><span>Request B</span><span class="blog-flow__arrow">→ its context + handler</span><span>Response B</span></div>
+          <figcaption>One worker can reuse its application while each request receives its own execution state. With coroutines, request A and request B may overlap while waiting for I/O. This is an architectural diagram, not a timing measurement.</figcaption>
+        </figure>
+        <p>The useful distinction is ownership. A service containing stable behavior can live with the worker. The current customer's identity belongs to an execution. A database connection is a resource to borrow for bounded work. A cross-worker counter needs an explicitly shared store.</p>
+        <div class="blog-table-scroll" tabindex="0" role="region" aria-label="State lifetimes in the Semitexa runtime"><table>
+          <thead><tr><th>Lifetime</th><th>Examples</th><th>Design consequence</th></tr></thead>
+          <tbody>
+            <tr><td>Worker</td><td>Shared services, container metadata, handler prototypes</td><td>Reuse them; keep request identity out of their mutable fields.</td></tr>
+            <tr><td>Execution</td><td>Handler clone, request, auth, tenant and locale context</td><td>Resolve them for the current execution and release them afterward.</td></tr>
+            <tr><td>Borrowed operation</td><td>Database or Redis connection</td><td>Return it after use; bound how long a caller can wait.</td></tr>
+            <tr><td>Explicitly shared state</td><td>Database records, Redis data, selected Swoole tables</td><td>Choose storage and atomic operations appropriate to the sharing boundary.</td></tr>
+          </tbody>
+        </table></div>
+        <p>A PHP static property is local to its process and can survive many executions. It is therefore a poor place for “the current user,” and it is not automatically a counter shared by every worker. Understanding both boundaries prevents two very different classes of mistakes.</p>
+      </section>
+
+      <section id="runtime-lab">
+        <h2>Try it: a persistent worker, a fresh handler</h2>
+        <p>The following values are produced by the PHP handler serving this article. Its <code>$handled</code> property starts at zero and is incremented when <code>handle()</code> runs. Semitexa's execution-scoped resolution supplies a fresh handler clone for the next request.</p>
+        <div class="blog-ssr-demo" data-runtime-probe>
+          <div class="blog-ssr-demo__header">
+            <p class="blog-eyebrow">Live result from this response</p>
+            <h3>Which state survived?</h3>
+          </div>
+          <dl class="blog-ai-lab__results">
+            <div><dt>Worker process ID</dt><dd data-runtime-worker>{{ runtimeProbe.workerPid }}</dd></div>
+            <div><dt>Calls on this handler instance</dt><dd data-runtime-counter>{{ runtimeProbe.executionCount }}</dd></div>
+          </dl>
+          <p class="blog-meta">Rendered at <time datetime="{{ runtimeProbe.renderedAt }}" data-runtime-rendered>{{ runtimeProbe.renderedAt }}</time> · UTC</p>
+          <form method="get" action="{{ article.path }}#runtime-lab" class="blog-ssr-demo__form">
+            <button class="blog-button" type="submit">Run another request →</button>
+          </form>
+        </div>
+        <p>Run it again. The handler counter should still be <strong>1</strong>. You may see the same worker process ID, or another one when the server distributes requests across workers. A reload or deployment can also change the process ID. A repeated ID with a fresh counter illustrates the two lifetimes directly.</p>
+        <p>This is an actual PHP result, with caching disabled for the response. It is a small demonstration of handler resolution; it does not by itself prove concurrent tenant isolation or measure throughput. We will run the relevant concurrency tests later.</p>
+        {% set probeCode %}// BlogLongRunningPhpHandler: excerpt from this page's handler.
+// #[AsPayloadHandler] makes the handler execution-scoped.
+private int $handled = 0;
+
+// Inside handle(), after filling the article metadata:
+return $resource->withRuntimeProbe(
+    workerPid: (int) getmypid(),
+    executionCount: ++$this->handled,
+    renderedAt: gmdate('Y-m-d\TH:i:s\Z'),
+);{% endset %}
+        <figure class="blog-code"><figcaption>PHP · the handler's scalar state starts fresh on each resolved clone</figcaption><pre tabindex="0"><code class="language-php">{{ highlight_php(probeCode) }}</code></pre></figure>
+        <p>The handler does not contain a counter-reset instruction. The lifetime is established when the container resolves it. If an application deliberately keeps that clone in a global variable, or puts the counter in a static property, it has chosen a different lifetime.</p>
+      </section>
+
+      <section id="container-lifetimes">
+        <h2>A dependency container that knows what should survive</h2>
+        <p>Semitexa's container performs module discovery, attribute scanning, contract resolution, injection analysis and graph construction during its build. It stores shared service instances and execution-scoped prototypes, then seals registration. Each HTTP worker builds its container during startup.</p>
+        <p>That moves structural work out of the ordinary request path. The worker can reuse known bindings and injection metadata while resolving the objects needed for the next execution. The payoff is less repeated bootstrapping and a clear place to diagnose wiring problems.</p>
+        <p>Two injection attributes make the lifetime distinction visible in application code. <code>#[InjectAsReadonly]</code> supplies a worker-scoped dependency. <code>#[InjectAsMutable]</code> supplies execution-dependent values or services when the scoped object is cloned. Payload handlers, event listeners and pipeline listeners imply execution scope; other applicable services can declare <code>#[ExecutionScoped]</code>.</p>
+        {% set injectionCode %}// Properties on an execution-scoped payload handler:
+#[InjectAsReadonly]
+protected DemoBlogCatalog $blog;
+
+#[InjectAsMutable]
+protected Request $request;
+
+// The catalog is reusable across executions.
+// Request is resolved from the current execution context.{% endset %}
+        <figure class="blog-code"><figcaption>PHP · property injection expresses which dependency belongs to which lifetime</figcaption><pre tabindex="0"><code class="language-php">{{ highlight_php(injectionCode) }}</code></pre></figure>
+        <p>The shared attribute describes the injection lifetime; it does not make every property inside the injected object immutable. A shared service still needs appropriate state discipline. Similarly, PHP cloning is shallow: arbitrary mutable child objects do not become independent just because their parent was cloned. Execution-dependent dependencies should use the framework's scoped resolution.</p>
+        <p>You can inspect the implementation in <a href="https://github.com/semitexa/semitexa-core/blob/17861784cb29ea1092b97001024f495200465e71/src/Container/ContainerBootstrapper.php">ContainerBootstrapper</a> and <a href="https://github.com/semitexa/semitexa-core/blob/17861784cb29ea1092b97001024f495200465e71/src/Container/SemitexaContainer.php">SemitexaContainer</a>. The latter's resolution path clones scoped prototypes and injects the current context. This is the mechanism behind the counter above.</p>
+      </section>
+
+      <section id="coroutine-isolation">
+        <h2>Let requests overlap without sharing their identity</h2>
+        <p>A request waiting for a database response should not have to monopolize a worker that could serve another request. Semitexa's server enables Swoole coroutines and runtime hooks before creating the HTTP server. Supported blocking operations can yield so another coroutine can make progress.</p>
+        <p>This is especially useful for I/O-heavy pages, upstream API calls and long-lived streams. It does not turn a CPU-heavy PHP loop into parallel work, and runtime hooks only cover supported operations in the installed Swoole build. CPU-bound work still needs an appropriate process or job strategy.</p>
+        <p>Overlapping requests make isolation more demanding. Clearing a global “current user” at the end of a request cannot protect another request that was already running while the first one yielded. The current identity must be attached to the execution that owns it throughout the overlap.</p>
+        <p>Semitexa's <code>ExecutionContext</code> carries request, session, cookies, tenant, auth and locale values. The container stores those bindings through <code>CoroutineLocal</code>, which uses Swoole's coroutine context during coroutine execution. Resolving a mutable dependency after a yield therefore reads the current coroutine's context.</p>
+        <p>The container itself remains shared. The execution bindings do not become an ordinary field on that shared container. This separation is one of the most important strengths of a framework designed around persistent, concurrent workers.</p>
+        <p>Child coroutines have a deliberate boundary too. A new child does not automatically inherit its parent's execution context. Framework code that needs propagation captures the context and applies it explicitly:</p>
+        {% set propagationCode %}// Runtime integration code with an execution-context-aware container.
+$snapshot = $container->captureExecutionContext();
+
+Swoole\Coroutine::create(function () use ($container, $snapshot): void {
+    $container->runWithExecutionContext($snapshot, function () use ($container): void {
+        // Resolve context-dependent services inside this callback.
+        $request = $container->captureExecutionContext()->request;
+        // Perform the child operation using its explicit context.
+    });
+});{% endset %}
+        <figure class="blog-code"><figcaption>PHP · explicit propagation when writing a custom coroutine integration</figcaption><pre tabindex="0"><code class="language-php">{{ highlight_php(propagationCode) }}</code></pre></figure>
+        <p><code>runWithExecutionContext()</code> restores the previous bindings in a <code>finally</code> block. The snapshot carries references to context objects; it is not a deep copy that makes arbitrary shared mutations safe. Ordinary payload handlers receive their dependencies through injection; this lower-level API matters when implementing runtime integrations.</p>
+        <p>The <a href="https://github.com/semitexa/semitexa-core/blob/17861784cb29ea1092b97001024f495200465e71/src/Support/CoroutineLocal.php">CoroutineLocal implementation</a> also provides a process-local fallback for CLI execution. Request lifecycle cleanup remains necessary there, where one process may perform several executions without Swoole coroutine teardown.</p>
+      </section>
+
+      <section id="connection-pools">
+        <h2>Reuse connections with clear ownership and bounded waiting</h2>
+        <p>A persistent runtime can keep useful database connections open. It also needs to prevent two executions from accidentally treating the same connection as their own transaction. Connection reuse becomes an ownership problem as well as a performance opportunity.</p>
+        <p>Semitexa ORM's coroutine-aware pool uses a bounded Swoole channel. A caller borrows a connection, uses it and returns it. Pool acquisition has a timeout and reports exhaustion. The pool can recover abandoned borrows when a coroutine ends, and it tracks events such as discards and exhausted waits.</p>
+        <p>That gives the application an explicit capacity boundary. When available connections are occupied, callers wait within a limit instead of creating an unbounded number of connections. Pool capacity is per pool in a worker process; size the deployment against the total number of workers and the database's connection budget.</p>
+        <p>Returning a connection includes transaction hygiene. If PDO reports an open transaction, the pool attempts a rollback before reuse. If that cleanup fails, the connection is discarded. This prevents a later borrower from inheriting an unfinished transaction on that path. The check relies on PDO's transaction tracking, so raw SQL transaction commands are not a substitute for the managed transaction API.</p>
+        <p>The implementation also recognizes process changes so inherited connection resources are not casually reused after a fork. These details matter because the resource outlives any single request.</p>
+        <p>The <a href="https://github.com/semitexa/semitexa-orm/blob/94163047fa3ed57bef05e3bce5b05804e490957a/src/Adapter/ConnectionPool.php">ORM ConnectionPool source</a> shows the checkout, return, timeout and reclaim paths. The application-level lesson is straightforward: keep borrowed resources close to the work that uses them, release them promptly, and avoid holding a database connection while waiting on an unrelated remote service.</p>
+      </section>
+
+      <section id="live-delivery">
+        <h2>The same runtime can deliver the page and keep it alive</h2>
+        <p>The dashboard from the opening example has several useful moments to render. Order details are ready now. Recommendations arrive later. Fulfillment progress changes while the visitor is watching. Semitexa's rendering model can represent each moment without relocating the business rules into the browser.</p>
+        <p>A PHP handler fills a resource and Twig renders the initial HTML. A deferred region can arrive when its slower work finishes. SSE can carry subsequent updates. Coroutines let supported I/O waits yield while the worker handles other work; the connection and its resources still have a cost that the deployment must budget.</p>
+        <p>This combination is a practical runtime strength: reusable application services, execution context and server rendering participate in one flow. A shipping rule can remain in PHP while its result appears in the first response, a deferred block or a later live update.</p>
+        <p>Our <a href="/blog/server-side-rendering-2-0">Server Side Rendering 2.0 guide</a> contains a working shared-template example. The <a href="/blog/streaming-sse-semitexa">Streaming SSE guide</a> explores live delivery. Read them as concrete applications of the lifetime and concurrency model described here.</p>
+        <p>A live connection also crosses operational boundaries. Proxies need suitable buffering and timeout settings. Clients need reconnection behavior. Authentication and tenant isolation still apply to streamed content. Semitexa provides framework mechanisms for live delivery; a deployment must configure the network path around them.</p>
+      </section>
+
+      <section id="worker-lifecycle">
+        <h2>A long-running worker must also know how to stop</h2>
+        <p>Startup is only part of a persistent runtime. A deployment eventually replaces workers. Timers may still be firing, an SSE connection may be open, and a coroutine may be waiting on a socket. A complete lifecycle has to account for that work.</p>
+        <p>Semitexa exposes server lifecycle phases around startup and shutdown. Its current Swoole configuration enables asynchronous reload with a finite drain window. On worker exit, the bootstrap raises a drain signal, clears timers and attempts to cancel parked coroutines. It reports coroutines that refuse cancellation so a stalled shutdown has evidence.</p>
+        <p>This is bounded shutdown, not a promise that every in-flight operation completes. Some driver calls cannot be interrupted immediately, and Swoole may force termination after the configured wait. Work that must survive a worker replacement needs durable job handling, appropriate retries and idempotency.</p>
+        <p>The same ownership principle appears at smaller boundaries. HTTP handling resets registered per-request state and disposes request-scoped bindings in cleanup. Queue workers perform per-message cleanup. Scheduled execution restores a previous tenant context after a tenant-bound run. A process can stay alive while the framework closes an individual unit of work.</p>
+        <p>These mechanisms are visible in <a href="https://github.com/semitexa/semitexa-core/blob/17861784cb29ea1092b97001024f495200465e71/src/Server/SwooleBootstrap.php">SwooleBootstrap</a> and its <a href="https://github.com/semitexa/semitexa-core/blob/17861784cb29ea1092b97001024f495200465e71/src/Server/ServerConfigurator.php">server configuration</a>. For application developers, they provide explicit places to attach lifecycle behavior and explain why an unbounded background loop needs an exit strategy.</p>
+      </section>
+
+      <section id="verify-the-runtime">
+        <h2>Inspect the behavior and make the boundary executable</h2>
+        <p>Long-running behavior becomes easier to trust when you can examine more than a successful first response. Semitexa's development tooling connects route structure, active processes and recorded execution. The tools operate on the same application whose lifecycle you are investigating.</p>
+        {% set inspectCommands %}bin/semitexa ai:ask route \
+  --path=/blog/long-running-php-semitexa --json
+
+bin/semitexa ai:observe ps
+
+# In development, visit the article with ?__trace=1 first.
+bin/semitexa ai:observe tail \
+  --kind=http --name=BlogLongRunningPhp --lines=4 --json
+
+# Replace p-YOUR-ID with the request id from the journal.
+bin/semitexa ai:observe show --id=p-YOUR-ID --source{% endset %}
+        <figure class="blog-code"><figcaption>Terminal · inspect the article route and a source-linked development trace</figcaption><pre tabindex="0"><code class="language-bash">{{ highlight_php(inspectCommands) }}</code></pre></figure>
+        <p>Route inspection identifies the payload, handler, resource and template. Observatory lets you inspect process lifecycles and, for a traced development request, the recorded handler execution. Full traces and source views in this walkthrough require development mode.</p>
+        <p>The stronger isolation check is an interleaving test. Two coroutines install different request contexts, both yield, and then each resolves a context-dependent object. Each must still receive its own request. The core test suite also checks that a child starts without the parent's context and that explicit propagation restores the intended values.</p>
+        {% set testCommands %}# Run from the Semitexa development workspace with its Swoole runtime.
+bin/semitexa test:run \
+  packages/semitexa-core/tests/Unit/Container/SemitexaContainerExecutionContextIsolationTest.php
+
+bin/semitexa test:run \
+  packages/semitexa-core/tests/Integration/RequestScopedContainerLifecycleTest.php{% endset %}
+        <figure class="blog-code"><figcaption>Terminal · run the actual context isolation and lifecycle regression tests</figcaption><pre tabindex="0"><code class="language-bash">{{ highlight_php(testCommands) }}</code></pre></figure>
+        <p>These commands target tests in the development workspace; an installed distribution may not include that test tree. Coroutine cases require the Swoole extension and are skipped without it. Check the result for skipped tests as well as failures. The <a href="https://github.com/semitexa/semitexa-core/blob/17861784cb29ea1092b97001024f495200465e71/tests/Unit/Container/SemitexaContainerExecutionContextIsolationTest.php">concurrent isolation test source</a> shows exactly which boundary is exercised.</p>
+        <p>Performance needs its own evidence. Compare cold and warm behavior on the same workload, then measure latency under concurrency, memory over sustained traffic, database wait time and failure recovery. Avoid inferring an application-wide speedup from a counter or a hello-world route. Semitexa supplies mechanisms that remove repeated work and manage concurrency; the gain depends on where your application spends time.</p>
+        <p>When editing a development checkout, reload the running application before testing changed server code: <code>bin/semitexa server:restart app</code>. CLI checks such as <code>ai:verify</code> run in fresh processes and do not need that restart. That distinction is another direct consequence of the worker lifetime.</p>
+      </section>
+
+      <section id="build-with-the-runtime">
+        <h2>Build around the lifetimes the application actually has</h2>
+        <p>Semitexa's runtime design gives a PHP application a coherent set of building blocks: a warm service graph, execution-scoped handlers, coroutine-local context, bounded connection reuse, live server-rendered output and explicit worker shutdown. Observability and regression tests make those boundaries inspectable.</p>
+        <p>That is the significance of designing for long-running PHP from day one. The execution model shapes how dependencies are declared, how a handler is created, how state is carried, how a connection is returned and how HTML reaches the browser. Each part has a defined place in the application lifetime.</p>
+        <p>Start with one real feature. Keep stable services reusable, put execution-specific data in the appropriate scope, keep resource borrowing short, and test the second request as carefully as the first. Then add the overlapping requests and live updates that make the runtime's strengths useful.</p>
+        <div class="blog-cta">
+          <p class="blog-eyebrow">Run the architecture</p>
+          <h2>Build a PHP application that stays ready.</h2>
+          <p>Install Semitexa, inspect one request, and follow its state from the worker to the rendered page.</p>
+          <div class="blog-actions">
+            <a class="blog-button" href="/demo/get-started/installation">Get started with Semitexa →</a>
+            <a class="blog-text-link" href="#runtime-lab">Run the lifecycle example again</a>
+          </div>
+        </div>
+        <p class="blog-meta">Implementation references are pinned to the core and ORM revisions inspected for this article. Runtime details and command options can evolve; consult your installed version's help and source when applying an example.</p>
+      </section>
+    </div>
+  </article>
+{% endblock %}
