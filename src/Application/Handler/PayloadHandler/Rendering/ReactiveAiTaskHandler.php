@@ -87,8 +87,14 @@ final class ReactiveAiTaskHandler implements TypedHandlerInterface
         $priority = ['running', 'pending', 'failed', 'completed'];
         $counts = $this->aiTaskRepository->countByStatuses($priority);
         foreach ($priority as $status) {
-            if (($counts[$status] ?? 0) > 0) {
-                return $this->aiTaskRepository->findByStatuses([$status], 1)[0] ?? null;
+            if (($counts[$status] ?? 0) === 0) {
+                continue;
+            }
+            // A task can change status between the count and this read; then
+            // the next counted status answers rather than nothing.
+            $task = $this->aiTaskRepository->findByStatuses([$status], 1)[0] ?? null;
+            if ($task !== null) {
+                return $task;
             }
         }
 
