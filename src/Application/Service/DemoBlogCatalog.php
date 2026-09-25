@@ -18,6 +18,25 @@ final class DemoBlogCatalog
     public const PROJECT_GRAPH_PATH = '/blog/project-graph-semitexa';
     public const SSR2_PATH = '/blog/server-side-rendering-2-0';
     public const AI_NATIVE_PATH = '/blog/ai-native-php-development-semitexa';
+    public const LONG_RUNNING_PHP_PATH = '/blog/long-running-php-semitexa';
+
+    /** @return array<string, string> */
+    public function longRunningPhpArticle(): array
+    {
+        return [
+            'title' => 'Long-Running PHP: Inside the Semitexa Runtime',
+            'description' => 'Built for long-running PHP from day one: explore Semitexa worker lifecycles, coroutine isolation, connection pools and live HTML with a running example.',
+            'path' => self::LONG_RUNNING_PHP_PATH,
+            'published' => '2026-09-25',
+            'author' => self::AUTHOR_NAME,
+            'authorUrl' => self::AUTHOR_URL,
+            'category' => 'Runtime & Architecture',
+            'cardProtocol' => 'PHP / SWOOLE / LIFECYCLE',
+            'cardMark' => 'RUN',
+            'cardTagline' => 'Built to stay in memory.',
+            'linkLabel' => 'Explore the Semitexa runtime',
+        ];
+    }
 
     /** @return array<string, string> */
     public function aiNativeArticle(): array
@@ -112,6 +131,6 @@ final class DemoBlogCatalog
     /** @return list<array<string, string>> */
     public function articles(): array
     {
-        return [$this->aiNativeArticle(), $this->ssr2Article(), $this->projectGraphArticle(), $this->streamingSseArticle(), $this->sseArticle()];
+        return [$this->longRunningPhpArticle(), $this->aiNativeArticle(), $this->ssr2Article(), $this->projectGraphArticle(), $this->streamingSseArticle(), $this->sseArticle()];
     }
 }
