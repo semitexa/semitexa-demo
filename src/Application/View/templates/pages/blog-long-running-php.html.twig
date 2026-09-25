@@ -142,7 +142,7 @@ protected Request $request;
         {% set propagationCode %}// Runtime integration code with an execution-context-aware container.
 $snapshot = $container->captureExecutionContext();
 
-Swoole\Coroutine::create(function () use ($container, $snapshot): void {
+\Swoole\Coroutine::create(function () use ($container, $snapshot): void {
     $container->runWithExecutionContext($snapshot, function () use ($container): void {
         // Resolve context-dependent services inside this callback.
         $request = $container->captureExecutionContext()->request;
