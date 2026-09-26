@@ -8,7 +8,7 @@ use Semitexa\Core\Attribute\AsResource;
 use Semitexa\Core\Contract\ResourceInterface;
 use Semitexa\Ssr\Application\Service\Http\Response\HtmlResponse;
 
-#[AsResource(handle: 'demo_blog_ssr2', template: '@project-layouts-semitexa-demo/pages/blog-ssr2.html.twig')]
+#[AsResource(handle: 'demo_blog_ssr2', template: '@project-layouts-semitexa-demo/pages/blog-redirect.html.twig')]
 final class BlogSsr2Resource extends HtmlResponse implements ResourceInterface
 {
     use HasDemoShell;

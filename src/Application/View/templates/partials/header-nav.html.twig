@@ -1,7 +1,7 @@
 <div class="demo-header-nav">
   <div class="demo-header-links">
     <a href="/"{% if currentSection|default(null) != 'blog' %} class="is-active"{% endif %}>Explore</a>
-    <a href="/blog"{% if currentSection|default(null) == 'blog' %} class="is-active" aria-current="page"{% endif %}>Blog</a>
+    <a href="https://semitexa.com/blog">Articles ↗</a>
   </div>
   {% include '@project-layouts-semitexa-demo/partials/docs-search.html.twig' %}
   {% include '@project-layouts-semitexa-demo/partials/header-account.html.twig' %}
