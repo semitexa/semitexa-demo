@@ -67,6 +67,7 @@
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function () {
         showCopyFeedback(copyBtn, 'Copied!');
+        announceCopy(text);
       }).catch(function () {
         showCopyFeedback(copyBtn, 'Failed');
       });
@@ -81,11 +82,17 @@
       try {
         document.execCommand('copy');
         showCopyFeedback(copyBtn, 'Copied!');
+        announceCopy(text);
       } catch (err) {
         showCopyFeedback(copyBtn, 'Failed');
       }
       document.body.removeChild(textarea);
     }
+  }
+
+  // Lets analytics.js count copies without this file knowing about it.
+  function announceCopy(text) {
+    document.dispatchEvent(new CustomEvent('semitexa:code-copied', { detail: { text: text } }));
   }
 
   function showCopyFeedback(btn, message) {
