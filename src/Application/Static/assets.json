@@ -6,6 +6,11 @@
         "js": ["js/**/*.js"]
     },
     "overrides": {
+        "js/analytics.js": {
+            "scope": "module",
+            "priority": 5,
+            "attributes": { "defer": true }
+        },
         "js/demo-app.js": {
             "scope": "module",
             "priority": 10,
