@@ -75,7 +75,7 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
             explanation: FeatureExplanation::fromArray([
                 'what' => 'Switch tenant, and the same repository calls return a different dataset without hand-written WHERE clauses.',
                 'how' => 'Tenant-scoped resources inject tenant filters automatically, so repository code stays focused on business queries.',
-                'why' => 'This is the kind of platform guarantee that should be obvious in a demo, not hidden in docs.',
+                'why' => 'One forgotten WHERE clause is how a customer sees another customer\'s data. When the platform applies the scope, no query has to remember it.',
             ]),
             pageTitleSuffix: ' — Semitexa Demo',
         );
