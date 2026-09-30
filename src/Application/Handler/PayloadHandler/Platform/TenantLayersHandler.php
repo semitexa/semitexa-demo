@@ -69,7 +69,7 @@ final class TenantLayersHandler implements TypedHandlerInterface
             explanation: FeatureExplanation::fromArray([
                 'what' => 'Tenant context is not one switch. It is a composed stack of organization, locale, theme, and environment decisions.',
                 'how' => 'Each layer resolves independently, then merges into the final context consumed by the rest of the app.',
-                'why' => 'Showing the layers separately makes the platform model understandable instead of mystical.',
+                'why' => 'When a page renders in the wrong language or theme, you can see which layer decided it instead of guessing from one opaque tenant value.',
             ]),
             pageTitleSuffix: ' — Semitexa Demo',
         );

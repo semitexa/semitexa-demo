@@ -5,11 +5,12 @@
  # ShowcaseKit feature layout, so the 5 tenancy pages only have to capture their
  # bespoke L1/L2/L3 markup into `previewHtml` / `l2Content` / `l3Content` (and
  # set them BEFORE extending this wrapper). This wrapper maps the feature
- # resource data onto the kit feature contract, applies the demo chrome, and —
- # to keep the rendered content byte-for-byte equivalent to the retired
- # `demo-feature.html.twig` (which rendered only the three blocks) — suppresses
- # the projector-supplied highlights / documentBodyHtml / explanation / source so
- # only the captured blocks appear.
+ # resource data onto the kit feature contract, applies the demo chrome, and
+ # renders the what/how/why orientation panel every other feature page shows.
+ #
+ # It suppresses the projector-supplied highlights / documentBodyHtml / source,
+ # and keeps `explanation` out of the L3 drawer: each tenancy page writes its
+ # own L3 deep dive, and the kit's how/why there would repeat the panel above.
  #
  # Inheritance chain:
  #   platform/tenancy-*.html.twig
@@ -27,7 +28,7 @@
 {% set summary = summary|default(entryLine|default(null)) %}
 {% set backHref = '/demo/' ~ (section|default('platform')) %}
 
-{# Keep content identical to the old demo-feature output: only the three blocks. #}
+{# The captured blocks, plus the orientation panel below — nothing else. #}
 {% set highlights = [] %}
 {% set documentBodyHtml = null %}
 {% set explanation = null %}
@@ -44,6 +45,20 @@
 
 {% block head %}
   {{ parent() }}
+{% endblock %}
+
+{# --- Inline L1 context panel: the demo what/how/why orientation block,
+       the same one pages/feature.html.twig renders. The projector supplies
+       infoWhat/How/Why from each handler's FeatureExplanation. --- #}
+{% block feature_l1_context %}
+  {% if (infoWhat is defined and infoWhat) or (infoHow is defined and infoHow) or (infoWhy is defined and infoWhy) or (infoKeywords is defined and infoKeywords|length > 0) %}
+    {% include '@project-layouts-semitexa-demo/partials/feature-info.html.twig' with {
+      what: infoWhat|default(null),
+      how: infoHow|default(null),
+      why: infoWhy|default(null),
+      keywords: infoKeywords|default([]),
+    } only %}
+  {% endif %}
 {% endblock %}
 
 {% block sk_brand %}

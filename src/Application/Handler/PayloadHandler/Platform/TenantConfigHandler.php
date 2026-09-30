@@ -48,7 +48,7 @@ final class TenantConfigHandler implements TypedHandlerInterface
             fallbackSummary: 'Three demo tenants with distinct branding — switch tenant, everything changes without if/else.',
             fallbackHighlights: self::DOC_KEYWORDS,
             explanation: FeatureExplanation::fromArray([
-                'what' => 'This page demonstrates that tenancy is not only row isolation. The active tenant changes branding, locale defaults, pricing conventions, and visible features.',
+                'what' => 'Tenancy is not only row isolation: the active tenant also changes branding, locale defaults, pricing conventions, and which features are visible.',
                 'how' => 'One tenant config is resolved once, then reused by rendering, component behavior, and downstream services.',
                 'why' => 'The important platform promise is this: the same codebase can produce multiple product surfaces without sprinkling tenant-specific if/else logic everywhere.',
             ]),
