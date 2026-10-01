@@ -13,6 +13,13 @@ use Semitexa\Docs\Application\Service\FileDocumentRepository;
 #[AsService]
 final class DemoDocumentAdapter
 {
+    /**
+     * The demo runs on framework.semitexa.com, which serves no /docs: a link
+     * from a feature page to another document goes to the docs site, where
+     * every page exists, not to a /demo page only some documents have.
+     */
+    private const DOCS_SITE = 'https://semitexa.com/docs/';
+
     #[InjectAsReadonly]
     protected FileDocumentRepository $repository;
 
@@ -28,7 +35,7 @@ final class DemoDocumentAdapter
 
         return new DemoFeatureDocument(
             resolved: $document,
-            rendered: $this->renderer->renderHtml($document),
+            rendered: $this->renderer->renderHtml($document, self::DOCS_SITE),
         );
     }
 }
