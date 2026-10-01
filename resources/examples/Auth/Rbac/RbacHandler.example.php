@@ -6,6 +6,7 @@ namespace App\Application\Handler\Auth;
 
 use App\Application\Payload\Admin\UpdateProductPayload;
 use App\Application\Resource\Admin\ProductWriteResource;
+use App\Domain\Auth\AdminCapability;
 use App\Domain\Catalog\ProductWriterInterface;
 use Semitexa\Authorization\Attribute\RequiresCapability;
 use Semitexa\Authorization\Attribute\RequiresPermission;
@@ -13,7 +14,7 @@ use Semitexa\Core\Attribute\AsPayloadHandler;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Contract\TypedHandlerInterface;
 
-#[RequiresCapability('backoffice.access')]
+#[RequiresCapability(AdminCapability::BackofficeAccess)]
 #[RequiresPermission('products.write')]
 #[AsPayloadHandler(payload: UpdateProductPayload::class, resource: ProductWriteResource::class)]
 final class RbacHandler implements TypedHandlerInterface
