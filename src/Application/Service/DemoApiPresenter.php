@@ -9,6 +9,10 @@ use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Request;
 use Semitexa\Core\Resource\AcceptHeaderResolver;
 use Semitexa\Core\Resource\RenderProfile;
+use Semitexa\Demo\Application\Resource\Response\Graphql\ProductCategoryGraphqlView;
+use Semitexa\Demo\Application\Resource\Response\Graphql\ProductGraphqlView;
+use Semitexa\Demo\Application\Resource\Response\Graphql\ProductListGraphqlView;
+use Semitexa\Demo\Application\Resource\Response\Graphql\ProductReviewGraphqlView;
 use Semitexa\Demo\Domain\Repository\DemoCategoryRepositoryInterface;
 use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
 use Semitexa\Demo\Domain\Repository\DemoReviewRepositoryInterface;
@@ -49,22 +53,8 @@ final class DemoApiPresenter
         $basePath = $this->resolveCollectionBasePath($request);
         $page = max(1, $page);
         $limit = min(24, max(1, $limit));
-
-        $all = $this->products->findFiltered(status: $status, limit: 200, offset: 0);
-        if ($query !== null && $query !== '') {
-            $needle = mb_strtolower($query);
-            $all = array_values(array_filter(
-                $all,
-                static fn (DemoProduct $product): bool => str_contains(
-                    mb_strtolower($product->getName() . ' ' . ($product->getDescription() ?? '')),
-                    $needle,
-                ),
-            ));
-        }
-
-        $total = count($all);
         $offset = ($page - 1) * $limit;
-        $items = array_slice($all, $offset, $limit);
+        [$items, $total] = $this->selectPage($query, $status, $page, $limit);
 
         $payloadItems = array_map(
             fn (DemoProduct $product): array => $this->presentProduct(
@@ -540,6 +530,67 @@ final class DemoApiPresenter
         }
 
         return '/demo/api/v1/products';
+    }
+
+    /**
+     * The typed GraphQL output of a collection read: the same page, filters and
+     * total the REST body reports, as the `output:` declared on the payload.
+     */
+    public function buildCollectionView(?string $query, ?string $status, int $page, int $limit): ProductListGraphqlView
+    {
+        $page = max(1, $page);
+        $limit = min(24, max(1, $limit));
+        [$items, $total] = $this->selectPage($query, $status, $page, $limit);
+
+        return new ProductListGraphqlView(
+            items: array_map(fn (DemoProduct $product): ProductGraphqlView => $this->buildProductView($product), $items),
+            total: $total,
+            page: $page,
+            limit: $limit,
+        );
+    }
+
+    public function buildProductView(DemoProduct $product): ProductGraphqlView
+    {
+        $category = $this->resolveCategory($product);
+
+        return new ProductGraphqlView(
+            slug: $this->slugify($product->getName()),
+            name: $product->getName(),
+            price: (float) $product->getPrice(),
+            description: $product->getDescription(),
+            status: $product->getStatus(),
+            category: $category === null ? null : new ProductCategoryGraphqlView($category->getSlug(), $category->getName()),
+            reviews: array_map(
+                static fn (DemoReview $review): ProductReviewGraphqlView => new ProductReviewGraphqlView(
+                    id: $review->getId(),
+                    author: $review->getUserId(),
+                    rating: $review->getRating() ?? 0,
+                    headline: $review->getBody() ?? '',
+                ),
+                array_slice($this->reviews->findByProduct($product->getId()), 0, 4),
+            ),
+        );
+    }
+
+    /**
+     * @return array{0: list<DemoProduct>, 1: int} the requested page and the filtered total
+     */
+    private function selectPage(?string $query, ?string $status, int $page, int $limit): array
+    {
+        $all = $this->products->findFiltered(status: $status, limit: 200, offset: 0);
+        if ($query !== null && $query !== '') {
+            $needle = mb_strtolower($query);
+            $all = array_values(array_filter(
+                $all,
+                static fn (DemoProduct $product): bool => str_contains(
+                    mb_strtolower($product->getName() . ' ' . ($product->getDescription() ?? '')),
+                    $needle,
+                ),
+            ));
+        }
+
+        return [array_values(array_slice($all, ($page - 1) * $limit, $limit)), count($all)];
     }
 
     public function findProductBySlug(string $slug): ?DemoProduct

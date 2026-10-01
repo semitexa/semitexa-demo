@@ -52,7 +52,7 @@ final class ProductListPayload
     public function getFormat(): ?string { return $this->format; }
     public function setFormat(?string $format): void { $this->format = $format !== null ? trim($format) : null; }
     public function getPage(): int { return $this->page; }
-    public function setPage(int|string|null $page): void { $this->page = max(1, (int) ($page ?? 1)); }
+    public function setPage(?int $page): void { $this->page = max(1, $page ?? 1); }
     public function getLimit(): int { return $this->limit; }
-    public function setLimit(int|string|null $limit): void { $this->limit = min(24, max(1, (int) ($limit ?? 8))); }
+    public function setLimit(?int $limit): void { $this->limit = min(24, max(1, $limit ?? 8)); }
 }

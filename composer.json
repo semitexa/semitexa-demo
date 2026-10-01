@@ -46,6 +46,11 @@
       "extends": null,
       "name": "Semitexa Demo",
       "description": "Official showcase of the Semitexa Framework"
+    },
+    "semitexa": {
+      "floors": {
+        "semitexa/graphql": "next"
+      }
     }
   },
   "keywords": [
