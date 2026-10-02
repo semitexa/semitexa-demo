@@ -53,7 +53,7 @@ final class TenantQueueHandler implements TypedHandlerInterface
                 'how' => 'The serializer wraps the message with a tenant envelope, and the worker restores that context before executing the job.',
                 'why' => 'Without this, multi-tenant background processing quietly becomes dangerous.',
             ]),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         $this->projector->project($resource, $spec);

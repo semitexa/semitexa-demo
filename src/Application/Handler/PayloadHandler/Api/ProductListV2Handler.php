@@ -59,7 +59,7 @@ final class ProductListV2Handler implements TypedHandlerInterface
             fallbackSummary: 'The current collection endpoint with a clean X-Api-Version header and no deprecation noise.',
             fallbackHighlights: ['#[ApiVersion]', 'X-Api-Version', 'active lifecycle'],
             explanation: $this->explanationProvider->getExplanation('api', 'active-version'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

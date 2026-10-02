@@ -46,7 +46,7 @@ final class DescribeCommandsHandler implements TypedHandlerInterface
             fallbackHighlights: ['ai:ask', 'dev:graph:route', 'dev:graph:project', 'routes:list', 'contracts:list', 'lint:*'],
             // NB: v1 intentionally queries explanation under 'cli/project-graph' rather than 'cli/describe-commands'.
             explanation: $this->explanationProvider->getExplanation('cli', 'project-graph'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

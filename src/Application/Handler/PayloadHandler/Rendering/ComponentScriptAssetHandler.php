@@ -39,7 +39,7 @@ final class ComponentScriptAssetHandler implements TypedHandlerInterface
             fallbackSummary: 'A Semitexa SSR component can own its optional enhancement asset, so behavior travels with the component instead of leaking into page-level glue.',
             fallbackHighlights: ['#[AsComponent]', 'script', 'SemitexaComponent.register()', 'auto-require', 'SSR component root'],
             explanation: $this->explanationProvider->getExplanation('rendering', 'component-scripts'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

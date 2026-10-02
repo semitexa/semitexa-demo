@@ -30,7 +30,7 @@ final class LlmOverviewHandler implements TypedHandlerInterface
             fallbackTitle: 'LLM Module Overview',
             fallbackSummary: 'What `semitexa/llm` adds to the framework and how your project can expose its own CLI skills to the assistant.',
             fallbackHighlights: ['#[AsAiSkill]', 'custom skills', 'SkillManifest', 'policy-aware execution'],
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
             sectionLabel: 'LLM Module',
         );
 

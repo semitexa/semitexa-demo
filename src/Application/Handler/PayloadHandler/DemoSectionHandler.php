@@ -67,7 +67,7 @@ final class DemoSectionHandler implements TypedHandlerInterface
         }
 
         return $resource
-            ->pageTitle($meta['label'] . ' — Semitexa Demo')
+            ->pageTitle($meta['label'] . ' | Semitexa Demo')
             ->seoTagDefault('description', $meta['summary'])
             ->seoKeywords($keywords)
             ->withDemoShellContext([

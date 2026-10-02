@@ -40,7 +40,7 @@ final class DeferredScriptInjectionHandler implements TypedHandlerInterface
             fallbackSummary: 'Deferred blocks carry their own JS — injected once when the block arrives, never duplicated.',
             fallbackHighlights: ['clientModules', 'semitexa:block:rendered', 'auto-play', 'script isolation'],
             explanation: $this->explanationProvider->getExplanation('rendering', 'deferred-scripts'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

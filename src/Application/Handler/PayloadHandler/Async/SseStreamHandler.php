@@ -43,7 +43,7 @@ final class SseStreamHandler implements TypedHandlerInterface
             fallbackSummary: 'Real-time server push without WebSockets — connect once and receive real backend events over plain HTTP.',
             fallbackHighlights: ['SseEndpointHandler', 'AsyncResourceSseServer', 'EventSource', 'text/event-stream'],
             explanation: $this->explanationProvider->getExplanation('events', 'sse'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

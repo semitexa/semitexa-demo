@@ -39,7 +39,7 @@ final class RequiresPermissionHandler implements TypedHandlerInterface
             fallbackSummary: 'Declare one permission slug on the payload and let the framework enforce it before your handler runs.',
             fallbackHighlights: ['#[RequiresPermission]', '401 Unauthorized', '403 Forbidden', 'guard chain'],
             explanation: $this->explanationProvider->getExplanation('auth', 'requires-permission'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

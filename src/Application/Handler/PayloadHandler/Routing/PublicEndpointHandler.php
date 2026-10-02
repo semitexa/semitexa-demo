@@ -39,7 +39,7 @@ final class PublicEndpointHandler implements TypedHandlerInterface
             fallbackSummary: 'Every endpoint is private by default. #[PublicEndpoint] is the explicit opt-in for anonymous access.',
             fallbackHighlights: ['#[PublicEndpoint]', 'default private', '401 Unauthorized', 'Authorizer'],
             explanation: $this->explanationProvider->getExplanation('routing', 'public-endpoint'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

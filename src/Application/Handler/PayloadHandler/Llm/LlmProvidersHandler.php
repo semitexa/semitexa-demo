@@ -34,14 +34,14 @@ final class LlmProvidersHandler implements TypedHandlerInterface
             fallbackTitle: 'Providers & Backends',
             fallbackSummary: 'Provider contracts, backend resolution, local vs remote Ollama, and the environment knobs that shape LLM runtime behavior.',
             fallbackHighlights: ['LlmProviderInterface', 'LlmProviderResolver', 'local Ollama', 'remote Ollama'],
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
             sectionLabel: 'LLM Module',
         );
 
         // v1 page title is a hand-authored short form ("LLM Providers"), not the full document
         // title ("Providers & Backends"). Override the projector-computed title to preserve parity.
         return $this->projector->project($resource, $spec)
-            ->pageTitle('LLM Providers — Semitexa Demo')
+            ->pageTitle('LLM Providers | Semitexa Demo')
             ->withSourceCode([
                 'Provider Setup Example' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Llm/ProviderSetup.example.php'),
                 'Provider Contract' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-llm/src/Contract/LlmProviderInterface.php'),

@@ -77,7 +77,7 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
                 'how' => 'Tenant-scoped resources inject tenant filters automatically, so repository code stays focused on business queries.',
                 'why' => 'One forgotten WHERE clause is how a customer sees another customer\'s data. When the platform applies the scope, no query has to remember it.',
             ]),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         $this->projector->project($resource, $spec);

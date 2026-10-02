@@ -44,7 +44,7 @@ final class RepositoryWorkflowHandler implements TypedHandlerInterface
             fallbackSummary: 'The canonical Semitexa path: handlers depend on repository contracts, repositories return domain models, and persistence resources stay behind the boundary.',
             fallbackHighlights: ['repository contract', 'domain model', 'ResourceModel', 'mapper', '#[SatisfiesRepositoryContract]'],
             explanation: $this->explanationProvider->getExplanation('data', 'repository-workflow'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

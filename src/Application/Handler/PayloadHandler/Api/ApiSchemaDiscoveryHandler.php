@@ -47,7 +47,7 @@ final class ApiSchemaDiscoveryHandler implements TypedHandlerInterface
             fallbackSummary: 'A mini Swagger-style explorer for the live product API contract, schema endpoint, and response shapes.',
             fallbackHighlights: ['#[ExternalApi]', 'application/schema+json', 'JSON Schema', 'live explorer'],
             explanation: $this->explanationProvider->getExplanation('api', 'schema-discovery'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         $operations = $this->buildOperations();

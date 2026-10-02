@@ -48,7 +48,7 @@ final class LayoutSlotHandler implements TypedHandlerInterface
             fallbackSummary: 'Each page region is its own resource pipeline with the same template system as the main page — no scattered partial glue, no mystery wiring.',
             fallbackHighlights: ['#[AsSlotResource]', 'HtmlSlotResponse', 'layout_slot()', 'SlotHandlerPipeline', 'shared Twig'],
             explanation: $this->explanationProvider->getExplanation('rendering', 'slots'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

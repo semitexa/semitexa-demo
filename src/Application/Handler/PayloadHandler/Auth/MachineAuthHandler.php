@@ -41,7 +41,7 @@ final class MachineAuthHandler implements TypedHandlerInterface
             fallbackSummary: 'Service-to-service authentication via Bearer tokens — scoped, revocable, and audited.',
             fallbackHighlights: ['MachineAuthHandler', 'Bearer {id}:{secret}', 'MachineCredential', 'scopes', 'revocation'],
             explanation: $this->explanationProvider->getExplanation('auth', 'machine'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

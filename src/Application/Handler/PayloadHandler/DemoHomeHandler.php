@@ -42,7 +42,7 @@ final class DemoHomeHandler implements TypedHandlerInterface
         }
 
         return $resource
-            ->pageTitle('Semitexa Demo — Build faster. Ship safer. Scale effortlessly.')
+            ->pageTitle('Semitexa Demo | Build faster. Ship safer. Scale effortlessly.')
             ->seoTagDefault('description', 'Production-like walkthroughs for the Semitexa runtime, from installation and routing to SSR, async, and tenancy.')
             ->seoKeywords($keywords)
             ->withDemoShellContext([

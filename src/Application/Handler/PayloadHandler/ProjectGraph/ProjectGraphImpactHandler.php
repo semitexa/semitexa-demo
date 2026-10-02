@@ -46,7 +46,7 @@ final class ProjectGraphImpactHandler implements TypedHandlerInterface
                     ['term' => 'ai:review-graph:watch', 'definition' => 'Keeps the stored graph fresh during active development so later graph-backed answers match the current codebase.'],
                 ],
             ]),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
             sectionLabel: 'Project Graph',
         );
 

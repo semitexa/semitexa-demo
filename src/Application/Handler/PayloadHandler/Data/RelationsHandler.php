@@ -54,7 +54,7 @@ final class RelationsHandler implements TypedHandlerInterface
             fallbackSummary: 'Declare parent and child links on the resource itself, then read typed relations from the handler.',
             fallbackHighlights: ['#[HasMany]', '#[BelongsTo]', 'foreignKey', 'typed relations', 'batch loading'],
             explanation: $this->explanationProvider->getExplanation('data', 'relations'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         $categories = array_slice($this->categoryRepository->findAllOrdered(), 0, 2);

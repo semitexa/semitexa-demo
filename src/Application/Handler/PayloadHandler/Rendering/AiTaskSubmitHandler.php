@@ -52,11 +52,11 @@ final class AiTaskSubmitHandler implements TypedHandlerInterface
             fallbackSummary: 'Submit a task and watch the AI pipeline stages reveal one by one as the cron job processes it.',
             fallbackHighlights: ['DemoAiTask', 'stage-by-stage', 'refreshInterval: 2', 'user-triggered → cron pickup'],
             explanation: $this->explanationProvider->getExplanation('rendering', 'reactive-ai'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)
-            ->pageTitle('Submit AI Task — Semitexa Demo')
+            ->pageTitle('Submit AI Task | Semitexa Demo')
             ->withTitle('Submit AI Task')
             ->withSourceCode([
                 'AiTaskSubmitPayload' => $this->sourceCodeReader->readClassSource(AiTaskSubmitPayload::class),

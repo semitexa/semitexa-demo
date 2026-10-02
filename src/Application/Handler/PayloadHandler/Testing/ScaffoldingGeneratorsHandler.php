@@ -44,7 +44,7 @@ final class ScaffoldingGeneratorsHandler implements TypedHandlerInterface
             fallbackSummary: 'Scaffold modules, pages, payloads, services, and contracts through commands that already understand Semitexa structure and AI-friendly output modes.',
             fallbackHighlights: ['make:module', 'make:page', 'make:payload', 'make:service', 'make:contract', '--llm-hints'],
             explanation: $this->explanationProvider->getExplanation('cli', 'scaffolding-generators'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

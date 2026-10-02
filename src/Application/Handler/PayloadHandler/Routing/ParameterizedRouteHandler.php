@@ -49,7 +49,7 @@ final class ParameterizedRouteHandler implements TypedHandlerInterface
             fallbackSummary: 'Path parameters with regex constraints and typed injection.',
             fallbackHighlights: ['requirements', 'defaults', 'PayloadHydrator', 'setter injection'],
             explanation: $this->explanationProvider->getExplanation('routing', 'parameterized'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

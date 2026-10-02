@@ -50,7 +50,7 @@ final class TenantResolutionHandler implements TypedHandlerInterface
                 'how' => 'The resolver chain tries the configured strategies in priority order. The first match wins and becomes the tenant context for the rest of the execution.',
                 'why' => 'If tenant resolution is ambiguous, every “isolated” layer above it becomes unreliable. That is why this boundary deserves explicit design.',
             ]),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         $this->projector->project($resource, $spec);

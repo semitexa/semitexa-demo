@@ -63,7 +63,7 @@ final class ProductListV0Handler implements TypedHandlerInterface
             fallbackSummary: 'A deprecated product endpoint that emits both Deprecation and Sunset headers.',
             fallbackHighlights: ['#[ApiVersion]', 'Deprecation', 'Sunset', 'X-Api-Version'],
             explanation: $this->explanationProvider->getExplanation('api', 'sunset-version'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)
