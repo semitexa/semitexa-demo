@@ -470,7 +470,15 @@ final class DemoApiPresenter
             return null;
         }
 
-        foreach ($this->categories->findAllOrdered() as $category) {
+        return $this->categoryOf($product, $this->categories->findAllOrdered());
+    }
+
+    /**
+     * @param list<DemoCategory> $categories
+     */
+    private function categoryOf(DemoProduct $product, array $categories): ?DemoCategory
+    {
+        foreach ($categories as $category) {
             if ($category->getId() === $product->getCategoryId()) {
                 return $category;
             }
@@ -542,8 +550,16 @@ final class DemoApiPresenter
         $limit = min(24, max(1, $limit));
         [$items, $total] = $this->selectPage($query, $status, $page, $limit);
 
+        // One review query and one category read for the page, not one of each
+        // per product: the view is built whole, whatever fields the query asks.
+        $reviews = $this->reviews->findByProducts(array_map(static fn (DemoProduct $product): string => $product->getId(), $items));
+        $categories = $this->categories->findAllOrdered();
+
         return new ProductListGraphqlView(
-            items: array_map(fn (DemoProduct $product): ProductGraphqlView => $this->buildProductView($product), $items),
+            items: array_map(
+                fn (DemoProduct $product): ProductGraphqlView => $this->productView($product, $reviews[$product->getId()] ?? [], $categories),
+                $items,
+            ),
             total: $total,
             page: $page,
             limit: $limit,
@@ -552,7 +568,20 @@ final class DemoApiPresenter
 
     public function buildProductView(DemoProduct $product): ProductGraphqlView
     {
-        $category = $this->resolveCategory($product);
+        return $this->productView(
+            $product,
+            $this->reviews->findByProduct($product->getId()),
+            $this->categories->findAllOrdered(),
+        );
+    }
+
+    /**
+     * @param list<DemoReview> $reviews newest first
+     * @param list<DemoCategory> $categories
+     */
+    private function productView(DemoProduct $product, array $reviews, array $categories): ProductGraphqlView
+    {
+        $category = $this->categoryOf($product, $categories);
 
         return new ProductGraphqlView(
             slug: $this->slugify($product->getName()),
@@ -565,10 +594,10 @@ final class DemoApiPresenter
                 static fn (DemoReview $review): ProductReviewGraphqlView => new ProductReviewGraphqlView(
                     id: $review->getId(),
                     author: $review->getUserId(),
-                    rating: $review->getRating() ?? 0,
-                    headline: $review->getBody() ?? '',
+                    rating: $review->getRating(),
+                    headline: $review->getBody(),
                 ),
-                array_slice($this->reviews->findByProduct($product->getId()), 0, 4),
+                array_slice($reviews, 0, 4),
             ),
         );
     }

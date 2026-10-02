@@ -17,9 +17,9 @@ final readonly class ProductReviewGraphqlView implements ResourceObjectInterface
         public string $id,
         #[ResourceField(description: 'Id of the user who wrote the review.')]
         public string $author,
-        #[ResourceField(description: 'Rating from 1 to 5.')]
-        public int $rating,
-        #[ResourceField(description: 'Review text.')]
-        public string $headline,
+        #[ResourceField(description: 'Rating from 1 to 5; null when the review has none.')]
+        public ?int $rating,
+        #[ResourceField(description: 'Review text; null when the review has none.')]
+        public ?string $headline,
     ) {}
 }

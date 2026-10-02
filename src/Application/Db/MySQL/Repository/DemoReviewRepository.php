@@ -53,7 +53,37 @@ final class DemoReviewRepository implements DemoReviewRepositoryInterface
         return $this->repository()->query()
             ->where(DemoReviewResource::column('productId'), Operator::Equals, $productId)
             ->orderBy(DemoReviewResource::column('createdAt'), Direction::Desc)
+            // Seeded reviews share one createdAt: without a tiebreak the order,
+            // and so the four a product shows, differs between the two reads.
+            ->orderBy(DemoReviewResource::column('id'), Direction::Desc)
             ->fetchAllAs(DemoReview::class, $this->orm()->getMapperRegistry());
+    }
+
+    /**
+     * @param list<string> $productIds
+     * @return array<string, list<DemoReview>>
+     */
+    public function findByProducts(array $productIds): array
+    {
+        if ($productIds === []) {
+            return [];
+        }
+
+        /** @var list<DemoReview> $reviews */
+        $reviews = $this->repository()->query()
+            ->whereIn(DemoReviewResource::column('productId'), array_values(array_unique($productIds)))
+            ->orderBy(DemoReviewResource::column('createdAt'), Direction::Desc)
+            // Seeded reviews share one createdAt: without a tiebreak the order,
+            // and so the four a product shows, differs between the two reads.
+            ->orderBy(DemoReviewResource::column('id'), Direction::Desc)
+            ->fetchAllAs(DemoReview::class, $this->orm()->getMapperRegistry());
+
+        $byProduct = [];
+        foreach ($reviews as $review) {
+            $byProduct[$review->getProductId()][] = $review;
+        }
+
+        return $byProduct;
     }
 
     /** @return list<DemoReview> */
@@ -63,6 +93,9 @@ final class DemoReviewRepository implements DemoReviewRepositoryInterface
         return $this->repository()->query()
             ->where(DemoReviewResource::column('userId'), Operator::Equals, $userId)
             ->orderBy(DemoReviewResource::column('createdAt'), Direction::Desc)
+            // Seeded reviews share one createdAt: without a tiebreak the order,
+            // and so the four a product shows, differs between the two reads.
+            ->orderBy(DemoReviewResource::column('id'), Direction::Desc)
             ->fetchAllAs(DemoReview::class, $this->orm()->getMapperRegistry());
     }
 

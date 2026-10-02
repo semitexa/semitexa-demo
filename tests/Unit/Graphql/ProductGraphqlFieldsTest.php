@@ -62,6 +62,18 @@ final class ProductGraphqlFieldsTest extends TestCase
         self::assertArrayHasKey('reviews', $product->getFields());
     }
 
+    /** A review without a rating or text is null, as in REST — not a made-up 0 or "". */
+    public function test_a_review_rating_and_text_are_nullable(): void
+    {
+        $review = $this->outputTypes()->forResource(
+            (new ResourceMetadataExtractor())->extract(ProductReviewGraphqlView::class),
+        );
+        self::assertInstanceOf(ObjectType::class, $review);
+
+        self::assertSame('Int', (string) $review->getField('rating')->getType());
+        self::assertSame('String', (string) $review->getField('headline')->getType());
+    }
+
     /** An `int|string|null` setter is skipped by the argument builder: `products(limit: 2)` was rejected. */
     public function test_paging_is_an_argument_of_the_products_field(): void
     {
