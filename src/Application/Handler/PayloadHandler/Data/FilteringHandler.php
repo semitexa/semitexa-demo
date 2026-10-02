@@ -45,7 +45,7 @@ final class FilteringHandler implements TypedHandlerInterface
             fallbackSummary: 'Mark a property #[Filterable] and the ORM handles the rest — no manual WHERE clauses.',
             fallbackHighlights: ['#[Filterable]', 'FilterableTrait', 'FilterableResourceInterface', 'getFilterCriteria()'],
             explanation: $this->explanationProvider->getExplanation('data', 'filtering'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         $products = $this->applyNameAndCategoryFilters(

@@ -39,7 +39,7 @@ final class PayloadShieldHandler implements TypedHandlerInterface
             fallbackSummary: 'Hydration happens before the handler, and each setter owns the normalization and guard logic for its own field.',
             fallbackHighlights: ['PayloadHydrator', 'ValidationException', 'setter guards', '422 before handler'],
             explanation: $this->explanationProvider->getExplanation('routing', 'payload-shield'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

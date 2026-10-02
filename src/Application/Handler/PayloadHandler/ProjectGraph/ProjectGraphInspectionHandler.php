@@ -47,7 +47,7 @@ final class ProjectGraphInspectionHandler implements TypedHandlerInterface
                     ['term' => 'ai:review-graph:context', 'definition' => 'Builds task-scoped structural context for review, refactor, debugging, or AI-assisted work.'],
                 ],
             ]),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
             sectionLabel: 'Project Graph',
         );
 

@@ -39,7 +39,7 @@ final class PayloadPartsHandler implements TypedHandlerInterface
             fallbackSummary: 'One module owns the route, another module can extend the same payload contract without forking or reopening the base class.',
             fallbackHighlights: ['#[AsPayloadPart]', 'trait composition', 'module extension', 'field-level guards'],
             explanation: $this->explanationProvider->getExplanation('routing', 'payload-parts'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

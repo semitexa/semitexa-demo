@@ -46,7 +46,7 @@ final class ProjectGraphOverviewHandler implements TypedHandlerInterface
                     ['term' => 'package-level capability', 'definition' => 'The graph surface belongs to the `semitexa-project-graph` package and is available where that package is installed and enabled.'],
                 ],
             ]),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
             sectionLabel: 'Project Graph',
         );
 

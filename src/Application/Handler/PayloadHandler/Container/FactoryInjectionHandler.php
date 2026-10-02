@@ -39,7 +39,7 @@ final class FactoryInjectionHandler implements TypedHandlerInterface
             fallbackSummary: 'On-demand creation stays explicit — lazy instances without falling back to service locator habits.',
             fallbackHighlights: ['#[InjectAsFactory]', 'closed-world selection', 'on-demand', 'lazy instantiation'],
             explanation: $this->explanationProvider->getExplanation('di', 'factory'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

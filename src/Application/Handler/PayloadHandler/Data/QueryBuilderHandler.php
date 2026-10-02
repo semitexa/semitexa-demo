@@ -44,7 +44,7 @@ final class QueryBuilderHandler implements TypedHandlerInterface
             fallbackSummary: 'Compose type-safe queries with a fluent API — no raw SQL, no magic strings.',
             fallbackHighlights: ['ResourceModelQuery', 'where()', 'orderBy()', 'limit()', 'fetchAll()', 'fetchOne()'],
             explanation: $this->explanationProvider->getExplanation('data', 'query'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         $products = $this->productRepository->findFiltered(

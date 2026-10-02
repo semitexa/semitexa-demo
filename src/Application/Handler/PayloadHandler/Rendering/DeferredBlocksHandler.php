@@ -25,7 +25,7 @@ final class DeferredBlocksHandler implements TypedHandlerInterface
         $returnTo = '/demo/rendering/deferred';
 
         return $resource
-            ->pageTitle('Deferred Blocks — Semitexa Demo')
+            ->pageTitle('Deferred Blocks | Semitexa Demo')
             ->withSection('rendering')
             ->withSlug('deferred')
             ->withTitle('Deferred Blocks')

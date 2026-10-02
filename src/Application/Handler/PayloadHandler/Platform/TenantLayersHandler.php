@@ -71,7 +71,7 @@ final class TenantLayersHandler implements TypedHandlerInterface
                 'how' => 'Each layer resolves independently, then merges into the final context consumed by the rest of the app.',
                 'why' => 'When a page renders in the wrong language or theme, you can see which layer decided it instead of guessing from one opaque tenant value.',
             ]),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         $this->projector->project($resource, $spec);

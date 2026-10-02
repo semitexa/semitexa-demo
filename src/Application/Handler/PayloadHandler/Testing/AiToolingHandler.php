@@ -44,7 +44,7 @@ final class AiToolingHandler implements TypedHandlerInterface
             fallbackSummary: 'Use the project-aware operating layer for orientation, planning, structural inspection, runtime debugging, durable work memory, and precise verification.',
             fallbackHighlights: ['ai:orient', 'ai:ask', 'ai:observe', 'ai:work', 'ai:verify'],
             explanation: $this->explanationProvider->getExplanation('cli', 'ai-tooling'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

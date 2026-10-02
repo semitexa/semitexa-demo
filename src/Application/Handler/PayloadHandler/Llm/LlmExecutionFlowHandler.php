@@ -37,14 +37,14 @@ final class LlmExecutionFlowHandler implements TypedHandlerInterface
             fallbackTitle: 'Execution Flow',
             fallbackSummary: 'How a user request becomes a planner decision, a reviewed skill proposal, and finally a real console execution.',
             fallbackHighlights: ['Planner', 'PlannerResponse', 'SkillExecutor', 'ConversationSession'],
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
             sectionLabel: 'LLM Module',
         );
 
         // v1 page title uses a hand-authored short form ("LLM Execution Flow"), not the document
         // title ("Execution Flow"). Override the projector-computed title to preserve parity.
         return $this->projector->project($resource, $spec)
-            ->pageTitle('LLM Execution Flow — Semitexa Demo')
+            ->pageTitle('LLM Execution Flow | Semitexa Demo')
             ->withSourceCode([
                 'Assistant Loop Example' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-demo/resources/examples/Llm/AssistantLoop.example.php'),
                 'Planner' => $this->sourceCodeReader->readClassSource(Planner::class),

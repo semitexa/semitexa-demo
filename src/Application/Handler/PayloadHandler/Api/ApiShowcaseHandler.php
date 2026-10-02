@@ -43,7 +43,7 @@ final class ApiShowcaseHandler implements TypedHandlerInterface
             fallbackSummary: 'Classic Semitexa REST endpoints with typed payloads, versioning, and consumer-friendly response shaping.',
             fallbackHighlights: ['#[ExternalApi]', '#[ApiVersion]', 'application/ld+json', 'fields', 'expand', 'X-Response-Profile'],
             explanation: $this->explanationProvider->getExplanation('api', 'rest-api'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

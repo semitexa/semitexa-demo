@@ -70,7 +70,7 @@ final class GoogleAuthHandler implements TypedHandlerInterface
             fallbackSummary: 'Authorization is required for demo SSE blocks that keep a long-lived backend connection open.',
             fallbackHighlights: ['Authorization is required', 'Google Account', 'session-backed login', 'persistent SSE'],
             explanation: $this->explanationProvider->getExplanation('auth', 'google'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

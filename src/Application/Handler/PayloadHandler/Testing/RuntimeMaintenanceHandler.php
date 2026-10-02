@@ -44,7 +44,7 @@ final class RuntimeMaintenanceHandler implements TypedHandlerInterface
             fallbackSummary: 'Reload workers, clear stale cache, sync registries, lint architecture rules, and probe handler wiring without reaching for ad-hoc shell scripts.',
             fallbackHighlights: ['server:reload', 'cache:clear', 'registry:sync', 'lint:*', 'test:handler'],
             explanation: $this->explanationProvider->getExplanation('cli', 'runtime-maintenance'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

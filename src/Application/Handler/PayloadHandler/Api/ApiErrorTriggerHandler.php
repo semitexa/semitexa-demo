@@ -62,7 +62,7 @@ final class ApiErrorTriggerHandler implements TypedHandlerInterface
             fallbackSummary: 'Throw domain exceptions and let semitexa-api map them into stable machine-readable error envelopes.',
             fallbackHighlights: ['ExternalApiExceptionMapper', 'DomainException', 'error.context', 'request_id'],
             explanation: $this->explanationProvider->getExplanation('api', 'structured-errors'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         [$title, $summary, $notes] = $this->envelopeCopy($type);

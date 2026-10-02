@@ -46,7 +46,7 @@ final class ReadonlyInjectionHandler implements TypedHandlerInterface
             fallbackSummary: 'One explicit DI path, one shared worker instance — fast at runtime and stable under reload.',
             fallbackHighlights: ['#[InjectAsReadonly]', 'worker-scoped', 'single-path DI', 'reload-stable'],
             explanation: $this->explanationProvider->getExplanation('di', 'readonly'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

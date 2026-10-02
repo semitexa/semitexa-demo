@@ -44,7 +44,7 @@ final class PaginationHandler implements TypedHandlerInterface
             fallbackSummary: 'Offset and cursor pagination out of the box — switch modes with a single query parameter.',
             fallbackHighlights: ['PaginatedResult', 'limit()', 'offset()', 'cursor pagination', 'total count'],
             explanation: $this->explanationProvider->getExplanation('data', 'pagination'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         $mode = $payload->getMode();

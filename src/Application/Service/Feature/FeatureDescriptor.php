@@ -30,7 +30,7 @@ final readonly class FeatureDescriptor
         public string $deepDiveLabel,
         public array $relatedPayloads,
         public DemoFeaturePresentation $presentation,
-        public string $pageTitleSuffix = ' — Semitexa Framework',
+        public string $pageTitleSuffix = ' | Semitexa Framework',
     ) {}
 
     public function pageTitle(): string

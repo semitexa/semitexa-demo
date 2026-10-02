@@ -52,7 +52,7 @@ final class TenantConfigHandler implements TypedHandlerInterface
                 'how' => 'One tenant config is resolved once, then reused by rendering, component behavior, and downstream services.',
                 'why' => 'The important platform promise is this: the same codebase can produce multiple product surfaces without sprinkling tenant-specific if/else logic everywhere.',
             ]),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         $this->projector->project($resource, $spec);

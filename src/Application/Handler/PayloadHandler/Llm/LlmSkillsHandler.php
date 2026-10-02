@@ -34,7 +34,7 @@ final class LlmSkillsHandler implements TypedHandlerInterface
             fallbackTitle: 'Adding Skills',
             fallbackSummary: 'How a console command becomes AI-executable through `#[AsAiSkill]`, metadata policy, and registry discovery.',
             fallbackHighlights: ['#[AsAiSkill]', '#[AsCommand]', 'argumentPolicy', 'env::AI_ENABLE_*'],
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
             sectionLabel: 'LLM Module',
         );
 

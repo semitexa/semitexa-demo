@@ -39,7 +39,7 @@ final class MutableInjectionHandler implements TypedHandlerInterface
             fallbackSummary: 'Execution-scoped services get a fresh clone every run — safe state without contaminating the worker.',
             fallbackHighlights: ['#[InjectAsMutable]', 'execution-scoped', 'clone', 'state isolation'],
             explanation: $this->explanationProvider->getExplanation('di', 'mutable'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

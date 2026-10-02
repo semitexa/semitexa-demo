@@ -55,7 +55,7 @@ final class ExecutionArenaHandler implements TypedHandlerInterface
                     ['term' => 'SSE proof stream', 'definition' => 'A dedicated EventSource connection that receives backend stage confirmations in real time.'],
                 ],
             ]),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

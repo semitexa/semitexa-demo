@@ -36,7 +36,7 @@ final readonly class FeatureSpec
         public string $fallbackSummary,
         public array $fallbackHighlights = [],
         public ?FeatureExplanation $explanation = null,
-        public string $pageTitleSuffix = ' — Semitexa Framework',
+        public string $pageTitleSuffix = ' | Semitexa Framework',
         public ?string $sectionLabel = null,
     ) {}
 }

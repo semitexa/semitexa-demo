@@ -42,7 +42,7 @@ final class ComponentHandler implements TypedHandlerInterface
             fallbackSummary: 'Reusable, attribute-registered UI components — discovered automatically from the classmap.',
             fallbackHighlights: ['#[AsComponent]', 'event', 'triggers', 'component_event_attrs()', 'EventDispatcherInterface'],
             explanation: $this->explanationProvider->getExplanation('rendering', 'components'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         return $this->projector->project($resource, $spec)

@@ -47,7 +47,7 @@ final class ContentNegotiationHandler implements TypedHandlerInterface
             fallbackSummary: 'One endpoint, multiple response formats — automatically.',
             fallbackHighlights: ['#[AsPublicPayload(produces)]', 'Accept header', '?_format= override', 'ContentNegotiator'],
             explanation: $this->explanationProvider->getExplanation('routing', 'content-negotiation'),
-            pageTitleSuffix: ' — Semitexa Demo',
+            pageTitleSuffix: ' | Semitexa Demo',
         );
 
         $pageTitle = $this->projector->describe($spec)->pageTitle();
