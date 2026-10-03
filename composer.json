@@ -1,64 +1,64 @@
 {
-  "name": "semitexa/demo",
-  "description": "Official Semitexa Framework showcase",
-  "type": "semitexa-module",
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "Semitexa",
-      "email": "support@semitexa.com"
-    }
-  ],
-  "require": {
-    "php": ">=8.4",
-    "semitexa/core": "*",
-    "semitexa/docs": "*",
-    "semitexa/ssr": ">=2026.09.22.1020 || dev-master",
-    "semitexa/showcase-kit": "*",
-    "semitexa/orm": "*",
-    "semitexa/auth": "*",
-    "semitexa/authorization": "*",
-    "semitexa/rbac": "*",
-    "semitexa/api": "*",
-    "semitexa/graphql": "*",
-    "semitexa/tenancy": "*",
-    "semitexa/locale": "*",
-    "semitexa/cache": "*",
-    "semitexa/dev": "*",
-    "semitexa/ledger": "*",
-    "semitexa/llm": "*",
-    "semitexa/mail": "*",
-    "semitexa/scheduler": "*",
-    "semitexa/project-graph": "*",
-    "semitexa/workflow": "*",
-    "semitexa/webhooks": "*",
-    "semitexa/storage": "*",
-    "semitexa/search": "*",
-    "semitexa/testing": "*"
-  },
-  "autoload": {
-    "psr-4": {
-      "Semitexa\\Demo\\": "src/"
-    }
-  },
-  "extra": {
-    "semitexa-module": {
-      "extends": null,
-      "name": "Semitexa Demo",
-      "description": "Official showcase of the Semitexa Framework"
+    "name": "semitexa/demo",
+    "description": "Official Semitexa Framework showcase",
+    "type": "semitexa-module",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Semitexa",
+            "email": "support@semitexa.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.4",
+        "semitexa/core": "*",
+        "semitexa/docs": ">=2026.10.03.1952 || dev-master",
+        "semitexa/ssr": ">=2026.09.22.1020 || dev-master",
+        "semitexa/showcase-kit": "*",
+        "semitexa/orm": "*",
+        "semitexa/auth": "*",
+        "semitexa/authorization": "*",
+        "semitexa/rbac": "*",
+        "semitexa/api": "*",
+        "semitexa/graphql": ">=2026.10.03.1952 || dev-master",
+        "semitexa/tenancy": "*",
+        "semitexa/locale": "*",
+        "semitexa/cache": "*",
+        "semitexa/dev": "*",
+        "semitexa/ledger": "*",
+        "semitexa/llm": "*",
+        "semitexa/mail": "*",
+        "semitexa/scheduler": "*",
+        "semitexa/project-graph": "*",
+        "semitexa/workflow": "*",
+        "semitexa/webhooks": "*",
+        "semitexa/storage": "*",
+        "semitexa/search": "*",
+        "semitexa/testing": "*"
     },
-    "semitexa": {
-      "floors": {
-        "semitexa/graphql": "next",
-        "semitexa/docs": "next"
-      }
-    }
-  },
-  "keywords": [
-    "semitexa",
-    "demo",
-    "showcase",
-    "ssr",
-    "starter"
-  ]
+    "autoload": {
+        "psr-4": {
+            "Semitexa\\Demo\\": "src/"
+        }
+    },
+    "extra": {
+        "semitexa-module": {
+            "extends": null,
+            "name": "Semitexa Demo",
+            "description": "Official showcase of the Semitexa Framework"
+        },
+        "semitexa": {
+            "floors": {
+                "semitexa/graphql": "2026.10.03.1952",
+                "semitexa/docs": "2026.10.03.1952"
+            }
+        }
+    },
+    "keywords": [
+        "semitexa",
+        "demo",
+        "showcase",
+        "ssr",
+        "starter"
+    ]
 }
