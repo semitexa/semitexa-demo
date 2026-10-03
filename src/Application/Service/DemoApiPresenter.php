@@ -9,6 +9,10 @@ use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Request;
 use Semitexa\Core\Resource\AcceptHeaderResolver;
 use Semitexa\Core\Resource\RenderProfile;
+use Semitexa\Demo\Application\Resource\Response\Graphql\ProductCategoryGraphqlView;
+use Semitexa\Demo\Application\Resource\Response\Graphql\ProductGraphqlView;
+use Semitexa\Demo\Application\Resource\Response\Graphql\ProductListGraphqlView;
+use Semitexa\Demo\Application\Resource\Response\Graphql\ProductReviewGraphqlView;
 use Semitexa\Demo\Domain\Repository\DemoCategoryRepositoryInterface;
 use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
 use Semitexa\Demo\Domain\Repository\DemoReviewRepositoryInterface;
@@ -49,22 +53,8 @@ final class DemoApiPresenter
         $basePath = $this->resolveCollectionBasePath($request);
         $page = max(1, $page);
         $limit = min(24, max(1, $limit));
-
-        $all = $this->products->findFiltered(status: $status, limit: 200, offset: 0);
-        if ($query !== null && $query !== '') {
-            $needle = mb_strtolower($query);
-            $all = array_values(array_filter(
-                $all,
-                static fn (DemoProduct $product): bool => str_contains(
-                    mb_strtolower($product->getName() . ' ' . ($product->getDescription() ?? '')),
-                    $needle,
-                ),
-            ));
-        }
-
-        $total = count($all);
         $offset = ($page - 1) * $limit;
-        $items = array_slice($all, $offset, $limit);
+        [$items, $total] = $this->selectPage($query, $status, $page, $limit);
 
         $payloadItems = array_map(
             fn (DemoProduct $product): array => $this->presentProduct(
@@ -480,7 +470,15 @@ final class DemoApiPresenter
             return null;
         }
 
-        foreach ($this->categories->findAllOrdered() as $category) {
+        return $this->categoryOf($product, $this->categories->findAllOrdered());
+    }
+
+    /**
+     * @param list<DemoCategory> $categories
+     */
+    private function categoryOf(DemoProduct $product, array $categories): ?DemoCategory
+    {
+        foreach ($categories as $category) {
             if ($category->getId() === $product->getCategoryId()) {
                 return $category;
             }
@@ -540,6 +538,88 @@ final class DemoApiPresenter
         }
 
         return '/demo/api/v1/products';
+    }
+
+    /**
+     * The typed GraphQL output of a collection read: the same page, filters and
+     * total the REST body reports, as the `output:` declared on the payload.
+     */
+    public function buildCollectionView(?string $query, ?string $status, int $page, int $limit): ProductListGraphqlView
+    {
+        $page = max(1, $page);
+        $limit = min(24, max(1, $limit));
+        [$items, $total] = $this->selectPage($query, $status, $page, $limit);
+
+        // One review query and one category read for the page, not one of each
+        // per product: the view is built whole, whatever fields the query asks.
+        $reviews = $this->reviews->findByProducts(array_map(static fn (DemoProduct $product): string => $product->getId(), $items));
+        $categories = $this->categories->findAllOrdered();
+
+        return new ProductListGraphqlView(
+            items: array_map(
+                fn (DemoProduct $product): ProductGraphqlView => $this->productView($product, $reviews[$product->getId()] ?? [], $categories),
+                $items,
+            ),
+            total: $total,
+            page: $page,
+            limit: $limit,
+        );
+    }
+
+    public function buildProductView(DemoProduct $product): ProductGraphqlView
+    {
+        return $this->productView(
+            $product,
+            $this->reviews->findByProduct($product->getId()),
+            $this->categories->findAllOrdered(),
+        );
+    }
+
+    /**
+     * @param list<DemoReview> $reviews newest first
+     * @param list<DemoCategory> $categories
+     */
+    private function productView(DemoProduct $product, array $reviews, array $categories): ProductGraphqlView
+    {
+        $category = $this->categoryOf($product, $categories);
+
+        return new ProductGraphqlView(
+            slug: $this->slugify($product->getName()),
+            name: $product->getName(),
+            price: (float) $product->getPrice(),
+            description: $product->getDescription(),
+            status: $product->getStatus(),
+            category: $category === null ? null : new ProductCategoryGraphqlView($category->getSlug(), $category->getName()),
+            reviews: array_map(
+                static fn (DemoReview $review): ProductReviewGraphqlView => new ProductReviewGraphqlView(
+                    id: $review->getId(),
+                    author: $review->getUserId(),
+                    rating: $review->getRating(),
+                    headline: $review->getBody(),
+                ),
+                array_slice($reviews, 0, 4),
+            ),
+        );
+    }
+
+    /**
+     * @return array{0: list<DemoProduct>, 1: int} the requested page and the filtered total
+     */
+    private function selectPage(?string $query, ?string $status, int $page, int $limit): array
+    {
+        $all = $this->products->findFiltered(status: $status, limit: 200, offset: 0);
+        if ($query !== null && $query !== '') {
+            $needle = mb_strtolower($query);
+            $all = array_values(array_filter(
+                $all,
+                static fn (DemoProduct $product): bool => str_contains(
+                    mb_strtolower($product->getName() . ' ' . ($product->getDescription() ?? '')),
+                    $needle,
+                ),
+            ));
+        }
+
+        return [array_values(array_slice($all, ($page - 1) * $limit, $limit)), count($all)];
     }
 
     public function findProductBySlug(string $slug): ?DemoProduct

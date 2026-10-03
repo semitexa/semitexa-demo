@@ -34,6 +34,13 @@ final class ProductListHandler implements TypedHandlerInterface
             format: $payload->getFormat(),
         );
 
-        return $resource->withJsonPayload($body, $contentType);
+        return $resource
+            ->withJsonPayload($body, $contentType)
+            ->withGraphqlProjection(fn (): object => $this->apiPresenter->buildCollectionView(
+                query: $payload->getQ(),
+                status: $payload->getStatus(),
+                page: $payload->getPage(),
+                limit: $payload->getLimit(),
+            ));
     }
 }

@@ -18,6 +18,14 @@ interface DemoReviewRepositoryInterface
     /** @return list<DemoReview> */
     public function findByProduct(string $productId): array;
 
+    /**
+     * Reviews of several products in one query, newest first per product.
+     *
+     * @param list<string> $productIds
+     * @return array<string, list<DemoReview>> keyed by product id; a product without reviews is absent
+     */
+    public function findByProducts(array $productIds): array;
+
     /** @return list<DemoReview> */
     public function findByUser(string $userId): array;
 

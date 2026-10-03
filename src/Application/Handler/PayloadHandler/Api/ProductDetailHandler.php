@@ -22,19 +22,22 @@ final class ProductDetailHandler implements TypedHandlerInterface
     public function handle(ProductDetailPayload $payload, DemoApiResponse $resource): DemoApiResponse
     {
         $request = $payload->getHttpRequest() ?? new Request('GET', '/demo/api/v1/products/' . $payload->getSlug(), [], [], [], [], []);
-        $body = $this->apiPresenter->buildDetail(
+        $product = $this->apiPresenter->findProductBySlug($payload->getSlug());
+        if ($product === null) {
+            throw new DemoApiNotFoundException('Demo API product', $payload->getSlug());
+        }
+
+        $body = $this->apiPresenter->buildDetailFor(
+            product: $product,
             request: $request,
-            slug: $payload->getSlug(),
             fields: $payload->getFields(),
             expand: $payload->getExpand(),
             profile: $payload->getProfile(),
             format: $payload->getFormat(),
         );
 
-        if ($body === null) {
-            throw new DemoApiNotFoundException('Demo API product', $payload->getSlug());
-        }
-
-        return $resource->withJsonPayload($body, $this->apiPresenter->getContentType($request, $payload->getFormat()));
+        return $resource
+            ->withJsonPayload($body, $this->apiPresenter->getContentType($request, $payload->getFormat()))
+            ->withGraphqlProjection(fn (): object => $this->apiPresenter->buildProductView($product));
     }
 }
