@@ -51,7 +51,7 @@ final class ComponentHandler implements TypedHandlerInterface
                 'Component Template' => $this->sourceCodeReader->readProjectRelativeSource('src/Application/View/templates/components/disclosure-prompt.html.twig'),
                 'Backend Event' => $this->sourceCodeReader->readClassSource(DemoDisclosureExpanded::class),
                 'Event Listener' => $this->sourceCodeReader->readClassSource(DemoDisclosureExpandedListener::class),
-                'SSR Bridge Handler' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-ssr/src/Application/Handler/PayloadHandler/ComponentEventDispatchHandler.php'),
+                'SSR Bridge (on HUG)' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-ssr/src/Application/Service/Component/ComponentEventReceiver.php'),
                 'Frontend Runtime' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-ssr/src/Application/Static/js/component-events.js'),
             ])
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/component-event-bridge.html.twig', []);
