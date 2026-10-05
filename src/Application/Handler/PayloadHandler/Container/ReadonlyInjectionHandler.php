@@ -43,7 +43,7 @@ final class ReadonlyInjectionHandler implements TypedHandlerInterface
             deepDiveLabel: 'Container tiers explained →',
             relatedSlugs: [],
             fallbackTitle: 'Readonly Injection',
-            fallbackSummary: 'One explicit DI path, one shared worker instance — fast at runtime and stable under reload.',
+            fallbackSummary: 'One explicit DI path, one shared worker instance: fast at runtime and stable under reload.',
             fallbackHighlights: ['#[InjectAsReadonly]', 'worker-scoped', 'single-path DI', 'reload-stable'],
             explanation: $this->explanationProvider->getExplanation('di', 'readonly'),
             pageTitleSuffix: ' | Semitexa Demo',

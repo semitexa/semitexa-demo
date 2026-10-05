@@ -37,7 +37,7 @@ final class DeferredHandlerHandler implements TypedHandlerInterface
             deepDiveLabel: 'How Swoole defer works →',
             relatedSlugs: [],
             fallbackTitle: 'Deferred Handler',
-            fallbackSummary: 'Heavy work runs after the response is sent — the user gets instant feedback.',
+            fallbackSummary: 'Heavy work runs after the response is sent. The user gets instant feedback.',
             fallbackHighlights: ['EventExecution::Async', 'Swoole\\Event::defer()', 'post-response', 'non-blocking'],
             explanation: $this->explanationProvider->getExplanation('events', 'deferred'),
             pageTitleSuffix: ' | Semitexa Demo',

@@ -45,7 +45,7 @@ final class LayoutSlotHandler implements TypedHandlerInterface
             deepDiveLabel: 'Why unified templates matter →',
             relatedSlugs: [],
             fallbackTitle: 'Slot Resources',
-            fallbackSummary: 'Each page region is its own resource pipeline with the same template system as the main page — no scattered partial glue, no mystery wiring.',
+            fallbackSummary: 'Each page region is its own resource pipeline with the same template system as the main page, no scattered partial glue, no mystery wiring.',
             fallbackHighlights: ['#[AsSlotResource]', 'HtmlSlotResponse', 'layout_slot()', 'SlotHandlerPipeline', 'shared Twig'],
             explanation: $this->explanationProvider->getExplanation('rendering', 'slots'),
             pageTitleSuffix: ' | Semitexa Demo',

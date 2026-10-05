@@ -54,7 +54,7 @@ final class AssetHandler implements TypedHandlerInterface
             deepDiveLabel: 'Asset pipeline internals →',
             relatedSlugs: [],
             fallbackTitle: 'Asset Pipeline',
-            fallbackSummary: 'Declare assets with glob patterns in assets.json — served, versioned, and injected automatically.',
+            fallbackSummary: 'Declare assets with glob patterns in assets.json: served, versioned, and injected automatically.',
             fallbackHighlights: ['assets.json', 'asset_head()', 'asset_body()', 'glob patterns', 'versioning'],
             explanation: $this->explanationProvider->getExplanation('rendering', 'assets'),
             pageTitleSuffix: ' | Semitexa Demo',
