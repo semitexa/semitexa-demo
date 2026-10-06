@@ -335,7 +335,7 @@ final class DemoCatalogService
             'key' => 'llm',
             'label' => 'LLM Module',
             'sidebarLabel' => 'LLM',
-            'summary' => 'The dedicated `semitexa/llm` module: AI assistant entrypoint, skill discovery, planner, executor, provider backends, and skill authoring rules.',
+            'summary' => 'The Semitexa LLM module for PHP: an AI assistant entrypoint, skill discovery, a planner and executor, provider backends and rules for writing skills.',
             'icon' => 'AI',
             'eyebrow' => 'semitexa/llm',
             'starter' => false,
@@ -344,7 +344,7 @@ final class DemoCatalogService
         'project-graph' => [
             'key' => 'project-graph',
             'label' => 'Project Graph',
-            'summary' => 'The `semitexa-project-graph` package: stored structural graph, intelligence layer, impact analysis, and task-scoped context for serious repository work.',
+            'summary' => 'Project Graph maps a PHP codebase: routes, handlers, dependencies and the impact of a change, so you and your AI agent see what an edit touches first.',
             'icon' => 'PG',
             'eyebrow' => 'AI Accelerator',
             'starter' => true,
