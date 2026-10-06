@@ -70,7 +70,7 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
             deepDiveLabel: 'Under the hood →',
             relatedSlugs: [],
             fallbackTitle: 'Data Isolation',
-            fallbackSummary: 'Product listing scoped by tenant — switch tenant, list changes. Zero manual WHERE clauses.',
+            fallbackSummary: 'Product listing scoped by tenant. Switch tenant and the list changes. Zero manual WHERE clauses.',
             fallbackHighlights: self::DOC_KEYWORDS,
             explanation: FeatureExplanation::fromArray([
                 'what' => 'Switch tenant, and the same repository calls return a different dataset without hand-written WHERE clauses.',

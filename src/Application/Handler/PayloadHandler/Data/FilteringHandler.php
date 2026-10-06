@@ -42,7 +42,7 @@ final class FilteringHandler implements TypedHandlerInterface
             deepDiveLabel: 'How filter criteria compile →',
             relatedSlugs: [],
             fallbackTitle: 'Filtering',
-            fallbackSummary: 'Mark a property #[Filterable] and the ORM handles the rest — no manual WHERE clauses.',
+            fallbackSummary: 'Mark a property #[Filterable] and the ORM handles the rest, no manual WHERE clauses.',
             fallbackHighlights: ['#[Filterable]', 'FilterableTrait', 'FilterableResourceInterface', 'getFilterCriteria()'],
             explanation: $this->explanationProvider->getExplanation('data', 'filtering'),
             pageTitleSuffix: ' | Semitexa Demo',

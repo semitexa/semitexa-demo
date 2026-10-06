@@ -46,7 +46,7 @@ final class OrmCrudHandler implements TypedHandlerInterface
             deepDiveLabel: 'How the ORM maps resources →',
             relatedSlugs: [],
             fallbackTitle: 'ORM CRUD',
-            fallbackSummary: 'Define your schema once with attributes — reads, writes, and soft-deletes are handled by the ORM.',
+            fallbackSummary: 'Define your schema once with attributes: reads, writes, and soft-deletes are handled by the ORM.',
             fallbackHighlights: ['#[FromTable]', '#[Column]', 'HasUuidV7', 'HasTimestamps', 'SoftDeletes', 'DomainRepository'],
             explanation: $this->explanationProvider->getExplanation('data', 'products'),
             pageTitleSuffix: ' | Semitexa Demo',

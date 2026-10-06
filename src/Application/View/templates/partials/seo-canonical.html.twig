@@ -1,0 +1,8 @@
+{#- Canonical and crawl tags, as semitexa.com's seo-head does. The host is fixed:
+    the same pages answer on local and preview hosts, and only one address may
+    be canonical. The query string is dropped so tracking parameters never
+    become the canonical. -#}
+{% set canonicalUrl = 'https://framework.semitexa.com' ~ (current_url()|split('?')|first) %}
+<link rel="canonical" href="{{ canonicalUrl }}">
+<meta property="og:url" content="{{ canonicalUrl }}">
+<meta name="robots" content="index,follow,max-image-preview:large">

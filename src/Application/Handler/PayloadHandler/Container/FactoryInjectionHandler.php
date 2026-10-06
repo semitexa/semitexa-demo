@@ -36,7 +36,7 @@ final class FactoryInjectionHandler implements TypedHandlerInterface
             deepDiveLabel: 'Lazy instantiation patterns →',
             relatedSlugs: [],
             fallbackTitle: 'Factory Injection',
-            fallbackSummary: 'On-demand creation stays explicit — lazy instances without falling back to service locator habits.',
+            fallbackSummary: 'On-demand creation stays explicit: lazy instances without falling back to service locator habits.',
             fallbackHighlights: ['#[InjectAsFactory]', 'closed-world selection', 'on-demand', 'lazy instantiation'],
             explanation: $this->explanationProvider->getExplanation('di', 'factory'),
             pageTitleSuffix: ' | Semitexa Demo',

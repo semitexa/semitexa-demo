@@ -46,7 +46,7 @@ final class TenantQueueHandler implements TypedHandlerInterface
             deepDiveLabel: 'Under the hood →',
             relatedSlugs: [],
             fallbackTitle: 'Queue Tenant Propagation',
-            fallbackSummary: 'Tenant context travels with queued jobs — _tenant key injected automatically, restored by worker.',
+            fallbackSummary: 'Tenant context travels with queued jobs: the _tenant key is injected automatically and restored by the worker.',
             fallbackHighlights: self::DOC_KEYWORDS,
             explanation: FeatureExplanation::fromArray([
                 'what' => 'Queued jobs keep tenant context attached so background work stays scoped after the HTTP request is gone.',

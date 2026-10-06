@@ -41,7 +41,7 @@ final class PaginationHandler implements TypedHandlerInterface
             deepDiveLabel: 'Offset vs cursor trade-offs →',
             relatedSlugs: [],
             fallbackTitle: 'Pagination',
-            fallbackSummary: 'Offset and cursor pagination out of the box — switch modes with a single query parameter.',
+            fallbackSummary: 'Offset and cursor pagination out of the box, switch modes with a single query parameter.',
             fallbackHighlights: ['PaginatedResult', 'limit()', 'offset()', 'cursor pagination', 'total count'],
             explanation: $this->explanationProvider->getExplanation('data', 'pagination'),
             pageTitleSuffix: ' | Semitexa Demo',

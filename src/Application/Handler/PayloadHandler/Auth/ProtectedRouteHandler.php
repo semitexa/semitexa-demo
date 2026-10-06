@@ -36,7 +36,7 @@ final class ProtectedRouteHandler implements TypedHandlerInterface
             deepDiveLabel: 'How the guard chain resolves →',
             relatedSlugs: [],
             fallbackTitle: 'Protected Route',
-            fallbackSummary: 'Add one attribute to any route and the framework enforces access — 403 returned automatically.',
+            fallbackSummary: 'Add one attribute to any route and the framework enforces access: 403 is returned automatically.',
             fallbackHighlights: ['#[RequiresPermission]', '#[PublicEndpoint]', 'guard chain', '403 response'],
             explanation: $this->explanationProvider->getExplanation('auth', 'protected'),
             pageTitleSuffix: ' | Semitexa Demo',
