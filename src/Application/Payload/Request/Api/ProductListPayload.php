@@ -8,15 +8,17 @@ use Semitexa\Api\Attribute\ApiVersion;
 use Semitexa\Api\Attribute\ExternalApi;
 use Semitexa\Core\Attribute\AsPublicPayload;
 use Semitexa\Core\Request;
-use Semitexa\Demo\Application\Resource\Response\Graphql\ProductListGraphqlView;
 use Semitexa\Demo\Application\Resource\Response\DemoApiResponse;
+use Semitexa\Demo\Application\Resource\Response\Graphql\ProductListGraphqlView;
 use Semitexa\Graphql\Attribute\ExposeAsGraphql;
+use Semitexa\Ssr\Application\Service\Seo\Sitemap\NotInSitemap;
 
 #[AsPublicPayload(
     path: '/demo/api/v1/products',
     methods: ['GET'],
     responseWith: DemoApiResponse::class,
 )]
+#[NotInSitemap]
 #[ExternalApi(version: 'v1', description: 'Demo product collection endpoint')]
 #[ApiVersion(version: '1.0.0')]
 #[ExposeAsGraphql(
