@@ -45,7 +45,7 @@ final class TenantConfigHandler implements TypedHandlerInterface
             deepDiveLabel: 'Under the hood →',
             relatedSlugs: [],
             fallbackTitle: 'Per-Tenant Configuration',
-            fallbackSummary: 'Three demo tenants with distinct branding — switch tenant, everything changes without if/else.',
+            fallbackSummary: 'Three demo tenants with distinct branding. Switch tenant and everything changes without if/else.',
             fallbackHighlights: self::DOC_KEYWORDS,
             explanation: FeatureExplanation::fromArray([
                 'what' => 'Tenancy is not only row isolation: the active tenant also changes branding, locale defaults, pricing conventions, and which features are visible.',

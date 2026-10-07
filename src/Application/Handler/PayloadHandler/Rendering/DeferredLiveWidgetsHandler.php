@@ -37,7 +37,7 @@ final class DeferredLiveWidgetsHandler implements TypedHandlerInterface
             deepDiveLabel: 'SSE reconnection strategy →',
             relatedSlugs: [],
             fallbackTitle: 'Live Widgets',
-            fallbackSummary: 'A live slot can refresh itself on a timer while the page stays SSR-first — no SPA runtime and no handwritten polling layer.',
+            fallbackSummary: 'A live slot can refresh itself on a timer while the page stays SSR-first, no SPA runtime and no handwritten polling layer.',
             fallbackHighlights: ['refreshInterval', 'auto-refresh', 'SSE reconnection', 'SSR-first live UI'],
             explanation: $this->explanationProvider->getExplanation('rendering', 'deferred-live'),
             pageTitleSuffix: ' | Semitexa Demo',

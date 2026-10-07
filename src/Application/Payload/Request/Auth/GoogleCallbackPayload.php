@@ -6,6 +6,7 @@ namespace Semitexa\Demo\Application\Payload\Request\Auth;
 
 use Semitexa\Core\Attribute\AsPublicPayload;
 use Semitexa\Core\Http\Response\ResourceResponse;
+use Semitexa\Ssr\Application\Service\Seo\Sitemap\NotInSitemap;
 
 #[AsPublicPayload(
     path: '/demo/auth/google/callback',
@@ -13,6 +14,7 @@ use Semitexa\Core\Http\Response\ResourceResponse;
     responseWith: ResourceResponse::class,
     produces: ['text/html', 'application/json'],
 )]
+#[NotInSitemap]
 class GoogleCallbackPayload
 {
     protected ?string $code = null;

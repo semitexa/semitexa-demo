@@ -29,7 +29,7 @@ final class DeferredBlocksHandler implements TypedHandlerInterface
             ->withSection('rendering')
             ->withSlug('deferred')
             ->withTitle('Deferred Blocks')
-            ->withSummary('SSR renders the shell first, then expensive regions stream in as real HTML over SSE — no SPA handoff and no client-side page rebuild.')
+            ->withSummary('SSR renders the shell first, then expensive regions stream in as real HTML over SSE. No SPA handoff and no client-side page rebuild.')
             ->withEntryLine('The page is usable immediately, and slow regions arrive later as server-rendered HTML instead of hydration-heavy client code.')
             ->withHighlights(['#[AsSlotResource(deferred: true)]', 'skeletonTemplate', 'SSE push', 'SSR-first live UI'])
             ->withLearnMoreLabel('See the deferred grid →')

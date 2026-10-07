@@ -64,7 +64,7 @@ final class TenantLayersHandler implements TypedHandlerInterface
             deepDiveLabel: 'Under the hood →',
             relatedSlugs: [],
             fallbackTitle: 'Multi-Layer Tenancy',
-            fallbackSummary: 'Organization, Locale, Theme, Environment — four independent layers compose into one TenantContext.',
+            fallbackSummary: 'Organization, Locale, Theme, Environment: four independent layers compose into one TenantContext.',
             fallbackHighlights: self::DOC_KEYWORDS,
             explanation: FeatureExplanation::fromArray([
                 'what' => 'Tenant context is not one switch. It is a composed stack of organization, locale, theme, and environment decisions.',

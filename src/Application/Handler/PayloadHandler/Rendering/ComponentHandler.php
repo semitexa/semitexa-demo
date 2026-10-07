@@ -39,7 +39,7 @@ final class ComponentHandler implements TypedHandlerInterface
             deepDiveLabel: 'Inspect the signed context flow →',
             relatedSlugs: [],
             fallbackTitle: 'Components',
-            fallbackSummary: 'Reusable, attribute-registered UI components — discovered automatically from the classmap.',
+            fallbackSummary: 'Reusable, attribute-registered UI components, discovered automatically from the classmap.',
             fallbackHighlights: ['#[AsComponent]', '#[UiPart]', '#[UiOn]', 'UiInteractionResult::dispatching()', 'EventDispatcherInterface'],
             explanation: $this->explanationProvider->getExplanation('rendering', 'components'),
             pageTitleSuffix: ' | Semitexa Demo',

@@ -41,7 +41,7 @@ final class QueryBuilderHandler implements TypedHandlerInterface
             deepDiveLabel: 'How ResourceModelQuery compiles SQL →',
             relatedSlugs: [],
             fallbackTitle: 'Query Builder',
-            fallbackSummary: 'Compose type-safe queries with a fluent API — no raw SQL, no magic strings.',
+            fallbackSummary: 'Compose type-safe queries with a fluent API, no raw SQL, no magic strings.',
             fallbackHighlights: ['ResourceModelQuery', 'where()', 'orderBy()', 'limit()', 'fetchAll()', 'fetchOne()'],
             explanation: $this->explanationProvider->getExplanation('data', 'query'),
             pageTitleSuffix: ' | Semitexa Demo',

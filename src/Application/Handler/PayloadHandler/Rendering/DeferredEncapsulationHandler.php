@@ -37,7 +37,7 @@ final class DeferredEncapsulationHandler implements TypedHandlerInterface
             deepDiveLabel: 'DOM scoping mechanism →',
             relatedSlugs: [],
             fallbackTitle: 'Block Isolation',
-            fallbackSummary: 'Two identical blocks on the same page run independently — scoped DOM, scoped JS, no conflicts.',
+            fallbackSummary: 'Two identical blocks on the same page run independently: scoped DOM, scoped JS, no conflicts.',
             fallbackHighlights: ['DOM scoping', 'data-instance', 'block isolation', 'independent timers'],
             explanation: $this->explanationProvider->getExplanation('rendering', 'deferred-encapsulation'),
             pageTitleSuffix: ' | Semitexa Demo',
