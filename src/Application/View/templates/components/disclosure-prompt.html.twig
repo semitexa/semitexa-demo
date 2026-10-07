@@ -1,15 +1,16 @@
 {% set normalizedLabel = label ends with '→' ? label|slice(0, -1)|trim : label %}
+{%- set _ui_instance = ui_component_instance() -%}
+<span data-ui-component="demo-disclosure-prompt" data-ui-component-instance-id="{{ _ui_instance }}" style="display:contents;">
 <button
   type="button"
+  data-ui-part="trigger"
   class="disclosure-prompt disclosure-prompt--{{ variant }}"
   aria-controls="{{ target }}"
   aria-expanded="false"
   data-disclosure-trigger="{{ target }}"
-  {{ component_event_attrs('click', {
-    targetId: target,
-    source: variant,
-  }) }}
 >
   <span class="disclosure-prompt__label">{{ normalizedLabel }}</span>
   <span class="disclosure-prompt__arrow" aria-hidden="true">→</span>
 </button>
+{{ ui_event_manifest(_ui_instance) }}
+</span>

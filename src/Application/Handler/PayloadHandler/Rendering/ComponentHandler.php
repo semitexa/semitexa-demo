@@ -34,13 +34,13 @@ final class ComponentHandler implements TypedHandlerInterface
         $spec = new FeatureSpec(
             section: 'rendering',
             slug: 'components',
-            entryLine: 'Open the component class and you can now see both the rendered UI primitive and the backend event contract it is allowed to trigger.',
-            learnMoreLabel: 'See the event bridge in action →',
-            deepDiveLabel: 'Inspect the signed manifest flow →',
+            entryLine: 'Open the component class and you can see both what it renders and the server method its click reaches.',
+            learnMoreLabel: 'See a click reach the server →',
+            deepDiveLabel: 'Inspect the signed context flow →',
             relatedSlugs: [],
             fallbackTitle: 'Components',
             fallbackSummary: 'Reusable, attribute-registered UI components — discovered automatically from the classmap.',
-            fallbackHighlights: ['#[AsComponent]', 'event', 'triggers', 'component_event_attrs()', 'EventDispatcherInterface'],
+            fallbackHighlights: ['#[AsComponent]', '#[UiPart]', '#[UiOn]', 'UiInteractionResult::dispatching()', 'EventDispatcherInterface'],
             explanation: $this->explanationProvider->getExplanation('rendering', 'components'),
             pageTitleSuffix: ' | Semitexa Demo',
         );
@@ -51,8 +51,7 @@ final class ComponentHandler implements TypedHandlerInterface
                 'Component Template' => $this->sourceCodeReader->readProjectRelativeSource('src/Application/View/templates/components/disclosure-prompt.html.twig'),
                 'Backend Event' => $this->sourceCodeReader->readClassSource(DemoDisclosureExpanded::class),
                 'Event Listener' => $this->sourceCodeReader->readClassSource(DemoDisclosureExpandedListener::class),
-                'SSR Bridge (on HUG)' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-ssr/src/Application/Service/Component/ComponentEventReceiver.php'),
-                'Frontend Runtime' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-ssr/src/Application/Static/js/component-events.js'),
+                'Dispatch (on HUG)' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-platform-ui/src/Application/Service/Event/PlatformUiResponseDispatcher.php'),
             ])
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/component-event-bridge.html.twig', []);
     }

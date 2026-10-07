@@ -1,9 +1,9 @@
 {{ asset_require('semitexa-demo:js:component-event-bridge-demo') }}
 
 <div class="preview-card component-bridge-preview">
-  <p class="preview-card__eyebrow">Component Event Bridge</p>
-  <h3 class="preview-card__title">One click, one SSR component contract, one backend event bus.</h3>
-  <p class="preview-card__summary">This button still opens the disclosure layer locally, but it now also dispatches a signed backend event through the generic SSR bridge endpoint.</p>
+  <p class="preview-card__eyebrow">One component model</p>
+  <h3 class="preview-card__title">One click, the component's own server method, one backend event bus.</h3>
+  <p class="preview-card__summary">The button opens the disclosure locally. The same click reaches the component's <code>#[UiOn]</code> method through HUG, which answers by dispatching a domain event to the application's listeners.</p>
 
   <div class="component-bridge-preview__surface">
     <div class="component-bridge-preview__action">
@@ -17,7 +17,7 @@
     <div id="component-bridge-details" class="expandable-section component-bridge-preview__details" data-expanded="false" data-expandable>
       <div class="expandable-section__inner">
         <div class="preview-callout">
-          <p class="preview-card__summary">Local disclosure still works immediately. The component bridge runs in parallel and acknowledges the backend dispatch below.</p>
+          <p class="preview-card__summary">Local disclosure works immediately. The server hears the same click and acknowledges it below.</p>
         </div>
       </div>
     </div>
@@ -25,11 +25,11 @@
     <div class="preview-stats">
       <div class="preview-stats__item">
         <span class="preview-stats__value"><code>DemoDisclosureExpanded</code></span>
-        <span class="preview-stats__label">Declared backend event</span>
+        <span class="preview-stats__label">Domain event the handler dispatches</span>
       </div>
       <div class="preview-stats__item">
-        <span class="preview-stats__value"><code>click</code></span>
-        <span class="preview-stats__label">Public trigger contract</span>
+        <span class="preview-stats__value"><code>#[UiOn(part: 'trigger', event: 'click')]</code></span>
+        <span class="preview-stats__label">The handler, on the component</span>
       </div>
       <div class="preview-stats__item">
         <span class="preview-stats__value"><code>POST /__semitexa_hug</code></span>

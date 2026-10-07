@@ -7,13 +7,19 @@
             return;
         }
 
-        document.addEventListener('semitexa:component-event:accepted', function (event) {
-            render(consoles, event.detail, 'accepted');
+        // The component's click goes through the one UI event runtime; its
+        // lifecycle events carry HUG's answer.
+        document.addEventListener('semitexa:ui-event:dispatched', function (event) {
+            if (isDisclosure(event.detail)) render(consoles, event.detail.response, 'accepted');
         });
 
-        document.addEventListener('semitexa:component-event:failed', function (event) {
-            render(consoles, event.detail, 'failed');
+        document.addEventListener('semitexa:ui-event:failed', function (event) {
+            if (isDisclosure(event.detail)) render(consoles, event.detail.response || event.detail, 'failed');
         });
+    }
+
+    function isDisclosure(detail) {
+        return !!(detail && detail.captured && detail.captured.component === 'demo-disclosure-prompt');
     }
 
     function render(nodes, detail, status) {

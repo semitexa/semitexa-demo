@@ -10,4 +10,4 @@ if (($component['script'] ?? null) !== null) {
 }
 
 $html = $twig->render($component['template'], $props);
-$html = ComponentEventBridge::annotateRoot($html, $component, $componentId);
+$html = ComponentRootAnnotator::annotate($html, $component, $componentId);
