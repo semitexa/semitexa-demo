@@ -16,6 +16,7 @@ use Semitexa\Demo\Application\Payload\Request\Rendering\ComponentPayload;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoExplanationProvider;
 use Semitexa\Demo\Application\Service\DemoSourceCodeReader;
+use Semitexa\PlatformUi\Application\Service\Event\PlatformUiResponseDispatcher;
 
 #[AsPayloadHandler(payload: ComponentPayload::class, resource: DemoFeatureResource::class)]
 final class ComponentHandler implements TypedHandlerInterface
@@ -51,7 +52,7 @@ final class ComponentHandler implements TypedHandlerInterface
                 'Component Template' => $this->sourceCodeReader->readProjectRelativeSource('src/Application/View/templates/components/disclosure-prompt.html.twig'),
                 'Backend Event' => $this->sourceCodeReader->readClassSource(DemoDisclosureExpanded::class),
                 'Event Listener' => $this->sourceCodeReader->readClassSource(DemoDisclosureExpandedListener::class),
-                'Dispatch (on HUG)' => $this->sourceCodeReader->readProjectRelativeSource('packages/semitexa-platform-ui/src/Application/Service/Event/PlatformUiResponseDispatcher.php'),
+                'Dispatch (on HUG)' => $this->sourceCodeReader->readClassSource(PlatformUiResponseDispatcher::class),
             ])
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/component-event-bridge.html.twig', []);
     }
