@@ -5,29 +5,37 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Component;
 
 use Semitexa\Demo\Application\Payload\Event\DemoDisclosureExpanded;
+use Semitexa\PlatformUi\Application\Service\Primitive\Builtin\ButtonPrimitive;
+use Semitexa\PlatformUi\Attribute\UiOn;
+use Semitexa\PlatformUi\Attribute\UiPart;
+use Semitexa\PlatformUi\Domain\Model\Event\UiInteractionEvent;
+use Semitexa\PlatformUi\Domain\Model\Event\UiInteractionResult;
 use Semitexa\Ssr\Attribute\AsComponent;
 
 /**
- * Trigger button for layer transitions (L1→L2 or L2→L3).
- *
- * Two variants:
- * - learnMore: prominent colored button, large tap target, subtle pulse on first view
- * - deepDive: muted text link with arrow, positioned at bottom of L2 content
- *
- * Emits a disclosure:expand custom event targeting the specified section ID.
+ * A disclosure prompt whose click the server hears: the click reaches this
+ * component's own #[UiOn] method through HUG, and the method answers by
+ * dispatching a domain event (DemoDisclosureExpanded) to the application's
+ * ordinary #[AsEventListener]s. What the prompt points at comes from its own
+ * signed props, never from the browser.
  */
 #[AsComponent(
     name: 'demo-disclosure-prompt',
     template: '@project-layouts-semitexa-demo/components/disclosure-prompt.html.twig',
     cacheable: false,
-    event: DemoDisclosureExpanded::class,
-    triggers: ['click'],
 )]
+#[UiPart(name: 'trigger', uses: ButtonPrimitive::class)]
 final class DisclosurePromptComponent
 {
-    public function __construct(
-        public readonly string $label,
-        public readonly string $variant,
-        public readonly string $target,
-    ) {}
+    #[UiOn(part: 'trigger', event: 'click')]
+    public function onExpand(UiInteractionEvent $event): UiInteractionResult
+    {
+        $props = $event->props();
+
+        return UiInteractionResult::ack()->dispatching(new DemoDisclosureExpanded(
+            targetId: (string) ($props['target'] ?? ''),
+            source: (string) ($props['variant'] ?? ''),
+            elementTag: 'button',
+        ));
+    }
 }
