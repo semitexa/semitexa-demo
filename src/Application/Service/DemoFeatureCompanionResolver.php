@@ -35,9 +35,8 @@ final class DemoFeatureCompanionResolver
                     [
                         'eyebrow' => 'Step 1',
                         'title' => 'Run the installer',
-                        'summary' => 'The supported install path is the one-line installer. Use the named-directory form only when you want a specific folder immediately.',
+                        'summary' => 'The supported install path is the one-line installer. It needs Docker with Compose v2 and no host PHP or Composer; the last argument names the project directory.',
                         'commands' => [
-                            'curl -fsSL https://semitexa.com/install.sh | bash',
                             'curl -fsSL https://semitexa.com/install.sh | bash -s my-project',
                         ],
                     ],
@@ -56,6 +55,7 @@ final class DemoFeatureCompanionResolver
                         'summary' => 'Use the operator shell to start, check, and inspect the runtime instead of guessing from container state alone. After boot, open the local app in the browser and confirm you have a real page, not just a running container.',
                         'commands' => [
                             'bin/semitexa server:start',
+                            'bin/semitexa orm:sync',
                             'bin/semitexa self-test',
                             'bin/semitexa routes:list --json',
                         ],
@@ -66,7 +66,7 @@ final class DemoFeatureCompanionResolver
                     'rules' => [
                         'Semitexa uses Docker as the supported local runtime boundary.',
                         'The default app URL is http://localhost:9502 unless `SWOOLE_PORT` is overridden in `.env`.',
-                        'If you installed Semitexa Demo during setup, open http://localhost:9502/demo after boot to inspect working feature pages immediately.',
+                        'Semitexa Demo is not part of a new project. To explore these pages locally, run `bin/semitexa demo:install`, then `bin/semitexa server:restart`, and open http://localhost:9502/demo/get-started/installation. The demo home page is its `/` route, which the starter Hello module in `src/modules/Hello` takes precedence over until you remove that module.',
                         'You do not need host PHP or Composer for the normal local flow.',
                     ],
                 ],
@@ -77,8 +77,8 @@ final class DemoFeatureCompanionResolver
                 'title' => 'Do these checks before you touch business code',
                 'summary' => 'A clean first boot should be operationally legible. Use the CLI to confirm health, discovery, and current bindings before you start extending the project.',
                 'rules' => [
-                    'Run `bin/semitexa self-test` when startup feels suspicious instead of debugging blind.',
-                    'Use `bin/semitexa logs:errors` as the first log command when the runtime did not boot cleanly.',
+                    'Run `bin/semitexa self-test` when startup feels suspicious: it checks Docker, Compose and the project files.',
+                    'Use `bin/semitexa logs:app` as the first log command when the runtime did not boot cleanly.',
                     'Inspect `bin/semitexa ai:ask project --json` and `bin/semitexa contracts:list --json` early so you know what the project discovered.',
                     'If ORM-backed modules are active, treat `bin/semitexa orm:sync --dry-run` as part of the normal first setup path.',
                 ],
@@ -90,8 +90,8 @@ final class DemoFeatureCompanionResolver
                 'summary' => 'After `bin/semitexa server:start`, you should be able to verify the runtime from both the browser and the operator shell without guessing what happened.',
                 'rules' => [
                     'Open `http://localhost:9502` and confirm the app responds with the starter page instead of a Docker, proxy, or browser error.',
-                    'If Semitexa Demo was installed, open `http://localhost:9502/demo` and confirm the demo home renders before you explore deeper pages.',
-                    'Run `bin/semitexa self-test` and expect a clean health check before you start debugging application code.',
+                    'If you added Semitexa Demo with `bin/semitexa demo:install`, open `http://localhost:9502/demo/get-started/installation` and confirm a demo page renders before you explore deeper pages.',
+                    'Run `bin/semitexa self-test` and expect it to pass: it checks Docker, Compose and the project files.',
                     'Run `bin/semitexa routes:list --json` so route discovery is visible instead of assumed.',
                     'Use `bin/semitexa ai:ask project --json` when you need to inspect what the scaffold and installed modules actually registered.',
                 ],
