@@ -56,6 +56,11 @@ final class DemoApiPresenter
         $offset = ($page - 1) * $limit;
         [$items, $total] = $this->selectPage($query, $status, $page, $limit);
 
+        // One review query and one category read for the page, not one of each
+        // per product, the same as the GraphQL view of this collection.
+        $reviews = $this->reviews->findByProducts(array_map(static fn (DemoProduct $product): string => $product->getId(), $items));
+        $categories = $this->categories->findAllOrdered();
+
         $payloadItems = array_map(
             fn (DemoProduct $product): array => $this->presentProduct(
                 product: $product,
@@ -65,6 +70,8 @@ final class DemoApiPresenter
                 representation: $representation,
                 includeLinks: true,
                 basePath: $basePath,
+                reviews: $reviews[$product->getId()] ?? [],
+                categories: $categories,
             ),
             $items,
         );
@@ -299,6 +306,10 @@ final class DemoApiPresenter
         ];
     }
 
+    /**
+     * @param list<DemoReview>|null $reviews the product's reviews, newest first; null reads them here
+     * @param list<DemoCategory>|null $categories every category; null reads them here
+     */
     private function presentProduct(
         DemoProduct $product,
         string $profile,
@@ -307,6 +318,8 @@ final class DemoApiPresenter
         string $representation,
         bool $includeLinks,
         string $basePath = '/demo/api/v1/products',
+        ?array $reviews = null,
+        ?array $categories = null,
     ): array {
         $baseFields = match ($profile) {
             'minimal' => ['slug', 'name', 'price'],
@@ -316,12 +329,20 @@ final class DemoApiPresenter
 
         $selected = $fields !== [] ? $fields : $baseFields;
         $slug = $this->slugify($product->getName());
-        $category = $this->resolveCategory($product);
-        $reviews = in_array('reviews', $expand, true) || $profile === 'full'
-            ? $this->reviews->findByProduct($product->getId())
-            : [];
-        $reviewCount = $reviews !== [] ? count($reviews) : count($this->reviews->findByProduct($product->getId()));
-        $rating = $this->resolveRating($reviews !== [] ? $reviews : $this->reviews->findByProduct($product->getId()));
+        $expandsReviews = in_array('reviews', $expand, true) || $profile === 'full';
+        $isLd = $representation === 'ld+json';
+
+        // A single product reads only what its representation shows, and each
+        // thing once: a sparse fieldset of slug,name,price touches no relation.
+        $category = $isLd || in_array('category', $selected, true)
+            ? $this->resolveCategory($product, $categories)
+            : null;
+        if ($reviews === null && ($isLd || $expandsReviews || array_intersect(['rating', 'reviewCount'], $selected) !== [])) {
+            $reviews = $this->reviews->findByProduct($product->getId());
+        }
+        $reviews ??= [];
+        $reviewCount = count($reviews);
+        $rating = $this->resolveRating($reviews);
 
         $json = [];
         foreach ($selected as $field) {
@@ -338,14 +359,14 @@ final class DemoApiPresenter
             };
         }
 
-        if (in_array('reviews', $expand, true) || $profile === 'full') {
+        if ($expandsReviews) {
             $json['reviews'] = array_map(
                 static fn (DemoReview $review): array => [
                     'user' => $review->getUserId(),
                     'rating' => $review->getRating(),
                     'body' => $review->getBody(),
                 ],
-                array_slice($reviews !== [] ? $reviews : $this->reviews->findByProduct($product->getId()), 0, 4),
+                array_slice($reviews, 0, 4),
             );
         }
 
@@ -356,7 +377,7 @@ final class DemoApiPresenter
             ];
         }
 
-        if ($representation === 'ld+json') {
+        if ($isLd) {
             return [
                 '@context' => 'https://schema.org',
                 '@type' => 'Product',
@@ -375,7 +396,7 @@ final class DemoApiPresenter
                     'ratingValue' => $rating,
                     'reviewCount' => $reviewCount,
                 ],
-            ] + ((in_array('reviews', $expand, true) || $profile === 'full')
+            ] + ($expandsReviews
                 ? [
                     'review' => array_map(
                         static fn (array $review): array => [
@@ -464,13 +485,16 @@ final class DemoApiPresenter
         ));
     }
 
-    private function resolveCategory(DemoProduct $product): ?DemoCategory
+    /**
+     * @param list<DemoCategory>|null $categories every category; null reads them here
+     */
+    private function resolveCategory(DemoProduct $product, ?array $categories = null): ?DemoCategory
     {
         if ($product->getCategoryId() === null || $product->getCategoryId() === '') {
             return null;
         }
 
-        return $this->categoryOf($product, $this->categories->findAllOrdered());
+        return $this->categoryOf($product, $categories ?? $this->categories->findAllOrdered());
     }
 
     /**

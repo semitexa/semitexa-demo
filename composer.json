@@ -14,6 +14,7 @@
         "semitexa/core": "*",
         "semitexa/docs": ">=2026.10.03.1952 || dev-master",
         "semitexa/ssr": ">=2026.09.22.1020 || dev-master",
+        "semitexa/platform-ui": "*",
         "semitexa/showcase-kit": "*",
         "semitexa/orm": "*",
         "semitexa/auth": "*",
@@ -50,7 +51,9 @@
         "semitexa": {
             "floors": {
                 "semitexa/graphql": "2026.10.03.1952",
-                "semitexa/docs": "2026.10.03.1952"
+                "semitexa/docs": "2026.10.03.1952",
+                "semitexa/ssr": "next",
+                "semitexa/platform-ui": "next"
             }
         }
     },
