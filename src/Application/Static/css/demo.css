@@ -5014,7 +5014,8 @@ a:hover {
 }
 
 /* Donate callout styles */
-.demo-donate-callout {
+.demo-donate-callout,
+.demo-article-callout {
   display: flex;
   flex-direction: column;
   gap: 1.15rem;
@@ -5026,12 +5027,14 @@ a:hover {
   margin: 1.5rem 0 2rem;
 }
 
-:root[data-skin-mode="dark"] .demo-donate-callout {
+:root[data-skin-mode="dark"] .demo-donate-callout,
+:root[data-skin-mode="dark"] .demo-article-callout {
   background: linear-gradient(180deg, var(--demo-elevated-bg), var(--demo-bg-alt));
   border-color: var(--demo-glass-stroke);
 }
 
-.demo-donate-callout p {
+.demo-donate-callout p,
+.demo-article-callout p {
   margin: 0;
   font-family: var(--demo-font-ui, sans-serif);
   font-size: 0.92rem;
@@ -5039,7 +5042,8 @@ a:hover {
   line-height: 1.6;
 }
 
-.demo-donate-callout__title {
+.demo-donate-callout__title,
+.demo-article-callout__title {
   display: block;
   margin-bottom: 0.28rem;
   font-family: Syne, sans-serif;
@@ -5057,6 +5061,16 @@ a:hover {
 .demo-donate-callout p strong:not(.demo-donate-callout__title) {
   color: var(--demo-accent-dark);
   font-weight: 800;
+}
+
+/* The article callout sits right above the donate one, so it drops the bottom gap. */
+.demo-article-callout {
+  margin-bottom: 0;
+}
+
+.demo-article-callout a {
+  color: var(--demo-accent-dark);
+  font-weight: 700;
 }
 
 @media (max-width: 640px) {
