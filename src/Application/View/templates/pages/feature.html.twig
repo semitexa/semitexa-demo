@@ -126,8 +126,9 @@
   {% endif %}
 {% endblock %}
 
-{# --- Donate support callout below the feature article. --- #}
+{# --- Related semitexa.com article and donate callout below the feature article. --- #}
 {% block feature_aside %}
+  {% include '@project-layouts-semitexa-demo/partials/related-article.html.twig' with { section: section|default(''), slug: slug|default('') } only %}
   {% include '@project-layouts-semitexa-demo/partials/donate-block.html.twig' only %}
 {% endblock %}
 

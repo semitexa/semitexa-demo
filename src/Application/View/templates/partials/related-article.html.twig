@@ -1,0 +1,19 @@
+{#- The semitexa.com article that explains the idea behind a demo page, keyed
+    by section/slug. Pages without an entry render nothing. -#}
+{% set _articles = {
+  'events/sse': {
+    url: 'https://semitexa.com/blog/server-sent-events-explained',
+    title: 'Server-Sent Events Explained',
+    text: 'What SSE is, how SSE streaming works, how it compares with WebSockets and polling, and when to use it.',
+  },
+} %}
+{% set _article = _articles[section ~ '/' ~ slug]|default(null) %}
+{% if _article %}
+<div class="demo-article-callout">
+    <p>
+        <strong class="demo-article-callout__title">Read the guide</strong>
+        <a href="{{ _article.url }}">{{ _article.title }} ↗</a><br>
+        {{ _article.text }}
+    </p>
+</div>
+{% endif %}
