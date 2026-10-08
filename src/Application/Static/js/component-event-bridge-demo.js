@@ -22,8 +22,14 @@
     }
 
     // The console of the preview the clicked component lives in, never another preview's on the same page.
+    // Uses the documented capture contract only: the native event's target, or
+    // (for a programmatic dispatch, which has no DOM event) the instance root.
     function consoleFor(detail) {
-        var el = detail.captured.element;
+        var captured = detail.captured;
+        var el = captured.originalEvent && captured.originalEvent.target;
+        if (!el && typeof captured.instanceId === 'string' && /^[A-Za-z0-9_-]+$/.test(captured.instanceId)) {
+            el = document.querySelector('[data-ui-component-instance-id="' + captured.instanceId + '"]');
+        }
         var preview = el && typeof el.closest === 'function' ? el.closest('.component-bridge-preview') : null;
         return preview ? preview.querySelector('[data-component-bridge-console]') : null;
     }
