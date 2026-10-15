@@ -86,14 +86,14 @@ final class ApiSchemaDiscoveryHandler implements TypedHandlerInterface
     private function buildOperations(): array
     {
         $schemaJson = $this->encodeJson($this->apiPresenter->buildProductSchema());
-        $slug = $this->apiPresenter->showcaseSlug();
+        // One lookup for both panels: the same product under two profiles.
+        $product = $this->apiPresenter->showcaseProduct();
+        $slug = $this->apiPresenter->slugOf($product);
         $slimUrl = '/demo/api/v1/products/' . $slug . '?fields=slug,name,price';
         $fullUrl = '/demo/api/v1/products/' . $slug . '?profile=full&expand=category,reviews';
         $slimRequest = new Request('GET', $slimUrl, [], [], [], [], []);
         $fullRequest = new Request('GET', $fullUrl, ['X-Response-Profile' => 'full'], [], [], [], []);
 
-        // One lookup for both panels: the same product under two profiles.
-        $product = $this->apiPresenter->findProductBySlug($slug);
         $slimBody = $product === null ? null : $this->apiPresenter->buildDetailFor($product, request: $slimRequest, fields: 'slug,name,price');
         $fullBody = $product === null ? null : $this->apiPresenter->buildDetailFor($product, request: $fullRequest, expand: 'category,reviews', profile: 'full');
 

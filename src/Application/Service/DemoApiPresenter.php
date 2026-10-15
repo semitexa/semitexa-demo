@@ -204,10 +204,9 @@ final class DemoApiPresenter
         ];
     }
 
-    public function getShowcaseProfiles(): array
+    public function getShowcaseProfiles(string $slug): array
     {
-        $slug = $this->showcaseSlug();
-        $term = $this->showcaseSearchTerm();
+        $term = $this->searchTermFor($slug);
 
         return [
             [
@@ -656,19 +655,21 @@ final class DemoApiPresenter
      * seeder spreads products over tenants, so a fixed slug 404'd on the demo
      * tenant's public site (framework.semitexa.com, 2026-10-16).
      */
-    public function showcaseSlug(): string
+    public function showcaseProduct(): ?DemoProduct
     {
-        $first = $this->products->findPage(1, 0)[0] ?? null;
-
-        return $this->findProductBySlug(self::SHOWCASE_SLUG) !== null || $first === null
-            ? self::SHOWCASE_SLUG
-            : $this->slugify($first->getName());
+        return $this->findProductBySlug(self::SHOWCASE_SLUG) ?? ($this->products->findPage(1, 0)[0] ?? null);
     }
 
-    /** A search term the showcase product's own name contains. */
-    public function showcaseSearchTerm(): string
+    /** The showcase product's slug; resolve the product once per render and pass it in. */
+    public function slugOf(?DemoProduct $product): string
     {
-        $words = explode('-', $this->showcaseSlug());
+        return $product !== null ? $this->slugify($product->getName()) : self::SHOWCASE_SLUG;
+    }
+
+    /** A search term the product's own name contains. */
+    public function searchTermFor(string $slug): string
+    {
+        $words = explode('-', $slug);
 
         return end($words) ?: 'product';
     }

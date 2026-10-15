@@ -96,7 +96,13 @@
         // The shape KISS expects of a subscriber channel id (sse_ + 32 hex).
         function createSessionId() {
             const bytes = new Uint8Array(16);
-            (globalThis.crypto || { getRandomValues: function (b) { for (let i = 0; i < b.length; i++) { b[i] = Math.floor(Math.random() * 256); } } }).getRandomValues(bytes);
+            if (globalThis.crypto && typeof globalThis.crypto.getRandomValues === 'function') {
+                globalThis.crypto.getRandomValues(bytes);
+            } else {
+                for (let i = 0; i < bytes.length; i++) {
+                    bytes[i] = Math.floor(Math.random() * 256);
+                }
+            }
 
             return 'sse_' + Array.from(bytes, function (value) {
                 return value.toString(16).padStart(2, '0');
