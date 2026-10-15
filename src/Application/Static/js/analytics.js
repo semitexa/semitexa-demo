@@ -14,12 +14,28 @@
  *  - cta_click             a click on a link that leaves this host
  * Copies are reported from the `semitexa:code-copied` event code-tabs.js
  * dispatches, so the copy handler itself knows nothing about analytics.
+ *
+ * A browser that once arrived from a *.test page is the operator's own: it is
+ * remembered and never reported again, since their clicks from the local
+ * sites showed up as referral sessions. `?sx_internal=0` forgets the mark.
  */
 (function () {
   'use strict';
 
-  if (!/(^|\.)semitexa\.com$/.test(location.hostname)) {
+  if (!/(^|\.)semitexa\.com$/.test(location.hostname) || isInternal()) {
     return;
+  }
+
+  function isInternal() {
+    try {
+      var key = 'semitexa_internal';
+      if (/[?&]sx_internal=0\b/.test(location.search)) localStorage.removeItem(key);
+      var from = document.referrer ? new URL(document.referrer).hostname : '';
+      if (/\.test$|^localhost$/.test(from)) localStorage.setItem(key, '1');
+      return localStorage.getItem(key) === '1';
+    } catch (e) {
+      return false;
+    }
   }
 
   var MEASUREMENT_ID = 'G-47KYEC7JNJ';
