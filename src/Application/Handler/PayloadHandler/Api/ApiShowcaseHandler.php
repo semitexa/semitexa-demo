@@ -46,6 +46,8 @@ final class ApiShowcaseHandler implements TypedHandlerInterface
             pageTitleSuffix: ' | Semitexa Demo',
         );
 
+        $slug = $this->apiPresenter->showcaseSlug();
+
         return $this->projector->project($resource, $spec)
             ->withSourceCode([
                 'List Payload' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Api/Rest/ProductListPayload.example.php'),
@@ -54,9 +56,9 @@ final class ApiShowcaseHandler implements TypedHandlerInterface
             ])
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/api-showcase.html.twig', [
                 'profiles' => $this->apiPresenter->getShowcaseProfiles(),
-                'collectionHref' => '/demo/api/v1/products?q=headphones',
-                'detailHref' => '/demo/api/v1/products/wireless-headphones?profile=full&expand=category,reviews',
-                'jsonLdHref' => '/demo/api/v1/products/wireless-headphones?format=ld',
+                'collectionHref' => '/demo/api/v1/products?q=' . rawurlencode($this->apiPresenter->showcaseSearchTerm()),
+                'detailHref' => '/demo/api/v1/products/' . $slug . '?profile=full&expand=category,reviews',
+                'jsonLdHref' => '/demo/api/v1/products/' . $slug . '?format=ld',
             ]);
     }
 }
