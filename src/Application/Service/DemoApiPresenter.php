@@ -652,22 +652,17 @@ final class DemoApiPresenter
     }
 
     /**
-     * The product the REST showcase links to. The seeder spreads products over
-     * the demo tenants; the showcase used 'wireless-headphones', which lands in
-     * acme, so on a site serving the demo tenant every showcase link answered
-     * 404 (measured on framework.semitexa.com 2026-10-16). 'air-purifier' is a
-     * demo-tenant product; any other tenant falls back to its first product.
+     * The product the REST showcase links to: one the current tenant has. The
+     * seeder spreads products over tenants, so a fixed slug 404'd on the demo
+     * tenant's public site (framework.semitexa.com, 2026-10-16).
      */
     public function showcaseSlug(): string
     {
-        if ($this->findProductBySlug(self::SHOWCASE_SLUG) !== null) {
-            return self::SHOWCASE_SLUG;
-        }
-        foreach ($this->products->findPage(1, 0) as $product) {
-            return $this->slugify($product->getName());
-        }
+        $first = $this->products->findPage(1, 0)[0] ?? null;
 
-        return self::SHOWCASE_SLUG;
+        return $this->findProductBySlug(self::SHOWCASE_SLUG) !== null || $first === null
+            ? self::SHOWCASE_SLUG
+            : $this->slugify($first->getName());
     }
 
     /** A search term the showcase product's own name contains. */
