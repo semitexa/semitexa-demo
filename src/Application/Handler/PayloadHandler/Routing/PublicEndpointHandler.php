@@ -56,7 +56,7 @@ final class PublicEndpointHandler implements TypedHandlerInterface
                     [['text' => '#[AsPublicPayload]', 'code' => true], ['text' => '200 OK', 'variant' => 'success']],
                     [['text' => '#[AsProtectedPayload]', 'code' => true], ['text' => '401 Unauthorized', 'variant' => 'warning']],
                     [['text' => '#[AsServicePayload]', 'code' => true], ['text' => '401 Unauthorized', 'variant' => 'warning']],
-                    [['text' => '#[AsPublicPayload] + #[RequiresPermission]', 'code' => true], ['text' => 'Boot-time exception', 'variant' => 'error']],
+                    [['text' => '#[AsPublicPayload] + #[RequiresPermission]', 'code' => true], ['text' => 'Refused on its first request', 'variant' => 'error']],
                     [['text' => 'No access attribute'], ['text' => 'Not routed', 'variant' => 'error']],
                 ],
                 'codeSnippet' => "// Signed-in users only\n#[AsProtectedPayload(path: '/dashboard', methods: ['GET'])]\nclass DashboardPayload {}\n\n// Explicitly public\n#[AsPublicPayload(path: '/catalog', methods: ['GET'])]\nclass CatalogPayload {}",
