@@ -54,7 +54,7 @@ final class DeferredBlocksHandler implements TypedHandlerInterface
                 'authActionLabel' => DemoAuthMode::actionLabel(),
                 'authSignInTitle' => DemoAuthMode::signInTitle(),
                 'authSignedInLabel' => DemoAuthMode::signedInLabel(),
-                'sseEndpoint' => Environment::getEnvValue('SSE_ENDPOINT', '/sse'),
+                'sseEndpoint' => Environment::getEnvValue('SSE_ENDPOINT', '/__semitexa_kiss'),
                 'expectedCadenceSeconds' => 60,
                 'authRequiredMessage' => DemoAuthMode::isLocalLoginEnabled()
                     ? 'Local sign-in is required before the deferred runtime can open its long-lived kiss stream.'

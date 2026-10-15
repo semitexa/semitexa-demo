@@ -11,7 +11,7 @@
         }
 
         const launchEndpoint = root.getAttribute('data-launch-endpoint') || '/demo/events/arena/launch';
-        const sseEndpoint = root.getAttribute('data-sse-endpoint') || '/sse';
+        const sseEndpoint = root.getAttribute('data-sse-endpoint') || '/__semitexa_kiss';
         const streamStatus = document.getElementById('execution-arena-stream-status');
         const streamSummary = document.getElementById('execution-arena-stream-summary');
         const sessionPill = document.getElementById('execution-arena-session-pill');
@@ -316,21 +316,22 @@
             }
         }
 
+        // The KISS door admits a guest's stream only for an id of this exact
+        // shape (sse_ + 32 hex, 128 random bits); the old 'arena_<uuid>' ids
+        // were refused, and the old /sse door is gone (404 on the live site).
         function createSessionId() {
-            if (globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function') {
-                return 'arena_' + globalThis.crypto.randomUUID();
-            }
-
+            const bytes = new Uint8Array(16);
             if (globalThis.crypto && typeof globalThis.crypto.getRandomValues === 'function') {
-                const bytes = new Uint8Array(8);
                 globalThis.crypto.getRandomValues(bytes);
-
-                return 'arena_' + Array.from(bytes, function (value) {
-                    return value.toString(16).padStart(2, '0');
-                }).join('') + '_' + Date.now().toString(36);
+            } else {
+                for (let i = 0; i < bytes.length; i++) {
+                    bytes[i] = Math.floor(Math.random() * 256);
+                }
             }
 
-            return 'arena_' + Math.random().toString(36).slice(2, 10) + '_' + Date.now().toString(36);
+            return 'sse_' + Array.from(bytes, function (value) {
+                return value.toString(16).padStart(2, '0');
+            }).join('');
         }
 
         function shortId(value) {
