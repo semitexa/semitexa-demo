@@ -86,11 +86,14 @@ final class ApiSchemaDiscoveryHandler implements TypedHandlerInterface
     private function buildOperations(): array
     {
         $schemaJson = $this->encodeJson($this->apiPresenter->buildProductSchema());
-        $slimRequest = new Request('GET', '/demo/api/v1/products/wireless-headphones?fields=slug,name,price', [], [], [], [], []);
-        $fullRequest = new Request('GET', '/demo/api/v1/products/wireless-headphones?profile=full&expand=category,reviews', ['X-Response-Profile' => 'full'], [], [], [], []);
-
         // One lookup for both panels: the same product under two profiles.
-        $product = $this->apiPresenter->findProductBySlug('wireless-headphones');
+        $product = $this->apiPresenter->showcaseProduct();
+        $slug = $this->apiPresenter->slugOf($product);
+        $slimUrl = '/demo/api/v1/products/' . $slug . '?fields=slug,name,price';
+        $fullUrl = '/demo/api/v1/products/' . $slug . '?profile=full&expand=category,reviews';
+        $slimRequest = new Request('GET', $slimUrl, [], [], [], [], []);
+        $fullRequest = new Request('GET', $fullUrl, ['X-Response-Profile' => 'full'], [], [], [], []);
+
         $slimBody = $product === null ? null : $this->apiPresenter->buildDetailFor($product, request: $slimRequest, fields: 'slug,name,price');
         $fullBody = $product === null ? null : $this->apiPresenter->buildDetailFor($product, request: $fullRequest, expand: 'category,reviews', profile: 'full');
 
@@ -121,7 +124,7 @@ final class ApiSchemaDiscoveryHandler implements TypedHandlerInterface
                 'id' => 'detail-slim',
                 'label' => 'GET slim detail',
                 'method' => 'GET',
-                'url' => '/demo/api/v1/products/wireless-headphones?fields=slug,name,price',
+                'url' => $slimUrl,
                 'summary' => 'Sparse fieldset proving the contract can be trimmed intentionally.',
                 'headers' => ['Accept' => 'application/json'],
                 'responseStatus' => 200,
@@ -132,7 +135,7 @@ final class ApiSchemaDiscoveryHandler implements TypedHandlerInterface
                 'id' => 'detail-expanded',
                 'label' => 'GET expanded detail',
                 'method' => 'GET',
-                'url' => '/demo/api/v1/products/wireless-headphones?profile=full&expand=category,reviews',
+                'url' => $fullUrl,
                 'summary' => 'Expanded graph with review data for internal dashboards and rich clients.',
                 'headers' => ['Accept' => 'application/json', 'X-Response-Profile' => 'full'],
                 'responseStatus' => 200,

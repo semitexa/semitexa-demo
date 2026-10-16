@@ -37,7 +37,7 @@ final class ProtectedRouteHandler implements TypedHandlerInterface
             relatedSlugs: [],
             fallbackTitle: 'Protected Route',
             fallbackSummary: 'Add one attribute to any route and the framework enforces access: 403 is returned automatically.',
-            fallbackHighlights: ['#[RequiresPermission]', '#[PublicEndpoint]', 'guard chain', '403 response'],
+            fallbackHighlights: ['#[RequiresPermission]', '#[AsProtectedPayload]', 'guard chain', '403 response'],
             explanation: $this->explanationProvider->getExplanation('auth', 'protected'),
             pageTitleSuffix: ' | Semitexa Demo',
         );
@@ -49,15 +49,15 @@ final class ProtectedRouteHandler implements TypedHandlerInterface
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/permission-matrix.html.twig', [
                 'eyebrow' => 'Route Guards',
                 'title' => 'Access is enforced before the handler runs',
-                'summary' => 'The guard chain decides whether the request should proceed, fail with 401/403, or bypass checks entirely for public endpoints.',
+                'summary' => 'The guard chain decides whether the request should proceed, fail with 401/403, or skip them entirely for a public payload.',
                 'columns' => ['Scenario', 'Result'],
                 'rows' => [
                     [['text' => 'Authenticated + correct permission'], ['text' => '200 OK', 'variant' => 'success']],
                     [['text' => 'Authenticated + missing permission'], ['text' => '403 Forbidden', 'variant' => 'error']],
                     [['text' => 'Not authenticated'], ['text' => '401 Unauthorized', 'variant' => 'warning']],
-                    [['text' => '#[PublicEndpoint]', 'code' => true], ['text' => '200 OK (no auth check)', 'variant' => 'success']],
+                    [['text' => '#[AsPublicPayload]', 'code' => true], ['text' => '200 OK (no auth check)', 'variant' => 'success']],
                 ],
-                'codeSnippet' => "// Protected: only admin can access\n#[RequiresPermission('users.manage')]\n#[AsPayload(path: '/admin/users', methods: ['GET'])]\nclass UserListPayload { ... }\n\n// Public: no auth required\n#[PublicEndpoint]\n#[AsPayload(path: '/demo/routing/basic', methods: ['GET'])]\nclass BasicRoutePayload { ... }",
+                'codeSnippet' => "// Protected: only admin can access\n#[AsProtectedPayload(path: '/admin/users', methods: ['GET'])]\n#[RequiresPermission('users.manage')]\nclass UserListPayload { ... }\n\n// Public: no auth required\n#[AsPublicPayload(path: '/demo/routing/basic', methods: ['GET'])]\nclass BasicRoutePayload { ... }",
             ]);
     }
 }

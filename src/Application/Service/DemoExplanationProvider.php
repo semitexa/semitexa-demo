@@ -32,11 +32,11 @@ final class DemoExplanationProvider
     private const EXPLANATIONS = [
         // --- Routing section ---
         'routing/basic' => [
-            'what' => 'A single #[AsPayload] attribute on a PHP class creates a fully routed HTTP endpoint — no XML, no YAML, no config files.',
-            'how' => 'The framework scans the Composer classmap for classes with #[AsPayload], extracts path and method metadata, resolves env:: placeholders if present, and registers routes at boot. The route compiler then turns path patterns into optimized regex matchers cached in memory.',
+            'what' => 'A single route attribute on a PHP class (#[AsPublicPayload], #[AsProtectedPayload] or #[AsServicePayload]) creates a fully routed HTTP endpoint — no XML, no YAML, no config files.',
+            'how' => 'The framework scans the Composer classmap for classes with a payload route attribute, extracts path and method metadata, resolves env:: placeholders if present, and registers routes at boot. The route compiler then turns path patterns into optimized regex matchers cached in memory.',
             'why' => 'Keeping route definitions co-located with their request DTOs means a reader can understand what an endpoint accepts and where it lives by reading a single file. At the same time, env:: syntax lets operations move a route without reopening PHP code when deployment topology demands it.',
             'keywords' => [
-                ['term' => '#[AsPayload]', 'definition' => 'Attribute that marks a class as a request DTO and declares its HTTP route.'],
+                ['term' => '#[AsPublicPayload]', 'definition' => 'One of the three payload route attributes: marks a class as a request DTO and declares its HTTP route and who may call it.'],
                 ['term' => 'env::VAR_NAME::/default/path', 'definition' => 'Special attribute syntax that lets a payload read its route path, name, or other metadata from .env with a safe default fallback.'],
                 ['term' => 'responseWith', 'definition' => 'Links the payload to the Resource DTO that shapes the response.'],
                 ['term' => 'ClassDiscovery', 'definition' => 'Reads the Composer classmap to find all classes with a given attribute.'],
@@ -44,7 +44,7 @@ final class DemoExplanationProvider
         ],
         'routing/env-route-override' => [
             'what' => 'A payload can keep the route contract in PHP while still letting operations move the public URL through .env.',
-            'how' => 'AsPayload path values support env::VAR::/fallback syntax. During route discovery, Semitexa resolves the env key first and falls back to the inline path when the variable is absent.',
+            'how' => 'Payload route paths support env::VAR::/fallback syntax. During route discovery, Semitexa resolves the env key first and falls back to the inline path when the variable is absent.',
             'why' => 'This gives deployment flexibility without losing the architectural advantage of payload-owned routes. The route remains reviewable in code, but environment-specific URL decisions stop forcing PHP edits.',
             'keywords' => [
                 ['term' => 'env::VAR_NAME::/fallback', 'definition' => 'Environment-aware attribute syntax that resolves to an env value with a safe inline default.'],
@@ -64,7 +64,7 @@ final class DemoExplanationProvider
         ],
         'routing/payload-parts' => [
             'what' => 'A payload can be extended by another module without reopening the original route class, so one transport boundary can stay singular while modules stay additive.',
-            'how' => 'A base module declares the payload with #[AsPayload]. Another module contributes a trait marked with #[AsPayloadPart(base: ...)]. At runtime PayloadFactory composes a wrapper class that extends the base payload and uses all matching traits, so the added trait can own setters and guards for its own extra fields.',
+            'how' => 'A base module declares the payload with its route attribute, for example #[AsPublicPayload]. Another module contributes a trait marked with #[AsPayloadPart(base: ...)]. At runtime PayloadFactory composes a wrapper class that extends the base payload and uses all matching traits, so the added trait can own setters and guards for its own extra fields.',
             'why' => 'This solves a painful modularity problem: extra request concerns do not force a fork of the original payload and do not leak into untyped arrays. The handler still receives one trusted DTO, and each added concern can validate its own field without a central validate() choke point.',
             'keywords' => [
                 ['term' => '#[AsPayloadPart]', 'definition' => 'Marks a trait as an additive extension of an existing payload class.'],
@@ -73,12 +73,12 @@ final class DemoExplanationProvider
             ],
         ],
         'routing/public-endpoint' => [
-            'what' => 'Semitexa is closed by default: every payload requires authentication unless you explicitly opt it into anonymous access with #[PublicEndpoint].',
-            'how' => 'The access policy resolver inspects payload attributes at boot. If #[PublicEndpoint] is present, the route is marked public; otherwise the authorizer treats guest access as AuthenticationRequired and the pipeline returns 401 before the handler runs.',
+            'what' => 'Semitexa is closed by default: every payload picks one of #[AsPublicPayload], #[AsProtectedPayload] or #[AsServicePayload], and anonymous access is the explicit #[AsPublicPayload] opt-in.',
+            'how' => 'The access policy resolver inspects the payload\'s access attribute at boot. #[AsPublicPayload] marks the route as anonymous-allowed; #[AsProtectedPayload] and #[AsServicePayload] return 401 to a guest before the handler runs. A payload that declares none of the three is never routed.',
             'why' => 'This flips the usual risk profile. Teams do not have to remember to secure every endpoint one by one. The safe default is built in, and public exposure becomes a deliberate code review event.',
             'keywords' => [
-                ['term' => '#[PublicEndpoint]', 'definition' => 'Marks a payload as explicitly reachable without authentication.'],
-                ['term' => 'default private', 'definition' => 'The absence of #[PublicEndpoint] means the endpoint is treated as protected for guests.'],
+                ['term' => '#[AsPublicPayload]', 'definition' => 'Marks a payload as explicitly reachable without authentication.'],
+                ['term' => '#[AsProtectedPayload]', 'definition' => 'Requires a signed-in user; a guest gets 401 before the handler runs.'],
                 ['term' => '401 Unauthorized', 'definition' => 'The framework response returned when a guest hits a protected endpoint.'],
                 ['term' => 'Authorizer', 'definition' => 'Core service that decides whether the current subject may access the resolved payload.'],
             ],
@@ -94,7 +94,7 @@ final class DemoExplanationProvider
         ],
         'routing/content-negotiation' => [
             'what' => 'A single endpoint serves JSON, HTML, or other formats depending on the Accept header or ?_format= query parameter.',
-            'how' => 'The produces array in #[AsPayload] declares which Content-Types the endpoint supports. The framework negotiates the best match against the client Accept header and selects the appropriate response serializer.',
+            'how' => 'The produces array in the payload route attribute declares which Content-Types the endpoint supports. The framework negotiates the best match against the client Accept header and selects the appropriate response serializer.',
             'why' => 'Content negotiation lets one route serve both browser and API clients. The handler stays format-agnostic — it populates the resource DTO, and the framework handles serialization.',
             'keywords' => [
                 ['term' => 'produces', 'definition' => 'Declares the Content-Types an endpoint can return, enabling content negotiation.'],
@@ -523,10 +523,10 @@ final class DemoExplanationProvider
         ],
         'api/rest-api' => [
             'what' => 'Semitexa REST is explicit and typed. Payload DTOs own the route contract, version markers stay visible, and the response shape remains reviewable instead of drifting into improvised controller code.',
-            'how' => 'A REST endpoint is declared on a payload with #[AsPayload], then marked as machine-facing with #[ExternalApi]. Optional concerns such as versioning, sparse fieldsets, expand parameters, and alternative representations stay attached to that same contract instead of being scattered through middleware and controllers.',
+            'how' => 'A REST endpoint is declared on a payload with its route attribute (for example #[AsPublicPayload]), then marked as machine-facing with #[ExternalApi]. Optional concerns such as versioning, sparse fieldsets, expand parameters, and alternative representations stay attached to that same contract instead of being scattered through middleware and controllers.',
             'why' => 'REST should not mean accidental complexity. Semitexa keeps the HTTP surface boring in the best way: one clear route contract, one clear execution path, and machine-facing behavior that is explicit in code review.',
             'keywords' => [
-                ['term' => '#[AsPayload]', 'definition' => 'The typed request contract that owns the REST route.'],
+                ['term' => '#[AsPublicPayload]', 'definition' => 'The typed request contract that owns the REST route and says who may call it.'],
                 ['term' => '#[ExternalApi]', 'definition' => 'Marks the payload as a public machine-facing REST endpoint.'],
                 ['term' => '#[ApiVersion]', 'definition' => 'Attaches explicit lifecycle metadata to a REST contract.'],
             ],

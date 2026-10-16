@@ -46,6 +46,9 @@ final class ApiShowcaseHandler implements TypedHandlerInterface
             pageTitleSuffix: ' | Semitexa Demo',
         );
 
+        // One lookup per render, passed on; each helper used to load the catalog again.
+        $slug = $this->apiPresenter->slugOf($this->apiPresenter->showcaseProduct());
+
         return $this->projector->project($resource, $spec)
             ->withSourceCode([
                 'List Payload' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Api/Rest/ProductListPayload.example.php'),
@@ -53,10 +56,10 @@ final class ApiShowcaseHandler implements TypedHandlerInterface
                 'REST Request' => $this->sourceCodeReader->readProjectRelativeSource('resources/examples/Api/Rest/ProductListRequest.example.txt'),
             ])
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/api-showcase.html.twig', [
-                'profiles' => $this->apiPresenter->getShowcaseProfiles(),
-                'collectionHref' => '/demo/api/v1/products?q=headphones',
-                'detailHref' => '/demo/api/v1/products/wireless-headphones?profile=full&expand=category,reviews',
-                'jsonLdHref' => '/demo/api/v1/products/wireless-headphones?format=ld',
+                'profiles' => $this->apiPresenter->getShowcaseProfiles($slug),
+                'collectionHref' => '/demo/api/v1/products?q=' . rawurlencode($this->apiPresenter->searchTermFor($slug)),
+                'detailHref' => '/demo/api/v1/products/' . $slug . '?profile=full&expand=category,reviews',
+                'jsonLdHref' => '/demo/api/v1/products/' . $slug . '?format=ld',
             ]);
     }
 }

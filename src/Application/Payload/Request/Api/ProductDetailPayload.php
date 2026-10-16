@@ -17,7 +17,7 @@ use Semitexa\Graphql\Attribute\ExposeAsGraphql;
     methods: ['GET'],
     responseWith: DemoApiResponse::class,
     requirements: ['slug' => '[a-z0-9-]+'],
-    defaults: ['slug' => 'wireless-headphones'],
+    defaults: ['slug' => 'air-purifier'],
 )]
 #[ExternalApi(version: 'v1', description: 'Demo product detail endpoint')]
 #[ApiVersion(version: '1.0.0')]
@@ -30,7 +30,7 @@ use Semitexa\Graphql\Attribute\ExposeAsGraphql;
 final class ProductDetailPayload
 {
     protected ?Request $httpRequest = null;
-    protected string $slug = 'wireless-headphones';
+    protected string $slug = 'air-purifier';
     protected ?string $fields = null;
     protected ?string $expand = null;
     protected ?string $profile = null;

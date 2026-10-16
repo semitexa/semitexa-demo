@@ -18,7 +18,7 @@
   data-stream-mode="{{ streamMode|e('html_attr') }}"
   data-authorization-required="{{ authRequired ? 'true' : 'false' }}"
   data-is-authenticated="{{ isAuthenticated ? 'true' : 'false' }}"
-  data-sse-endpoint="{{ sseEndpoint|default('/sse')|e('html_attr') }}"
+  data-sse-endpoint="{{ sseEndpoint|default('/__semitexa_kiss')|e('html_attr') }}"
   data-auth-required-message="{{ authRequiredMessage|e('html_attr') }}"
   data-expected-cadence-seconds="{{ expectedCadenceSeconds }}"
 >

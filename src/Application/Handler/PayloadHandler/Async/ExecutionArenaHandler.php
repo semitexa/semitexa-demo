@@ -74,7 +74,7 @@ final class ExecutionArenaHandler implements TypedHandlerInterface
             ])
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/execution-arena.html.twig', [
                 'launchEndpoint' => '/demo/events/arena/launch',
-                'sseEndpoint' => Environment::getEnvValue('SSE_ENDPOINT', '/sse'),
+                'sseEndpoint' => Environment::getEnvValue('SSE_ENDPOINT', '/__semitexa_kiss'),
                 'lanes' => $this->showcaseService->getArenaLanes(),
                 'queueCommand' => 'bin/semitexa queue:work nats async',
             ]);

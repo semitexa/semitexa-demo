@@ -23,6 +23,8 @@ use Semitexa\Demo\Domain\Model\DemoReview;
 #[AsService]
 final class DemoApiPresenter
 {
+    private const SHOWCASE_SLUG = 'air-purifier';
+
     #[InjectAsReadonly]
     protected DemoProductRepositoryInterface $products;
 
@@ -202,32 +204,34 @@ final class DemoApiPresenter
         ];
     }
 
-    public function getShowcaseProfiles(): array
+    public function getShowcaseProfiles(string $slug): array
     {
+        $term = $this->searchTermFor($slug);
+
         return [
             [
                 'consumer' => 'Frontend',
                 'headers' => 'Accept: application/json | X-Response-Profile: minimal',
                 'outcome' => 'Slim payload for interactive UI rendering.',
-                'href' => '/demo/api/v1/products/wireless-headphones?profile=minimal',
+                'href' => '/demo/api/v1/products/' . $slug . '?profile=minimal',
             ],
             [
                 'consumer' => 'Crawler',
                 'headers' => 'Accept: application/ld+json',
                 'outcome' => 'Schema.org product document with semantic fields.',
-                'href' => '/demo/api/v1/products/wireless-headphones?format=ld',
+                'href' => '/demo/api/v1/products/' . $slug . '?format=ld',
             ],
             [
                 'consumer' => 'Dashboard',
                 'headers' => 'Accept: application/json | expand=category,reviews | X-Response-Profile: full',
                 'outcome' => 'Expanded graph for internal admin views.',
-                'href' => '/demo/api/v1/products/wireless-headphones?profile=full&expand=category,reviews',
+                'href' => '/demo/api/v1/products/' . $slug . '?profile=full&expand=category,reviews',
             ],
             [
                 'consumer' => 'Search',
-                'headers' => 'Accept: application/json | q=headphones',
+                'headers' => 'Accept: application/json | q=' . $term,
                 'outcome' => 'Filtered collection with pagination metadata.',
-                'href' => '/demo/api/v1/products?q=headphones',
+                'href' => '/demo/api/v1/products?q=' . rawurlencode($term),
             ],
         ];
     }
@@ -644,6 +648,30 @@ final class DemoApiPresenter
         }
 
         return [array_values(array_slice($all, ($page - 1) * $limit, $limit)), count($all)];
+    }
+
+    /**
+     * The product the REST showcase links to: one the current tenant has. The
+     * seeder spreads products over tenants, so a fixed slug 404'd on the demo
+     * tenant's public site (framework.semitexa.com, 2026-10-16).
+     */
+    public function showcaseProduct(): ?DemoProduct
+    {
+        return $this->findProductBySlug(self::SHOWCASE_SLUG) ?? ($this->products->findPage(1, 0)[0] ?? null);
+    }
+
+    /** The showcase product's slug; resolve the product once per render and pass it in. */
+    public function slugOf(?DemoProduct $product): string
+    {
+        return $product !== null ? $this->slugify($product->getName()) : self::SHOWCASE_SLUG;
+    }
+
+    /** A search term the product's own name contains. */
+    public function searchTermFor(string $slug): string
+    {
+        $words = explode('-', $slug);
+
+        return end($words) ?: 'product';
     }
 
     public function findProductBySlug(string $slug): ?DemoProduct

@@ -12,7 +12,7 @@
     function init() {
         const rootEl = document.getElementById('sse-demo');
         const streamMode = rootEl ? (rootEl.getAttribute('data-stream-mode') || 'standalone') : 'standalone';
-        const SSE_ENDPOINT = rootEl ? (rootEl.getAttribute('data-sse-endpoint') || '/sse') : '/sse';
+        const SSE_ENDPOINT = rootEl ? (rootEl.getAttribute('data-sse-endpoint') || '/__semitexa_kiss') : '/__semitexa_kiss';
         const connectBtn = document.getElementById('sse-connect');
         const disconnectBtn = document.getElementById('sse-disconnect');
         const statusEl = document.getElementById('sse-status');
@@ -93,8 +93,20 @@
             return (prefix.length ? '[' + prefix.join(' / ') + '] ' : '') + title + message;
         }
 
+        // The shape KISS expects of a subscriber channel id (sse_ + 32 hex).
         function createSessionId() {
-            return 'demo_sse_' + Math.random().toString(36).slice(2, 10) + '_' + Date.now().toString(36);
+            const bytes = new Uint8Array(16);
+            if (globalThis.crypto && typeof globalThis.crypto.getRandomValues === 'function') {
+                globalThis.crypto.getRandomValues(bytes);
+            } else {
+                for (let i = 0; i < bytes.length; i++) {
+                    bytes[i] = Math.floor(Math.random() * 256);
+                }
+            }
+
+            return 'sse_' + Array.from(bytes, function (value) {
+                return value.toString(16).padStart(2, '0');
+            }).join('');
         }
 
         function secondsUntilNextWindow(intervalSeconds) {

@@ -31,13 +31,13 @@ final class PublicEndpointHandler implements TypedHandlerInterface
         $spec = new FeatureSpec(
             section: 'routing',
             slug: 'public-endpoint',
-            entryLine: 'Anonymous access is never accidental: without #[PublicEndpoint], Semitexa treats the route as protected.',
+            entryLine: 'Anonymous access is never accidental: a payload is public only when it says #[AsPublicPayload].',
             learnMoreLabel: 'See the access contract →',
             deepDiveLabel: 'How the authorizer decides →',
             relatedSlugs: [],
             fallbackTitle: 'Public Endpoint',
-            fallbackSummary: 'Every endpoint is private by default. #[PublicEndpoint] is the explicit opt-in for anonymous access.',
-            fallbackHighlights: ['#[PublicEndpoint]', 'default private', '401 Unauthorized', 'Authorizer'],
+            fallbackSummary: 'Every payload declares who may call it: #[AsPublicPayload], #[AsProtectedPayload] or #[AsServicePayload]. Public is the explicit opt-in.',
+            fallbackHighlights: ['#[AsPublicPayload]', '#[AsProtectedPayload]', '401 Unauthorized', 'Authorizer'],
             explanation: $this->explanationProvider->getExplanation('routing', 'public-endpoint'),
             pageTitleSuffix: ' | Semitexa Demo',
         );
@@ -50,15 +50,16 @@ final class PublicEndpointHandler implements TypedHandlerInterface
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/permission-matrix.html.twig', [
                 'eyebrow' => 'Security Default',
                 'title' => 'Private unless you say otherwise',
-                'summary' => 'The absence of #[PublicEndpoint] is what keeps routes closed to guests. Public access must be deliberate and visible in code.',
+                'summary' => 'A payload that declares no access attribute is never routed, so public access is always deliberate and visible in code.',
                 'columns' => ['Route declaration', 'Guest request result'],
                 'rows' => [
-                    [['text' => 'No auth attribute at all'], ['text' => '401 Unauthorized', 'variant' => 'warning']],
-                    [['text' => '#[PublicEndpoint]', 'code' => true], ['text' => '200 OK', 'variant' => 'success']],
-                    [['text' => '#[PublicEndpoint] + #[RequiresPermission]', 'code' => true], ['text' => 'Boot-time exception', 'variant' => 'error']],
-                    [['text' => 'Authenticated user on default-private route'], ['text' => '200 OK', 'variant' => 'success']],
+                    [['text' => '#[AsPublicPayload]', 'code' => true], ['text' => '200 OK', 'variant' => 'success']],
+                    [['text' => '#[AsProtectedPayload]', 'code' => true], ['text' => '401 Unauthorized', 'variant' => 'warning']],
+                    [['text' => '#[AsServicePayload]', 'code' => true], ['text' => '401 Unauthorized', 'variant' => 'warning']],
+                    [['text' => '#[AsPublicPayload] + #[RequiresPermission]', 'code' => true], ['text' => 'Refused on its first request', 'variant' => 'error']],
+                    [['text' => 'No access attribute'], ['text' => 'Not routed', 'variant' => 'error']],
                 ],
-                'codeSnippet' => "// Protected by default\n#[AsPayload(path: '/dashboard', methods: ['GET'])]\nclass DashboardPayload {}\n\n// Explicitly public\n#[PublicEndpoint]\n#[AsPayload(path: '/catalog', methods: ['GET'])]\nclass CatalogPayload {}",
+                'codeSnippet' => "// Signed-in users only\n#[AsProtectedPayload(path: '/dashboard', methods: ['GET'])]\nclass DashboardPayload {}\n\n// Explicitly public\n#[AsPublicPayload(path: '/catalog', methods: ['GET'])]\nclass CatalogPayload {}",
             ]);
     }
 }
