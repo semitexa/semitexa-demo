@@ -53,7 +53,8 @@
                 "semitexa/graphql": "2026.10.03.1952",
                 "semitexa/docs": "2026.10.03.1952",
                 "semitexa/ssr": "2026.10.08.0620",
-                "semitexa/platform-ui": "2026.10.08.0620"
+                "semitexa/platform-ui": "2026.10.08.0620",
+                "semitexa/core": "next"
             }
         }
     },

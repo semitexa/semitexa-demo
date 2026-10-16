@@ -73,6 +73,7 @@ final class ProductApiNegotiationTest extends TestCase
 
         if ($answered) {
             self::assertNotInstanceOf(HttpResponse::class, $rendered);
+            self::assertTrue(method_exists($rendered, 'getContent'));
             self::assertSame('{"data":[]}', $rendered->getContent());
 
             return;
@@ -112,7 +113,7 @@ final class ProductApiNegotiationTest extends TestCase
             private array $headers = ['Content-Type' => 'application/json'];
             private string $content = '{"data":[]}';
 
-            public function getRenderHandle(): ?string
+            public function getRenderHandle(): null
             {
                 return null;
             }
