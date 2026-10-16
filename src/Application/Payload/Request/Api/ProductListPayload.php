@@ -16,7 +16,9 @@ use Semitexa\Ssr\Application\Service\Seo\Sitemap\NotInSitemap;
 #[AsPublicPayload(
     path: '/demo/api/v1/products',
     methods: ['GET'],
-    responseWith: DemoApiResponse::class,
+    responseWith: DemoApiResponse::class,    // What DemoApiPresenter can answer in. Declared so a client that refuses
+    // both gets 406 instead of JSON it said it would not take.
+    produces: ['application/json', 'application/ld+json'],
 )]
 #[NotInSitemap]
 #[ExternalApi(version: 'v1', description: 'Demo product collection endpoint')]
