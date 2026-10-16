@@ -17,7 +17,9 @@ use Semitexa\Graphql\Attribute\ExposeAsGraphql;
     methods: ['GET'],
     responseWith: DemoApiResponse::class,
     requirements: ['slug' => '[a-z0-9-]+'],
-    defaults: ['slug' => 'air-purifier'],
+    defaults: ['slug' => 'air-purifier'],    // What DemoApiPresenter can answer in. Declared so a client that refuses
+    // both gets 406 instead of JSON it said it would not take.
+    produces: ['application/json', 'application/ld+json'],
 )]
 #[ExternalApi(version: 'v1', description: 'Demo product detail endpoint')]
 #[ApiVersion(version: '1.0.0')]
