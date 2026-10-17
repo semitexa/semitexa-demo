@@ -6,6 +6,8 @@ Official showcase module demonstrating Semitexa framework capabilities.
 
 Provides working examples of framework features across all major packages. Each demo is a standard Semitexa page — `#[AsPublicPayload]` (or `#[AsProtectedPayload]`) on the request DTO, `#[AsPayloadHandler]` on the handler — and demonstrates best practices for building with Semitexa.
 
+The stylesheet (`src/Application/Static/css/demo.css`) is part of that reference material: a worked example of a package shipping its own styles, with its own `--demo-*` palette rather than the platform's `--ui-*` tokens.
+
 ## Install
 
 Not included by the installer. Add it from the project root:

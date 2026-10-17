@@ -1,5 +1,10 @@
 /* ==========================================================================
    Semitexa Demo — Core Styles
+
+   Reference material for the Semitexa demo, not incidental site styling: it
+   is kept as a worked example of how a package ships its own stylesheet. The
+   --demo-* palette below is the demo's own and does not read the platform's
+   --ui-* tokens yet. The filename is historical.
    ========================================================================== */
 
 :root {
