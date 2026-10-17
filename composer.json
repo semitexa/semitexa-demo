@@ -52,7 +52,7 @@
             "floors": {
                 "semitexa/graphql": "2026.10.03.1952",
                 "semitexa/docs": "2026.10.03.1952",
-                "semitexa/ssr": "2026.10.08.0620",
+                "semitexa/ssr": "next",
                 "semitexa/platform-ui": "2026.10.08.0620",
                 "semitexa/core": "2026.10.16.1744"
             }
