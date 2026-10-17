@@ -1,5 +1,10 @@
 /**
- * Keyboard-first documentation search over the server-rendered catalog index.
+ * Keyboard-first documentation search over the catalog index.
+ *
+ * The index is fetched from `data-docs-search-src` the first time the dialog
+ * is wanted (hovering or focusing the trigger already starts it), not rendered
+ * into the page: as a hidden list it was three quarters of every demo page's
+ * text, the same on all of them.
  *
  * Mounts per component root, like every other widget here: the trigger and the
  * dialog that belong together live inside one `[data-docs-search]` element, so
@@ -28,7 +33,10 @@
 
     root.setAttribute('data-docs-search-mounted', 'true');
 
-    var items = Array.from(root.querySelectorAll('[data-docs-search-item]'));
+    var src = root.getAttribute('data-docs-search-src') || '';
+    var items = [];
+    var loaded = false;
+    var loading = null;
     var opener = null;
     // One flag for all three paths. A browser that has showModal but not
     // close (or the reverse) must not take the modal path half-way.
@@ -38,13 +46,75 @@
       return (value || '').toLocaleLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').trim();
     }
 
+    // In DOM order: filter() re-appends matches best-first, so the catalog
+    // order of `items` is not the order the reader sees.
     function visibleLinks() {
-      return items.filter(function (item) { return !item.hidden; }).map(function (item) {
-        return item.querySelector('a');
-      }).filter(Boolean);
+      return Array.from(results.querySelectorAll('[data-docs-search-item]:not([hidden]) a'));
+    }
+
+    function buildItem(entry) {
+      var item = document.createElement('li');
+      item.setAttribute('data-docs-search-item', '');
+      item.setAttribute('data-search-text', entry.searchText || '');
+      item.setAttribute('data-search-title', (entry.title || '').toLowerCase());
+      item.hidden = true;
+
+      var link = document.createElement('a');
+      link.className = 'docs-search__result-link';
+      link.href = entry.href;
+
+      var section = document.createElement('span');
+      section.className = 'docs-search__result-section';
+      section.textContent = entry.section || '';
+      var title = document.createElement('strong');
+      title.textContent = entry.title || '';
+      link.append(section, title);
+
+      if (entry.summary) {
+        var summary = document.createElement('span');
+        summary.className = 'docs-search__result-summary';
+        summary.textContent = entry.summary;
+        link.appendChild(summary);
+      }
+
+      item.appendChild(link);
+      return item;
+    }
+
+    // One request per page, shared by every caller; a failed one is forgotten
+    // so the next open can try again.
+    function load() {
+      if (loaded || loading) return loading || Promise.resolve();
+      if (!src || typeof window.fetch !== 'function') return Promise.resolve();
+
+      loading = window.fetch(src, { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
+        .then(function (response) {
+          if (!response.ok) throw new Error('HTTP ' + response.status);
+          return response.json();
+        })
+        .then(function (data) {
+          var entries = data && Array.isArray(data.items) ? data.items : [];
+          items = entries.filter(function (entry) { return entry && entry.href; }).map(buildItem);
+          items.forEach(function (item) { results.appendChild(item); });
+          loaded = true;
+          loading = null;
+          filter();
+        })
+        .catch(function () {
+          loading = null;
+          status.textContent = 'Documentation search is unavailable right now. Try again in a moment.';
+        });
+
+      return loading;
     }
 
     function filter() {
+      if (!loaded) {
+        empty.hidden = true;
+        if (loading) status.textContent = 'Loading the documentation index…';
+        return;
+      }
+
       var query = normalize(input.value);
       var words = query.split(/\s+/).filter(Boolean);
       var matches = [];
@@ -81,6 +151,7 @@
       if (supportsModal) dialog.showModal();
       else dialog.setAttribute('open', '');
       input.value = '';
+      load();
       filter();
       window.requestAnimationFrame(function () { input.focus(); });
     }
@@ -102,6 +173,8 @@
     }
 
     trigger.addEventListener('click', function () { openSearch(trigger); });
+    trigger.addEventListener('pointerenter', load, { once: true });
+    trigger.addEventListener('focus', load, { once: true });
     close.addEventListener('click', closeSearch);
     input.addEventListener('input', filter);
 

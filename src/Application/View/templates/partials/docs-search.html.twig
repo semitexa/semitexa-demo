@@ -1,4 +1,4 @@
-<div class="docs-search-root" data-docs-search>
+<div class="docs-search-root" data-docs-search data-docs-search-src="/demo/docs-search-index">
   <button class="demo-nav__search-trigger" type="button" data-docs-search-open aria-keyshortcuts="Control+K Meta+K /" aria-haspopup="dialog" aria-label="Search docs">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m20 20-4.6-4.6m2.5-5.4a7.9 7.9 0 1 1-15.8 0 7.9 7.9 0 0 1 15.8 0Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     <span>Search docs</span>
@@ -21,15 +21,6 @@
       </label>
       <p class="docs-search__status" data-docs-search-status aria-live="polite">Type to search every documentation page.</p>
       <ul class="docs-search__results" data-docs-search-results>
-        {% for item in docsSearchIndex|default([]) %}
-          <li data-docs-search-item data-search-text="{{ item.searchText }}" data-search-title="{{ item.title|lower }}" hidden>
-            <a href="{{ item.href }}" class="docs-search__result-link">
-              <span class="docs-search__result-section">{{ item.section }}</span>
-              <strong>{{ item.title }}</strong>
-              {% if item.summary %}<span class="docs-search__result-summary">{{ item.summary }}</span>{% endif %}
-            </a>
-          </li>
-        {% endfor %}
       </ul>
       <p class="docs-search__empty" data-docs-search-empty hidden>No matching documentation. Try a shorter task or a framework term.</p>
       <div class="docs-search__footer"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span></div>
