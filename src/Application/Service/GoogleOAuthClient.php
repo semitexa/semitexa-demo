@@ -5,7 +5,12 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Service;
 
 use Semitexa\Core\Attribute\AsService;
+use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Core\Environment;
+use Semitexa\Core\Http\Client\HttpCallOptions;
+use Semitexa\Core\Http\Client\HttpClientInterface;
+use Semitexa\Core\Http\Client\HttpResponse;
+use Semitexa\Core\Http\Exception\HttpTransportException;
 
 #[AsService]
 class GoogleOAuthClient
@@ -18,6 +23,9 @@ class GoogleOAuthClient
     protected ?string $clientSecret = null;
     protected ?string $redirectUri = null;
     protected ?string $allowedDomain = null;
+
+    #[InjectAsReadonly]
+    protected HttpClientInterface $http;
 
     public function isConfigured(): bool
     {
@@ -74,13 +82,13 @@ class GoogleOAuthClient
     {
         $this->assertConfigured();
 
-        return $this->postForm(self::TOKEN_URL, [
+        return $this->decoded($this->call(fn (HttpCallOptions $options): HttpResponse => $this->http->postForm(self::TOKEN_URL, [
             'client_id' => $this->getClientId(),
             'client_secret' => $this->getClientSecret(),
             'code' => $code,
             'grant_type' => 'authorization_code',
             'redirect_uri' => $this->getRedirectUri(),
-        ]);
+        ], ['Accept' => 'application/json'], $options)));
     }
 
     /**
@@ -88,10 +96,11 @@ class GoogleOAuthClient
      */
     public function fetchUserInfo(string $accessToken): array
     {
-        return $this->getJson(self::USERINFO_URL, [
-            'Authorization: Bearer ' . $accessToken,
-            'Accept: application/json',
-        ]);
+        return $this->decoded($this->call(fn (HttpCallOptions $options): HttpResponse => $this->http->get(
+            self::USERINFO_URL,
+            ['Authorization' => 'Bearer ' . $accessToken, 'Accept' => 'application/json'],
+            $options,
+        )));
     }
 
     public function isAllowedDomain(?string $hostedDomain, string $email): bool
@@ -134,95 +143,34 @@ class GoogleOAuthClient
     }
 
     /**
-     * @param array<string, string> $headers
-     * @return array<string, mixed>
+     * One call to Google, refused unless it answers 2xx. Not retried: the
+     * authorization code is single-use, and a resent exchange fails anyway.
+     *
+     * @param \Closure(HttpCallOptions): HttpResponse $send
      */
-    private function getJson(string $url, array $headers = []): array
+    private function call(\Closure $send): HttpResponse
     {
-        $response = $this->request('GET', $url, null, $headers);
-        $decoded = json_decode($response, true);
+        try {
+            $response = $send(new HttpCallOptions(timeout: 15.0, connectTimeout: 5.0));
+        } catch (HttpTransportException $e) {
+            throw new \RuntimeException('Google OAuth request failed: ' . $e->detail, 0, $e);
+        }
 
+        if (!$response->isSuccessful()) {
+            throw new \RuntimeException('Google OAuth request failed with HTTP ' . $response->status . '.');
+        }
+
+        return $response;
+    }
+
+    /** @return array<string, mixed> */
+    private function decoded(HttpResponse $response): array
+    {
+        $decoded = json_decode($response->body, true);
         if (!is_array($decoded)) {
             throw new \RuntimeException('Google OAuth endpoint returned invalid JSON.');
         }
 
         return $decoded;
-    }
-
-    /**
-     * @param array<string, string> $form
-     * @return array<string, mixed>
-     */
-    private function postForm(string $url, array $form): array
-    {
-        $response = $this->request('POST', $url, http_build_query($form, '', '&', PHP_QUERY_RFC3986), [
-            'Content-Type: application/x-www-form-urlencoded',
-            'Accept: application/json',
-        ]);
-        $decoded = json_decode($response, true);
-
-        if (!is_array($decoded)) {
-            throw new \RuntimeException('Google OAuth endpoint returned invalid JSON.');
-        }
-
-        return $decoded;
-    }
-
-    /**
-     * @param array<int, string> $headers
-     */
-    private function request(string $method, string $url, ?string $body = null, array $headers = []): string
-    {
-        if (function_exists('curl_init')) {
-            $ch = curl_init($url);
-            if ($ch === false) {
-                throw new \RuntimeException('Unable to initialize cURL.');
-            }
-
-            $options = [
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_CUSTOMREQUEST => $method,
-                CURLOPT_HTTPHEADER => $headers,
-                CURLOPT_TIMEOUT => 15,
-                CURLOPT_CONNECTTIMEOUT => 5,
-            ];
-
-            if ($body !== null) {
-                $options[CURLOPT_POSTFIELDS] = $body;
-            }
-
-            curl_setopt_array($ch, $options);
-            $raw = curl_exec($ch);
-            $error = curl_error($ch);
-            $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-            curl_close($ch);
-
-            if ($raw === false) {
-                throw new \RuntimeException('Google OAuth request failed: ' . ($error !== '' ? $error : 'unknown error'));
-            }
-
-            if ($status < 200 || $status >= 300) {
-                throw new \RuntimeException('Google OAuth request failed with HTTP ' . $status . '.');
-            }
-
-            return $raw;
-        }
-
-        $streamContext = stream_context_create([
-            'http' => [
-                'method' => $method,
-                'header' => implode("\r\n", $headers),
-                'content' => $body,
-                'timeout' => 15,
-                'ignore_errors' => true,
-            ],
-        ]);
-
-        $raw = @file_get_contents($url, false, $streamContext);
-        if ($raw === false) {
-            throw new \RuntimeException('Google OAuth request failed.');
-        }
-
-        return $raw;
     }
 }
