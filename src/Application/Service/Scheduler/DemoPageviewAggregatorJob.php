@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Service\Scheduler;
 
+use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Service\DemoAnalyticsAggregator;
 use Semitexa\Scheduler\Attribute\AsScheduledJob;
 use Semitexa\Scheduler\Domain\Contract\ScheduledJobInterface;
 use Semitexa\Scheduler\Domain\Model\ScheduledJobContext;
 
+#[AsService]
 #[AsScheduledJob(
     key: 'demo.pageview_aggregator',
     cronExpression: '*/15 * * * * *',
