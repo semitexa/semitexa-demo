@@ -16,7 +16,9 @@ use Semitexa\Scheduler\Domain\Model\ScheduledJobContext;
 #[AsService]
 #[AsScheduledJob(
     key: 'demo.report_generation',
-    cronExpression: '*/30 * * * * *',
+    // The six-field (seconds) expression this had never parsed, so the job
+    // never ran. Every 15 minutes: each run writes rows nothing prunes.
+    cronExpression: '*/15 * * * *',
     overlapPolicy: 'skip',
 )]
 final class DemoReportGenerationJob implements ScheduledJobInterface
