@@ -218,7 +218,7 @@ final class DemoProductRepository implements DemoProductRepositoryInterface
 
     private function adapter(): \Semitexa\Orm\Adapter\DatabaseAdapterInterface
     {
-        return $this->orm()->getAdapter();
+        return $this->orm()->getQueryAdapter();
     }
 
     private function normalizeDecimal(?float $value, int $scale = 2): ?string
