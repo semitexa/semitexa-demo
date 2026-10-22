@@ -51,7 +51,9 @@ final class GoogleOAuthClientTest extends TestCase
     {
         $cases = [
             'status' => [HttpResponse::make(400, '{"error":"invalid_grant"}'), 'HTTP 400'],
-            'transport' => [new HttpTransportException(HttpTransportKind::Timeout, 'POST', 'https://oauth2.googleapis.com/token', 'timed out'), 'timed out'],
+            // The transport's own words (Google's address, the curl error) went
+            // into the page's query string: the page gets a plain sentence.
+            'transport' => [new HttpTransportException(HttpTransportKind::Timeout, 'POST', 'https://oauth2.googleapis.com/token', 'timed out'), 'could not be reached'],
             'json' => [HttpResponse::make(200, '<html>'), 'invalid JSON'],
         ];
         foreach ($cases as $case => [$answer, $message]) {
@@ -77,5 +79,20 @@ final class GoogleOAuthClientTest extends TestCase
     private static function onlyOptions(FakeHttpClient $http): \Semitexa\Core\Http\Client\HttpCallOptions
     {
         return $http->recordedOptions()[0];
+    }
+
+    /** A personal account registered with a company address passed on its e-mail domain. */
+    #[Test]
+    public function only_the_hosted_domain_admits_an_account(): void
+    {
+        $client = self::client(new FakeHttpClient());
+        (new \ReflectionProperty($client, 'allowedDomain'))->setValue($client, 'example.com');
+
+        self::assertTrue($client->isAllowedDomain('example.com', 'ann@example.com'));
+        self::assertFalse($client->isAllowedDomain(null, 'ann@example.com'), 'no hosted domain: not the organisation');
+        self::assertFalse($client->isAllowedDomain('other.org', 'ann@example.com'));
+        self::assertSame('/demo/rendering/deferred', $client->sanitizeReturnTo('/\\evil.com'));
+        self::assertSame('/demo/rendering/deferred', $client->sanitizeReturnTo("/\t/evil.com"));
+        self::assertSame('/demo/x?y=1', $client->sanitizeReturnTo('/demo/x?y=1'));
     }
 }

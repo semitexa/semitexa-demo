@@ -11,6 +11,7 @@ use Semitexa\Core\Http\Client\HttpCallOptions;
 use Semitexa\Core\Http\Client\HttpClientInterface;
 use Semitexa\Core\Http\Client\HttpResponse;
 use Semitexa\Core\Http\Exception\HttpTransportException;
+use Semitexa\Core\Log\StaticLoggerBridge;
 
 #[AsService]
 class GoogleOAuthClient
@@ -110,19 +111,22 @@ class GoogleOAuthClient
             return true;
         }
 
+        // Google's hosted domain (hd) only: an account's e-mail domain is not
+        // the organisation's say — a personal Google account registered with
+        // a company address passed on it.
         $hostedDomain = trim((string) $hostedDomain);
-        if ($hostedDomain !== '' && strcasecmp($hostedDomain, $allowedDomain) === 0) {
-            return true;
-        }
 
-        $emailDomain = strtolower((string) preg_replace('/^.*@/', '', $email));
-        return $emailDomain !== '' && strcasecmp($emailDomain, $allowedDomain) === 0;
+        return $hostedDomain !== '' && strcasecmp($hostedDomain, $allowedDomain) === 0;
     }
 
     public function sanitizeReturnTo(?string $returnTo, string $default = '/demo/rendering/deferred'): string
     {
         $returnTo = trim((string) $returnTo);
-        if ($returnTo === '' || !str_starts_with($returnTo, '/') || str_starts_with($returnTo, '//')) {
+        // A browser drops tab, CR and LF from a URL and reads `\` as `/`:
+        // `/<tab>/host` and `/\host` are `//host`, another site. Any control
+        // character or backslash is refused.
+        if ($returnTo === '' || !str_starts_with($returnTo, '/') || str_starts_with($returnTo, '//')
+            || preg_match('/[\x00-\x1F\x7F\\\\]/', $returnTo) === 1) {
             return $default;
         }
 
@@ -153,7 +157,10 @@ class GoogleOAuthClient
         try {
             $response = $send(new HttpCallOptions(timeout: 15.0, connectTimeout: 5.0));
         } catch (HttpTransportException $e) {
-            throw new \RuntimeException('Google OAuth request failed: ' . $e->detail, 0, $e);
+            // The transport's own words (Google's address and port, the curl
+            // error) went into the page's query string and onto the page.
+            StaticLoggerBridge::warning('auth', 'Google OAuth request failed: ' . $e->detail);
+            throw new \RuntimeException('Google could not be reached. Try again later.', 0, $e);
         }
 
         if (!$response->isSuccessful()) {
