@@ -51,7 +51,9 @@ final class ReactiveImportHandler implements TypedHandlerInterface
             pageTitleSuffix: ' | Semitexa Demo',
         );
 
-        $latestRun = $this->jobRunRepository->findByJobType('demo_product_import')[0] ?? null;
+        // The type DemoProductImportJob writes: 'demo_product_import' found
+        // none, and the page always read 0 %.
+        $latestRun = $this->jobRunRepository->findByJobType('product_import')[0] ?? null;
         $totalRows = $this->productImporter->getTotalRows();
         $progress = $latestRun?->getProgressPercent() ?? 0;
         $processed = (int) round($progress / 100 * $totalRows);
