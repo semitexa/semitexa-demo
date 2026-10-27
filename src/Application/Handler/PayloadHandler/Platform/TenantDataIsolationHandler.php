@@ -38,9 +38,10 @@ final class TenantDataIsolationHandler implements TypedHandlerInterface
     ];
 
     private const ISOLATION_STRATEGIES = [
-        ['name' => 'same_storage', 'summary' => 'Shared table, automatic WHERE tenant_id = ?'],
-        ['name' => 'connection_switch', 'summary' => 'Separate database per tenant, connection swapped on context change'],
-        ['name' => 'separate_schema', 'summary' => 'Separate schema per tenant, search-path switching'],
+        ['name' => 'same_storage', 'summary' => 'Shared table, automatic WHERE tenant_id = ? (#[TenantScoped])'],
+        // Not a model strategy: #[TenantScoped] refuses connection_switch and
+        // separate_schema, which it used to accept and ignore.
+        ['name' => 'database per tenant', 'summary' => 'The connection pool switches to the tenant\'s database when the tenant is resolved'],
     ];
 
     #[InjectAsReadonly]
