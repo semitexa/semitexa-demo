@@ -64,9 +64,13 @@ final class DemoAnalyticsSnapshotRepository implements DemoAnalyticsSnapshotRepo
 
     public function deleteEndedBefore(\DateTimeImmutable $cutoff, int $limit): int
     {
+        // At most $limit: none at all is none, not one.
+        if ($limit < 1) {
+            return 0;
+        }
         $adapter = $this->orm()->getQueryAdapter();
         $ids = array_column($adapter->execute(
-            'SELECT id FROM demo_analytics_snapshots WHERE period_end < :cutoff LIMIT ' . max(1, min($limit, 500)),
+            'SELECT id FROM demo_analytics_snapshots WHERE period_end < :cutoff LIMIT ' . min($limit, 500),
             ['cutoff' => $cutoff->format('Y-m-d H:i:s')],
         )->rows, 'id');
         if ($ids === []) {

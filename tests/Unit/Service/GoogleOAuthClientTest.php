@@ -62,6 +62,9 @@ final class GoogleOAuthClientTest extends TestCase
                 self::fail("{$case} was accepted");
             } catch (\RuntimeException $e) {
                 self::assertStringContainsString($message, $e->getMessage(), $case);
+                // Asserted after the message above, which is not empty: none of the transport's words.
+                self::assertStringNotContainsString('googleapis.com', $e->getMessage(), $case);
+                self::assertStringNotContainsString('timed out', $e->getMessage(), $case);
             }
         }
     }
@@ -93,6 +96,10 @@ final class GoogleOAuthClientTest extends TestCase
         self::assertFalse($client->isAllowedDomain('other.org', 'ann@example.com'));
         self::assertSame('/demo/rendering/deferred', $client->sanitizeReturnTo('/\\evil.com'));
         self::assertSame('/demo/rendering/deferred', $client->sanitizeReturnTo("/\t/evil.com"));
+        // A browser drops CR and LF as it drops a tab; DEL is a control character too.
+        self::assertSame('/demo/rendering/deferred', $client->sanitizeReturnTo("/\n/evil.com"));
+        self::assertSame('/demo/rendering/deferred', $client->sanitizeReturnTo("/\r/evil.com"));
+        self::assertSame('/demo/rendering/deferred', $client->sanitizeReturnTo("/\x7F/evil.com"));
         self::assertSame('/demo/x?y=1', $client->sanitizeReturnTo('/demo/x?y=1'));
     }
 }

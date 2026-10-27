@@ -57,4 +57,62 @@ final class DemoRetentionJobTest extends TestCase
         self::assertSame($expected, $left, 'a running row is a job\'s, whatever its age; a finished one with no time is old');
         self::assertSame(['s-new'], array_column($db->execute('SELECT id FROM demo_analytics_snapshots')->rows, 'id'));
     }
+
+    /** At most $limit (review): a limit of 0 still selected, and deleted, one row. */
+    #[Test]
+    public function a_limit_of_zero_deletes_nothing(): void
+    {
+        [$orm, $db, $runs] = self::database();
+        $old = (new \DateTimeImmutable('-10 days'))->format('Y-m-d H:i:s');
+        $db->execute("INSERT INTO demo_job_runs (id, job_type, status, created_at, updated_at) VALUES ('done-old', 'report_generation', 'completed', '{$old}', '{$old}')");
+        $db->execute("INSERT INTO demo_analytics_snapshots VALUES ('s-old', '{$old}')");
+        $snapshots = new DemoAnalyticsSnapshotRepository();
+        (new \ReflectionProperty($snapshots, 'orm'))->setValue($snapshots, $orm);
+        $cutoff = new \DateTimeImmutable('-1 day');
+
+        self::assertSame(0, $runs->deleteFinishedBefore($cutoff, 0));
+        self::assertSame(0, $snapshots->deleteEndedBefore($cutoff, 0));
+        self::assertSame(['done-old'], array_column($db->execute('SELECT id FROM demo_job_runs')->rows, 'id'));
+        self::assertSame(['s-old'], array_column($db->execute('SELECT id FROM demo_analytics_snapshots')->rows, 'id'));
+    }
+
+    /**
+     * REGRESSION (review). save() between the SELECT and the DELETE made an
+     * old run recent again, and the DELETE, checking the status alone,
+     * removed it all the same.
+     */
+    #[Test]
+    public function a_run_saved_after_it_was_selected_is_kept(): void
+    {
+        [, $db, $runs] = self::database();
+        $run = new DemoJobRun();
+        $run->setJobType('report_generation');
+        $run->setStatus('completed');
+        $id = $runs->save($run)->getId();
+        $old = (new \DateTimeImmutable('-10 days'))->format('Y-m-d H:i:s');
+        $db->execute('UPDATE demo_job_runs SET created_at = :old, updated_at = :old', ['old' => $old]);
+        $cutoff = new \DateTimeImmutable('-1 day');
+
+        $selected = (new \ReflectionMethod($runs, 'finishedIdsBefore'))->invoke($runs, $cutoff, 10);
+        self::assertSame([Uuid7::toBytes($id)], $selected);
+        // What save() writes, in between (save() itself would see no change within the same second).
+        $db->execute('UPDATE demo_job_runs SET updated_at = :now', ['now' => (new \DateTimeImmutable())->format('Y-m-d H:i:s')]);
+        $deleted = (new \ReflectionMethod($runs, 'deleteFinishedIds'))->invoke($runs, $selected, $cutoff);
+
+        self::assertSame(0, $deleted);
+        self::assertSame([Uuid7::toBytes($id)], array_column($db->execute('SELECT id FROM demo_job_runs')->rows, 'id'));
+    }
+
+    /** @return array{OrmManager, \Semitexa\Orm\Adapter\DatabaseAdapterInterface, DemoJobRunRepository} */
+    private static function database(): array
+    {
+        $orm = new OrmManager(config: new ConnectionConfig(driver: 'sqlite', sqliteMemory: true));
+        $db = $orm->getQueryAdapter();
+        $db->execute('CREATE TABLE demo_job_runs (id TEXT PRIMARY KEY, job_type TEXT, scheduler_run_id TEXT, status TEXT, progress_percent INTEGER, progress_message TEXT, result_payload TEXT, attempt_number INTEGER, created_at TEXT, updated_at TEXT)');
+        $db->execute('CREATE TABLE demo_analytics_snapshots (id TEXT PRIMARY KEY, period_end TEXT)');
+        $runs = new DemoJobRunRepository();
+        (new \ReflectionProperty($runs, 'orm'))->setValue($runs, $orm);
+
+        return [$orm, $db, $runs];
+    }
 }

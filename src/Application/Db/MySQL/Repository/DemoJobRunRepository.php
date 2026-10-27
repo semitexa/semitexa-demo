@@ -145,22 +145,40 @@ final class DemoJobRunRepository implements DemoJobRunRepositoryInterface
         return $this->orm ??= new OrmManager();
     }
 
+    /**
+     * A pending or running row stays whatever its age: a job still owns it.
+     * A finished one with no time at all was written before save() kept
+     * them, so it is older than any cutoff.
+     */
+    private const FINISHED_BEFORE = "status NOT IN ('pending', 'running')
+               AND (COALESCE(updated_at, created_at) < :cutoff OR COALESCE(updated_at, created_at) IS NULL)";
+
     public function deleteFinishedBefore(\DateTimeImmutable $cutoff, int $limit): int
     {
-        // A pending or running row stays whatever its age: a job still owns it.
-        // A finished one with no time at all was written before save() kept
-        // them, so it is older than any cutoff.
-        return self::deleteIds($this->adapter(), 'demo_job_runs', array_column($this->adapter()->execute(
-            "SELECT id FROM demo_job_runs
-             WHERE status NOT IN ('pending', 'running')
-               AND (COALESCE(updated_at, created_at) < :cutoff OR COALESCE(updated_at, created_at) IS NULL)
-             LIMIT " . max(1, min($limit, 500)),
-            ['cutoff' => $cutoff->format('Y-m-d H:i:s')],
-        )->rows, 'id'), " AND status NOT IN ('pending', 'running')");
+        // At most $limit: none at all is none, not one.
+        if ($limit < 1) {
+            return 0;
+        }
+
+        return $this->deleteFinishedIds($this->finishedIdsBefore($cutoff, $limit), $cutoff);
     }
 
-    /** @param list<mixed> $ids */
-    private static function deleteIds(\Semitexa\Orm\Adapter\DatabaseAdapterInterface $adapter, string $table, array $ids, string $guard = ''): int
+    /** @return list<mixed> */
+    private function finishedIdsBefore(\DateTimeImmutable $cutoff, int $limit): array
+    {
+        return array_column($this->adapter()->execute(
+            'SELECT id FROM demo_job_runs WHERE ' . self::FINISHED_BEFORE . ' LIMIT ' . min($limit, 500),
+            ['cutoff' => $cutoff->format('Y-m-d H:i:s')],
+        )->rows, 'id');
+    }
+
+    /**
+     * The same condition again: a run save() touched after the SELECT is
+     * recent now, and is kept.
+     *
+     * @param list<mixed> $ids
+     */
+    private function deleteFinishedIds(array $ids, \DateTimeImmutable $cutoff): int
     {
         if ($ids === []) {
             return 0;
@@ -170,7 +188,10 @@ final class DemoJobRunRepository implements DemoJobRunRepositoryInterface
             $params["id{$i}"] = $id;
         }
 
-        return $adapter->execute("DELETE FROM {$table} WHERE id IN (:" . implode(', :', array_keys($params)) . "){$guard}", $params)->rowCount;
+        return $this->adapter()->execute(
+            'DELETE FROM demo_job_runs WHERE id IN (:' . implode(', :', array_keys($params)) . ') AND ' . self::FINISHED_BEFORE,
+            $params + ['cutoff' => $cutoff->format('Y-m-d H:i:s')],
+        )->rowCount;
     }
 
     private function adapter(): \Semitexa\Orm\Adapter\DatabaseAdapterInterface
