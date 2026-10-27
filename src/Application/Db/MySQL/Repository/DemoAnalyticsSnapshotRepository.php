@@ -62,6 +62,24 @@ final class DemoAnalyticsSnapshotRepository implements DemoAnalyticsSnapshotRepo
             ->fetchAllAs(DemoAnalyticsSnapshot::class, $this->orm()->getMapperRegistry());
     }
 
+    public function deleteEndedBefore(\DateTimeImmutable $cutoff, int $limit): int
+    {
+        $adapter = $this->orm()->getQueryAdapter();
+        $ids = array_column($adapter->execute(
+            'SELECT id FROM demo_analytics_snapshots WHERE period_end < :cutoff LIMIT ' . max(1, min($limit, 500)),
+            ['cutoff' => $cutoff->format('Y-m-d H:i:s')],
+        )->rows, 'id');
+        if ($ids === []) {
+            return 0;
+        }
+        $params = [];
+        foreach ($ids as $i => $id) {
+            $params["id{$i}"] = $id;
+        }
+
+        return $adapter->execute('DELETE FROM demo_analytics_snapshots WHERE id IN (:' . implode(', :', array_keys($params)) . ')', $params)->rowCount;
+    }
+
     private function repository(): DomainRepository
     {
         if ($this->repository === null) {

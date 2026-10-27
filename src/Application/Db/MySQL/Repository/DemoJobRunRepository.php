@@ -32,6 +32,14 @@ final class DemoJobRunRepository implements DemoJobRunRepositoryInterface
 
     public function save(DemoJobRun $entity): DemoJobRun
     {
+        // Nothing set them, and the columns have no default: every row read
+        // NULL, so no age could be told and nothing could be pruned.
+        $now = new \DateTimeImmutable();
+        if ($entity->getCreatedAt() === null) {
+            $entity->setCreatedAt($now);
+        }
+        $entity->setUpdatedAt($now);
+
         /** @var DemoJobRun */
         return $entity->getId() === '' ? $this->repository()->insert($entity) : $this->repository()->update($entity);
     }
@@ -135,6 +143,34 @@ final class DemoJobRunRepository implements DemoJobRunRepositoryInterface
     private function orm(): OrmManager
     {
         return $this->orm ??= new OrmManager();
+    }
+
+    public function deleteFinishedBefore(\DateTimeImmutable $cutoff, int $limit): int
+    {
+        // A pending or running row stays whatever its age: a job still owns it.
+        // A finished one with no time at all was written before save() kept
+        // them, so it is older than any cutoff.
+        return self::deleteIds($this->adapter(), 'demo_job_runs', array_column($this->adapter()->execute(
+            "SELECT id FROM demo_job_runs
+             WHERE status NOT IN ('pending', 'running')
+               AND (COALESCE(updated_at, created_at) < :cutoff OR COALESCE(updated_at, created_at) IS NULL)
+             LIMIT " . max(1, min($limit, 500)),
+            ['cutoff' => $cutoff->format('Y-m-d H:i:s')],
+        )->rows, 'id'), " AND status NOT IN ('pending', 'running')");
+    }
+
+    /** @param list<mixed> $ids */
+    private static function deleteIds(\Semitexa\Orm\Adapter\DatabaseAdapterInterface $adapter, string $table, array $ids, string $guard = ''): int
+    {
+        if ($ids === []) {
+            return 0;
+        }
+        $params = [];
+        foreach ($ids as $i => $id) {
+            $params["id{$i}"] = $id;
+        }
+
+        return $adapter->execute("DELETE FROM {$table} WHERE id IN (:" . implode(', :', array_keys($params)) . "){$guard}", $params)->rowCount;
     }
 
     private function adapter(): \Semitexa\Orm\Adapter\DatabaseAdapterInterface
