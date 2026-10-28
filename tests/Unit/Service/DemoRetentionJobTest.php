@@ -103,6 +103,31 @@ final class DemoRetentionJobTest extends TestCase
         self::assertSame([Uuid7::toBytes($id)], array_column($db->execute('SELECT id FROM demo_job_runs')->rows, 'id'));
     }
 
+    /**
+     * REGRESSION (review). save() between the SELECT and the DELETE moved an
+     * old snapshot to a recent period_end, and the DELETE, by id alone,
+     * removed it all the same.
+     */
+    #[Test]
+    public function a_snapshot_moved_to_a_recent_period_after_it_was_selected_is_kept(): void
+    {
+        [$orm, $db] = self::database();
+        $old = (new \DateTimeImmutable('-10 days'))->format('Y-m-d H:i:s');
+        $db->execute("INSERT INTO demo_analytics_snapshots VALUES ('s-old', '{$old}')");
+        $snapshots = new DemoAnalyticsSnapshotRepository();
+        (new \ReflectionProperty($snapshots, 'orm'))->setValue($snapshots, $orm);
+        $cutoff = new \DateTimeImmutable('-1 day');
+
+        $selected = (new \ReflectionMethod($snapshots, 'endedIdsBefore'))->invoke($snapshots, $cutoff, 10);
+        self::assertSame(['s-old'], $selected);
+        // What save() writes, in between.
+        $db->execute('UPDATE demo_analytics_snapshots SET period_end = :now', ['now' => (new \DateTimeImmutable())->format('Y-m-d H:i:s')]);
+        $deleted = (new \ReflectionMethod($snapshots, 'deleteEndedIds'))->invoke($snapshots, $selected, $cutoff);
+
+        self::assertSame(0, $deleted);
+        self::assertSame(['s-old'], array_column($db->execute('SELECT id FROM demo_analytics_snapshots')->rows, 'id'));
+    }
+
     /** @return array{OrmManager, \Semitexa\Orm\Adapter\DatabaseAdapterInterface, DemoJobRunRepository} */
     private static function database(): array
     {
