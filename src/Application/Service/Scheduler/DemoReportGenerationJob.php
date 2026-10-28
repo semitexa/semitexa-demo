@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Semitexa\Demo\Application\Service\Scheduler;
 
+use Semitexa\Core\Attribute\AsService;
 use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Domain\Model\DemoJobRun;
 use Semitexa\Demo\Domain\Repository\DemoJobRunRepositoryInterface;
@@ -12,9 +13,12 @@ use Semitexa\Scheduler\Attribute\AsScheduledJob;
 use Semitexa\Scheduler\Domain\Contract\ScheduledJobInterface;
 use Semitexa\Scheduler\Domain\Model\ScheduledJobContext;
 
+#[AsService]
 #[AsScheduledJob(
     key: 'demo.report_generation',
-    cronExpression: '*/30 * * * * *',
+    // The six-field (seconds) expression this had never parsed, so the job
+    // never ran. Every 15 minutes: each run writes rows nothing prunes.
+    cronExpression: '*/15 * * * *',
     overlapPolicy: 'skip',
 )]
 final class DemoReportGenerationJob implements ScheduledJobInterface

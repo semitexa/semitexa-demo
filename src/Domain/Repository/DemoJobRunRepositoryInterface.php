@@ -34,4 +34,7 @@ interface DemoJobRunRepositoryInterface
     public function markCompleted(string $id, ?string $resultPayload = null): void;
 
     public function markFailed(string $id, string $errorMessage): void;
+
+    /** Finished runs last touched before $cutoff, at most $limit; returns how many went. */
+    public function deleteFinishedBefore(\DateTimeImmutable $cutoff, int $limit): int;
 }

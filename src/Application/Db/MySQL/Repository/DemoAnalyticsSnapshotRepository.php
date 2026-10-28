@@ -62,6 +62,47 @@ final class DemoAnalyticsSnapshotRepository implements DemoAnalyticsSnapshotRepo
             ->fetchAllAs(DemoAnalyticsSnapshot::class, $this->orm()->getMapperRegistry());
     }
 
+    public function deleteEndedBefore(\DateTimeImmutable $cutoff, int $limit): int
+    {
+        // At most $limit: none at all is none, not one.
+        if ($limit < 1) {
+            return 0;
+        }
+
+        return $this->deleteEndedIds($this->endedIdsBefore($cutoff, $limit), $cutoff);
+    }
+
+    /** @return list<mixed> */
+    private function endedIdsBefore(\DateTimeImmutable $cutoff, int $limit): array
+    {
+        return array_column($this->orm()->getQueryAdapter()->execute(
+            'SELECT id FROM demo_analytics_snapshots WHERE period_end < :cutoff LIMIT ' . min($limit, 500),
+            ['cutoff' => $cutoff->format('Y-m-d H:i:s')],
+        )->rows, 'id');
+    }
+
+    /**
+     * The cutoff again: a snapshot save() moved to a recent period_end after
+     * the SELECT is recent now, and is kept.
+     *
+     * @param list<mixed> $ids
+     */
+    private function deleteEndedIds(array $ids, \DateTimeImmutable $cutoff): int
+    {
+        if ($ids === []) {
+            return 0;
+        }
+        $params = [];
+        foreach ($ids as $i => $id) {
+            $params["id{$i}"] = $id;
+        }
+
+        return $this->orm()->getQueryAdapter()->execute(
+            'DELETE FROM demo_analytics_snapshots WHERE id IN (:' . implode(', :', array_keys($params)) . ') AND period_end < :cutoff',
+            $params + ['cutoff' => $cutoff->format('Y-m-d H:i:s')],
+        )->rowCount;
+    }
+
     private function repository(): DomainRepository
     {
         if ($this->repository === null) {

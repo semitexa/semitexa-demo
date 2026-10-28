@@ -17,4 +17,7 @@ interface DemoAnalyticsSnapshotRepositoryInterface
 
     /** @return list<DemoAnalyticsSnapshot> */
     public function findByTenant(string $tenantId, int $limit = 100): array;
+
+    /** Snapshots of every tenant whose period ended before $cutoff, at most $limit; returns how many went. */
+    public function deleteEndedBefore(\DateTimeImmutable $cutoff, int $limit): int;
 }
