@@ -108,12 +108,18 @@
             updateLaneMessage(lane, 'Sending launch request to the backend…');
             appendLaneTimeline(lane, 'Launch request sent from the browser.');
 
+            // A guest session is CSRF-checked too: the launch echoes the session
+            // token through platform-ui/core (global on every page), clicked
+            // long after that module has run.
+            var headers = {
+                'Accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            };
+            var ui = window.SemitexaUi && window.SemitexaUi.core;
             fetch(launchEndpoint, {
                 method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                },
+                credentials: 'same-origin',
+                headers: ui ? ui.withCsrf('POST', headers) : headers,
                 body: new URLSearchParams({
                     mode: mode,
                     sessionId: sessionId,
