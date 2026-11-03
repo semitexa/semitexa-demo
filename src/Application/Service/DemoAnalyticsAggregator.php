@@ -45,12 +45,13 @@ final class DemoAnalyticsAggregator
      */
     public function getLatestSnapshots(string $tenantId = 'acme'): array
     {
+        // One query for every type: one per type was the page's N+1.
+        $latest = isset($this->snapshotRepository)
+            ? $this->snapshotRepository->findLatestPerMetric(self::METRIC_TYPES, $tenantId)
+            : [];
         $result = [];
         foreach (self::METRIC_TYPES as $type) {
-            $snapshots = isset($this->snapshotRepository)
-                ? $this->snapshotRepository->findByMetricAndTenant($type, $tenantId, 1)
-                : [];
-            $result[$type] = $snapshots[0] ?? null;
+            $result[$type] = $latest[$type] ?? null;
         }
         return $result;
     }
