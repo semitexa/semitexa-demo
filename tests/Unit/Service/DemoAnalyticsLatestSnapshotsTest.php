@@ -32,6 +32,13 @@ final class DemoAnalyticsLatestSnapshotsTest extends TestCase
         (new \ReflectionProperty($this->snapshots, 'orm'))->setValue($this->snapshots, $this->orm);
     }
 
+    protected function tearDown(): void
+    {
+        // The query log is process-wide: left on, it leaked into later tests
+        // (RequestTracerTest saw it recording; release preflight 2026-11-03).
+        $this->orm->disableQueryLog();
+    }
+
     #[Test]
     public function the_latest_snapshot_of_every_type_is_read_in_one_query(): void
     {
