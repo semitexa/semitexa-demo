@@ -51,6 +51,33 @@ final class DemoAnalyticsSnapshotRepository implements DemoAnalyticsSnapshotRepo
             ->fetchAllAs(DemoAnalyticsSnapshot::class, $this->orm()->getMapperRegistry());
     }
 
+    /**
+     * One query, not one per type: each row is its type's latest period_end
+     * (a correlated MAX), and a tie keeps the first.
+     *
+     * @param list<string> $metricTypes
+     * @return array<string, DemoAnalyticsSnapshot>
+     */
+    public function findLatestPerMetric(array $metricTypes, string $tenantId): array
+    {
+        if ($metricTypes === []) {
+            return [];
+        }
+        /** @var list<DemoAnalyticsSnapshot> $rows */
+        $rows = $this->repository()->query()
+            ->whereIn(DemoAnalyticsSnapshotResource::column('metricType'), $metricTypes)
+            ->where(DemoAnalyticsSnapshotResource::column('tenantId'), Operator::Equals, $tenantId)
+            ->whereRaw('`period_end` = (SELECT MAX(`latest`.`period_end`) FROM `demo_analytics_snapshots` AS `latest` WHERE `latest`.`metric_type` = `demo_analytics_snapshots`.`metric_type` AND `latest`.`tenant_id` = `demo_analytics_snapshots`.`tenant_id`)')
+            ->fetchAllAs(DemoAnalyticsSnapshot::class, $this->orm()->getMapperRegistry());
+
+        $latest = [];
+        foreach ($rows as $snapshot) {
+            $latest[$snapshot->getMetricType()] ??= $snapshot;
+        }
+
+        return $latest;
+    }
+
     /** @return list<DemoAnalyticsSnapshot> */
     public function findByTenant(string $tenantId, int $limit = 100): array
     {

@@ -15,6 +15,14 @@ interface DemoAnalyticsSnapshotRepositoryInterface
     /** @return list<DemoAnalyticsSnapshot> */
     public function findByMetricAndTenant(string $metricType, string $tenantId, int $limit = 10): array;
 
+    /**
+     * The latest snapshot of each metric type, in one query.
+     *
+     * @param list<string> $metricTypes
+     * @return array<string, DemoAnalyticsSnapshot> by metric type; a type with no snapshot is absent
+     */
+    public function findLatestPerMetric(array $metricTypes, string $tenantId): array;
+
     /** @return list<DemoAnalyticsSnapshot> */
     public function findByTenant(string $tenantId, int $limit = 100): array;
 
