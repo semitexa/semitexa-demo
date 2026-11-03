@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Application\Service;
 
 use Semitexa\Core\Attribute\AsService;
+use Semitexa\Core\Attribute\WorkerState;
 use Semitexa\Core\Support\ProjectRoot;
 
 /**
@@ -98,7 +99,23 @@ final class DemoSourceCodeReader
         'Semitexa\\Api\\Application\\Db\\MySQL\\Model\\MachineCredentialMapper' => 'resources/examples/Data/Identity/MachineCredentialMapper.example.php',
     ];
 
+    /**
+     * What each class's source displays as, kept for the worker's life: every
+     * demo page read and rendered up to three of them on every request
+     * (about 3 ms of reactive-analytics' handler), and a worker never sees a
+     * class change without a restart.
+     *
+     * @var array<string, string>
+     */
+    #[WorkerState('Display source of demo classes, keyed by class name; no request data.')]
+    private static array $sources = [];
+
     public function readClassSource(string $className): string
+    {
+        return self::$sources[$className] ??= $this->loadClassSource($className);
+    }
+
+    private function loadClassSource(string $className): string
     {
         $exampleSource = $this->readExampleSourceForClass($className);
         if ($exampleSource !== null) {
