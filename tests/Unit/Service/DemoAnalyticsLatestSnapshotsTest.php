@@ -22,6 +22,9 @@ final class DemoAnalyticsLatestSnapshotsTest extends TestCase
     private OrmManager $orm;
     private DemoAnalyticsSnapshotRepository $snapshots;
 
+    /** Whether this test opened a query-log session, the only one its tearDown may close. */
+    private bool $logging = false;
+
     protected function setUp(): void
     {
         $this->orm = new OrmManager(config: new ConnectionConfig(driver: 'sqlite', sqliteMemory: true));
@@ -30,6 +33,17 @@ final class DemoAnalyticsLatestSnapshotsTest extends TestCase
             period_start TEXT, period_end TEXT, created_at TEXT, updated_at TEXT)');
         $this->snapshots = new DemoAnalyticsSnapshotRepository();
         (new \ReflectionProperty($this->snapshots, 'orm'))->setValue($this->snapshots, $this->orm);
+    }
+
+    protected function tearDown(): void
+    {
+        // The query log is process-wide: left on, it leaked into later tests
+        // (RequestTracerTest saw it recording; release preflight 2026-11-03).
+        // Only a session this test opened: stop() counts sessions process-wide.
+        if ($this->logging) {
+            $this->orm->disableQueryLog();
+            $this->logging = false;
+        }
     }
 
     #[Test]
@@ -45,6 +59,7 @@ final class DemoAnalyticsLatestSnapshotsTest extends TestCase
         (new \ReflectionProperty($aggregator, 'snapshotRepository'))->setValue($aggregator, $this->snapshots);
 
         $this->orm->enableQueryLog();
+        $this->logging = true;
         $latest = $aggregator->getLatestSnapshots('acme');
         $selects = array_filter(
             array_map(static fn (array $q): string => $q['sql'], $this->orm->drainQueryLog()),
