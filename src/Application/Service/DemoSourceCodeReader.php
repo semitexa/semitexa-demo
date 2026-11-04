@@ -168,10 +168,19 @@ final class DemoSourceCodeReader
 
     public function readProjectRelativeSource(string $relativePath): string
     {
-        return self::$projectSources[$relativePath] ??= $this->loadProjectRelativeSource($relativePath);
+        if (isset(self::$projectSources[$relativePath])) {
+            return self::$projectSources[$relativePath];
+        }
+        // A failed read is not kept: a file unreadable for a moment is read again next time.
+        $source = $this->loadProjectRelativeSource($relativePath);
+        if ($source !== null) {
+            self::$projectSources[$relativePath] = $source;
+        }
+
+        return $source ?? '';
     }
 
-    private function loadProjectRelativeSource(string $relativePath): string
+    private function loadProjectRelativeSource(string $relativePath): ?string
     {
         $relativePath = ltrim($relativePath, '/');
 
@@ -186,7 +195,7 @@ final class DemoSourceCodeReader
             }
         }
 
-        return '';
+        return null;
     }
 
     private function readExampleSourceForClass(string $className): ?string
@@ -457,6 +466,9 @@ PHP);
     {
         $candidates = [];
         $strippedDemoPath = null;
+        // Installed as vendor/semitexa/demo or checked out alone, the package root does
+        // not end in packages/semitexa-demo, and the examples are found under it as well.
+        $packageRoot = rtrim(dirname(__DIR__, 3), '/');
 
         if (str_starts_with($relativePath, 'packages/semitexa-demo/')) {
             $strippedDemoPath = substr($relativePath, strlen('packages/semitexa-demo/'));
@@ -466,7 +478,7 @@ PHP);
             $root = rtrim($root, '/');
             $candidates[] = $this->resolveCandidateWithinRoot($root, $relativePath);
 
-            if ($strippedDemoPath !== null && str_ends_with($root, '/packages/semitexa-demo')) {
+            if ($strippedDemoPath !== null && ($root === $packageRoot || str_ends_with($root, '/packages/semitexa-demo'))) {
                 $candidates[] = $this->resolveCandidateWithinRoot(
                     $root,
                     $strippedDemoPath,

@@ -72,4 +72,13 @@ final class DemoSourceCodeReaderCacheTest extends TestCase
 
         self::assertSame('kept', (new DemoSourceCodeReader())->readProjectRelativeSource($path));
     }
+
+    #[Test]
+    public function a_failed_read_is_not_kept(): void
+    {
+        $path = 'packages/semitexa-demo/resources/examples/Missing/Nothing.example.php';
+
+        self::assertSame('', (new DemoSourceCodeReader())->readProjectRelativeSource($path));
+        self::assertSame([], $this->projectSources->getValue(), 'read again next time, in case it becomes readable');
+    }
 }
