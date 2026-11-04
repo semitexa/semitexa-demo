@@ -21,6 +21,11 @@ final class DemoSourceCodeReaderCacheTest extends TestCase
     /** @var array<string, string> what the process held before this test */
     private array $saved = [];
 
+    private \ReflectionProperty $projectSources;
+
+    /** @var array<string, string> */
+    private array $savedProjectSources = [];
+
     protected function setUp(): void
     {
         $this->sources = new \ReflectionProperty(DemoSourceCodeReader::class, 'sources');
@@ -28,11 +33,17 @@ final class DemoSourceCodeReaderCacheTest extends TestCase
         $saved = $this->sources->getValue();
         $this->saved = $saved;
         $this->sources->setValue(null, []);
+        $this->projectSources = new \ReflectionProperty(DemoSourceCodeReader::class, 'projectSources');
+        /** @var array<string, string> $savedProjects */
+        $savedProjects = $this->projectSources->getValue();
+        $this->savedProjectSources = $savedProjects;
+        $this->projectSources->setValue(null, []);
     }
 
     protected function tearDown(): void
     {
         $this->sources->setValue(null, $this->saved);
+        $this->projectSources->setValue(null, $this->savedProjectSources);
     }
 
     #[Test]
@@ -47,5 +58,18 @@ final class DemoSourceCodeReaderCacheTest extends TestCase
         $this->sources->setValue(null, [DemoAnalyticsAggregator::class => 'kept']);
 
         self::assertSame('kept', (new DemoSourceCodeReader())->readClassSource(DemoAnalyticsAggregator::class));
+    }
+
+    #[Test]
+    public function an_example_file_is_read_once_per_worker(): void
+    {
+        $path = 'packages/semitexa-demo/resources/examples/Data/Relations/ProductResource.example.php';
+        $first = (new DemoSourceCodeReader())->readProjectRelativeSource($path);
+        self::assertNotSame('', $first);
+        self::assertSame([$path => $first], $this->projectSources->getValue(), 'the first read is kept');
+
+        $this->projectSources->setValue(null, [$path => 'kept']);
+
+        self::assertSame('kept', (new DemoSourceCodeReader())->readProjectRelativeSource($path));
     }
 }

@@ -110,6 +110,15 @@ final class DemoSourceCodeReader
     #[WorkerState('Display source of demo classes, keyed by class name; no request data.')]
     private static array $sources = [];
 
+    /**
+     * The same for example files by project-relative path: 87 handler calls
+     * read and sanitized up to four of them per request (relations: four).
+     *
+     * @var array<string, string>
+     */
+    #[WorkerState('Display source of demo example files, keyed by project-relative path; no request data.')]
+    private static array $projectSources = [];
+
     public function readClassSource(string $className): string
     {
         return self::$sources[$className] ??= $this->loadClassSource($className);
@@ -158,6 +167,11 @@ final class DemoSourceCodeReader
     }
 
     public function readProjectRelativeSource(string $relativePath): string
+    {
+        return self::$projectSources[$relativePath] ??= $this->loadProjectRelativeSource($relativePath);
+    }
+
+    private function loadProjectRelativeSource(string $relativePath): string
     {
         $relativePath = ltrim($relativePath, '/');
 
