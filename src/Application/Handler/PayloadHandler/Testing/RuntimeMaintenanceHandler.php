@@ -60,12 +60,12 @@ final class RuntimeMaintenanceHandler implements TypedHandlerInterface
                 'title' => 'Refresh, validate, and inspect the runtime without improvisation',
                 'summary' => 'These commands cover the maintenance loop that teams hit all the time: stale templates, generated registries, architecture drift, and suspicious DI wiring.',
                 'pillars' => [
-                    ['title' => 'Graceful refresh.', 'summary' => 'server:reload picks up code changes without a full container restart when the Swoole runtime is healthy.'],
+                    ['title' => 'Graceful refresh.', 'summary' => 'server:reload refreshes templates and caches without a full restart; a change to PHP code or its attributes needs server:restart app, and server:reload says so.'],
                     ['title' => 'Architectural checks.', 'summary' => 'lint:* and test:handler turn framework invariants into explicit checks instead of “I hope boot catches it.”'],
                     ['title' => 'State hygiene.', 'summary' => 'cache:clear and registry:sync reduce the class of issues caused by stale compiled artifacts or outdated generated bindings.'],
                 ],
                 'commands' => [
-                    ['name' => 'bin/semitexa server:reload', 'purpose' => 'Gracefully reload Swoole workers after code changes.', 'value' => 'Fast path for normal development when containers do not need a full restart.'],
+                    ['name' => 'bin/semitexa server:reload', 'purpose' => 'Gracefully reload Swoole workers after template or cache changes.', 'value' => 'Fast path when no PHP code changed; it refuses and names the file when one did, since workers are forked from a master that already loaded it.'],
                     ['name' => 'bin/semitexa cache:clear --twig', 'purpose' => 'Clear compiled Twig cache after template changes or stale render state.', 'value' => 'Cuts straight to one of the most common SSR debugging needs.'],
                     ['name' => 'bin/semitexa registry:sync', 'purpose' => 'Regenerate DI-oriented registry artifacts such as contract resolvers.', 'value' => 'Keeps generated framework metadata aligned with current code.'],
                     ['name' => 'bin/semitexa lint:handlers', 'purpose' => 'Validate handler signatures and payload/resource bindings.', 'value' => 'Catches architecture drift before it shows up as a weird runtime failure.'],
@@ -82,7 +82,7 @@ final class RuntimeMaintenanceHandler implements TypedHandlerInterface
                 'title' => 'Good maintenance discipline',
                 'summary' => 'The command surface is strongest when teams use it instead of ad-hoc deletes, grep, and trial-and-error restarts.',
                 'rules' => [
-                    'Prefer server:reload to full restarts when the problem is only code pickup and the runtime itself is healthy.',
+                    'Use server:reload for template and cache changes; after a PHP code or attribute change run server:restart app, which server:reload asks for itself.',
                     'Reach for cache:clear when templates or compiled SSR output behave inconsistently before assuming deeper corruption.',
                     'Run lint and test:handler checks early during refactors, not only after breakage becomes visible in the browser.',
                     'Keep registry sync explicit so generated binding artifacts stay reviewable rather than magical.',
