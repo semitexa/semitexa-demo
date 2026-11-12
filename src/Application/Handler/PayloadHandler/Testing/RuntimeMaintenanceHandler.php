@@ -82,7 +82,7 @@ final class RuntimeMaintenanceHandler implements TypedHandlerInterface
                 'title' => 'Good maintenance discipline',
                 'summary' => 'The command surface is strongest when teams use it instead of ad-hoc deletes, grep, and trial-and-error restarts.',
                 'rules' => [
-                    'Prefer server:reload to full restarts when the problem is only code pickup and the runtime itself is healthy.',
+                    'Use server:reload for template and cache changes; after a PHP code or attribute change run server:restart app, which server:reload asks for itself.',
                     'Reach for cache:clear when templates or compiled SSR output behave inconsistently before assuming deeper corruption.',
                     'Run lint and test:handler checks early during refactors, not only after breakage becomes visible in the browser.',
                     'Keep registry sync explicit so generated binding artifacts stay reviewable rather than magical.',
