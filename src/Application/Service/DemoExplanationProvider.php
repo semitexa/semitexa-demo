@@ -653,10 +653,10 @@ final class DemoExplanationProvider
         ],
         'cli/runtime-maintenance' => [
             'what' => 'The framework exposes maintenance commands for code pickup, cache hygiene, generated metadata, linting, and DI probing.',
-            'how' => 'server:reload rebuilds autoload and sends a graceful Swoole reload signal, cache:clear removes compiled cache artifacts, registry:sync refreshes generated registry data, and lint/test commands validate architecture and instantiation assumptions.',
+            'how' => 'server:reload sends a graceful Swoole reload signal for template and cache changes, and refuses when a PHP file the master loaded changed (that needs server:restart app), cache:clear removes compiled cache artifacts, registry:sync refreshes generated registry data, and lint/test commands validate architecture and instantiation assumptions.',
             'why' => 'Without a disciplined maintenance surface, teams fall back to ad-hoc deletes, vague restarts, and guesswork. These commands make routine recovery and validation explicit.',
             'keywords' => [
-                ['term' => 'server:reload', 'definition' => 'Gracefully reloads Swoole workers so code changes are picked up without a full container restart.'],
+                ['term' => 'server:reload', 'definition' => 'Gracefully reloads Swoole workers for template and cache changes; a PHP code or attribute change needs server:restart app.'],
                 ['term' => 'cache:clear', 'definition' => 'Clears compiled cache artifacts such as Twig output when runtime state becomes stale.'],
                 ['term' => 'test:handler', 'definition' => 'Instantiates one handler and reports whether DI properties were wired successfully.'],
             ],
