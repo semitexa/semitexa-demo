@@ -652,7 +652,7 @@ final class DemoExplanationProvider
             ],
         ],
         'cli/runtime-maintenance' => [
-            'what' => 'The framework exposes maintenance commands for code pickup, cache hygiene, generated metadata, linting, and DI probing.',
+            'what' => 'The framework exposes maintenance commands for worker restarts and reloads, cache hygiene, generated metadata, linting, and DI probing.',
             'how' => 'server:reload sends a graceful Swoole reload signal for template and cache changes, and refuses when a PHP file the master loaded changed (that needs server:restart app), cache:clear removes compiled cache artifacts, registry:sync refreshes generated registry data, and lint/test commands validate architecture and instantiation assumptions.',
             'why' => 'Without a disciplined maintenance surface, teams fall back to ad-hoc deletes, vague restarts, and guesswork. These commands make routine recovery and validation explicit.',
             'keywords' => [
