@@ -279,13 +279,7 @@
         <div class="demo-videos__grid">
           {% for video in videos|default([]) %}
             <article class="preview-card demo-video">
-              <div class="demo-video__frame" data-video-embed="{{ video.embedUrl }}" data-video-title="{{ video.title }}">
-                <a class="demo-video__poster" href="{{ video.watchUrl }}" target="_blank" rel="noopener" aria-label="Play: {{ video.title }}">
-                  <img src="{{ video.thumbUrl }}" alt="" width="480" height="360" loading="lazy" decoding="async">
-                  <span class="demo-video__play" aria-hidden="true">▶</span>
-                  <span class="demo-video__duration">{{ video.duration }}</span>
-                </a>
-              </div>
+              {% include '@project-layouts-semitexa-demo/partials/video-card.html.twig' with { video: video } only %}
               <div class="demo-video__body">
                 <p class="demo-block-heading__eyebrow">{{ video.number == 0 ? 'Start here' : 'Episode ' ~ video.number }}</p>
                 <h3 class="preview-card__title demo-video__title">{{ video.title }}</h3>

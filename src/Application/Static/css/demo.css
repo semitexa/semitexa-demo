@@ -5225,3 +5225,32 @@ body.demo-page-bg {
   margin: 0;
   font-size: 0.9rem;
 }
+
+/* A video that covers the topic of a feature page */
+.demo-page-video {
+  display: grid;
+  grid-template-columns: minmax(0, 28rem) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: center;
+  margin: 0 0 1.5rem;
+}
+
+.demo-page-video__title {
+  margin: 0.2rem 0 0.4rem;
+  font-size: 1.15rem;
+}
+
+.demo-page-video__summary {
+  margin: 0 0 0.6rem;
+}
+
+.demo-page-video__more {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 720px) {
+  .demo-page-video {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
