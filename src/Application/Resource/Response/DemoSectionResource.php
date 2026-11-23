@@ -38,6 +38,11 @@ class DemoSectionResource extends HtmlResponse implements ResourceInterface
         return $this->with('sectionSummary', $summary);
     }
 
+    public function withVideos(array $videos): self
+    {
+        return $this->with('videos', $videos);
+    }
+
     public function withGroups(array $groups): self
     {
         return $this->with('groups', $groups);

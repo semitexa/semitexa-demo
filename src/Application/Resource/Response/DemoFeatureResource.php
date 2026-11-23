@@ -86,6 +86,11 @@ class DemoFeatureResource extends HtmlResponse implements ResourceInterface
         return $this;
     }
 
+    public function withPageVideos(array $videos): self
+    {
+        return $this->with('pageVideos', $videos);
+    }
+
     public function withSection(string $section): self
     {
         return $this->with('section', $section);
