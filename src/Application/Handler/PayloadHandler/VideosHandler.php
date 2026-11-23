@@ -45,6 +45,6 @@ final class VideosHandler implements TypedHandlerInterface
             ->withSectionSummary($summary)
             ->withGroups([])
             ->withFeatures([])
-            ->with('videos', $this->videos->all());
+            ->withVideos($this->videos->all());
     }
 }

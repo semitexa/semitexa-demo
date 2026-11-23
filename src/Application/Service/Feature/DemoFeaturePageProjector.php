@@ -61,7 +61,7 @@ final class DemoFeaturePageProjector
 
         $pageVideos = $this->videos->forPage($spec->section, $spec->slug);
         if ($pageVideos !== []) {
-            $resource->with('pageVideos', $pageVideos);
+            $resource->withPageVideos($pageVideos);
         }
 
         if ($explanation !== null) {
