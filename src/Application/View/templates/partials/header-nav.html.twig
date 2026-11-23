@@ -1,6 +1,7 @@
 <div class="demo-header-nav">
   <div class="demo-header-links">
-    <a href="/"{% if currentSection|default(null) != 'blog' %} class="is-active"{% endif %}>Explore</a>
+    <a href="/"{% if currentSection|default(null) not in ['blog', 'videos'] %} class="is-active"{% endif %}>Explore</a>
+    <a href="/demo/videos"{% if currentSection|default(null) == 'videos' %} class="is-active"{% endif %}>Videos</a>
     <a href="https://semitexa.com/blog">Articles ↗</a>
   </div>
   {% include '@project-layouts-semitexa-demo/partials/docs-search.html.twig' %}
