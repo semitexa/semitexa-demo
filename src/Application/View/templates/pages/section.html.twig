@@ -270,7 +270,30 @@
       </section>
     {% endif %}
 
-    {% if _features|length > 0 %}
+    {% if section|default('') == 'videos' %}
+      <section class="demo-section-page__features demo-videos">
+        <div class="demo-block-heading demo-block-heading--tight">
+          <p class="demo-block-heading__eyebrow">Semitexa in 3 minutes</p>
+          <p class="demo-block-heading__text">Filmed on a real project, one topic per video. Staged parts, such as sped-up builds, are labelled on screen.</p>
+        </div>
+        <div class="demo-videos__grid">
+          {% for video in videos|default([]) %}
+            <article class="preview-card demo-video">
+              {% include '@project-layouts-semitexa-demo/partials/video-card.html.twig' with { video: video } only %}
+              <div class="demo-video__body">
+                <p class="demo-block-heading__eyebrow">{{ video.number == 0 ? 'Start here' : 'Episode ' ~ video.number }}</p>
+                <h3 class="preview-card__title demo-video__title">{{ video.title }}</h3>
+                <p class="preview-card__summary">{{ video.summary }}</p>
+                <p class="demo-video__links">
+                  <a href="{{ video.docsHref }}">Open in the demo: {{ video.docsLabel }} →</a>
+                  <a href="{{ video.watchUrl }}" target="_blank" rel="noopener">YouTube ↗</a>
+                </p>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
+    {% elseif _features|length > 0 %}
       <section class="demo-section-page__features">
         <div class="demo-block-heading demo-block-heading--tight">
           <p class="demo-block-heading__eyebrow">{{ section|default('') == 'rendering' ? 'Conceptual Path' : (section|default('') == 'get-started' ? 'Onboarding Pages' : (section|default('') == 'project-graph' ? 'Usage Paths' : 'Route Map')) }}</p>

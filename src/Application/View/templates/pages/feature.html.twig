@@ -116,6 +116,9 @@
 
 {# --- Inline L1 context panel: the demo what/how/why orientation block. --- #}
 {% block feature_l1_context %}
+  {% if pageVideos is defined and pageVideos|length > 0 %}
+    {% include '@project-layouts-semitexa-demo/partials/page-videos.html.twig' with { videos: pageVideos } only %}
+  {% endif %}
   {% if (infoWhat is defined and infoWhat) or (infoHow is defined and infoHow) or (infoWhy is defined and infoWhy) or (infoKeywords is defined and infoKeywords|length > 0) %}
     {% include '@project-layouts-semitexa-demo/partials/feature-info.html.twig' with {
       what: infoWhat|default(null),

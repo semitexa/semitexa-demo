@@ -1,0 +1,14 @@
+{# Videos that cover this page's topic. #}
+{% for video in videos|default([]) %}
+  <section class="demo-page-video">
+    <div class="demo-page-video__player">
+      {% include '@project-layouts-semitexa-demo/partials/video-card.html.twig' with { video: video } only %}
+    </div>
+    <div class="demo-page-video__text">
+      <p class="demo-block-heading__eyebrow">Watch · {{ video.duration }}</p>
+      <h2 class="demo-page-video__title">{{ video.title }}</h2>
+      <p class="demo-page-video__summary">{{ video.summary }}</p>
+      <p class="demo-page-video__more"><a href="/demo/videos">All videos →</a></p>
+    </div>
+  </section>
+{% endfor %}

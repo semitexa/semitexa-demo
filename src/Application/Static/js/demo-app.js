@@ -329,6 +329,25 @@
     });
   }
 
+  // Videos page: the poster is a plain link to YouTube; with JS it becomes a
+  // click-to-load player, so ten embeds cost ten thumbnails, not ten iframes.
+  function initVideoEmbeds() {
+    document.querySelectorAll('[data-video-embed]').forEach(function (frame) {
+      var poster = frame.querySelector('.demo-video__poster');
+      if (!poster) return;
+      poster.addEventListener('click', function (event) {
+        event.preventDefault();
+        var iframe = document.createElement('iframe');
+        iframe.src = frame.getAttribute('data-video-embed');
+        iframe.title = frame.getAttribute('data-video-title') || 'Semitexa video';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+        iframe.allowFullscreen = true;
+        frame.replaceChildren(iframe);
+      });
+    });
+  }
+
   function initThemeToggle() {
     var toggles = document.querySelectorAll('[data-skin-toggle]');
     if (!toggles.length) return;
@@ -373,6 +392,7 @@
     initMobileNav();
     initCountdowns();
     initResponsiveTables();
+    initVideoEmbeds();
   }
 
   if (document.readyState === 'loading') {
