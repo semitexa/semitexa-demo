@@ -9,6 +9,7 @@ use Semitexa\Core\Attribute\InjectAsReadonly;
 use Semitexa\Demo\Application\Resource\Response\DemoFeatureResource;
 use Semitexa\Demo\Application\Service\DemoCatalogService;
 use Semitexa\Demo\Application\Service\DemoFeatureDocumentPresenter;
+use Semitexa\Demo\Application\Service\DemoVideoCatalog;
 
 /**
  * Projects a handler-authored {@see FeatureSpec} onto a {@see DemoFeatureResource}.
@@ -35,6 +36,9 @@ final class DemoFeaturePageProjector
     #[InjectAsReadonly]
     protected DemoFeatureDocumentPresenter $documents;
 
+    #[InjectAsReadonly]
+    protected DemoVideoCatalog $videos;
+
     /**
      * Apply a spec to a feature resource. The return type is generic over the concrete
      * resource class so tenant-showcase and other subclasses keep their own `with*()`
@@ -54,6 +58,11 @@ final class DemoFeaturePageProjector
         $resource
             ->applyFeature($descriptor)
             ->withDemoShellContext($this->shellContextFor($descriptor, $explanation));
+
+        $pageVideos = $this->videos->forPage($spec->section, $spec->slug);
+        if ($pageVideos !== []) {
+            $resource->with('pageVideos', $pageVideos);
+        }
 
         if ($explanation !== null) {
             $resource->withExplanationData($explanation->toArray());

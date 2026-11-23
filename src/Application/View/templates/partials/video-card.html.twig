@@ -1,0 +1,8 @@
+{# One episode: click-to-load YouTube player (see initVideoEmbeds in demo-app.js). #}
+<div class="demo-video__frame" data-video-embed="{{ video.embedUrl }}" data-video-title="{{ video.title }}">
+  <a class="demo-video__poster" href="{{ video.watchUrl }}" target="_blank" rel="noopener" aria-label="Play: {{ video.title }}">
+    <img src="{{ video.thumbUrl }}" alt="" width="480" height="360" loading="lazy" decoding="async">
+    <span class="demo-video__play" aria-hidden="true">▶</span>
+    <span class="demo-video__duration">{{ video.duration }}</span>
+  </a>
+</div>
