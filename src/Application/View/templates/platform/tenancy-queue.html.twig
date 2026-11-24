@@ -61,7 +61,10 @@ public function handle(SendInvoice $request, SendInvoiceResult $response): SendI
 {
     $store = TenantContextStore::shared();
     $store->clear(); // set() locks the context inside a coroutine; clear() drops the lock
-    $store->set(TenantContext::fromResolution($request->getTenantId(), 'queue'));
+    $tenantId = $request->getTenantId();
+    if ($tenantId !== null &amp;&amp; $tenantId !== 'default') {
+        $store->set(TenantContext::fromResolution($tenantId, 'queue'));
+    }
     try {
         // tenant-scoped work
     } finally {
@@ -70,7 +73,7 @@ public function handle(SendInvoice $request, SendInvoiceResult $response): SendI
 
     return $response;
 }</pre></div>
-    <p><code>QueueDispatcher</code> writes no tenant into the message and <code>QueueWorker</code> restores none. Give the payload a nullable <code>tenantId</code> with a public getter and setter. The id is <code>null</code> with no tenant context and <code>'default'</code> in the default tenant, so skip the tenant switch for those. <code>fromResolution()</code> builds the organization layer only. Carry the locale or environment in the payload too if the job needs them.</p>
+    <p><code>QueueDispatcher</code> writes no tenant into the message and <code>QueueWorker</code> restores none. Give the payload a nullable <code>tenantId</code> with a public getter and setter. The id is <code>null</code> with no tenant context and <code>'default'</code> in the default tenant; the handler skips the switch for both, since <code>fromResolution()</code> takes a string. <code>fromResolution()</code> builds the organization layer only. Carry the locale or environment in the payload too if the job needs them.</p>
 
     <h3>TenantAwareJobSerializer: for a package with its own worker</h3>
     <div class="code-block"><pre>use Semitexa\Tenancy\Application\Service\TenantAwareJobSerializer;
