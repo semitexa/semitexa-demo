@@ -427,7 +427,7 @@ final class DemoCatalogService
         'platform/tenancy-config' => ['title' => 'Per-Tenant Configuration', 'summary' => 'Three demo tenants with distinct branding. Switch tenant and everything changes without if/else.'],
         'platform/tenancy-layers' => ['title' => 'Multi-Layer Tenancy', 'summary' => 'Organization → Locale → Theme → Environment: four independent layers compose into one TenantContext.'],
         'platform/tenancy-isolation' => ['title' => 'Data Isolation', 'summary' => 'Product listing scoped by tenant. Switch tenant and the list changes. Zero manual WHERE clauses.'],
-        'platform/tenancy-queue' => ['title' => 'Queue Tenant Propagation', 'summary' => 'Tenant context travels with queued jobs: the _tenant key is injected automatically and restored by the worker.'],
+        'platform/tenancy-queue' => ['title' => 'Tenants in Queued Jobs', 'summary' => 'The core queue does not carry the tenant. A queued job carries the tenant id in its payload and enters that tenant itself.'],
 
         // api
         'api/rest-api' => ['title' => 'REST API', 'summary' => 'Classic Semitexa REST endpoints with typed payloads, versioning, and consumer-friendly response shaping.'],

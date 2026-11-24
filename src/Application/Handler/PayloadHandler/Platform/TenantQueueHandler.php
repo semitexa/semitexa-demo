@@ -41,17 +41,17 @@ final class TenantQueueHandler implements TypedHandlerInterface
         $spec = new FeatureSpec(
             section: 'platform',
             slug: 'tenancy-queue',
-            entryLine: 'Tenant context travels with queued jobs — _tenant key injected automatically, restored by worker.',
+            entryLine: 'The core queue does not carry the tenant. A Queued handler takes the tenant id from its payload and enters that tenant itself.',
             learnMoreLabel: 'Try it yourself →',
             deepDiveLabel: 'Under the hood →',
             relatedSlugs: [],
-            fallbackTitle: 'Queue Tenant Propagation',
-            fallbackSummary: 'Tenant context travels with queued jobs: the _tenant key is injected automatically and restored by the worker.',
+            fallbackTitle: 'Tenants in Queued Jobs',
+            fallbackSummary: 'The core queue does not carry the tenant. A Queued handler or listener runs with no tenant, so the job carries the tenant id in its payload and enters that tenant itself.',
             fallbackHighlights: self::DOC_KEYWORDS,
             explanation: FeatureExplanation::fromArray([
-                'what' => 'Queued jobs keep tenant context attached so background work stays scoped after the HTTP request is gone.',
-                'how' => 'The serializer wraps the message with a tenant envelope, and the worker restores that context before executing the job.',
-                'why' => 'Without this, multi-tenant background processing quietly becomes dangerous.',
+                'what' => 'The core queue carries no tenant. A Queued handler or listener that queue:work runs sees the default scope, not the tenant of the request that queued the job.',
+                'how' => 'Put a tenantId in the queued payload and enter that tenant in the handler through TenantContextStore. TenantAwareJobSerializer is a helper for a package that owns both its dispatcher and its worker. In the framework only media uses it.',
+                'why' => 'A job that runs in the default scope reads and writes the wrong data without failing. Nothing warns about it.',
             ]),
             pageTitleSuffix: ' | Semitexa Demo',
         );
@@ -62,14 +62,20 @@ final class TenantQueueHandler implements TypedHandlerInterface
             ->withSerializedPayload([
                 'action' => 'generate_report',
                 'product_id' => 42,
-                '_tenant' => $tenantContext,
+                // The keys TenantContext::forSerialization() writes for wrap().
+                '_tenant' => [
+                    'tenantId' => $tenantContext['org'],
+                    'strategy' => 'subdomain',
+                    'locale' => $tenantContext['locale'],
+                    'environment' => 'prod',
+                ],
             ])
             ->withTenantContext($tenantContext)
             ->withWorkerSteps([
-                ['step' => 1, 'label' => 'Worker receives message',             'detail' => 'Queue consumer dequeues job payload'],
-                ['step' => 2, 'label' => 'TenantAwareJobSerializer::unwrap()', 'detail' => 'Extracts _tenant key, strips it from clean payload'],
-                ['step' => 3, 'label' => 'TenantContext::set($context)',        'detail' => 'Context restored — ORM, templates, queues all scoped'],
-                ['step' => 4, 'label' => 'Handler runs with tenant scope',      'detail' => 'Queries hit tenant_id = \'' . $activeTenant . '\' automatically'],
+                ['step' => 1, 'label' => 'The package\'s own worker receives the message', 'detail' => 'For example media:work. The core queue:work does not do the next steps'],
+                ['step' => 2, 'label' => 'TenantAwareJobSerializer::unwrapAndRestore($data)', 'detail' => 'Removes the _tenant key and returns the clean payload'],
+                ['step' => 3, 'label' => 'TenantContextStore::shared()->setFallback($context)', 'detail' => 'Called inside unwrapAndRestore(). The fallback is read only outside a coroutine'],
+                ['step' => 4, 'label' => 'The job runs with the tenant context', 'detail' => 'TenantContext::get()?->getTenantId() returns \'' . $activeTenant . '\''],
             ]);
     }
 }
