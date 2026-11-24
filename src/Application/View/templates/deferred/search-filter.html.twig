@@ -9,8 +9,8 @@
     <p class="deferred-block__summary">This slot shows a narrower client enhancement: the server owns the form markup, and the client only syncs UI state into the URL.</p>
     <form class="search-filter" data-search-filter>
         <div class="search-filter__group">
-            <label class="search-filter__label">Category</label>
-            <select class="search-filter__select" name="category" data-filter-category>
+            <label class="search-filter__label" for="search-filter-category">Category</label>
+            <select class="search-filter__select" id="search-filter-category" name="category" data-filter-category>
                 <option value="">All</option>
                 {% for category in categories %}
                 <option value="{{ category.slug }}">{{ category.name }}</option>
@@ -18,9 +18,9 @@
             </select>
         </div>
         <div class="search-filter__group">
-            <label class="search-filter__label">Price range</label>
+            <label class="search-filter__label" for="search-filter-price-min">Price range</label>
             <div class="search-filter__range">
-                <input type="range" name="price_min" min="{{ priceMin|default(0) }}" max="{{ priceMax|default(1000) }}" value="{{ priceMin|default(0) }}" data-filter-price-min>
+                <input type="range" id="search-filter-price-min" name="price_min" min="{{ priceMin|default(0) }}" max="{{ priceMax|default(1000) }}" value="{{ priceMin|default(0) }}" data-filter-price-min>
                 <span class="search-filter__range-value" data-price-display>$0 – ${{ priceMax|default(1000) }}</span>
             </div>
         </div>
