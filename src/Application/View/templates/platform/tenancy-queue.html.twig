@@ -76,21 +76,32 @@ public function handle(SendInvoice $request, SendInvoiceResult $response): SendI
     <p><code>QueueDispatcher</code> writes no tenant into the message and <code>QueueWorker</code> restores none. Give the payload a nullable <code>tenantId</code> with a public getter and setter. The id is <code>null</code> with no tenant context and <code>'default'</code> in the default tenant; the handler skips the switch for both, since <code>fromResolution()</code> takes a string. <code>fromResolution()</code> builds the organization layer only. Carry the locale or environment in the payload too if the job needs them.</p>
 
     <h3>TenantAwareJobSerializer: for a package with its own worker</h3>
-    <div class="code-block"><pre>use Semitexa\Tenancy\Application\Service\TenantAwareJobSerializer;
+    <div class="code-block"><pre>use Semitexa\Core\Lifecycle\PerRequestStateRegistry;
+use Semitexa\Core\Support\CoroutineLocal;
+use Semitexa\Tenancy\Application\Service\TenantAwareJobSerializer;
 
 // The package's dispatcher (MediaQueueDispatcher does this):
 $message = TenantAwareJobSerializer::wrap(['action' => 'generate_report', 'product_id' => 42]);
 // ['action' => ..., '_tenant' => ['tenantId' => 'acme', 'strategy' => ...,
 //     'locale' => 'en', 'environment' => ...]]
 
-// The package's worker (MediaWorker does this):
-$data = TenantAwareJobSerializer::unwrapAndRestore($message);
-// $data has no _tenant key; the context is set as the store's fallback
+// The package's worker, for each message (MediaWorker does this):
+try {
+    $data = TenantAwareJobSerializer::unwrapAndRestore($message);
+    // $data has no _tenant key; the context is set as the store's fallback
+    // ... run the job
+} finally {
+    // A default-tenant message carries no _tenant key and restores nothing,
+    // so the tenant of the message before must not stay for it: reset all
+    // per-job state, the fallback included, as QueueWorker does per message.
+    PerRequestStateRegistry::resetAll();
+    CoroutineLocal::endRequest();
+}
 
 // Or take the context without making it current:
 [$data, $context] = TenantAwareJobSerializer::unwrap($message);
 // $context is a TenantContext, or null when there was no _tenant key</pre></div>
-    <p>All three methods are static. In the default tenant <code>wrap()</code> adds nothing. The store's fallback is read only outside a coroutine. Wrapping the payload of a <code>Queued</code> handler's request does nothing useful: nothing on the core worker's side unwraps it.</p>
+    <p>All three methods are static. In the default tenant <code>wrap()</code> adds nothing, so <code>unwrapAndRestore()</code> restores nothing for that message: the worker resets its per-job state after each message, or a default-tenant job runs in the tenant of the message before it. The store's fallback is read only outside a coroutine. Wrapping the payload of a <code>Queued</code> handler's request does nothing useful: nothing on the core worker's side unwraps it.</p>
 </div>
 {% endset %}
 
