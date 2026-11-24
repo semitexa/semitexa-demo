@@ -3113,7 +3113,7 @@ a:hover {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--demo-text-light);
+  color: var(--demo-text-muted);
 }
 
 .graphql-api-preview__code {
@@ -3481,7 +3481,7 @@ a:hover {
 }
 
 .preview-sse-panel__placeholder {
-  color: var(--demo-text-light);
+  color: var(--demo-text-muted);
 }
 
 .execution-arena {
