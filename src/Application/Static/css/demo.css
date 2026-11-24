@@ -2837,6 +2837,19 @@ a:hover {
   justify-content: flex-end;
 }
 
+/* Here the copy button sits on the page, not on the dark code surface its own
+   colours are for: light text on a light step was 1.3:1. Hover too, where the
+   kit's rule would turn the text near-white again. */
+.get-started-playbook__command-shell > .code-block__copy,
+.get-started-playbook__command-shell > .code-block__copy:hover {
+  border-color: var(--demo-border);
+  color: var(--demo-text);
+}
+
+.get-started-playbook__command-shell > .code-block__copy:hover {
+  background: var(--demo-surface-soft);
+}
+
 .preview-code-stack__label {
   margin: 0;
   font-size: 0.78rem;
@@ -2930,7 +2943,15 @@ a:hover {
   font-size: 0.72rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+}
+
+.api-explorer__response-eyebrow {
   color: var(--demo-accent-dark);
+}
+
+/* The headers panel is dark in both modes, so its label takes the light accent. */
+.api-explorer__headers-label {
+  color: var(--demo-accent-light);
 }
 
 .api-explorer__response-title {
@@ -3052,7 +3073,7 @@ a:hover {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--demo-text-light);
+  color: var(--demo-text-muted);
 }
 
 .graphql-derived__facts dd {
@@ -3161,7 +3182,7 @@ a:hover {
 
 .preview-pill--success {
   background: rgba(48, 122, 88, 0.12);
-  color: #2e6b50;
+  color: var(--demo-ink-green);
 }
 
 .preview-pill--error {
@@ -3176,7 +3197,7 @@ a:hover {
 
 .preview-pill--neutral {
   background: rgba(80, 71, 63, 0.1);
-  color: #564d47;
+  color: var(--demo-text-muted);
 }
 
 .preview-table-wrap {
@@ -3384,7 +3405,7 @@ a:hover {
 
 .preview-button--disabled {
   background: rgba(255, 249, 241, 0.64);
-  color: var(--demo-text-light);
+  color: var(--demo-text-muted);
   border-color: var(--demo-border-light);
   cursor: default;
 }
@@ -4085,6 +4106,16 @@ a:hover {
 .deferred-block__title {
   margin: 0;
   font-size: 1.15rem;
+}
+
+/* The filter's select had no colours of its own: the browser's dark control fill under the page's
+   text colour was 4.44:1. */
+.search-filter__select {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--demo-border);
+  border-radius: var(--demo-radius);
+  background: var(--demo-input-bg);
+  color: var(--demo-text);
 }
 
 .deferred-block__badge {
