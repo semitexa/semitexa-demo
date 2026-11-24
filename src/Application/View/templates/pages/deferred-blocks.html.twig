@@ -18,6 +18,12 @@
     {% include '@project-layouts-theme-base/partials/head/theme-switcher.html.twig' %}
     {% include '@project-layouts-semitexa-demo/partials/seo-canonical.html.twig' %}
     {{ semantic_head() }}
+    {# The skin's tokens, as the base layouts link them (theme-base base-head): this page has a head
+       of its own, and without them every --ui-* the platform styles read is unset. #}
+    {%- set __skin_css = theme_skin_css() -%}
+    {%- if __skin_css is not empty %}
+    <link rel="stylesheet" href="{{ __skin_css }}">
+    {%- endif %}
     {{ asset_head() }}
     {{ __ssr_preload_hints|default('')|raw }}
   </head>
