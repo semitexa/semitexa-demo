@@ -1,24 +1,25 @@
 {#
- # Framework demo — tenancy "Queue Tenant Propagation" feature.
+ # Framework demo: tenancy "Tenants in Queued Jobs" feature.
  # Migrated to the ShowcaseKit feature layout via _tenancy-feature wrapper.
  # Bespoke L1/L2/L3 markup captured into previewHtml / l2Content / l3Content.
  #}
-{% set title = 'Queue Tenant Propagation' %}
-{% set summary = 'Tenant context travels with queued jobs — _tenant key injected automatically.' %}
+{% set title = 'Tenants in Queued Jobs' %}
+{% set summary = 'The core queue does not carry the tenant. A Queued handler takes the tenant id from its payload and enters that tenant itself.' %}
 
 {% set previewHtml %}
 <div class="feature-l1">
-    <p class="feature-entry">Tenant context travels with queued jobs — no manual propagation.</p>
+    <p class="feature-entry">The core queue does not carry the tenant. The flow below is <code>TenantAwareJobSerializer</code>, a helper for a package that owns both its dispatcher and its worker. In the framework only media uses it.</p>
 
     <div class="queue-viz">
         <div class="queue-viz__producer">
-            <h4>Producer (request context)</h4>
+            <h4>Package dispatcher (request context)</h4>
             <div class="code-block"><pre>// Dispatch while tenant = '{{ tenantContext.org }}'
-$serializer->wrap([
+TenantAwareJobSerializer::wrap([
     'action' => 'generate_report',
     'product_id' => 42,
 ]);
-// ↓ _tenant injected automatically</pre></div>
+// adds _tenant from the current context
+// adds nothing in the default tenant</pre></div>
         </div>
 
         <div class="queue-viz__arrow">→ queue →</div>
@@ -31,7 +32,7 @@ $serializer->wrap([
         <div class="queue-viz__arrow">→ worker →</div>
 
         <div class="queue-viz__worker">
-            <h4>Worker side</h4>
+            <h4>Package worker</h4>
             {% for step in workerSteps %}
                 <div class="worker-step">
                     <span class="worker-step__num">{{ step.step }}</span>
@@ -48,26 +49,54 @@ $serializer->wrap([
 
 {% set l2Content %}
 <div class="feature-l2">
-    <h3>Wrap and unwrap API</h3>
-    <div class="code-block"><pre>$serializer = new TenantAwareJobSerializer();
+    <h3>A Queued handler enters the tenant itself</h3>
+    <div class="code-block"><pre>use Semitexa\Tenancy\Context\TenantContext;
+use Semitexa\Tenancy\Context\TenantContextStore;
 
-// Producer:
-$payload = $serializer->wrap(['action' => 'generate_report', 'product_id' => 42]);
-// → ['action' => ..., '_tenant' => ['org' => 'acme', 'locale' => 'en', ...]]
+// Before dispatching: the payload carries the tenant id.
+$request->setTenantId(TenantContext::get()?->getTenantId());
 
-// Worker:
-[$cleanPayload, $tenantContext] = $serializer->unwrap($queueMessage);
-TenantContext::set($tenantContext);
-// ORM, templates, everything scoped to 'acme' now</pre></div>
-    <p>Design decision: the <em>default</em> tenant (no active context) is NOT propagated — only explicit tenant contexts travel.</p>
+// In the Queued handler:
+public function handle(SendInvoice $request, SendInvoiceResult $response): SendInvoiceResult
+{
+    $store = TenantContextStore::shared();
+    $store->clear(); // set() locks the context inside a coroutine; clear() drops the lock
+    $store->set(TenantContext::fromResolution($request->getTenantId(), 'queue'));
+    try {
+        // tenant-scoped work
+    } finally {
+        $store->clear();
+    }
+
+    return $response;
+}</pre></div>
+    <p><code>QueueDispatcher</code> writes no tenant into the message and <code>QueueWorker</code> restores none. Give the payload a nullable <code>tenantId</code> with a public getter and setter. The id is <code>null</code> with no tenant context and <code>'default'</code> in the default tenant, so skip the tenant switch for those. <code>fromResolution()</code> builds the organization layer only. Carry the locale or environment in the payload too if the job needs them.</p>
+
+    <h3>TenantAwareJobSerializer: for a package with its own worker</h3>
+    <div class="code-block"><pre>use Semitexa\Tenancy\Application\Service\TenantAwareJobSerializer;
+
+// The package's dispatcher (MediaQueueDispatcher does this):
+$message = TenantAwareJobSerializer::wrap(['action' => 'generate_report', 'product_id' => 42]);
+// ['action' => ..., '_tenant' => ['tenantId' => 'acme', 'strategy' => ...,
+//     'locale' => 'en', 'environment' => ...]]
+
+// The package's worker (MediaWorker does this):
+$data = TenantAwareJobSerializer::unwrapAndRestore($message);
+// $data has no _tenant key; the context is set as the store's fallback
+
+// Or take the context without making it current:
+[$data, $context] = TenantAwareJobSerializer::unwrap($message);
+// $context is a TenantContext, or null when there was no _tenant key</pre></div>
+    <p>All three methods are static. In the default tenant <code>wrap()</code> adds nothing. The store's fallback is read only outside a coroutine. Wrapping the payload of a <code>Queued</code> handler's request does nothing useful: nothing on the core worker's side unwraps it.</p>
 </div>
 {% endset %}
 
 {% set l3Content %}
 <div class="feature-l3">
     <h3>Why this matters for SaaS</h3>
-    <p>Without tenant propagation, a queued job runs in the wrong scope — a report job for Acme reads Globex's data. Every job needs manual <code>tenant_id</code> plumbing.</p>
-    <p>With <code>TenantAwareJobSerializer</code>, tenant context is an invisible envelope on every job. Workers restore it transparently. Zero plumbing in application code.</p>
+    <p>A queued job that runs in the default scope reads and writes the wrong data without failing. A report job for Acme does not see Acme's rows, and nothing warns about it.</p>
+    <p>There is no automatic way yet. Every queued job that touches tenant-scoped data must name its tenant in the payload and enter it before the first query. The worker wipes the tenant context after every message, so a job that forgets <code>clear()</code> does not leave its tenant to the next one.</p>
+    <p>For work on a clock, a scheduled job with <code>per_tenant</code> gets this done for it: <code>scheduler:work</code> enters the run's tenant for the length of <code>handle()</code>.</p>
 </div>
 {% endset %}
 
