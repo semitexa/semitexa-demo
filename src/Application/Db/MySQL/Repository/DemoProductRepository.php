@@ -15,6 +15,7 @@ use Semitexa\Orm\Query\Operator;
 use Semitexa\Orm\Query\SystemScopeToken;
 use Semitexa\Demo\Domain\Repository\DemoProductRepositoryInterface;
 use Semitexa\Orm\Repository\DomainRepository;
+use Semitexa\Orm\Repository\PaginatedResult;
 use Semitexa\Tenancy\Context\TenantContext;
 
 #[AsRepository]
@@ -96,9 +97,14 @@ final class DemoProductRepository implements DemoProductRepositoryInterface
         return $counts;
     }
 
-    public function countAll(): int
+    /** @return PaginatedResult<DemoProduct> */
+    public function paginate(int $page, int $perPage): PaginatedResult
     {
-        return (int) ($this->adapter()->execute('SELECT COUNT(*) AS total FROM demo_products', [])->rows[0]['total'] ?? 0);
+        /** @var PaginatedResult<DemoProduct> */
+        return $this->repository()->query()
+            ->orderBy(DemoProductResource::column('name'), Direction::Asc)
+            ->orderBy(DemoProductResource::column('id'), Direction::Asc)
+            ->paginateAs($page, $perPage, DemoProduct::class, $this->orm()->getMapperRegistry());
     }
 
     /** @return list<DemoProduct> */

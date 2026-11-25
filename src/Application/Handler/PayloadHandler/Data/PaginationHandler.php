@@ -36,7 +36,7 @@ final class PaginationHandler implements TypedHandlerInterface
         $spec = new FeatureSpec(
             section: 'data',
             slug: 'pagination',
-            entryLine: 'Offset pagination with the total a pager needs — the repository pages by limit() and offset().',
+            entryLine: 'Offset pagination with the total a pager needs — paginate() returns the page and its counts, inside the tenant scope.',
             learnMoreLabel: 'See pagination in action →',
             deepDiveLabel: 'Offset vs cursor trade-offs →',
             relatedSlugs: [],
@@ -48,10 +48,15 @@ final class PaginationHandler implements TypedHandlerInterface
         );
 
         $limit = $payload->getLimit();
-        $total = $this->productRepository->countAll();
-        $totalPages = max(1, (int) ceil($total / $limit));
-        $page = min($payload->getPage(), $totalPages);
-        $items = $this->productRepository->findPage($limit, ($page - 1) * $limit);
+        $result = $this->productRepository->paginate($payload->getPage(), $limit);
+        if ($result->page > $result->lastPage) {
+            // A page past the last one shows the last page.
+            $result = $this->productRepository->paginate($result->lastPage, $limit);
+        }
+        $page = $result->page;
+        $totalPages = $result->lastPage;
+        $total = $result->total;
+        $items = $result->items;
         $baseQuery = ['limit' => $limit];
 
         return $this->projector->project($resource, $spec)
