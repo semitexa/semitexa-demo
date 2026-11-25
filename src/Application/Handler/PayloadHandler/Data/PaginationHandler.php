@@ -36,25 +36,23 @@ final class PaginationHandler implements TypedHandlerInterface
         $spec = new FeatureSpec(
             section: 'data',
             slug: 'pagination',
-            entryLine: 'Offset and cursor pagination out of the box — switch modes with a single query parameter.',
+            entryLine: 'Offset pagination with the total a pager needs — the repository pages by limit() and offset().',
             learnMoreLabel: 'See pagination in action →',
             deepDiveLabel: 'Offset vs cursor trade-offs →',
             relatedSlugs: [],
             fallbackTitle: 'Pagination',
-            fallbackSummary: 'Offset and cursor pagination out of the box, switch modes with a single query parameter.',
-            fallbackHighlights: ['PaginatedResult', 'limit()', 'offset()', 'cursor pagination', 'total count'],
+            fallbackSummary: 'paginate() returns one page with its total; repositories page by offset, platform collections also by cursor.',
+            fallbackHighlights: ['paginate()', 'PaginatedResult', 'limit()', 'offset()', 'total count'],
             explanation: $this->explanationProvider->getExplanation('data', 'pagination'),
             pageTitleSuffix: ' | Semitexa Demo',
         );
 
-        $mode = $payload->getMode();
         $limit = $payload->getLimit();
         $total = $this->productRepository->countAll();
         $totalPages = max(1, (int) ceil($total / $limit));
         $page = min($payload->getPage(), $totalPages);
         $items = $this->productRepository->findPage($limit, ($page - 1) * $limit);
-        $isCursorMode = $mode === 'cursor';
-        $baseQuery = ['limit' => $limit, 'mode' => $mode];
+        $baseQuery = ['limit' => $limit];
 
         return $this->projector->project($resource, $spec)
             ->withSourceCode([
@@ -62,7 +60,7 @@ final class PaginationHandler implements TypedHandlerInterface
                 'Repository' => $this->sourceCodeReader->readClassSource(DemoProductRepository::class),
             ])
             ->withResultPreviewTemplate('@project-layouts-semitexa-demo/components/previews/data-table.html.twig', [
-                'eyebrow' => ucfirst($mode) . ' pagination',
+                'eyebrow' => 'Offset pagination',
                 'title' => 'Current page window',
                 'summary' => sprintf('Page %d of %d with %d total products and %d rows per page.', $page, $totalPages, $total, $limit),
                 'stats' => [
@@ -81,18 +79,18 @@ final class PaginationHandler implements TypedHandlerInterface
                 'emptyMessage' => 'No results — seed data first.',
                 'actions' => [
                     $page > 1 ? [
-                        'label' => $isCursorMode ? '← Newer' : '← Prev',
+                        'label' => '← Prev',
                         'href' => '/demo/data/pagination?' . http_build_query($baseQuery + ['page' => $page - 1]),
                         'variant' => 'secondary',
                     ] : [
-                        'label' => $isCursorMode ? '← Newer' : '← Prev',
+                        'label' => '← Prev',
                     ],
                     $page < $totalPages ? [
-                        'label' => $isCursorMode ? 'Older →' : 'Next →',
+                        'label' => 'Next →',
                         'href' => '/demo/data/pagination?' . http_build_query($baseQuery + ['page' => $page + 1]),
                         'variant' => 'secondary',
                     ] : [
-                        'label' => $isCursorMode ? 'Older →' : 'Next →',
+                        'label' => 'Next →',
                     ],
                 ],
             ]);
