@@ -5,7 +5,7 @@
     'use strict';
 
     function init() {
-        const root = document.getElementById('execution-arena');
+        const root = document.getElementById('execution-arena-preview');
         if (!root) {
             return;
         }
