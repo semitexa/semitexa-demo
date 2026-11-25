@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Semitexa\Demo\Domain\Repository;
 
 use Semitexa\Demo\Domain\Model\DemoProduct;
+use Semitexa\Orm\Repository\PaginatedResult;
 
 interface DemoProductRepositoryInterface
 {
@@ -27,7 +28,13 @@ interface DemoProductRepositoryInterface
      */
     public function countByTenants(array $tenantIds): array;
 
-    public function countAll(): int;
+    /**
+     * One page of products and the counts a pager needs, read through the
+     * tenant scope like every other read.
+     *
+     * @return PaginatedResult<DemoProduct>
+     */
+    public function paginate(int $page, int $perPage): PaginatedResult;
 
     /** @return list<DemoProduct> */
     public function findPage(int $limit, int $offset = 0): array;
