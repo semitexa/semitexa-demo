@@ -19,6 +19,7 @@
 
   {% if form is defined and form %}
     <form method="{{ form.method|default('POST') }}" action="{{ form.action|default('') }}" class="preview-form">
+      {% if form.method|default('POST')|upper == 'POST' %}{{ csrf_field() }}{% endif %}
       {% for hidden in form.hidden|default([]) %}
         <input type="hidden" name="{{ hidden.name }}" value="{{ hidden.value }}">
       {% endfor %}
