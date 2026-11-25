@@ -36,13 +36,13 @@ final class QueryBuilderHandler implements TypedHandlerInterface
         $spec = new FeatureSpec(
             section: 'data',
             slug: 'query',
-            entryLine: 'Compose type-safe queries with a fluent API — no raw SQL, no magic strings.',
+            entryLine: 'Compose queries with a fluent API over typed column references — whereRaw() is the explicit escape hatch.',
             learnMoreLabel: 'See the query builder →',
             deepDiveLabel: 'How ResourceModelQuery compiles SQL →',
             relatedSlugs: [],
             fallbackTitle: 'Query Builder',
-            fallbackSummary: 'Compose type-safe queries with a fluent API, no raw SQL, no magic strings.',
-            fallbackHighlights: ['ResourceModelQuery', 'where()', 'orderBy()', 'limit()', 'fetchAll()', 'fetchOne()'],
+            fallbackSummary: 'Compose queries with a fluent API over typed column references; whereRaw() is the explicit raw-SQL escape hatch.',
+            fallbackHighlights: ['ResourceModelQuery', 'where()', 'orderBy()', 'limit()', 'fetchAll()', 'whereRaw()'],
             explanation: $this->explanationProvider->getExplanation('data', 'query'),
             pageTitleSuffix: ' | Semitexa Demo',
         );
