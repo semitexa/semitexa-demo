@@ -37,13 +37,13 @@ final class FilteringHandler implements TypedHandlerInterface
         $spec = new FeatureSpec(
             section: 'data',
             slug: 'filtering',
-            entryLine: 'Mark a property #[Filterable] and the ORM handles the rest — no manual WHERE clauses.',
+            entryLine: 'Mark a property #[Filterable] to index its column, then narrow the query with typed where() conditions, not SQL strings.',
             learnMoreLabel: 'See the filter attributes →',
-            deepDiveLabel: 'How filter criteria compile →',
+            deepDiveLabel: 'How the conditions compile →',
             relatedSlugs: [],
             fallbackTitle: 'Filtering',
-            fallbackSummary: 'Mark a property #[Filterable] and the ORM handles the rest, no manual WHERE clauses.',
-            fallbackHighlights: ['#[Filterable]', 'FilterableTrait', 'FilterableResourceInterface', 'getFilterCriteria()'],
+            fallbackSummary: '#[Filterable] indexes a column; the repository narrows the query with typed where() conditions.',
+            fallbackHighlights: ['#[Filterable]', 'query()->where()', 'Operator', 'Resource::column()'],
             explanation: $this->explanationProvider->getExplanation('data', 'filtering'),
             pageTitleSuffix: ' | Semitexa Demo',
         );
@@ -75,7 +75,7 @@ final class FilteringHandler implements TypedHandlerInterface
                 'eyebrow' => 'Filter Criteria',
                 'title' => 'Live filtered result set',
                 'summary' => $activeFilters !== []
-                    ? 'Applied filters narrow the dataset before repository fetch.'
+                    ? 'Status and price narrow the query; name and category then narrow the fetched rows.'
                     : ($hasFilters
                         ? 'The requested filters currently resolve to an empty demo subset.'
                         : 'No filters applied — showing the broad demo dataset.'),

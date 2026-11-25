@@ -382,7 +382,7 @@ final class DemoCatalogService
         'data/repository-workflow' => ['title' => 'Repository Workflow', 'summary' => 'The canonical Semitexa path: handlers depend on repository contracts, repositories return domain models, and persistence resources stay behind the boundary.'],
         'data/schema-sync' => ['title' => 'Schema Sync, Not Migration Churn', 'summary' => 'Semitexa creates SQL only when the real schema changed, blocks destructive drops by default, and logs the exact DDL plan as SQL and JSON.'],
         'data/query' => ['title' => 'Query Builder', 'summary' => 'Compose type-safe queries with a fluent API, no raw SQL, no magic strings.'],
-        'data/filtering' => ['title' => 'Filtering', 'summary' => 'Mark a property #[Filterable] and the ORM handles the rest, no manual WHERE clauses.'],
+        'data/filtering' => ['title' => 'Filtering', 'summary' => '#[Filterable] indexes a column; the repository narrows the query with typed where() conditions.'],
         'data/pagination' => ['title' => 'Pagination', 'summary' => 'Offset and cursor pagination out of the box, switch modes with a single query parameter.'],
         'data/relations' => ['title' => 'Relations', 'summary' => 'Declare parent and child links on the resource itself, then read typed relations from the handler.'],
         'data/table-extension' => ['title' => 'Shared Table Extension', 'summary' => 'Two modules can extend one table independently, and the ORM merges the schema without forcing either side to edit the other.'],
